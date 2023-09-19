@@ -15,6 +15,7 @@
 #include "../Components/ProjectileComponent.h"
 #include <unordered_map>
 #include "../utils/enums.h"
+#include "../utils/Xoshiro256.h"
 
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired
@@ -22,6 +23,9 @@ It also contains the algorithm for shots with multiple projectiles
 */
 
 class ProjectileEmitSystem: public System{
+    private:
+        Xoshiro256 RNG;
+
     public:
         ProjectileEmitSystem(){
             RequireComponent<ProjectileEmitterComponent>();
@@ -76,7 +80,7 @@ class ProjectileEmitSystem: public System{
                             projectilePosition.y -= 10;
                         }
 
-                        unsigned long damage = PEC.damage;
+                        unsigned long damage;
                         unsigned char parentGroupEnumInt;
 
                         // get origin data
@@ -90,10 +94,11 @@ class ProjectileEmitSystem: public System{
                             float damageCalc = static_cast<float>(damage)*((static_cast<float>(activeattack)+25)/50); // must cast to float so math works
                             damage = damageCalc; // damage rounds down
                             parentGroupEnumInt = 4; // hardcoded. must be changed if groups enum is altered!
-                            
+                            damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                         } else{
                             rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x, playerPos.y, originVelocity, isDiagonal); 
                             parentGroupEnumInt = 0; // hardcoded. must be changed if groups enum is altered!
+                            damage = PEC.damage;
                             
                         }                                                                                                       // should target centerplayer not playerpos?
                         

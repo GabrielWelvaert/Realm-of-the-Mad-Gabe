@@ -14,7 +14,7 @@
 
 
 /*
-This system is responsible for parsing box-collider collision and emitting events
+This system is responsible for parsing box-collider collision and emitting respective events
 */
 
 class CollisionSystem: public System {
@@ -138,7 +138,7 @@ class CollisionSystem: public System {
                     auto bCollider = b.GetComponent<BoxColliderComponent>();
 
                     bool projectileandvictim = projectileAndVictim(a,b);
-                    if(projectileandvictim){ // temporarily increase victim hitbox
+                    if(projectileandvictim){ // temporarily increase victim hitbox so they can indeed get headshot
                         if(b.BelongsToGroup(PROJECTILE)){
                             aCollider.height += 30; // *= 2.5
                             aCollider.offset[1] -= 30; // /= 2.5
@@ -162,21 +162,21 @@ class CollisionSystem: public System {
                         if(oneEntityIsWall(a,b)){
                             if(oneEntityIsProjectile(a,b)){ // projectile hit wall 
                                 a.BelongsToGroup(PROJECTILE) ? a.Kill() : b.Kill();
-                            } else { // player/monster hit wall; only care if bottom 1/3rd of hitbox
+                            } else { // player/monster hit wall; 
                                 a.BelongsToGroup(WALLBOX) ? eventBus->EmitEvent<CollisionEvent>(a,b,getCollisionSide(bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height,aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height)) : eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height)); //wall should be first parameter
                             }
                         } else if (projectileHitSomeone(a,b) && !projectileParentGroupSameAsVictimGroup(a,b)){//no walls; someone was shot!
                             a.BelongsToGroup(PROJECTILE) ? eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore) : eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore); 
                         } else if (playerAndBag(a,b)){ // player collided with loot bag
-                            // some flag to check if a bag is already viewed to avoid redundant computation
-                            // in the case of two bags atop one another would be good here getComponent<miscFlags>
-                            if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
-                                if(!b.GetComponent<LootBagComponent>().opened){
-                                    eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC);
-                                }
-                            } else { // a is the loot bag
-                                if(!a.GetComponent<LootBagComponent>().opened){
-                                    eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, playerIC);
+                            if(!playerIC.ptrToOpenBag){ // only open new bag if not currently viewing a bag
+                                if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
+                                    if(!b.GetComponent<LootBagComponent>().opened){ // need not open an open bag
+                                        eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC);
+                                    }
+                                } else { // a is the loot bag
+                                    if(!a.GetComponent<LootBagComponent>().opened){ // need not open an open bag
+                                        eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, playerIC);
+                                    }
                                 }
                             } 
                         }

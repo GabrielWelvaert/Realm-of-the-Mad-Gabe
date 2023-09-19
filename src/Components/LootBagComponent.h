@@ -27,6 +27,22 @@ struct LootBagComponent{
         return 0;
     }
 
+    // returns true if item is in this bag
+    bool hasItem(int id){
+        for(auto x: contents){
+            if(x.second.GetId() == id){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void printContents(){
+        for(auto x: contents){
+            std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
+        }
+    }
+
     void deleteContents(){
         for(auto & pair: contents){
             pair.second.Kill();

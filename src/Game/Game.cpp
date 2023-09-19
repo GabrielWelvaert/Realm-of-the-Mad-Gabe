@@ -76,40 +76,31 @@ Game::~Game(){
 //initialize SDL stuff 
 void Game::Initialize(){
 
-    // if SDL isn't able to initialize all needed hardware stuff:
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
-        // std::cout << "FATAL: SDL_Init(SDL_INIT_EVERYTHING) ERROR: " << SDL_Init(SDL_INIT_EVERYTHING) << std::endl;
+    if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
         exit(-1);
     } 
 
     if(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG){
-        // std::cout << "error initializing IMG_INIT_PNG or something: " << SDL_GetError() << std::endl;
         exit(-1);
     }
 
     if(TTF_Init() != 0){
-        // std::cout << "TTF did not initialize properly" << std::endl;
         exit(-1);
     }            
     
     if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ){
-        // std::cout << "SDL mixer did not load properly" << std::endl;
         exit(-1);
     }
 
     // credit to logan hudgins for informing me of the SDL_VIDEODRIVER flag
-    if (SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl") == SDL_FALSE) {
-        std::cout << SDL_GetError() << std::endl;
+    if(SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl") == SDL_FALSE) {
+        exit(-1);
     }
-
-    // SDL_GL_SetSwapInterval(0);
 
     Mix_AllocateChannels(32);
     Mix_Volume(-1, 64);
     Mix_VolumeMusic(64);
 
-    // else all is good, render window
-    // window is raw pointer to SDL_Window struct
     window = SDL_CreateWindow(
         "Realm of the Mad Gabe", 
         SDL_WINDOWPOS_CENTERED, 
@@ -122,17 +113,12 @@ void Game::Initialize(){
     SDL_SetWindowResizable(window, SDL_FALSE);
 
     if (!window){
-        // std::cout << "Window undable to load..." << std::endl;
         exit(-1);
-        return;
     }
 
-    // renderer can draw things on the window
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (!renderer){
-        // std::cout << "Renderer undable to load..." << std::endl;
+    if(!renderer){
         exit(-1);
-        return;
     }
 
     //camera stuff
@@ -142,32 +128,23 @@ void Game::Initialize(){
     camera.h = windowHeight;
 
     // algorithm for window icon 
-    // creating random number generator:
     std::random_device rd;
     std::mt19937 gen(rd()); // Mersenne Twister pseudo-random number generator
-
     SDL_Surface* atlas = IMG_Load("assets/images/lofi_portrait.png");
     std::uniform_int_distribution<> disx(0, 15); 
     std::uniform_int_distribution<> disy(0, 27); 
-
     SDL_Rect rectempty1 = {8*15,8*15,8,8}; //x,y,w,h
     SDL_Surface* empty1 = SDL_CreateRGBSurface(0, rectempty1.w, rectempty1.h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(atlas, &rectempty1, empty1, NULL);
-
     SDL_Rect portraitRect = {8*disx(gen),8*disy(gen),8,8}; //x,y,w,h
     SDL_Surface* iconsmall = SDL_CreateRGBSurface(0, portraitRect.w, portraitRect.h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL);
-
     // while iconsmall is identical to an empty portrait, re-roll a tile from portrait atlas
     while (memcmp(empty1->pixels, iconsmall->pixels, empty1->w * empty1->h * empty1->format->BytesPerPixel) == 0){
-        // std::cout << "empty icon detected; re-rolling from portrait atlas" << std::endl;
         portraitRect = {8*disx(gen),8*disy(gen),8,8}; //x,y,w,h
         iconsmall = SDL_CreateRGBSurface(0, portraitRect.w, portraitRect.h, 32, 0, 0, 0, 0);
         SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL); 
     }
-
-    //scale up from 8x8 to 32x32 so it looks nicer 
-    // SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL);
     SDL_Surface* iconlarge = SDL_CreateRGBSurface(0, 32, 32, 32, 0, 0, 0, 0);
     for (int y = 0; y < 32; y++) {
         for (int x = 0; x < 32; x++) {
@@ -190,7 +167,6 @@ void Game::Initialize(){
     }
 
     isRunning = true; 
-
 }
 
 void Game::Run(){
@@ -202,13 +178,12 @@ void Game::Run(){
     }
 }
 
-//maybe make these member attributes of Game class...
 std::bitset<5> keysPressed; 
 std::unordered_map<SDL_Keycode, int> keyindex = {
-    {SDLK_w, 0}, // instead of hash-table lookup, do keyspressedSDL_w - 199 for w
-    {SDLK_a, 1}, // - 96
-    {SDLK_s, 2}, // - 113 
-    {SDLK_d, 3}, // - 97
+    {SDLK_w, 0}, 
+    {SDLK_a, 1}, 
+    {SDLK_s, 2},  
+    {SDLK_d, 3},
     //keysPressed[4] is for LMB but its not a SDL_KeyCode! 
 };
 
@@ -280,7 +255,8 @@ void Game::ProcessInput(){
                                 // item = registry->CreateEntity();
                                 // item.AddComponent<SpriteComponent>(T8SWORD);
                                 // item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-                            
+
+
                             }
                             if(x == SDLK_3){
                                 LoadEnemy({mouseX + camera.x, mouseY + camera.y}, REDKNIGHT0); 
@@ -323,7 +299,7 @@ void Game::ProcessInput(){
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    std::cout << mouseX << " " << mouseY << std::endl;
+                    // std::cout << mouseX << " " << mouseY << std::endl;
                     keysPressed[4] = true;
                     break;
                 case SDL_MOUSEBUTTONUP: //remove this ?
@@ -354,17 +330,11 @@ struct Vec2Hash { // used in LoadTileMap algorithm
     }
 };
 
-void printIvec2Vector(std::vector<glm::ivec2> v){ // prints vector of glm::ivec2
-    for(auto x: v){
-        // std::cout << x.x << "," << x.y << " ";
-    }
-    // std::cout << std::endl;
-
-}
-
 /*
 LoadTileMap version 2.
 Params: 1) wallTheme enum 2) path to .map file
+creates three big textures for floor, ceiling, and wall tiles 
+also makes the boxCollider entities for the walls (as separate entities!) 
 */
 void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile){
     auto wallData = wallThemeToWallData.at(wallTheme);
@@ -384,7 +354,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     std::vector<glm::ivec2> wallCoordinates; // used to create contiguous boxColliders later
     std::unordered_map<glm::ivec2, glm::vec2, Vec2Hash> coordinateToPos; // used to create contiguous boxColliders later
     std::unordered_set<glm::vec2, Vec2Hash> wallCoordinatesHashSet; // used to create contiguous boxColliders later
-    
     std::ifstream file(pathToMapFile); // counting rows and columns in .map file to find map width and height
     char c;
     int rows = 1;
@@ -403,6 +372,9 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     SDL_Texture * bigFloorTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
     SDL_Texture * bigWallTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
     SDL_Texture * bigCeilingTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
+    SDL_SetTextureBlendMode(bigFloorTexture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bigWallTexture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(bigCeilingTexture, SDL_BLENDMODE_BLEND);
     SDL_Rect srcRect; 
     SDL_Rect dstRect;
     SDL_Rect srcAlpha = {wallData.alpha.x*tileSize, wallData.alpha.y*tileSize, tileSize, tileSize};
@@ -423,7 +395,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
             glm::ivec2 currentCoord = {y,x};
             bool isFloor = true;
             for(auto wall: walls){
-                // std::cout << wall.x << ", " << wall.y << " ?= " << currentCoord.x << ", " << currentCoord.y << std::endl;
                 if(currentCoord == wall){ // wall or ceiling tile 
                     isFloor = false;
                     if(currentCoord == ceiling){ // ceiling tile
@@ -437,6 +408,9 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
                         SDL_RenderCopy(renderer, spriteAtlasTexture, &srcAlpha, &dstRect);
                         SDL_SetRenderTarget(renderer, nullptr);
                     } else { // wall tile
+                        wallCoordinates.push_back(glm::ivec2(xpos,ypos)); // storing some wall information so I can make boxColliders there 
+                        coordinateToPos.insert({glm::ivec2(xpos,ypos), glm::vec2(xpos*tileSize*tileScale, ypos*tileSize*tileScale)});
+                        wallCoordinatesHashSet.insert(glm::ivec2(xpos,ypos));
                         SDL_SetRenderTarget(renderer, bigWallTexture);
                         SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
                         SDL_SetRenderTarget(renderer, nullptr);
@@ -467,140 +441,78 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     assetStore->AddTexture(renderer, BIGWALL, bigWallTexture);
     assetStore->AddTexture(renderer, BIGCEILING, bigCeilingTexture);
     assetStore->AddTexture(renderer, BIGFLOOR, bigFloorTexture);
-    // bigWallEntity.AddComponent<SpriteComponent>(BIGWALL, mapWidth, mapheight, 3, 0,0,0);
-    // bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
+    bigWallEntity.AddComponent<SpriteComponent>(BIGWALL, mapWidth, mapheight, 3, 0,0,0);
+    bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
     bigFloorEntity.AddComponent<SpriteComponent>(BIGFLOOR, mapWidth, mapheight, 0, 0,0,0);
-    // std::cout << mapWidth << std::endl;
-    // Reset the render target to the window
-    // SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
-}
-
-// LoadTileMap takes a sprite atlas of tiles and makes them entities
-// this algorithm doesn't need to be THAT fast since the player is just waiting for the level to load rather than playing 
-void Game::LoadTileMap(const textureEnums& name, const std::string& tilemap, const std::string& mappath, int tileSize = 8, double tileScale = 1.0, std::vector<glm::ivec2> walls = {}){
-    
-    const bool groupWallBoxes = true;
-    assetStore->AddTexture(renderer, name, tilemap);
-    int x = 0; // x value from given position in map
-    int y = 0; // y value from given position in map
-    int xpos = 0; //coordinate in the map 
-    int ypos = 0; //coordinate in the map 
-    int width = 0;
-    int height = 0;
-    std::vector<glm::ivec2> wallCoordinates;
-    std::unordered_map<glm::ivec2, int, Vec2Hash> coordinateToId;
-    std::unordered_set<glm::vec2, Vec2Hash> wallCoordinatesHashSet;
-    std::fstream map(mappath); // text file that is a 2d array separated by commands where each xy is a coordinate on the tilemap 
-    for (std::string line; std::getline(map, line, '\n');){
-        std::stringstream stream;
-        stream << line;
-        for (std::string tileid; std::getline(stream, tileid, ',');){
-            int value = std::stoi(tileid);
-            x = value % 10; //extract ones digit as x-place
-            y = value / 10; //extract tens digit as y-place
-            Entity tile = registry->CreateEntity(); 
-            tile.AddComponent<TransformComponent>(glm::vec2(xpos * tileScale * tileSize, ypos * tileScale * tileSize), glm::vec2(tileScale, tileScale), 0.0);
-            tile.AddComponent<SpriteComponent>(name, tileSize, tileSize, 0, x*tileSize, y*tileSize);    
-            // check if this tile is a wall or not                
-            for(auto wall: walls){ //could optimize this with an unordered_set probably
-                if(wall[0] == y && wall[1] == x){ //if its a wall
-                    if(wall == walls[walls.size()-1]){ // last wall is ceiling tile 
-                        tile.AddComponent<SpriteComponent>(name, tileSize, tileSize, 9, x*tileSize, y*tileSize);
-                    } else { // its actually a wall
-                        wallCoordinates.push_back(glm::ivec2(xpos,ypos));
-                        coordinateToId.insert({glm::ivec2(xpos,ypos), tile.GetId()});
-                        wallCoordinatesHashSet.insert(glm::ivec2(xpos,ypos));
-                        tile.AddComponent<SpriteComponent>(name, tileSize, tileSize, 3, x*tileSize, y*tileSize);
-                        if(!groupWallBoxes){
-                            tile.AddComponent<BoxColliderComponent>(tileSize*tileScale, tileSize*tileScale);
-                            tile.Group(WALLBOX);
-                        }
-                    }
-                }
-            }
-            xpos++;
-        }
-        width = xpos;
-        xpos = 0;
-        ypos++;
-    }
-    height = ypos;
-
     map.close();
-    // std::cout << width << std::endl;
-    // std::cout << height << std::endl;
-    mapWidth = width * tileSize * tileScale; //could be wrong 
-    mapheight = height * tileSize * tileScale; //could be wrong
-    //algorithm for adding contiguous boxComponents for walls that are contiguous! 
-    if(groupWallBoxes){
-        std::vector<glm::ivec2> Xclusters;
-        std::set<glm::ivec2, Vec2Comparator> solos; 
-        std::vector<glm::ivec2> Yclusters;
-        std::vector<glm::ivec2> group;
-        int id;
-        int scale = tileSize*tileScale;
-        // x-clusters
-        for(int i = 0; i < wallCoordinates.size()-1; i++){
-            if(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
-                group.push_back(wallCoordinates[i]);
-                while(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
-                    group.push_back(wallCoordinates[i+1]);
-                    i++;
-                }
-                id = coordinateToId.at(group[0]);
-                const auto& position = registry->GetComponent<TransformComponent>(id).position;
-                Entity wallbox = registry->CreateEntity();
-                wallbox.AddComponent<TransformComponent>(position);
-                wallbox.AddComponent<BoxColliderComponent>(group.size() * scale, scale);
-                wallbox.Group(WALLBOX);
-                group.clear();
-            } else { // is this wall alone? 
-                glm::vec2 above = {wallCoordinates[i].x,wallCoordinates[i].y - 1};
-                glm::vec2 below = {wallCoordinates[i].x,wallCoordinates[i].y + 1};
-                if(wallCoordinatesHashSet.find(above) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(below) == wallCoordinatesHashSet.end()){
-                    solos.insert(wallCoordinates[i]);  
-                }
+    // adding boxComponent entities where walls are: (unoptomized algorithm; not at play-time so doens't matter much)
+    std::set<glm::ivec2, Vec2Comparator> Xclusters;
+    std::set<glm::ivec2, Vec2Comparator> solos; 
+    std::vector<glm::ivec2> group;
+    int scale = tileSize*tileScale;
+    // x-clusters
+    for(int i = 0; i < wallCoordinates.size()-1; i++){
+        if(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
+            group.push_back(wallCoordinates[i]);
+            Xclusters.insert(wallCoordinates[i]);
+            while(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
+                group.push_back(wallCoordinates[i+1]);
+                Xclusters.insert(wallCoordinates[i+1]);
+                i++;
             }
-        }
-        std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) {
-            if (a.x != b.x) {return a.x < b.x;}
-            return a.y < b.y; 
-        });
-        // y-clusters
-        for(int i = 0; i < wallCoordinates.size()-1; i++){
-            if(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
-                group.push_back(wallCoordinates[i]);
-                while(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
-                    group.push_back(wallCoordinates[i+1]);
-                    i++;
-                }
-                id = coordinateToId.at(group[0]);
-                const auto& position = registry->GetComponent<TransformComponent>(id).position;
-                Entity wallbox = registry->CreateEntity();
-                wallbox.AddComponent<TransformComponent>(position);
-                wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
-                wallbox.Group(WALLBOX);
-                group.clear();
-            } else { // is this wall alone? 
-                    glm::vec2 left = {wallCoordinates[i].x-1,wallCoordinates[i].y};
-                    glm::vec2 right = {wallCoordinates[i].x+1,wallCoordinates[i].y};
-                if(wallCoordinatesHashSet.find(left) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(right) == wallCoordinatesHashSet.end()){
-                    solos.insert(wallCoordinates[i]);  
-                }
-            }
-        }
-        // solo walls 
-        for(const auto& x: solos){
-            id = coordinateToId.at(x);
-            const auto& position = registry->GetComponent<TransformComponent>(id).position;
+            const auto& position = coordinateToPos.at(group[0]);
             Entity wallbox = registry->CreateEntity();
             wallbox.AddComponent<TransformComponent>(position);
-            wallbox.AddComponent<BoxColliderComponent>(scale, scale);
+            wallbox.AddComponent<BoxColliderComponent>(group.size() * scale, scale);
             wallbox.Group(WALLBOX);
+            group.clear();
+        } else { // is this wall alone? 
+            glm::vec2 above = {wallCoordinates[i].x,wallCoordinates[i].y - 1};
+            glm::vec2 below = {wallCoordinates[i].x,wallCoordinates[i].y + 1};
+            if(wallCoordinatesHashSet.find(above) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(below) == wallCoordinatesHashSet.end()){
+                solos.insert(wallCoordinates[i]);  
+            }
         }
     }
-
+    std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) {
+        if (a.x != b.x) {return a.x < b.x;}
+        return a.y < b.y; 
+    });
+    // y-clusters
+    for(int i = 0; i < wallCoordinates.size()-1; i++){
+        if(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
+            if(Xclusters.find(wallCoordinates[i]) == Xclusters.end()){
+                group.push_back(wallCoordinates[i]);
+            }
+            while(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
+                if(Xclusters.find(wallCoordinates[i+1]) == Xclusters.end()){
+                    group.push_back(wallCoordinates[i+1]);
+                }
+                i++;
+            }
+            const auto& position = coordinateToPos.at(group[0]);
+            Entity wallbox = registry->CreateEntity();
+            wallbox.AddComponent<TransformComponent>(position);
+            wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
+            wallbox.Group(WALLBOX);
+            group.clear();
+        } else { // is this wall alone? 
+            glm::vec2 left = {wallCoordinates[i].x-1,wallCoordinates[i].y};
+            glm::vec2 right = {wallCoordinates[i].x+1,wallCoordinates[i].y};
+            if(wallCoordinatesHashSet.find(left) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(right) == wallCoordinatesHashSet.end()){
+                solos.insert(wallCoordinates[i]);  
+            }
+        }
+    }
+    // solo walls 
+    for(const auto& x: solos){
+        const auto& position = coordinateToPos.at(x);
+        Entity wallbox = registry->CreateEntity();
+        wallbox.AddComponent<TransformComponent>(position);
+        wallbox.AddComponent<BoxColliderComponent>(scale, scale);
+        wallbox.Group(WALLBOX);
+    }
 }
 
 void Game::PopulateAssetStore(){
@@ -823,10 +735,6 @@ void Game::LoadGui(classes className){
     Entity mpBar = registry->CreateEntity();
     mpBar.AddComponent<DynamicUIEntityComponent>(765,347, 225, 20, 95,133,228);
 
-    // Entity xpText = registry->CreateEntity();
-    // xpText.AddComponent<TextLabelComponent>("Lvl " + std::to_string(static_cast<int>(pbs.level)) , "uifont1", white, true,0,0,0);
-    // xpText.AddComponent<TransformComponent>(glm::vec2(767, 295), glm::vec2(1.0,1.0));
-
     Entity hpText = registry->CreateEntity();
     hpText.AddComponent<TextLabelComponent>("HP", "uifont1", white, true,0,0,0);
     hpText.AddComponent<TransformComponent>(glm::vec2(767, 323), glm::vec2(1.0,1.0));
@@ -1044,7 +952,6 @@ void Game::LoadGui(classes className){
     slotEight.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
 
     // next 8 are bag slots
-
     Entity invslotOne = registry->CreateEntity();
     invslotOne.AddComponent<TransformComponent>(glm::vec2(765, 564+44+12+1 + 10), glm::vec2(1.25,1.25));
     invslotOne.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
@@ -1201,9 +1108,9 @@ void Game::LoadPlayer(){
     player.GetComponent<ProjectileEmitterComponent>().arcgap = 1;
     player.GetComponent<ProjectileEmitterComponent>().shots = 1;
     player.GetComponent<ProjectileEmitterComponent>().damage = 100;
-    player.GetComponent<ProjectileEmitterComponent>().duration = 1000;
+    player.GetComponent<ProjectileEmitterComponent>().duration = 350;
     player.GetComponent<ProjectileEmitterComponent>().piercing = false;
-    player.GetComponent<ProjectileEmitterComponent>().projectileSpeed = 500;
+    player.GetComponent<ProjectileEmitterComponent>().projectileSpeed = 640;
     player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * basestats.dexterity + 1.5);
 }
 
@@ -1246,8 +1153,6 @@ void Game::Setup(){ // everything in setup occurs before game loop begins
     LoadPlayer(); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
     LoadGui(playerClassName);
-    // std::vector<glm::ivec2> UDL_walls = {glm::ivec2(0,0), glm::ivec2(0,1), glm::ivec2(0,2), glm::ivec2(0,3), glm::ivec2(0,4)}; //last one is always ceiling
-    // LoadTileMap(LOFIENVIRONMENT, "./assets/images/lofiEnvironment.png","./assets/tilemaps/wallTest.map", 8, 8, UDL_walls);
     LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
     LoadLevel(1);
 
@@ -1278,8 +1183,6 @@ void Game::Update(){
     // update registry to process entities that are awaitng creation/deletion and add them to system vectors
     registry->Update();
 
-    //todo: ask all systems to update
-
     // TODO PASS BY CONSTANT REFERENCE INSTANCE OF COPY WHERE APPROPRIATE
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
@@ -1299,9 +1202,8 @@ void Game::Update(){
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
-    registry->GetSystem<LootBagSystem>().Update(player, eventBus, registry, playerInventory);
+    registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, playerInventory);
-
 }
 
 void Game::Render(){
@@ -1320,8 +1222,8 @@ void Game::Render(){
 void Game::Destory(){
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    registry->GetSystem<RenderTextSystem>().killTextures();
     Mix_CloseAudio();
     Mix_Quit();
     SDL_Quit();
 }
-

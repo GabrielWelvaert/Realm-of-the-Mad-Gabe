@@ -20,6 +20,10 @@ enum swords{
     IMPBLADE
 };
 
+enum wands{};
+
+enum bows{};
+
 enum wallTheme{
     UDL,
     AOD,

@@ -14,13 +14,23 @@ this system is responsible for rendering text, which is different from rendering
 */
 
 class RenderTextSystem: public System{
-public:
-    RenderTextSystem(){
-        RequireComponent<TextLabelComponent>();
-        RequireComponent<TransformComponent>();
-    }
+    private:
+        std::unordered_map<std::string, SDL_Texture*> textTextures;
 
-    void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry){
+    public:
+        RenderTextSystem(){
+            RequireComponent<TextLabelComponent>();
+            RequireComponent<TransformComponent>();
+        }
+
+        void killTextures(){
+            for(auto x: textTextures){
+                SDL_DestroyTexture(x.second);
+            }
+            textTextures.clear();
+        }
+
+        void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry){
         for (auto entity: GetSystemEntities()){
             auto& textlabel = entity.GetComponent<TextLabelComponent>();
 
@@ -33,11 +43,17 @@ public:
             }
 
             auto& position = entity.GetComponent<TransformComponent>().position;     
-            SDL_Surface* surface = TTF_RenderText_Blended(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), textlabel.color);
-            SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-            SDL_FreeSurface(surface);
 
-            // width and height queried on first frame only; thus changing actual text is unsupported
+            SDL_Texture* texture;
+            if(textTextures.find(textlabel.text) == textTextures.end()){
+                SDL_Surface* surface = TTF_RenderText_Blended(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), textlabel.color);
+                texture = SDL_CreateTextureFromSurface(renderer, surface);
+                SDL_FreeSurface(surface);    
+                textTextures[textlabel.text] = texture;
+            } else {
+                texture = textTextures.at(textlabel.text);
+            }
+
             if(textlabel.spawnframe){
                 SDL_QueryTexture(texture, NULL, NULL, &textlabel.textwidth, &textlabel.textheight); // each char is 8 pixels wide it seems    
                 if(textlabel.isFixed){textlabel.spawnframe = false;}
@@ -64,7 +80,6 @@ public:
                 textlabel.textheight};
             
             SDL_RenderCopy(renderer, texture, NULL, &dstRect);
-            SDL_DestroyTexture(texture); // why wasn't this here before?!
 
         }
     }

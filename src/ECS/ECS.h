@@ -12,7 +12,7 @@
 #include <deque>
 #include <cmath>
 
-const unsigned int MAX_COMPONENTS = 32; //max componenets for an entity
+const unsigned int MAX_COMPONENTS = 64; //max componenets for an entity
 typedef std::bitset<MAX_COMPONENTS> Signature; //32 0's or 1's representing component signature for an entity/system
 
 struct IComponent{
@@ -244,6 +244,7 @@ class Registry {
 
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
         void printEntitiesToBeKilled() const {for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}}
+        void printNumEntities() const {std::cout << numEntities << std::endl;}
 
 };
 

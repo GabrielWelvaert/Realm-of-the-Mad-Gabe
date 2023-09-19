@@ -7,11 +7,54 @@
 #include "../../libs/glm/glm.hpp"
 #include "../../libs/SDL2/SDL.h"
 #include <memory>
+/*
+these maps, tables, vectors are used to access data associated with an enum
+it is not cache-friendly to utilize these during the game loop, but fine during events or pre-player control
+*/
 
-// these maps, tables, vectors are used to access data associated with an enum
-// it is not cache-friendly to utilize these during the game loop
-// its fine to use them before player has control, but after that, use rarely... 
-//TODO std::unordered_map<weaponEnum, weaponPECdata> weaponEnumToPECdata {};
+// contains fields-to-be updated upon equipping a new weapon (sprite, speed, duration)
+struct playerPECupdateData{
+    unsigned short duration;
+    unsigned short minDamage;
+    unsigned short maxDamage;
+    unsigned short projectileSpeed;
+    bool piercing; 
+    unsigned char shots;
+    float arcgap;
+
+    // SPRITE INFO FOR PROJECTILE!! NOT THE ITEM ITSELF!!!!
+    textureEnums spriteasetId;
+    unsigned char spriteWidth;
+    unsigned char spriteHeight;
+    SDL_Rect spriteSrcRect;
+    bool spritediagonalsprite;
+
+    unsigned short boxdwith;
+    unsigned short boxheight;
+    glm::vec2 boxoffset;
+};
+
+std::unordered_map<swords, playerPECupdateData> weaponEnumToPECdata = {
+    {T0SWORD,{350,45,90,640,false}},
+    {T1SWORD,{350,60,105,640,false}},
+    {T2SWORD,{350,75,105,640,false}},
+    {T3SWORD,{350,75,120,640,false}},
+    {T4SWORD,{350,75,135,640,false}},
+    {T5SWORD,{350,90,135,640,false}},
+    {T6SWORD,{350,30,210,640,false}},
+    {T7SWORD,{350,150,180,640,false}},
+    {T8SWORD,{350,180,255,640,false}},
+    {T9SWORD,{350,195,255,640,false}},
+    {T10SWORD,{350,210,255,640,false}},
+    {T11SWORD,{350,210,270,640,false}},
+    {T12SWORD,{350,220,275,640,false}},
+    {T13SWORD,{350,235,290,640,false}},
+    {T14SWORD,{350,250,305,640,false}},
+    {IMPBLADE,{350,90,135,550,false}}
+
+};
+std::unordered_map<wands, playerPECupdateData> weaponEnumToPECdata = {};
+std::unordered_map<bows, playerPECupdateData> weaponEnumToPECdata = {};
 
 std::vector<long> nextXPToLevelUp{0,50,200,450,800,1250,1800,2450,3200,4050,5000,6050,7200,8450,9800,11250,12800,14450,16200,18050};
 

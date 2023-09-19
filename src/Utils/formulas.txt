@@ -1,0 +1,17 @@
+pixelRange = projectile Speed * duration / 1000 
+projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000
+frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; //dex to shorts per second * 2
+player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * basestats.dexterity + 1.5);
+
+#returns projectile speed and lifetime values
+def speedAndDuration(rangeInTiles,tilesPerSecond):
+    pixelRange = rangeInTiles * 64
+    pixelsPerSecond = tilesPerSecond * 64
+    print(f"speed = {pixelsPerSecond} pixels per second")
+    pixelRange *= 1000
+    pixelRange /= pixelsPerSecond
+    duration = pixelRange
+    print(f"duration = {duration}")
+
+
+speedAndDuration(3.5,10)
