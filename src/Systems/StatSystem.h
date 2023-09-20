@@ -1,5 +1,4 @@
-#ifndef STATSYSTEM_H
-#define STATSYSTEM_H
+#pragma once 
 
 #include "../ECS/ECS.h"
 #include "../Components/BaseStatComponent.h"
@@ -53,6 +52,10 @@ class StatSystem: public System{
 
         void onDrinkStatPot(){
             //todo
+        }
+
+        void onEquipItemWithStats(){
+
         }
 
         void onLevelUp(LevelUpEvent& event){
@@ -124,6 +127,3 @@ class StatSystem: public System{
         }
 
 };
-
-
-#endif

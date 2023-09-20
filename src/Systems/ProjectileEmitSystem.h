@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include "../utils/enums.h"
 #include "../utils/Xoshiro256.h"
+#include "../Events/WeaponEquipEvent.h"
 
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired
@@ -26,14 +27,8 @@ class ProjectileEmitSystem: public System{
     private:
         Xoshiro256 RNG;
 
-    public:
-        ProjectileEmitSystem(){
-            RequireComponent<ProjectileEmitterComponent>();
-            RequireComponent<TransformComponent>();
-            // RequireComponent<OffenseStatComponent>();
-            RequireComponent<SpriteComponent>();
-        }
-
+        const soundEnums playerSounds[12] = {BLADESWING, ARROWSHOOT, MAGICSHOOT, MAGICSHOOT, BLADESWING, BLADESWING, BLADESWING, BLADESWING, MAGICSHOOT, ARROWSHOOT, MAGICSHOOT, BLADESWING};
+        const int projectilescale = 5;
         // given projectile origin and destination coordiantes and ProjectileEmitterComponent.velocity reference
         // 1) updates ProjectileEmitterComponent velocity 
         // 2) returns degrees of rotation to be added to projectile's transformComponent.rotation 
@@ -54,13 +49,45 @@ class ProjectileEmitSystem: public System{
             emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
         }
 
+
+    public:
+        ProjectileEmitSystem(){
+            RequireComponent<ProjectileEmitterComponent>();
+            RequireComponent<TransformComponent>();
+            RequireComponent<SpriteComponent>();
+        }
+
+        void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
+            eventBus->SubscribeToEvent<WeaponEquipEvent>(this, &ProjectileEmitSystem::onPlayerEquippedWeapon);
+        }
+
+        void onPlayerEquippedWeapon(WeaponEquipEvent& event){
+            auto& playerPEC = event.player.GetComponent<ProjectileEmitterComponent>();
+            const auto& itemEnum = event.itemEnum; 
+            const auto& newPECData = itemEnumToPECdata.at(itemEnum);
+            playerPEC.duration = newPECData.duration;
+            playerPEC.minDamage = newPECData.minDamage;
+            playerPEC.damage = newPECData.maxDamage;
+            playerPEC.projectileSpeed = newPECData.projectileSpeed;
+            playerPEC.piercing = newPECData.piercing;
+            playerPEC.shots = newPECData.shots;
+            playerPEC.arcgap = newPECData.arcgap;
+            playerPEC.spriteassetId = newPECData.spriteasetId;
+            playerPEC.spritewidth = newPECData.spriteWidth;
+            playerPEC.spriteheight = newPECData.spriteHeight;
+            playerPEC.spritesrcRect = newPECData.spriteSrcRect;
+            playerPEC.spritezIndex = newPECData.zIndex;
+            playerPEC.spritediagonalSprite = newPECData.spritediagonalsprite;
+            playerPEC.boxwidth = newPECData.boxdwith;
+            playerPEC.boxheight = newPECData.boxheight;
+            playerPEC.boxoffset = newPECData.boxoffset;
+        }
+
         void Update(std::unique_ptr<Registry>& registry, SDL_Rect camera, int mx, int my, glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore) {
             for (auto entity: GetSystemEntities()){
                 auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
                 if(PEC.isShooting){
                     if (SDL_GetTicks() - PEC.lastEmissionTime > PEC.repeatFrequency){ // shoot time; emit projectile!
-                        // std::cout << SDL_GetTicks() - PEC.lastEmissionTime << std::endl;
-                        const int projectilescale = 5;
                         const auto& duration = PEC.duration;
                         const auto& piercing = PEC.piercing;
                         const auto& arcgap = PEC.arcgap;
@@ -68,18 +95,14 @@ class ProjectileEmitSystem: public System{
                         const bool IsPlayer = entity.GetId() == 0;
                         const auto& parentSprite = entity.GetComponent<SpriteComponent>(); // sprite of projectile's parent
                         const auto& transform = entity.GetComponent<TransformComponent>(); // transform of projectile's parent
-                        const soundEnums playerSounds[12] = {BLADESWING, ARROWSHOOT, MAGICSHOOT, MAGICSHOOT, BLADESWING, BLADESWING, BLADESWING, BLADESWING, MAGICSHOOT, ARROWSHOOT, MAGICSHOOT, BLADESWING};
-                        // calculating origin for projectile(s)
                         const auto& isDiagonal = PEC.spritediagonalSprite;
                         auto playerCenterX = transform.position.x + ((parentSprite.width * transform.scale.x) / 2) - PEC.spritewidth * projectilescale / 2; 
                         auto playerCenterY = transform.position.y + ((parentSprite.height * transform.scale.y) / 2); // no sprite mod?
                         auto projectilePosition = glm::vec2(playerCenterX, playerCenterY); 
-                        //@@@@
                         
                         if(isDiagonal){ // diagonal sprites are huge need to adjust spawn position slightly
                             projectilePosition.y -= 10;
                         }
-
                         unsigned long damage;
                         unsigned char parentGroupEnumInt;
 

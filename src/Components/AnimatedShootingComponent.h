@@ -1,5 +1,4 @@
-#ifndef ANIMATEDSHOOTINGCOMPONENT_H
-#define ANIMATEDSHOOTINGCOMPONENT_H
+#pragma once
 
 #include "../Utils/tables.h"
 #include "../Utils/enums.h"
@@ -20,5 +19,3 @@ struct AnimatedShootingComponent{
         this->animatedShooting = false; 
     }
 };
-
-#endif

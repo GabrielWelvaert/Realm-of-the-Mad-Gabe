@@ -1,8 +1,9 @@
-#ifndef HPMPCOMPONENT_H 
-#define HPMPCOMPONENT_H
+#pragma once 
 
-#include "../Components/BaseStatComponent.h"
+// #include "../Components/BaseStatComponent.h"
 #include "../Utils/enums.h"
+#include "../Utils/tables.h"
+// #include "../Utils/factory.h"
 
 struct HPMPComponent{
     float activehp; // if < 0 you die 
@@ -39,5 +40,3 @@ struct HPMPComponent{
         : activehp(basestats.hp), activemp(basestats.mp), maxhp(basestats.hp), maxmp(basestats.mp), activewisdom(basestats.wisdom), activevitality(basestats.vitality), activedefense(basestats.defense) {
     }
 };
-
-#endif

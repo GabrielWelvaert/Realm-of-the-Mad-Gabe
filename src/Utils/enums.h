@@ -1,7 +1,7 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-enum swords{
+enum items{
     T0SWORD,
     T1SWORD,
     T2SWORD,
@@ -17,12 +17,46 @@ enum swords{
     T12SWORD,
     T13SWORD,
     T14SWORD,
-    IMPBLADE
+    IMPBLADE,
+    T0BOW,
+    T1BOW,
+    T2BOW,
+    T3BOW,
+    T4BOW,
+    T5BOW,
+    T6BOW,
+    T7BOW,
+    T8BOW,
+    T9BOW,
+    T10BOW,
+    T11BOW,
+    T12BOW,
+    T13BOW,
+    T14BOW,
+    T0WAND,
+    T1WAND,
+    T2WAND,
+    T3WAND,
+    T4WAND,
+    T5WAND,
+    T6WAND,
+    T7WAND,
+    T8WAND,
+    T9WAND,
+    T10WAND,
+    T11WAND,
+    T12WAND,
+    T13WAND,
+    T14WAND
 };
 
-enum wands{};
 
-enum bows{};
+enum enemyCategory{
+    ASC, // animated shoot chase 
+    AS, // animated shoot
+    SC, // shoot chase 
+    T, // trap
+};
 
 enum wallTheme{
     UDL,
@@ -272,7 +306,8 @@ enum textureEnums{
     LOFIOBJ2,
     BIGFLOOR,
     BIGWALL,
-    BIGCEILING
+    BIGCEILING,
+    LOFIOBJ5B
 
 };
 
@@ -385,7 +420,17 @@ enum groups{
     WALLBOX,
     GUI,
     PLAYER,
-    LOOTBAGGROUP
+    LOOTBAGGROUP,
+    SWORD,
+    WAND,
+    BOW,
+    QUIVER,
+    HELM,
+    TOME,
+    ROBE,
+    LIGHTARMOR,
+    HEAVYARMOR,
+    RING
 };
 
 

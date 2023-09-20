@@ -18,16 +18,16 @@ This system is responsible for
 
 class LootBagSystem: public System{
     private:
-        const Uint32 bagLifeTimeMs = 5000;
+        const Uint32 bagLifeTimeMs = 60000;
 
         inline bool CheckAABBCollision(double ax, double ay, double aw, double ah, double bx, double by, double bw, double bh){
-                    return (
-                        ax < bx + bw &&
-                        ax + aw > bx &&
-                        ay < by + bh &&
-                        ay + ah > by
-                    );
-                }
+            return (
+                ax < bx + bw &&
+                ax + aw > bx &&
+                ay < by + bh &&
+                ay + ah > by
+            );
+        }
 
     public:
         LootBagSystem(){

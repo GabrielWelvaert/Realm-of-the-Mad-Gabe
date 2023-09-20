@@ -21,11 +21,13 @@ This system is responsible for allowing the player to move items between loot ba
 */
 
 class ItemMovementSystem: public System{
-    private:
+    private:                                    // weapon, ability, armor, ring
+        std::vector<glm::vec2> equipPositions = {{773.5,458.5}, {830.5,458.5}, {886.5,458.5}, {942.5,458.5}};
+
         // parameters: position of item 1, host std::map of item 1, transform of item 1 destination position of item, destination std::map of item, glm::vec2 for destination sprite position
         // last parameter is only needed in the case that there does not exist at item in the destPos to see its transform.position from!
         // if destination does not contain item, will move instead of swap
-        inline void swapOrMoveItemPositions(const unsigned int& item1pos, std::map<unsigned char, Entity>& contents1, const glm::vec2& item1OriginalTransformPos, const unsigned int& destPos, std::map<unsigned char, Entity>& destBag, const glm::vec2& destTransformPos){
+        inline void swapOrMoveItemPositions(const unsigned int& item1pos, std::map<unsigned char, Entity>& contents1, const glm::vec2& item1OriginalTransformPos, const unsigned int& destPos, std::map<unsigned char, Entity>& destBag, const glm::vec2& destTransformPos, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, Entity player){
             if(contents1 == destBag && item1pos == destPos) {
                 // std::cout << "same spot and bag case detected" << std::endl;
                 auto& item1 = contents1.at(item1pos);
@@ -33,16 +35,35 @@ class ItemMovementSystem: public System{
                 return;
             } // same spot and bag, return
             if(destBag.find(destPos) != destBag.end()){ // item found in desintation spot; swap
-                std::cout << "attempting item swap" << std::endl;
+                // std::cout << "attempting item swap" << std::endl;
                 std::pair<unsigned char, Entity> tempitem = *contents1.find(item1pos);
                 auto& item1 = contents1.at(item1pos);
                 auto& item2 = destBag.at(destPos);
                 auto& item1TransformPosition = item1.GetComponent<TransformComponent>().position;
                 auto& item2TranformPosition = item2.GetComponent<TransformComponent>().position;
-                item1TransformPosition = item2TranformPosition;
-                item2TranformPosition = item1OriginalTransformPos;
                 auto& item1ic = item1.GetComponent<ItemComponent>();
                 auto& item2ic = item2.GetComponent<ItemComponent>();
+                if(item1OriginalTransformPos.y < 506){ // grabbed item is from equipment slot! 
+                    const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+                    if(item1OriginalTransformPos == equipPositions[0]){ // grabbed item from weapon slot
+                        if(itemToGroup.at(item2ic.itemEnum) == validWeapons.at(classname)){
+                            std::cout << item2ic.itemEnum << std::endl;
+                            eventBus->EmitEvent<WeaponEquipEvent>(item2ic.itemEnum, player);
+                            assetStore->PlaySound(INVENTORY);    
+                        } else {
+                            item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                            assetStore->PlaySound(ERROR);
+                        }
+                    } else if(item1OriginalTransformPos == equipPositions[1]){ // grabbed item from ability slot 
+
+                    } else if(item1OriginalTransformPos == equipPositions[2]){ // grabbed item from armor slot
+
+                    } else if(item1OriginalTransformPos == equipPositions[3]){ // grabbed item from ring alot
+
+                    }
+                }
+                item1TransformPosition = item2TranformPosition;
+                item2TranformPosition = item1OriginalTransformPos;
                 item1ic.lastPosition = destPos;
                 item2ic.lastPosition = item1pos;
                 item1ic.hostMap = &destBag;
@@ -66,7 +87,9 @@ class ItemMovementSystem: public System{
             RequireComponent<ItemComponent>();
         }
 
-        void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, PlayerItemsComponent& playerInventory){ // todo pass player inventory component and equipment component (use maps!)
+        void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player){ // todo pass player inventory component and equipment component (use maps!)
+            auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
+            const auto& classname = player.GetComponent<ClassNameComponent>().classname;
             for(const auto& entity: GetSystemEntities()){ // gets all visible items (only items have mouseBoxComponent)
                 const auto& mb = entity.GetComponent<MouseBoxComponent>();
                 auto& transform = entity.GetComponent<TransformComponent>();
@@ -112,24 +135,24 @@ class ItemMovementSystem: public System{
                             if(mx > 877){ // spot 7 or 8
                                 if(mx > 934){ // spot 8
                                     std::cout << "spot 8 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 8, *playerInventory.ptrToOpenBag, {942.5,696.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 8, *playerInventory.ptrToOpenBag, {942.5,696.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else { // spot 7
                                     std::cout << "spot 7 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 7, *playerInventory.ptrToOpenBag, {886.5,696.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 7, *playerInventory.ptrToOpenBag, {886.5,696.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 }
                             } else { // spot 5 or 6
                                 if(mx > 819){ // 6
                                     std::cout << "spot 6 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 6, *playerInventory.ptrToOpenBag, {830.5,696.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 6, *playerInventory.ptrToOpenBag, {830.5,696.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else { // 5
                                     std::cout << "spot 5 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 5, *playerInventory.ptrToOpenBag, {773.5,696.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 5, *playerInventory.ptrToOpenBag, {773.5,696.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 }
@@ -138,24 +161,24 @@ class ItemMovementSystem: public System{
                             if(mx > 877){ // 3 or 4
                                 if(mx > 934){ // 4
                                     std::cout << "spot 4 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, *playerInventory.ptrToOpenBag, {942.5,639.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, *playerInventory.ptrToOpenBag, {942.5,639.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else { // 3
                                     std::cout << "spot 3 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, *playerInventory.ptrToOpenBag, {886.5,639.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, *playerInventory.ptrToOpenBag, {886.5,639.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 }
                             } else { //1 or 2 
                                 if(mx>819){
                                     std::cout << "spot 2 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, *playerInventory.ptrToOpenBag, {830.5,639.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, *playerInventory.ptrToOpenBag, {830.5,639.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else {
                                     std::cout << "spot 1 lootbag drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, *playerInventory.ptrToOpenBag, {773.5,639.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, *playerInventory.ptrToOpenBag, {773.5,639.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 }
@@ -167,24 +190,24 @@ class ItemMovementSystem: public System{
                                 if(mx > 877){ // 8 or 7
                                     if(mx > 934){ // 8
                                         std::cout << "spot 8 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 8, playerInventory.inventory, {942.5,572.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 8, playerInventory.inventory, {942.5,572.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     } else { // 7
                                         std::cout << "spot 7 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 7, playerInventory.inventory, {886.5,572.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 7, playerInventory.inventory, {886.5,572.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     }
                                 } else { // 5 or 6
                                     if(mx > 819){ // 6
                                         std::cout << "spot 6 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 6, playerInventory.inventory, {830.5,572.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 6, playerInventory.inventory, {830.5,572.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     } else { // 5
                                         std::cout << "spot 5 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 5, playerInventory.inventory, {773.5,572.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 5, playerInventory.inventory, {773.5,572.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     }
@@ -193,24 +216,24 @@ class ItemMovementSystem: public System{
                                 if(mx > 877){ // 3 or 4 
                                     if(mx > 934){ // 4
                                         std::cout << "spot 4 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, playerInventory.inventory, {942.5,515.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, playerInventory.inventory, {942.5,515.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     } else { // 3
                                         std::cout << "spot 3 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, playerInventory.inventory, {886.5,515.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, playerInventory.inventory, {886.5,515.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     }
                                 } else {// 1 or 2
                                     if(mx > 819){ // 2
                                         std::cout << "spot 2 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, playerInventory.inventory, {830.5,515.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, playerInventory.inventory, {830.5,515.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     } else { // 1
                                         std::cout << "spot 1 inventory drop" << std::endl;
-                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, playerInventory.inventory, {773.5,515.5});
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, playerInventory.inventory, {773.5,515.5}, eventBus, assetStore, player);
                                         assetStore->PlaySound(INVENTORY);
                                         return;
                                     }
@@ -220,25 +243,31 @@ class ItemMovementSystem: public System{
                             if(mx > 877){
                                 if(mx > 934){ // ring
                                     std::cout << "ring spot drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, playerInventory.equipment, {942.5,458.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 4, playerInventory.equipment, {942.5,458.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else { // armor
                                     std::cout << "armor spot drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, playerInventory.equipment, {886.5,458.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 3, playerInventory.equipment, {886.5,458.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 }
                             } else {
                                 if(mx > 819){ // ability
                                     std::cout << "ability spot drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, playerInventory.equipment, {830.5,458.5});
+                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 2, playerInventory.equipment, {830.5,458.5}, eventBus, assetStore, player);
                                     assetStore->PlaySound(INVENTORY);
                                     return;
                                 } else { // weapon
                                     std::cout << "weapon spot drop" << std::endl;
-                                    swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, playerInventory.equipment, {773.5,458.5});
-                                    assetStore->PlaySound(INVENTORY);
+                                    if(itemToGroup.at(ic.itemEnum) == validWeapons.at(classname)){
+                                        swapOrMoveItemPositions(ic.lastPosition, *ic.hostMap, playerInventory.heldItemStartingTransformComp, 1, playerInventory.equipment, {773.5,458.5}, eventBus, assetStore, player);
+                                        eventBus->EmitEvent<WeaponEquipEvent>(ic.itemEnum, player);
+                                        assetStore->PlaySound(INVENTORY);    
+                                    } else {
+                                        transform.position = playerInventory.heldItemStartingTransformComp;
+                                        assetStore->PlaySound(ERROR);
+                                    }
                                     return;
                                 }
                             }

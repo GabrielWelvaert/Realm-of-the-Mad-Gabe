@@ -1,9 +1,8 @@
-#ifndef ANIMATIONCOMPONENT_H
-#define ANIMATIONCOMPONENT_H
-
-#include "../../libs/SDL2/SDL.h"
+#pragma once
+// #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
+// #include "../Utils/factory.h"
 
 struct AnimationComponent{
     long numFrames;
@@ -31,5 +30,3 @@ struct AnimationComponent{
     }
 
 };
-
-#endif 

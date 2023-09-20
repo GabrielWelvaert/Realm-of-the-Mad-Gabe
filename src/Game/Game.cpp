@@ -1,59 +1,35 @@
 #include "Game.h"
-#include "../ECS/ECS.h"
 #include "../../libs/SDL2/SDL_image.h"
 #include "../../libs/SDL2/SDL.h"
 #include "../../libs/SDL2/SDL_mixer.h"
 #include <iostream>
 #include "../../libs/glm/glm.hpp"
 #include <random>
-#include "../Components/TransformComponent.h"
-#include "../Components/RigidBodyComponent.h"
-#include "../Components/AnimationComponent.h"
-#include "../Components/BoxColliderComponent.h"
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Systems/CollisionSystem.h"
-#include "../Components/TransformComponent.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/DamageSystem.h"
 #include "../Systems/KeyboardMovementSystem.h"
-#include "../Components/KeyboardControlledComponent.h"
 #include "../Systems/RenderColliderSystem.h"
 #include <fstream>
 #include <sstream>
-#include "../Components/CameraFollowComponent.h"
 #include "../Systems/CameraMovementSystem.h"
-#include "../Components/ProjectileEmitterComponent.h"
 #include "../Systems/ProjectileEmitSystem.h"
 #include "../Systems/ProjectileLifeCycleSystem.h"
-#include "../Utils/enums.h"
 #include "../Systems/ArtificialIntelligenceSystem.h"
-#include "../Components/TextLabelComponent.h"
 #include "../Systems/RenderTextSystem.h"
 #include "../Systems/StatSystem.h"
-#include "../Components/BaseStatComponent.h"
-#include "../Components/HPMPComponent.h"
-#include "../Components/OffenseStatComponent.h"
-#include "../Components/SpeedStatComponent.h"
-#include "../Components/ClassNameComponent.h"
 #include <filesystem>
-#include "../Utils/tables.h"
-#include "../Components/DynamicUIEntityComponent.h"
 #include "../Systems/DynamicUIRenderSystem.h"
 #include "../Systems/UpdateDisplayStatTextSystem.h"
-#include "../Components/DisplayStatComponent.h"
 #include "../Utils/colors.h"
-#include "../Components/AnimatedShootingComponent.h"
-#include "../Components/CollisionFlagComponent.h"
 #include "../Systems/ProjectileMovementSystem.h"
-#include "../Components/LootBagComponent.h"
-#include "../Components/InteractUIComponent.h"
 #include "../Systems/InteractUISystem.h"
 #include "../Systems/LootBagSystem.h"
 #include "../Systems/RenderMouseBoxSystem.h"
 #include "../Systems/ItemMovementSystem.h"
-#include "../Components/ItemComponent.h"
-#include "../Components/PlayerItemsComponent.h"
+#include "../Utils/factory.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -61,6 +37,7 @@ int Game::mapWidth; //in pixels, initialized when loading level
 int Game::mapheight; //in pixels, initialized when loading level
 int Game::mouseX;
 int Game::mouseY;
+Factory factory;
 
 Game::Game(){
     isRunning = false;
@@ -75,28 +52,11 @@ Game::~Game(){
 
 //initialize SDL stuff 
 void Game::Initialize(){
-
-    if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
-        exit(-1);
-    } 
-
-    if(IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG){
-        exit(-1);
-    }
-
-    if(TTF_Init() != 0){
-        exit(-1);
-    }            
-    
-    if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ){
-        exit(-1);
-    }
-
-    // credit to logan hudgins for informing me of the SDL_VIDEODRIVER flag
-    if(SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl") == SDL_FALSE) {
-        exit(-1);
-    }
-
+    SDL_Init(SDL_INIT_EVERYTHING);
+    IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
+    Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 );
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl"); // shoutout logan h. for finding SDL_VIDEODRIVER 
     Mix_AllocateChannels(32);
     Mix_Volume(-1, 64);
     Mix_VolumeMusic(64);
@@ -112,14 +72,7 @@ void Game::Initialize(){
 
     SDL_SetWindowResizable(window, SDL_FALSE);
 
-    if (!window){
-        exit(-1);
-    }
-
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(!renderer){
-        exit(-1);
-    }
 
     //camera stuff
     camera.x = 0;
@@ -210,51 +163,14 @@ void Game::ProcessInput(){
                             }
                             if(x == SDLK_2){
                                 glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                                Entity testlootbag = registry->CreateEntity();
-                                testlootbag.AddComponent<SpriteComponent>(BROWNLOOTBAG);
-                                testlootbag.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0,5.0));
-                                testlootbag.AddComponent<BoxColliderComponent>(LOOTBAG);
-                                testlootbag.AddComponent<LootBagComponent>();
-                                testlootbag.Group(LOOTBAGGROUP);
-
-                                Entity item = registry->CreateEntity();
-                                item.AddComponent<SpriteComponent>(T0SWORD);
-                                auto& lbc = testlootbag.GetComponent<LootBagComponent>();
-                                unsigned char pos = lbc.addItem(item);
-                                item.AddComponent<ItemComponent>(pos, testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                Entity item2 = registry->CreateEntity();
-                                item2.AddComponent<SpriteComponent>(IMPBLADE);
-                                pos = lbc.addItem(item2);
-                                item2.AddComponent<ItemComponent>(pos, testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                item = registry->CreateEntity();
-                                item.AddComponent<SpriteComponent>(T14SWORD);
-                                item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                item = registry->CreateEntity();
-                                item.AddComponent<SpriteComponent>(T13SWORD);
-                                item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                item = registry->CreateEntity();
-                                item.AddComponent<SpriteComponent>(T12SWORD);
-                                item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                // item = registry->CreateEntity();
-                                // item.AddComponent<SpriteComponent>(T11SWORD);
-                                // item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                // item = registry->CreateEntity();
-                                // item.AddComponent<SpriteComponent>(T10SWORD);
-                                // item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                // item = registry->CreateEntity();
-                                // item.AddComponent<SpriteComponent>(T9SWORD);
-                                // item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
-
-                                // item = registry->CreateEntity();
-                                // item.AddComponent<SpriteComponent>(T8SWORD);
-                                // item.AddComponent<ItemComponent>(lbc.addItem(item), testlootbag.GetId(), testlootbag.GetCreationId(), lbc.contents);
+                            
+                                Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                                auto& lbc = lootbag.GetComponent<LootBagComponent>();
+                                factory.createItemInBag(registry, T13SWORD, lbc);
+                                factory.createItemInBag(registry, IMPBLADE, lbc);
+                                factory.createItemInBag(registry, T14SWORD, lbc);
+                                factory.createItemInBag(registry, T2SWORD, lbc);
+                                factory.createItemInBag(registry, T6SWORD, lbc);
 
 
                             }
@@ -529,6 +445,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIOBJ5, "./assets/images/lofiObj5.png");
     assetStore->AddTexture(renderer, LOFIOBJ2, "./assets/images/lofiObj2.png");
     assetStore->AddTexture(renderer, LOFIENVIRONMENT, "./assets/images/lofiEnvironment.png");
+    assetStore->AddTexture(renderer, LOFIOBJ5B, "./assets/images/lofiObj5b.png");
     
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -993,84 +910,8 @@ void Game::LoadGui(classes className){
     invslotEight.AddComponent<InteractUIComponent>();
 }
 
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------ //
-
-typedef void (*spawnFunction)(std::unique_ptr<Registry>&, glm::vec2, sprites);
-
-// the spawn functions live here in Game.cpp
-// used to spawn SKELETON0 or monsters that are identifical in instantiation process (8x8 with ASC, ACAI, rigidbody)
-void spawnSKELETON0(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-    Entity enemy = registry->CreateEntity();
-    enemy.AddComponent<HPMPComponent>(spriteEnum);
-    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-    enemy.AddComponent<TransformComponent>(spawnpoint);
-    enemy.AddComponent<SpriteComponent>(spriteEnum);
-    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-    enemy.AddComponent<AnimatedChaseAIComponent>(spriteEnum);
-    enemy.AddComponent<RidigBodyComponent>();
-    enemy.AddComponent<SpeedStatComponent>(spriteEnum);
-    enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-    enemy.AddComponent<AnimationComponent>(spriteEnum);
-    enemy.AddComponent<CollisionFlagComponent>();
-    enemy.Group(MONSTER);
-}
-
-void spawnSKELETON3(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-    Entity enemy = registry->CreateEntity();
-    enemy.AddComponent<HPMPComponent>(spriteEnum);
-    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-    enemy.AddComponent<TransformComponent>(spawnpoint);
-    enemy.AddComponent<SpriteComponent>(spriteEnum);
-    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-    enemy.AddComponent<AnimatedNeutralAIComponent>(spriteEnum);
-    enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-    enemy.AddComponent<AnimationComponent>(spriteEnum);
-    enemy.AddComponent<CollisionFlagComponent>();
-    enemy.Group(MONSTER);
-}
-
-void spawnREDKNIGHT0(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-    Entity enemy = registry->CreateEntity();
-    enemy.AddComponent<HPMPComponent>(spriteEnum);
-    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-    enemy.AddComponent<TransformComponent>(spawnpoint);
-    enemy.AddComponent<SpriteComponent>(spriteEnum);
-    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-    enemy.AddComponent<ChaseAIComponent>(spriteEnum);
-    enemy.AddComponent<SpeedStatComponent>(spriteEnum);
-    enemy.AddComponent<CollisionFlagComponent>();
-    enemy.AddComponent<RidigBodyComponent>();
-    enemy.Group(MONSTER);
-}
-
-void spawnSHATTERSBOMB(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-    Entity enemy = registry->CreateEntity();
-    enemy.AddComponent<HPMPComponent>(spriteEnum);
-    enemy.AddComponent<AnimationComponent>(1,4,0);
-    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-    enemy.AddComponent<TransformComponent>(spawnpoint);
-    enemy.AddComponent<SpriteComponent>(spriteEnum);
-    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-    enemy.AddComponent<CollisionFlagComponent>();
-    enemy.AddComponent<TrapAIComponent>(spriteEnum);
-    enemy.Group(MONSTER);
-
-}
-
-std::unordered_map<sprites, spawnFunction> spriteToSpawnFunction = {
-        {SKELETON0, spawnSKELETON0}, // call via spriteToSpawnFunction[SKELTON0](registry, spawnpos, sprites)
-        {SKELETON1, spawnSKELETON0},
-        {SKELETON2, spawnSKELETON0},
-        {SKELETON4, spawnSKELETON0},
-        {SKELETON3, spawnSKELETON3},
-        {REDKNIGHT0, spawnREDKNIGHT0},
-        {SHATTERSBOMB, spawnSHATTERSBOMB}
-};
-
-// ------------------------------------------------------------------------------------------------------------------------------------------------------------ //
-
 void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
-    spriteToSpawnFunction[spriteEnum](registry, spawnpoint, spriteEnum);
+    factory.spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
 void Game::LoadPlayer(){
@@ -1105,9 +946,10 @@ void Game::LoadPlayer(){
     const auto& basestats = player.GetComponent<BaseStatComponent>();
     player.AddComponent<ProjectileEmitterComponent>(player, bladebox, bladesprite),
     player.GetComponent<ProjectileEmitterComponent>().parent = player;
-    player.GetComponent<ProjectileEmitterComponent>().arcgap = 1;
+    player.GetComponent<ProjectileEmitterComponent>().arcgap = 0;
     player.GetComponent<ProjectileEmitterComponent>().shots = 1;
-    player.GetComponent<ProjectileEmitterComponent>().damage = 100;
+    player.GetComponent<ProjectileEmitterComponent>().damage = 200;
+    player.GetComponent<ProjectileEmitterComponent>().minDamage = 100;
     player.GetComponent<ProjectileEmitterComponent>().duration = 350;
     player.GetComponent<ProjectileEmitterComponent>().piercing = false;
     player.GetComponent<ProjectileEmitterComponent>().projectileSpeed = 640;
@@ -1179,6 +1021,7 @@ void Game::Update(){
     registry->GetSystem<StatSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<UpdateDisplayStatTextSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<InteractUISystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
     
     // update registry to process entities that are awaitng creation/deletion and add them to system vectors
     registry->Update();
@@ -1203,7 +1046,7 @@ void Game::Update(){
     registry->GetSystem<DamageSystem>().Update(deltaTime);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
-    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, playerInventory);
+    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player);
 }
 
 void Game::Render(){
