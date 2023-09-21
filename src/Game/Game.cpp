@@ -171,6 +171,9 @@ void Game::ProcessInput(){
                                 factory.createItemInBag(registry, T14SWORD, lbc);
                                 factory.createItemInBag(registry, T2SWORD, lbc);
                                 factory.createItemInBag(registry, T6SWORD, lbc);
+                                factory.createItemInBag(registry, T13HEAVYARMOR, lbc);
+                                factory.createItemInBag(registry, T10HEAVYARMOR, lbc);
+                                factory.createItemInBag(registry, T14ROBE, lbc);
 
 
                             }
@@ -446,6 +449,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIOBJ2, "./assets/images/lofiObj2.png");
     assetStore->AddTexture(renderer, LOFIENVIRONMENT, "./assets/images/lofiEnvironment.png");
     assetStore->AddTexture(renderer, LOFIOBJ5B, "./assets/images/lofiObj5b.png");
+    assetStore->AddTexture(renderer, LOFIOBJ6, "./assets/images/lofiObj6.png");
     
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");

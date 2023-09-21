@@ -10,6 +10,7 @@
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/enums.h"
 #include "../Events/LevelUpEvent.h"
+#include "../Events/EquipItemWithStatsEvent.h"
 #include "../Events/UpdateDisplayStatEvent.h"
 #include "../Utils/tables.h"
 
@@ -48,14 +49,41 @@ class StatSystem: public System{
         // TODO: event stuff
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
             eventBus->SubscribeToEvent<LevelUpEvent>(this, &StatSystem::onLevelUp);
+            eventBus->SubscribeToEvent<EquipItemWithStatsEvent>(this, &StatSystem::onEquipItemWithStats);
         }
 
         void onDrinkStatPot(){
             //todo
         }
 
-        void onEquipItemWithStats(){
-
+        void onEquipItemWithStats(EquipItemWithStatsEvent& event){
+            auto& hpmp = event.player.GetComponent<HPMPComponent>();
+            auto& offensestats = event.player.GetComponent<OffenseStatComponent>();
+            auto& speed = event.player.GetComponent<SpeedStatComponent>().activespeed;
+            auto& newItemStats = itemEnumToStatData.at(event.newItem);
+            std::cout << "before: " << static_cast<int>(hpmp.activedefense) << std::endl;
+            if(event.unequip){
+                auto& oldItemStats = itemEnumToStatData.at(event.previousItem);
+                hpmp.maxhp -= oldItemStats.hp;
+                hpmp.maxmp -= oldItemStats.mp;
+                hpmp.activedefense -= oldItemStats.defense;
+                hpmp.activevitality -= oldItemStats.vitality;
+                hpmp.activewisdom -= oldItemStats.wisdom;
+                speed -= oldItemStats.speed;
+                offensestats.activeattack -= oldItemStats.attack;
+                offensestats.activedexterity -= oldItemStats.dexterity;
+            } 
+            if(event.equip){
+                hpmp.maxhp += newItemStats.hp;
+                hpmp.maxmp += newItemStats.mp;
+                hpmp.activedefense += newItemStats.defense;
+                hpmp.activevitality += newItemStats.vitality;
+                hpmp.activewisdom += newItemStats.wisdom;
+                speed += newItemStats.speed;
+                offensestats.activeattack += newItemStats.attack;
+                offensestats.activedexterity += newItemStats.dexterity;
+            }   
+            std::cout << "after: " << static_cast<int>(hpmp.activedefense) << std::endl;
         }
 
         void onLevelUp(LevelUpEvent& event){

@@ -61,7 +61,7 @@ class UpdateDisplayStatTextSystem: public System{
             std::string defdisplayString = std::to_string(hpmp.activedefense);
             color = grey;
             if(hpmp.activedefense > pbs.defense){
-                defdisplayString += " (+" + std::to_string(hpmp.activedefense - pbs.attack) + ")";
+                defdisplayString += " (+" + std::to_string(hpmp.activedefense - pbs.defense) + ")";
                 color = statgreen;
             }
             if(pbs.defense == maxStats[classname][DEFENSE]){

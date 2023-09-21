@@ -4,23 +4,7 @@
 #include <vector>
 #include <unordered_map>
 #include "../Utils/enums.h"
-
-struct BaseStatData{
-    unsigned short hp;
-    unsigned short mp;
-    unsigned char attack;
-    unsigned char defense;
-    unsigned char speed;
-    unsigned char dexterity;
-    unsigned char vitality;
-    unsigned char wisdom;
-};
-
-std::unordered_map<classes, BaseStatData> classToBaseStats = {
-    {ARCHER, {130,100,12,0,12,12,12,10}},
-    {WARRIOR, {200,100,15,0,7,10,10,10}},
-    {PRIEST, {100,100,12,0,12,12,10,15}}
-};
+#include "../Utils/tables.h"
 
 // base stat components are only used by player 
 // they're updated at leveling up and using stat pots
