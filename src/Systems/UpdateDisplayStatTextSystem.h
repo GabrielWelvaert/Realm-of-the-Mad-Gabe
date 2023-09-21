@@ -17,6 +17,7 @@
 
 /*
 This system updates the display strings for xp, hp, and mp. They are only displayed and updated when mouse pos > 750
+They are rendered in RenderTextSystem
 */
 
 class UpdateDisplayStatTextSystem: public System{
@@ -142,9 +143,7 @@ class UpdateDisplayStatTextSystem: public System{
             auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
             auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
             if (mx > 750 && mx < 1000 && my > 295 && my < 351){
-                hptext.invisible = false;
-                mptext.invisible = false;
-                xptext.invisible = false;
+                hptext.invisible = mptext.invisible = xptext.invisible = false;
                 const auto& pbs = player.GetComponent<BaseStatComponent>();
                 const auto& hpmp = player.GetComponent<HPMPComponent>();
                 const auto& classname = player.GetComponent<ClassNameComponent>().classname;

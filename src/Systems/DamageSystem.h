@@ -1,5 +1,4 @@
-#ifndef DAMAGESYSTEM_H
-#define DAMAGESYSTEM_H
+#pragma once
 
 #include "../ECS/ECS.h"
 #include "../Components/BoxColliderComponent.h"
@@ -204,6 +203,3 @@ class DamageSystem: public System{
         }
 
 };
-
-
-#endif

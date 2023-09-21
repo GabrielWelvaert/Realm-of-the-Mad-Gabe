@@ -6,14 +6,13 @@
 #include <map>
 
 struct ItemComponent{
+    items itemEnum;
     unsigned char lastPosition;
-    unsigned int creationIdOfParentBag; //maybe not needed
-    int idOfParentBag; //maybe not needed
     std::map<unsigned char, Entity>* hostMap;
 
     ItemComponent() = default;
 
-    ItemComponent(unsigned char lastPosition, int idOfParentBag, unsigned int creationIdOfParentBag, std::map<unsigned char, Entity>& hostMap)
-        : lastPosition(lastPosition), creationIdOfParentBag(creationIdOfParentBag), idOfParentBag(idOfParentBag), hostMap(&hostMap) {}
+    ItemComponent(items itemEnum, unsigned char lastPosition, std::map<unsigned char, Entity>& hostMap)
+        : itemEnum(itemEnum), lastPosition(lastPosition), hostMap(&hostMap) {}
 
 };

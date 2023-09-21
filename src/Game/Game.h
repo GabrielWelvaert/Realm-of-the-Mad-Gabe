@@ -23,7 +23,7 @@ class Game{
         std::unique_ptr<AssetStore> assetStore;
         std::unique_ptr<Registry> registry; 
         std::unique_ptr<EventBus> eventBus;
-        const bool debug = false;
+        const bool debug = true;
         Entity player;
         Xoshiro256 RNG;
 

@@ -1,5 +1,4 @@
-#ifndef SPRITECOMPONENT_H
-#define SPRITECOMPONENT_H
+#pragma once 
 
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
@@ -59,8 +58,8 @@ struct SpriteComponent {
         this->flip = SDL_FLIP_NONE;
     }
 
-    SpriteComponent(swords swordEnum){
-        spritedata data = swordEnumToSpriteData.at(swordEnum);
+    SpriteComponent(items itemEnum){
+        spritedata data = itemEnumTospriteData.at(itemEnum);
         this->assetId = data.assetId;
         this->width = data.width;
         this->height = data.height;
@@ -72,5 +71,3 @@ struct SpriteComponent {
     }
 
 };
-
-#endif

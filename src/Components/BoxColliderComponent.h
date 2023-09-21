@@ -1,5 +1,4 @@
-#ifndef BOXCOLLIDERCOMPONENT_H 
-#define BOXCOLLIDERCOMPONENT_H
+#pragma once 
 
 #include "../../libs/SDL2/SDL.h"
 #include "../../libs/glm/glm.hpp"
@@ -34,5 +33,3 @@ struct BoxColliderComponent {
     }
 
 };
-
-#endif

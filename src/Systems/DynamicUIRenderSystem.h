@@ -1,6 +1,4 @@
-#ifndef UIRENDERSYSTEM_H
-#define UIRENDERSYSTEM_H
-
+#pragma once
 #include "../../libs/SDL2/SDL.h"
 #include "../../libs/SDL2/SDL_image.h"
 #include "../ECS/ECS.h"
@@ -65,5 +63,3 @@ class DynamicUIRenderSystem: public System{
 
         }
 };
-
-#endif 

@@ -12,7 +12,8 @@ struct ProjectileEmitterComponent{
     unsigned short repeatFrequency; // ms per shot 
     unsigned short duration; // ms until death of projectile
     Entity parent;  // parent
-    unsigned short damage; // only used by player
+    unsigned short damage; // max damage 
+    unsigned short minDamage; // used by player; damage between minDamage and damage;
     unsigned short projectileSpeed;  
     Uint32 lastEmissionTime; // last time we shot a projectile from SDL_GetTicks()
     bool piercing;
