@@ -66,7 +66,14 @@ class ItemMovementSystem: public System{
                             return;
                         }
                     } else if(item1OriginalTransformPos == equipPositions[3]){ // grabbed item from ring alot
-
+                        if(itemToGroup.at(item2ic.itemEnum) == RING){
+                            eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item1ic.itemEnum, true, item2ic.itemEnum, player);
+                            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        } else {
+                            item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                            assetStore->PlaySound(ERROR);
+                            return;
+                        }
                     }
                 /*item is actually dropped in (two items involved)*/
                 } else { // grabbed item not from equipment slot; item1 is item to equip
@@ -92,7 +99,14 @@ class ItemMovementSystem: public System{
                         }
 
                     } else if(destTransformPos == equipPositions[3]){ // dropping item into occupied ring slot
-
+                        if(itemToGroup.at(item1ic.itemEnum) == RING){
+                            eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item2ic.itemEnum, true, item1ic.itemEnum, player);
+                            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        } else {
+                            item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                            assetStore->PlaySound(ERROR);
+                            return;
+                        }
                     }
                 }
                 item1TransformPosition = item2TranformPosition;
@@ -130,7 +144,14 @@ class ItemMovementSystem: public System{
                     }
 
                 } else if(destTransformPos == equipPositions[3]){ // dropping item into vacant ring slot
-
+                    if(itemToGroup.at(ic.itemEnum) == RING){
+                        eventBus->EmitEvent<EquipItemWithStatsEvent>(false, ic.itemEnum, true, ic.itemEnum, player);
+                        eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                    } else {
+                        item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                        assetStore->PlaySound(ERROR);
+                        return;
+                    }
                 }
                 if(item1OriginalTransformPos.y < 506 && (itemEnumToStatData.find(ic.itemEnum) != itemEnumToStatData.end())){ // equipped item was unequipped had stat component: must subtract stats
                     eventBus->EmitEvent<EquipItemWithStatsEvent>(true, ic.itemEnum, false, ic.itemEnum, player);

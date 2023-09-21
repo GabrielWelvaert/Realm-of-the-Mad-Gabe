@@ -166,9 +166,9 @@ void Game::ProcessInput(){
                             
                                 Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                                 auto& lbc = lootbag.GetComponent<LootBagComponent>();
-                                factory.createItemInBag(registry, T13SWORD, lbc);
+                                factory.createItemInBag(registry, ATTACKPENDANT, lbc);
                                 factory.createItemInBag(registry, IMPBLADE, lbc);
-                                factory.createItemInBag(registry, T14SWORD, lbc);
+                                factory.createItemInBag(registry, T3DEFRING, lbc);
                                 factory.createItemInBag(registry, T2SWORD, lbc);
                                 factory.createItemInBag(registry, T6SWORD, lbc);
                                 factory.createItemInBag(registry, T13HEAVYARMOR, lbc);
