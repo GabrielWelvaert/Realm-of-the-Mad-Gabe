@@ -33,7 +33,6 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId,
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);    
     textures.emplace(assetId, texture);
-    // std::cout << SDL_GetError() << std::endl;
 }
 
 void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, SDL_Texture * texture){

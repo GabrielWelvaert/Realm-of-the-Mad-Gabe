@@ -157,7 +157,6 @@ class System {
         std::vector<Entity>& GetSystemEntities();
         const Signature& GetComponentSignature() const;
         template <typename TComponent> void RequireComponent(); // defines componenets needed by an entity for a system to be interested
-
 };
 
 template <typename TComponent>

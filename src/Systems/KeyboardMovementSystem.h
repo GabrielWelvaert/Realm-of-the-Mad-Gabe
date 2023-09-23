@@ -17,77 +17,80 @@
 #include "../Utils/enums.h"
 #include "../Components/AnimatedShootingComponent.h"
 #include "../Components/ProjectileEmitterComponent.h"
-
-//given mouse coordiantes and player coordiantes, returns "X-shaped-quadrant" relative to player
-sidehit clicked(int mx, int my, int px, int py, SDL_Rect camera){
-    mx += camera.x;
-    my += camera.y;
-    int dx = mx - px;
-    int dy = my - py;
-    if(abs(dx) > abs(dy)){
-        if(dx > 0){
-            return RIGHTSIDE; //right
-        }
-        else{
-            return LEFTSIDE; //left 
-        }   
-    }
-    else{
-        if(dy > 0){
-            return BOTTOMSIDE; //below 
-        }
-        else {
-            return TOPSIDE; //above
-        }
-    }
-}
-
-std::unordered_map<std::bitset<5>, movements> moves = {
-        {std::bitset<5>(0b00000), NONE},
-        {std::bitset<5>(0b00001), UP},
-        {std::bitset<5>(0b00010), LEFT},
-        {std::bitset<5>(0b00011), UPLEFT},
-        {std::bitset<5>(0b00100), DOWN},
-        {std::bitset<5>(0b00101), NONE},
-        {std::bitset<5>(0b00110), DOWNLEFT},
-        {std::bitset<5>(0b00111), LEFT},
-        {std::bitset<5>(0b01000), RIGHT},
-        {std::bitset<5>(0b01001), UPRIGHT},
-        {std::bitset<5>(0b01010), NONE},
-        {std::bitset<5>(0b01011), UP},
-        {std::bitset<5>(0b01100), DOWNRIGHT},
-        {std::bitset<5>(0b01101), RIGHT},
-        {std::bitset<5>(0b01110), DOWN},
-        {std::bitset<5>(0b01111), NONE},
-        {std::bitset<5>(0b10000), NONE},
-        {std::bitset<5>(0b10001), UP},
-        {std::bitset<5>(0b10010), LEFT},
-        {std::bitset<5>(0b10011), UPLEFT},
-        {std::bitset<5>(0b10100), DOWN},
-        {std::bitset<5>(0b10101), NONE},
-        {std::bitset<5>(0b10110), DOWNLEFT},
-        {std::bitset<5>(0b10111), LEFT},
-        {std::bitset<5>(0b11000), RIGHT},
-        {std::bitset<5>(0b11001), UPRIGHT},
-        {std::bitset<5>(0b11010), NONE},
-        {std::bitset<5>(0b11011), UP},
-        {std::bitset<5>(0b11100), DOWNRIGHT},
-        {std::bitset<5>(0b11101), RIGHT},
-        {std::bitset<5>(0b11110), DOWN},
-        {std::bitset<5>(0b11111), NONE}
-};
+#include "../Components/AbilityComponent.h"
+#include "../Events/TomeUseEvent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, and flags based off of keyboar dinput
 */
 
 class KeyboardMovementSystem: public System {
+    private:
+        //given mouse coordiantes and player coordiantes, returns "X-shaped-quadrant" relative to player
+        sidehit clicked(int mx, int my, int px, int py, SDL_Rect camera){
+            mx += camera.x;
+            my += camera.y;
+            int dx = mx - px;
+            int dy = my - py;
+            if(abs(dx) > abs(dy)){
+                if(dx > 0){
+                    return RIGHTSIDE; //right
+                }
+                else{
+                    return LEFTSIDE; //left 
+                }   
+            }
+            else{
+                if(dy > 0){
+                    return BOTTOMSIDE; //below 
+                }
+                else {
+                    return TOPSIDE; //above
+                }
+            }
+        }
+
+        std::unordered_map<std::bitset<5>, movements> moves = {
+                {std::bitset<5>(0b00000), NONE},
+                {std::bitset<5>(0b00001), UP},
+                {std::bitset<5>(0b00010), LEFT},
+                {std::bitset<5>(0b00011), UPLEFT},
+                {std::bitset<5>(0b00100), DOWN},
+                {std::bitset<5>(0b00101), NONE},
+                {std::bitset<5>(0b00110), DOWNLEFT},
+                {std::bitset<5>(0b00111), LEFT},
+                {std::bitset<5>(0b01000), RIGHT},
+                {std::bitset<5>(0b01001), UPRIGHT},
+                {std::bitset<5>(0b01010), NONE},
+                {std::bitset<5>(0b01011), UP},
+                {std::bitset<5>(0b01100), DOWNRIGHT},
+                {std::bitset<5>(0b01101), RIGHT},
+                {std::bitset<5>(0b01110), DOWN},
+                {std::bitset<5>(0b01111), NONE},
+                {std::bitset<5>(0b10000), NONE},
+                {std::bitset<5>(0b10001), UP},
+                {std::bitset<5>(0b10010), LEFT},
+                {std::bitset<5>(0b10011), UPLEFT},
+                {std::bitset<5>(0b10100), DOWN},
+                {std::bitset<5>(0b10101), NONE},
+                {std::bitset<5>(0b10110), DOWNLEFT},
+                {std::bitset<5>(0b10111), LEFT},
+                {std::bitset<5>(0b11000), RIGHT},
+                {std::bitset<5>(0b11001), UPRIGHT},
+                {std::bitset<5>(0b11010), NONE},
+                {std::bitset<5>(0b11011), UP},
+                {std::bitset<5>(0b11100), DOWNRIGHT},
+                {std::bitset<5>(0b11101), RIGHT},
+                {std::bitset<5>(0b11110), DOWN},
+                {std::bitset<5>(0b11111), NONE}
+        };
+
     public:
         KeyboardMovementSystem(){
             RequireComponent<KeyboardControlledComponent>(); //only the player has this.
         }
 
-        void Update(std::bitset<5> keysPressed, int mouseX, int mouseY, SDL_Rect camera){
+        void Update(std::bitset<5> keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus){
             const auto& player = GetSystemEntities()[0]; //asumes this system has 1 entity: the player
             auto& sprite = player.GetComponent<SpriteComponent>();
             auto& rigidbody = player.GetComponent<RidigBodyComponent>();
@@ -97,6 +100,38 @@ class KeyboardMovementSystem: public System {
 
             int move = moves[keysPressed];
 
+            if(space){ // ability use attempt by player
+                auto& ac = player.GetComponent<AbilityComponent>(); 
+                auto& activemp = player.GetComponent<HPMPComponent>().activemp;
+                Uint32 time = SDL_GetTicks();
+                if(ac.abilityEquipped && time >= ac.timeLastUsed + ac.coolDownMS){ // if ability item equipped and not in cooldown
+                    if(activemp < ac.mpRequired){ // if not enough mana
+                        assetStore->PlaySound(NOMANA);
+                    } else { // else, we have enough mana: evoke ability
+                        const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        /* 
+                        I really wanted to NOT use switch-case here. I originally had the AbilityComponent hold a function pointer to member functions in ceratin systems
+                        But at some point the complexity of the solution may have induced complicated linker errors which wasted a lot of time (12+hrs; tables.h seems to have been involved...)
+                        For the sake of time, I'm just using the eventBus to process ability uses and not a fun function pointer. lame! I did learn a lot from the troubleshooting, though
+                        */ 
+                        switch(classname){ 
+                            case PRIEST:{
+                                eventbus->EmitEvent<TomeUseEvent>(player);
+                                break;}
+                            case WARRIOR:{
+                                std::cout << "todo: emit helm use event" << std::endl;
+                                break;}
+                            case ARCHER:{
+                                std::cout << "todo: emit quiver use event" << std::endl;
+                                break;}
+                        }
+                    }
+                }
+            }
+
+            // update stuff based off direction of travel
             if(move == UP){ // up
                 rigidbody.velocity = glm::vec2(0, -1);
                 animation.xmin = 1;
@@ -170,7 +205,7 @@ class KeyboardMovementSystem: public System {
             }
 
             // update stuff for if shooting
-            if(pec.isShooting){ //previously if keysPressed[4]
+            if(pec.isShooting && pec.shots > 0){ //previously if keysPressed[4]
                 const auto& activedexterity = player.GetComponent<OffenseStatComponent>().activedexterity;
                 auto& transform = player.GetComponent<TransformComponent>();
                 auto& asc = player.GetComponent<AnimatedShootingComponent>();

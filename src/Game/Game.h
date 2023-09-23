@@ -23,7 +23,7 @@ class Game{
         std::unique_ptr<AssetStore> assetStore;
         std::unique_ptr<Registry> registry; 
         std::unique_ptr<EventBus> eventBus;
-        const bool debug = true;
+        const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
 
@@ -38,12 +38,12 @@ class Game{
         void Render();
         void Destory();
         void LoadLevel(int level);
-        void LoadTileMap(const textureEnums& name, const std::string& tilemap, const std::string& map, int tilesize, double tileScale, std::vector<glm::ivec2> walls);
         void PopulateAssetStore();
-        void LoadPlayer();
+        void LoadPlayer(classes classname);
         void LoadGui(classes className);
         void LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum);
         void LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile);
+        void PopulateRegistry();
        
         static int windowWidth;
         static int windowHeight;

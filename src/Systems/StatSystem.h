@@ -61,7 +61,6 @@ class StatSystem: public System{
             auto& offensestats = event.player.GetComponent<OffenseStatComponent>();
             auto& speed = event.player.GetComponent<SpeedStatComponent>().activespeed;
             auto& newItemStats = itemEnumToStatData.at(event.newItem);
-            std::cout << "before: " << static_cast<int>(hpmp.activedefense) << std::endl;
             if(event.unequip){
                 auto& oldItemStats = itemEnumToStatData.at(event.previousItem);
                 hpmp.maxhp -= oldItemStats.hp;
@@ -83,7 +82,6 @@ class StatSystem: public System{
                 offensestats.activeattack += newItemStats.attack;
                 offensestats.activedexterity += newItemStats.dexterity;
             }   
-            std::cout << "after: " << static_cast<int>(hpmp.activedefense) << std::endl;
         }
 
         void onLevelUp(LevelUpEvent& event){

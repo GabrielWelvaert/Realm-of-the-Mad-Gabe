@@ -17,7 +17,7 @@ struct ProjectileEmitterComponent{
     unsigned short projectileSpeed;  
     Uint32 lastEmissionTime; // last time we shot a projectile from SDL_GetTicks()
     bool piercing;
-    unsigned char shots; // dont use odd number of shots with 360, 720, etc
+    unsigned char shots = 0; // dont use odd number of shots with 360, 720, etc
     float arcgap; 
 
     // data about projectile's sprite 

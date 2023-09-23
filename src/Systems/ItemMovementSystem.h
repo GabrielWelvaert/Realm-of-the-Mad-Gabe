@@ -16,6 +16,8 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/PlayerItemsComponent.h"
 #include "../Events/EquipItemWithStatsEvent.h"
+#include "../Components/AbilityComponent.h"
+#include "../Events/EquipAbilityEvent.h"
 
 /*
 This system is responsible for allowing the player to move items between loot bags, their inventory, and their equipment slots
@@ -54,9 +56,18 @@ class ItemMovementSystem: public System{
                             return;
                         }
                     } else if(item1OriginalTransformPos == equipPositions[1]){ // grabbed item from ability slot 
-
+                        if(itemToGroup.at(item2ic.itemEnum) == validability.at(classname)){
+                            eventBus->EmitEvent<EquipAbilityEvent>(player, item2ic.itemEnum);
+                            if(itemEnumToStatData.find(item1ic.itemEnum) != itemEnumToStatData.end()){
+                                eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item1ic.itemEnum, true, item2ic.itemEnum, player);
+                                eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                            }
+                        } else {
+                            item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                            assetStore->PlaySound(ERROR);
+                            return;
+                        }
                     } else if(item1OriginalTransformPos == equipPositions[2]){ // grabbed item from armor slot
-                        std::cout << "item swap attempt" << std::endl;
                         if(itemToGroup.at(item2ic.itemEnum) == validarmor.at(classname)){
                             eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item1ic.itemEnum, true, item2ic.itemEnum, player);
                             eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
@@ -86,9 +97,18 @@ class ItemMovementSystem: public System{
                             return;
                         }
                     } else if(destTransformPos == equipPositions[1]){ // dropping item into occupied ability slot 
-
+                        if(itemToGroup.at(item1ic.itemEnum) == validability.at(classname)){
+                            eventBus->EmitEvent<EquipAbilityEvent>(player, item1ic.itemEnum);
+                            if(itemEnumToStatData.find(item2ic.itemEnum) != itemEnumToStatData.end()){
+                                eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item2ic.itemEnum, true, item1ic.itemEnum, player);
+                                eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                            }
+                        } else {
+                            item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                            assetStore->PlaySound(ERROR);
+                            return;
+                        }
                     } else if(destTransformPos == equipPositions[2]){ // dropping item into occupied armor slot 
-                        std::cout << "item drop attempt (occupied)" << std::endl;
                         if(itemToGroup.at(item1ic.itemEnum) == validarmor.at(classname)){
                             eventBus->EmitEvent<EquipItemWithStatsEvent>(true, item2ic.itemEnum, true, item1ic.itemEnum, player);
                             eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
@@ -131,7 +151,17 @@ class ItemMovementSystem: public System{
                         return;
                     }
                 } else if(destTransformPos == equipPositions[1]){ // dropping item into vacant ability slot 
-
+                    if(itemToGroup.at(ic.itemEnum) == validability.at(classname)){
+                        eventBus->EmitEvent<EquipAbilityEvent>(player, ic.itemEnum);
+                        if(itemEnumToStatData.find(ic.itemEnum) != itemEnumToStatData.end()){
+                            eventBus->EmitEvent<EquipItemWithStatsEvent>(false, ic.itemEnum, true, ic.itemEnum, player);
+                            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        }
+                    } else{
+                        item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
+                        assetStore->PlaySound(ERROR);
+                        return;
+                    }
                 } else if(destTransformPos == equipPositions[2]){ // dropping item into vacant armor slot 
                     if(itemToGroup.at(ic.itemEnum) == validarmor.at(classname)){
                         std::cout << "item drop attempt (not occupied)" << std::endl;
@@ -153,9 +183,18 @@ class ItemMovementSystem: public System{
                         return;
                     }
                 }
-                if(item1OriginalTransformPos.y < 506 && (itemEnumToStatData.find(ic.itemEnum) != itemEnumToStatData.end())){ // equipped item was unequipped had stat component: must subtract stats
-                    eventBus->EmitEvent<EquipItemWithStatsEvent>(true, ic.itemEnum, false, ic.itemEnum, player);
-                    eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                if(item1OriginalTransformPos.y < 506){ // equipped item was unequipped
+                    if(item1OriginalTransformPos == equipPositions[0]){ // weapon was unequipped; no longer holding weapon!
+                        player.GetComponent<ProjectileEmitterComponent>().shots = 0;
+                        std::cout << "removing weapon detected " << std::endl;
+                    } else if (item1OriginalTransformPos == equipPositions[1]){
+                        player.GetComponent<AbilityComponent>().abilityEquipped = false;
+                        std::cout << "removing ability detected" << std::endl;
+                    }
+                    if(itemEnumToStatData.find(ic.itemEnum) != itemEnumToStatData.end()){ // unequipped item had stats; subtract those stats
+                        eventBus->EmitEvent<EquipItemWithStatsEvent>(true, ic.itemEnum, false, ic.itemEnum, player);
+                        eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                    }
                 }
                 item1.GetComponent<TransformComponent>().position = destTransformPos;
                 ic.lastPosition = destPos;

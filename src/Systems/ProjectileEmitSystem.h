@@ -86,7 +86,7 @@ class ProjectileEmitSystem: public System{
         void Update(std::unique_ptr<Registry>& registry, SDL_Rect camera, int mx, int my, glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore) {
             for (auto entity: GetSystemEntities()){
                 auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
-                if(PEC.isShooting){
+                if(PEC.isShooting && PEC.shots > 0){
                     if (SDL_GetTicks() - PEC.lastEmissionTime > PEC.repeatFrequency){ // shoot time; emit projectile!
                         const auto& duration = PEC.duration;
                         const auto& piercing = PEC.piercing;

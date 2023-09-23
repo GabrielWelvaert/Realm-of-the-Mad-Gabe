@@ -173,7 +173,18 @@ class DamageSystem: public System{
 
         }
 
-        void Update(float deltaTime){
+        void Update(float deltaTime, Entity player){
+
+            // wis regen mp for player
+            auto& hpmp = player.GetComponent<HPMPComponent>();
+            if(hpmp.activemp < hpmp.maxmp){
+                hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/1000;
+                if(hpmp.activemp > hpmp.maxmp){
+                    hpmp.activemp = hpmp.maxmp;
+                }
+            }
+
+            // vit regen hp for everyone
             for(auto entity: GetSystemEntities()){
                 auto& stats = entity.GetComponent<HPMPComponent>();
                 auto& activehp = stats.activehp;
@@ -182,23 +193,11 @@ class DamageSystem: public System{
 
                 if((activehp < maxhp) && (activehp > 0)){
                     activehp += ((1 + .24 * activevitality)/1000) * deltaTime;
-                    //std::cout << "vitality healing entity " << entity.GetId() << " by " << ((1 + .24 * activevitality)/1000) * deltaTime << std::endl;
                     if(activehp > maxhp){
                         activehp = maxhp;
                     }
                 }
-                // monsters don't really use magic-points; just update player's mp if needed
-                if(entity.GetId() == 0){
-                    auto& activemp = stats.activemp;
-                    const auto& maxmp = stats.maxmp;
-                    const auto& activewisdom = stats.activewisdom;
-                    if((activemp < maxmp) && (activemp > 0)){
-                       activemp += .12 * (activewisdom + 8.3) * deltaTime/1000;
-                        if(activemp > maxmp){
-                            activemp = maxmp;
-                        }
-                    }
-                }
+                
             }
         }
 

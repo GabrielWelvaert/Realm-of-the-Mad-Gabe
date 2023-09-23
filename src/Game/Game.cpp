@@ -30,6 +30,7 @@
 #include "../Systems/RenderMouseBoxSystem.h"
 #include "../Systems/ItemMovementSystem.h"
 #include "../Utils/factory.h"
+#include "../Systems/AbilitySystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -139,10 +140,11 @@ std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_d, 3},
     //keysPressed[4] is for LMB but its not a SDL_KeyCode! 
 };
+bool space = false;
 
 void Game::ProcessInput(){
     unsigned int startTime = SDL_GetTicks();
-    const unsigned int MSToReadInput = 20; 
+    const unsigned int MSToReadInput = 20;
     // keysPressed.reset() messed with holding down buttons between sessions since its not
     // getting re-detected as an SDL_Event. works without resetting, though
 
@@ -157,7 +159,6 @@ void Game::ProcessInput(){
                 case SDL_KEYDOWN:
                     for(auto x: {SDLK_1,SDLK_2,SDLK_3,SDLK_4,SDLK_5,SDLK_6,SDLK_7,SDLK_8, SDLK_SPACE}){
                         if(x == sdlEvent.key.keysym.sym){
-                            assetStore->PlaySound(ERROR);
                             if(x == SDLK_1){
                                 
                             }
@@ -166,14 +167,19 @@ void Game::ProcessInput(){
                             
                                 Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                                 auto& lbc = lootbag.GetComponent<LootBagComponent>();
-                                factory.createItemInBag(registry, ATTACKPENDANT, lbc);
-                                factory.createItemInBag(registry, IMPBLADE, lbc);
-                                factory.createItemInBag(registry, T3DEFRING, lbc);
-                                factory.createItemInBag(registry, T2SWORD, lbc);
-                                factory.createItemInBag(registry, T6SWORD, lbc);
+                                // factory.createItemInBag(registry, T0BOW, lbc);
+                                // factory.createItemInBag(registry, T14LIGHTARMOR, lbc);
+                                // factory.createItemInBag(registry, T8QUIVER, lbc);
+                                // factory.createItemInBag(registry, T14BOW, lbc);
+                                factory.createItemInBag(registry, T3SPDRING, lbc);
+                                factory.createItemInBag(registry, T13WAND, lbc);
+                                factory.createItemInBag(registry, T5BOW, lbc);
+                                // factory.createItemInBag(registry, T3DEFRING, lbc);
+                                factory.createItemInBag(registry, T3QUIVER, lbc);
+                                factory.createItemInBag(registry, T12LIGHTARMOR, lbc);
                                 factory.createItemInBag(registry, T13HEAVYARMOR, lbc);
-                                factory.createItemInBag(registry, T10HEAVYARMOR, lbc);
-                                factory.createItemInBag(registry, T14ROBE, lbc);
+                                // factory.createItemInBag(registry, T10HEAVYARMOR, lbc);
+                                // factory.createItemInBag(registry, T14ROBE, lbc);
 
 
                             }
@@ -198,8 +204,7 @@ void Game::ProcessInput(){
                                 LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON4); 
                             }
                             if(x == SDLK_SPACE){
-                                // player.GetComponent<BaseStatComponent>().xp = 18000;
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SHATTERSBOMB); 
+                                space = true;
                             }
                             
                         }
@@ -215,6 +220,8 @@ void Game::ProcessInput(){
                 case SDL_KEYUP:
                     if(keyindex.find(sdlEvent.key.keysym.sym) != keyindex.end()){
                         keysPressed[keyindex[sdlEvent.key.keysym.sym]] = false;
+                    } else if(sdlEvent.key.keysym.sym == SDLK_SPACE){
+                        space = false;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -918,12 +925,12 @@ void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
     factory.spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
-void Game::LoadPlayer(){
+void Game::LoadPlayer(classes classname){
     player = registry->CreateEntity();
     player.AddComponent<TransformComponent>(playerSpawn); //scaled by 6, an 8x8 sprite is effectively 48x48 pixels
-    player.AddComponent<SpriteComponent>(WARRIOR);
-    player.AddComponent<ClassNameComponent>(WARRIOR); 
-    player.AddComponent<BaseStatComponent>(WARRIOR);
+    player.AddComponent<SpriteComponent>(classname);
+    player.AddComponent<ClassNameComponent>(classname); 
+    player.AddComponent<BaseStatComponent>(classname);
     const auto& baseStats = player.GetComponent<BaseStatComponent>();
     player.AddComponent<HPMPComponent>(baseStats);
     player.AddComponent<OffenseStatComponent>(baseStats);
@@ -936,7 +943,7 @@ void Game::LoadPlayer(){
     player.AddComponent<CollisionFlagComponent>();
     player.Group(PLAYER);
     player.AddComponent<PlayerItemsComponent>();
-    player.AddComponent<AnimatedShootingComponent>(WARRIOR);
+    player.AddComponent<AnimatedShootingComponent>(classname);
 
     // player.GetComponent<HPMPComponent>().activehp = 32000;
     // player.GetComponent<HPMPComponent>().maxhp = 32000;
@@ -944,24 +951,30 @@ void Game::LoadPlayer(){
     player.GetComponent<OffenseStatComponent>().activeattack = 75;
     player.GetComponent<BaseStatComponent>().attack = 75;
 
-    auto bladebox = bcEnumToData.at((BOLT));
-    auto bladesprite = enumToSpriteComponent.at((REDBOLT));
-    //PEC SHIT WILL LATER BE DERIVED FROM WEAPONS!!!!!!!!!!!!!!!!!!
-    const auto& basestats = player.GetComponent<BaseStatComponent>();
-    player.AddComponent<ProjectileEmitterComponent>(player, bladebox, bladesprite),
-    player.GetComponent<ProjectileEmitterComponent>().parent = player;
-    player.GetComponent<ProjectileEmitterComponent>().arcgap = 0;
-    player.GetComponent<ProjectileEmitterComponent>().shots = 1;
-    player.GetComponent<ProjectileEmitterComponent>().damage = 200;
-    player.GetComponent<ProjectileEmitterComponent>().minDamage = 100;
-    player.GetComponent<ProjectileEmitterComponent>().duration = 350;
-    player.GetComponent<ProjectileEmitterComponent>().piercing = false;
-    player.GetComponent<ProjectileEmitterComponent>().projectileSpeed = 640;
-    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * basestats.dexterity + 1.5);
+    player.AddComponent<ProjectileEmitterComponent>();
+    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * baseStats.dexterity + 1.5);
+
+    player.AddComponent<AbilityComponent>();
+    auto& ac = player.GetComponent<AbilityComponent>();
+    ac.coolDownMS = 500;
+    ac.mpRequired = 20;
+    switch(classname){
+        case ARCHER:{
+            player.AddComponent<QuiverComponent>();
+            break;
+        }
+        case PRIEST: {
+            player.AddComponent<TomeComponent>();
+            break;
+        }
+        case WARRIOR: {
+            player.AddComponent<HelmComponent>();
+            break;
+        }
+    }
 }
 
-void Game::LoadLevel(int level){
-
+void Game::PopulateRegistry(){
     registry->AddSystem<MovementSystem>();
     registry->AddSystem<RenderSystem>();
     registry->AddSystem<AnimationSystem>();
@@ -986,7 +999,7 @@ void Game::LoadLevel(int level){
     registry->AddSystem<LootBagSystem>();
     registry->AddSystem<InteractUISystem>();
     registry->AddSystem<ItemMovementSystem>();
-
+    registry->AddSystem<AbilitySytem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -994,13 +1007,19 @@ void Game::LoadLevel(int level){
     
 }
 
+void Game::LoadLevel(int level){
+    
+}
+
 void Game::Setup(){ // everything in setup occurs before game loop begins
     PopulateAssetStore();
-    LoadPlayer(); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
+    PopulateRegistry();
+    LoadPlayer(PRIEST); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
+    //TODO populate ability function pointers?
+    
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
     LoadGui(playerClassName);
     LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
-    LoadLevel(1);
 
 }
 
@@ -1026,6 +1045,7 @@ void Game::Update(){
     registry->GetSystem<UpdateDisplayStatTextSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<InteractUISystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<AbilitySytem>().SubscribeToEvents(eventBus);
     
     // update registry to process entities that are awaitng creation/deletion and add them to system vectors
     registry->Update();
@@ -1033,7 +1053,7 @@ void Game::Update(){
     // TODO PASS BY CONSTANT REFERENCE INSTANCE OF COPY WHERE APPROPRIATE
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
-    registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera);
+    registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus);
     registry->GetSystem<PassiveAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<ChaseAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<NeutralAISystem>().Update(playerpos, assetStore);
@@ -1047,7 +1067,7 @@ void Game::Update(){
     registry->GetSystem<CameraMovementSystem>().Update(camera);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
-    registry->GetSystem<DamageSystem>().Update(deltaTime);
+    registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player);
