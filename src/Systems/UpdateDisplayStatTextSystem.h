@@ -142,7 +142,7 @@ class UpdateDisplayStatTextSystem: public System{
             auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
             auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
             auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
-            if (mx > 750 && mx < 1000 && my > 295 && my < 351){
+            if (mx > 750 && mx < 1000 && my > 295 && my < 370){ // if mouse is hovering over the stat bars
                 hptext.invisible = mptext.invisible = xptext.invisible = false;
                 const auto& pbs = player.GetComponent<BaseStatComponent>();
                 const auto& hpmp = player.GetComponent<HPMPComponent>();

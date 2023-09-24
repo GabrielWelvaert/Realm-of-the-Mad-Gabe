@@ -142,7 +142,17 @@ struct animationData{
 
 };
 
+//quiver data only pertains to the projectile which is emitted!
+struct quiverData{
+    int minDamage;
+    int maxDamage;
+    textureEnums texture;
+    SDL_Rect srcRect;
+};
+
 extern std::unordered_map<items, abilityData> itemEnumToAbilityData;
+
+extern std::unordered_map<items, quiverData> itemEnumToQuiverData;
 
 extern std::unordered_map<items, tomeData> itemEnumToTomeData;
 

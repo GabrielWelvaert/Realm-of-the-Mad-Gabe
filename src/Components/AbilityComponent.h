@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "../../libs/SDL2/SDL.h"
+#include "../Utils/enums.h"
 /*
 Each ability inherits from parent ability class and abilities are used via their respective events
 */
@@ -39,9 +40,11 @@ struct HelmComponent{
 struct QuiverComponent{
     int minDamage;
     int maxDamage;
+    textureEnums texture;
+    SDL_Rect srcRect;
 
     QuiverComponent() = default;
 
-    QuiverComponent(int minDamage, int maxDamage): minDamage(minDamage), maxDamage(maxDamage) {}
+    QuiverComponent(int minDamage, int maxDamage): minDamage(minDamage), maxDamage(maxDamage), texture(LOFIPROJS), srcRect{0,0,0,0} {}
 
 };

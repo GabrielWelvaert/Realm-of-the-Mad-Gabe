@@ -51,7 +51,17 @@ std::unordered_map<items, tomeData> itemEnumToTomeData = {
     {T8TOME, {350}},
 };
 
-
+std::unordered_map<items, quiverData> itemEnumToQuiverData = {
+    {T0QUIVER, {80,120,LOFIPROJS,{8*2,8*7,8,8}}}, //red arrow
+    {T1QUIVER, {140,180,LOFIPROJS,{8*2,8*7,8,8}}}, //red arrow
+    {T2QUIVER, {220,120,LOFIPROJS,{8,8*7,8,8}}}, // green arrow 
+    {T3QUIVER, {340,400,LOFIPROJS,{8*2,8*7,8,8}}}, //purple arrow 
+    {T4QUIVER, {440,540,LOFIPROJS,{8*2,8*7,8,8}}}, //purple arrow 
+    {T5QUIVER, {560,660,LOFIPROJS,{8*4, 8*7, 8, 8}}}, // gold arrow
+    {T6QUIVER, {675,775,LOFIPROJS,{8*3, 8*7, 8, 8}}}, // blue 
+    {T7QUIVER, {800,900,LOFIPROJS,{8*2,8*7,8,8}}}, // red 
+    {T8QUIVER, {975,1100,LOFIPROJS,{8,8*7,8,8}}}, // green 
+};
 
 std::unordered_map<classes, BaseStatData> classToBaseStats = {
     {ARCHER, {130,100,12,0,12,12,12,10}},
@@ -540,18 +550,18 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
 
     {T0BOW, {440, 10, 40, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T1BOW, {440, 15, 45, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T2BOW, {469, 20, 50, 1024, true,1,0, LOFIOBJ, 3,6, {8*10,8*5,3,6},3,false,8,8,{0,10}}},
+    {T2BOW, {469, 20, 50, 1024, true,1,0, LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}}},
     {T3BOW, {440, 25, 55, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T4BOW, {440, 35, 65, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T5BOW, {440, 45, 65, 1024, true,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
     {T6BOW, {440, 30, 50, 1024, true,2,12,LOFIOBJ, 3,6, {8*10,8*5,3,6},3,true,8,8,{0,10}}},
-    {T7BOW, {469, 50, 70, 1024, true,1,0,LOFIOBJ, 3,6, {8*10,8*5,3,6},3,false,8,8,{0,10}}},
+    {T7BOW, {469, 50, 70, 1024, true,1,0,LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}}},
     {T8BOW, {440, 40, 60, 1024, true,3,12,LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T9BOW, {440, 40, 65, 1024, true,3,12,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T10BOW, {440, 45, 65, 1024, true,3,12,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T11BOW, {440, 45, 70, 1024, true,3,12,LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T12BOW, {440, 50, 70, 1024, true,3,12,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T13BOW, {440, 55, 75, 1024, true,3,12,LOFIPROJS, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
+    {T13BOW, {440, 55, 75, 1024, true,3,12,LOFIOBJ5B, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
     {T14BOW, {440, 60, 80, 1024, true,3,12,LOFIOBJ5B, 8, 8, {8*14, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
 
     {T0WAND, {832, 20, 40, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},

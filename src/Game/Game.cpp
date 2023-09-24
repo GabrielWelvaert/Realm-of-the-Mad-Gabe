@@ -167,20 +167,14 @@ void Game::ProcessInput(){
                             
                                 Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                                 auto& lbc = lootbag.GetComponent<LootBagComponent>();
-                                // factory.createItemInBag(registry, T0BOW, lbc);
-                                // factory.createItemInBag(registry, T14LIGHTARMOR, lbc);
-                                // factory.createItemInBag(registry, T8QUIVER, lbc);
-                                // factory.createItemInBag(registry, T14BOW, lbc);
-                                factory.createItemInBag(registry, T3SPDRING, lbc);
-                                factory.createItemInBag(registry, T13WAND, lbc);
-                                factory.createItemInBag(registry, T5BOW, lbc);
-                                // factory.createItemInBag(registry, T3DEFRING, lbc);
-                                factory.createItemInBag(registry, T3QUIVER, lbc);
-                                factory.createItemInBag(registry, T12LIGHTARMOR, lbc);
-                                factory.createItemInBag(registry, T13HEAVYARMOR, lbc);
-                                // factory.createItemInBag(registry, T10HEAVYARMOR, lbc);
-                                // factory.createItemInBag(registry, T14ROBE, lbc);
-
+                                factory.createItemInBag(registry, T2BOW, lbc);
+                                factory.createItemInBag(registry, T3BOW, lbc);
+                                factory.createItemInBag(registry, T12BOW, lbc);
+                                factory.createItemInBag(registry, T8BOW, lbc);
+                                factory.createItemInBag(registry, T0QUIVER, lbc);
+                                factory.createItemInBag(registry, T2QUIVER, lbc);
+                                factory.createItemInBag(registry, T7BOW, lbc);
+                                factory.createItemInBag(registry, T6QUIVER, lbc);
 
                             }
                             if(x == SDLK_3){
@@ -945,8 +939,8 @@ void Game::LoadPlayer(classes classname){
     player.AddComponent<PlayerItemsComponent>();
     player.AddComponent<AnimatedShootingComponent>(classname);
 
-    // player.GetComponent<HPMPComponent>().activehp = 32000;
-    // player.GetComponent<HPMPComponent>().maxhp = 32000;
+    player.GetComponent<HPMPComponent>().activemp = 32000;
+    player.GetComponent<HPMPComponent>().maxmp = 32000;
     player.GetComponent<SpeedStatComponent>().activespeed = 50;
     player.GetComponent<OffenseStatComponent>().activeattack = 75;
     player.GetComponent<BaseStatComponent>().attack = 75;
@@ -1014,7 +1008,7 @@ void Game::LoadLevel(int level){
 void Game::Setup(){ // everything in setup occurs before game loop begins
     PopulateAssetStore();
     PopulateRegistry();
-    LoadPlayer(PRIEST); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
+    LoadPlayer(ARCHER); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
     //TODO populate ability function pointers?
     
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
@@ -1053,7 +1047,7 @@ void Game::Update(){
     // TODO PASS BY CONSTANT REFERENCE INSTANCE OF COPY WHERE APPROPRIATE
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
-    registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus);
+    registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     registry->GetSystem<PassiveAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<ChaseAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<NeutralAISystem>().Update(playerpos, assetStore);

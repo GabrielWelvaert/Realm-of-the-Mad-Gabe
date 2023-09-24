@@ -19,6 +19,7 @@
 #include "../Components/ProjectileEmitterComponent.h"
 #include "../Components/AbilityComponent.h"
 #include "../Events/TomeUseEvent.h"
+#include "../Events/QuiverUseEvent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, and flags based off of keyboar dinput
@@ -90,7 +91,7 @@ class KeyboardMovementSystem: public System {
             RequireComponent<KeyboardControlledComponent>(); //only the player has this.
         }
 
-        void Update(std::bitset<5> keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus){
+        void Update(std::bitset<5> keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
             const auto& player = GetSystemEntities()[0]; //asumes this system has 1 entity: the player
             auto& sprite = player.GetComponent<SpriteComponent>();
             auto& rigidbody = player.GetComponent<RidigBodyComponent>();
@@ -124,7 +125,7 @@ class KeyboardMovementSystem: public System {
                                 std::cout << "todo: emit helm use event" << std::endl;
                                 break;}
                             case ARCHER:{
-                                std::cout << "todo: emit quiver use event" << std::endl;
+                                eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);
                                 break;}
                         }
                     }
