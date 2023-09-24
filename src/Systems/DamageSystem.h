@@ -99,6 +99,9 @@ class DamageSystem: public System{
             // in rotmg, minimum damage reduction from defense is 90%
             if(realdamage < projectileComponent.damage * .1){
                 realdamage = projectileComponent.damage * .1;
+                if(realdamage < 1){
+                    realdamage = 1;
+                }
             }
 
             if(event.victim.GetId() == 0){

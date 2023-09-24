@@ -570,7 +570,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T3WAND, {832, 40, 60, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
     {T4WAND, {832, 50, 70, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
     {T5WAND, {832, 60, 80, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T6WAND, {832, 70, 90, 770, false, 1, 0,LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,false,10,10,{14,14}}},
+    {T6WAND, {832, 70, 90, 770, false, 1, 0,LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,true,10,10,{14,14}}},
     {T7WAND, {832, 80, 100, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
     {T8WAND, {832, 80, 120, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false,10,10,{14,14}}},
     {T9WAND, {832, 85, 125, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},

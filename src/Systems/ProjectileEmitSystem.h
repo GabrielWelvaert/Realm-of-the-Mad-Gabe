@@ -17,7 +17,8 @@
 #include "../utils/enums.h"
 #include "../utils/Xoshiro256.h"
 #include "../Events/WeaponEquipEvent.h"
-
+#include "../EventBus/EventBus.h"
+#include "../AssetStore/AssetStore.h"
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired
 It also contains the algorithm for shots with multiple projectiles
@@ -96,13 +97,9 @@ class ProjectileEmitSystem: public System{
                         const auto& parentSprite = entity.GetComponent<SpriteComponent>(); // sprite of projectile's parent
                         const auto& transform = entity.GetComponent<TransformComponent>(); // transform of projectile's parent
                         const auto& isDiagonal = PEC.spritediagonalSprite;
-                        auto playerCenterX = transform.position.x + ((parentSprite.width * transform.scale.x) / 2) - PEC.spritewidth * projectilescale / 2; 
-                        auto playerCenterY = transform.position.y + ((parentSprite.height * transform.scale.y) / 2); // no sprite mod?
-                        auto projectilePosition = glm::vec2(playerCenterX, playerCenterY); 
-                        
-                        if(isDiagonal){ // diagonal sprites are huge need to adjust spawn position slightly
-                            projectilePosition.y -= 10;
-                        }
+                        auto projSpawnX = transform.position.x + ((parentSprite.width * transform.scale.x) / 2) - PEC.spritewidth * projectilescale / 2; 
+                        auto projSpawnY = transform.position.y + ((parentSprite.height * transform.scale.y) / 2) - PEC.spriteheight * projectilescale / 2; 
+                        auto projectilePosition = glm::vec2(projSpawnX, projSpawnY); 
                         unsigned long damage;
                         unsigned char parentGroupEnumInt;
 
@@ -111,7 +108,7 @@ class ProjectileEmitSystem: public System{
                         float rotationDegrees = 0.0;
                         Entity projectile;
                         glm::vec2 originVelocity;
-                        if(IsPlayer){                                                      // value removed from camera.y should be derived from projectile sprite dimension
+                        if(IsPlayer){                                                      
                             rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x, my+camera.y-18, originVelocity, isDiagonal);
                             const auto& activeattack = entity.GetComponent<OffenseStatComponent>().activeattack;
                             float damageCalc = static_cast<float>(damage)*((static_cast<float>(activeattack)+25)/50); // must cast to float so math works
@@ -119,7 +116,7 @@ class ProjectileEmitSystem: public System{
                             parentGroupEnumInt = 4; // hardcoded. must be changed if groups enum is altered!
                             damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                         } else{
-                            rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x, playerPos.y, originVelocity, isDiagonal); 
+                            rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x, playerPos.y+8, originVelocity, isDiagonal); 
                             parentGroupEnumInt = 0; // hardcoded. must be changed if groups enum is altered!
                             damage = PEC.damage;
                             

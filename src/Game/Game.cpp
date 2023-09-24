@@ -167,14 +167,11 @@ void Game::ProcessInput(){
                             
                                 Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                                 auto& lbc = lootbag.GetComponent<LootBagComponent>();
-                                factory.createItemInBag(registry, T2BOW, lbc);
-                                factory.createItemInBag(registry, T3BOW, lbc);
-                                factory.createItemInBag(registry, T12BOW, lbc);
-                                factory.createItemInBag(registry, T8BOW, lbc);
-                                factory.createItemInBag(registry, T0QUIVER, lbc);
-                                factory.createItemInBag(registry, T2QUIVER, lbc);
-                                factory.createItemInBag(registry, T7BOW, lbc);
-                                factory.createItemInBag(registry, T6QUIVER, lbc);
+                                factory.createItemInBag(registry, T13BOW, lbc);
+                                factory.createItemInBag(registry, T5BOW, lbc);
+                                factory.createItemInBag(registry, T4ATTRING, lbc);
+                                factory.createItemInBag(registry, T8HELM, lbc);
+                                factory.createItemInBag(registry, T14SWORD, lbc);
 
                             }
                             if(x == SDLK_3){
@@ -616,37 +613,37 @@ void Game::PopulateAssetStore(){
 
 void Game::LoadGui(classes className){
 
-    Entity guiBackground = registry->CreateEntity();
-    guiBackground.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
-    guiBackground.AddComponent<SpriteComponent>(GUIBACKGROUND,250,750,10,0,0,true);
-    guiBackground.Group(GUI);
+    SDL_Texture * staticHUD =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
+    SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, staticHUD);
+    
+    SDL_Rect srcRect = {0,0,250,750};
+    SDL_Rect dstRect = {0,0,250,750};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(GUIBACKGROUND), &srcRect, &dstRect); // HUD background (grey rectangle)
+    
+    srcRect = {0,className*24,8,8};
+    dstRect = {15, 255, static_cast<int>(8*3.5), static_cast<int>(8*3.5)};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(PLAYERS), &srcRect, &dstRect); // player icon
+
+    srcRect = {6*16,0,16,16};
+    dstRect = {220, 257, static_cast<int>(16*1.3),static_cast<int>(16*1.3)};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIINTERFACEBIG), &srcRect, &dstRect); // nexus button
+
+    SDL_SetRenderDrawColor(renderer,84,84,84,255); // backgrounds for stat bars
+    SDL_Rect xpBarBackground = {15, 291, 225, 20};
+    SDL_RenderFillRect(renderer, &xpBarBackground);
+    SDL_Rect hpBarBackground = {15, 319, 225, 20};
+    SDL_RenderFillRect(renderer, &hpBarBackground);
+    SDL_Rect mpBarBackground = {15, 347, 225, 20};
+    SDL_RenderFillRect(renderer, &mpBarBackground);
 
     Entity tempMiniMap = registry->CreateEntity();
     tempMiniMap.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
-    tempMiniMap.AddComponent<SpriteComponent>(TEMPMINIMAP, 240, 240, 11, 0, 0, true);
-    tempMiniMap.Group(GUI);
-
-    Entity playerIcon = registry->CreateEntity();
-    playerIcon.AddComponent<SpriteComponent>(PLAYERS, 8, 8, 11, 0,className*24,true);
-    playerIcon.AddComponent<TransformComponent>(glm::vec2(765, 255), glm::vec2(3.5,3.5));
-    playerIcon.Group(GUI);
+    tempMiniMap.AddComponent<SpriteComponent>(TEMPMINIMAP, 240, 240, 11, 0, 0, true); // mini map (not static!)
 
     Entity playerName = registry->CreateEntity();
     playerName.AddComponent<TextLabelComponent>("Gabeeeeeee", "namefont", grey, true,0,0,0);
-    playerName.AddComponent<TransformComponent>(glm::vec2(800, 257));
-
-    Entity nexusButton = registry->CreateEntity();
-    nexusButton.AddComponent<SpriteComponent>(LOFIINTERFACEBIG, 16, 16, 11, 6*16, 0, true);
-    nexusButton.AddComponent<TransformComponent>(glm::vec2(970, 257), glm::vec2(1.3, 1.3));
-
-    Entity xpBarBackground = registry->CreateEntity();
-    xpBarBackground.AddComponent<DynamicUIEntityComponent>(765,291, 225, 20, 84,84,84);
-
-    Entity hpBarBackground = registry->CreateEntity();
-    hpBarBackground.AddComponent<DynamicUIEntityComponent>(765,319, 225, 20, 84,84,84);
-
-    Entity mpBarBackground = registry->CreateEntity();
-    mpBarBackground.AddComponent<DynamicUIEntityComponent>(765,347, 225, 20, 84,84,84);
+    playerName.AddComponent<TransformComponent>(glm::vec2(800, 257)); // name. could be static, but isn't for now (will do later)
 
     Entity xpBar = registry->CreateEntity();
     xpBar.AddComponent<DynamicUIEntityComponent>(765,291, 225, 20, 87,117,32);
@@ -685,86 +682,32 @@ void Game::LoadGui(classes className){
     mpDisplayText.AddComponent<TransformComponent>(glm::vec2(850,351), glm::vec2(1.0,1.0));
 
     Entity attDisplayText = registry->CreateEntity();
-    std::string attdisplayString = std::to_string(offenseStats.activeattack);
-    color = grey;
-    if(offenseStats.activeattack > pbs.attack){
-        attdisplayString += " (+" + std::to_string(offenseStats.activeattack - pbs.attack) + ")";
-        color = statgreen;
-    }
-    if(pbs.attack == maxStats[classname][ATTACK]){
-        color = maxstatcolor;
-    }
-    attDisplayText.AddComponent<TextLabelComponent>(attdisplayString, "statfont2", color, true,0,0,0);
+    attDisplayText.AddComponent<TextLabelComponent>("", "statfont2", grey, true,0,0,0);
     attDisplayText.AddComponent<DisplayStatComponent>();
     attDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37, 380+3), glm::vec2(1.0,1.0));
 
     Entity defDisplayText = registry->CreateEntity();
-    std::string defdisplayString = std::to_string(hpmp.activedefense);
-    color = grey;
-    if(hpmp.activedefense > pbs.defense){
-        defdisplayString += " (+" + std::to_string(hpmp.activedefense - pbs.attack) + ")";
-        color = statgreen;
-    }
-    if(pbs.defense == maxStats[classname][DEFENSE]){
-        color = maxstatcolor;
-    }
-    defDisplayText.AddComponent<TextLabelComponent>(defdisplayString,"statfont2", color, true,0,0,0);
+    defDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
     defDisplayText.AddComponent<DisplayStatComponent>();
     defDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37, 380+3), glm::vec2(1.0,1.0));
 
     Entity spdDisplayText = registry->CreateEntity();
-    std::string spddisplayString = std::to_string(activeSpeedStat);
-    color = grey;
-    if(activeSpeedStat > pbs.speed){
-        spddisplayString += " (+" + std::to_string(activeSpeedStat - pbs.speed) + ")";
-        color = statgreen;
-    }
-    if(pbs.speed == maxStats[classname][SPEED]){
-        color = maxstatcolor;
-    }
-    spdDisplayText.AddComponent<TextLabelComponent>(spddisplayString,"statfont2", color, true,0,0,0);
+    spdDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
     spdDisplayText.AddComponent<DisplayStatComponent>();
     spdDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37,400+3), glm::vec2(1.0,1.0));
 
     Entity dexDisplayText = registry->CreateEntity();
-    std::string dexdisplayString = std::to_string(offenseStats.activedexterity);
-    color = grey;
-    if(offenseStats.activedexterity > pbs.dexterity){
-        dexdisplayString += " (+" + std::to_string(offenseStats.activedexterity - pbs.dexterity) + ")";
-        color = statgreen;
-    }
-    if(pbs.dexterity == maxStats[classname][DEXTERITY]){
-        color = maxstatcolor;
-    }
-    dexDisplayText.AddComponent<TextLabelComponent>(dexdisplayString,"statfont2", color, true,0,0,0);
+    dexDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
     dexDisplayText.AddComponent<DisplayStatComponent>();
     dexDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37,400+3), glm::vec2(1.0,1.0));
 
     Entity vitDisplayText = registry->CreateEntity();
-    std::string vitdisplayString = std::to_string(hpmp.activevitality);
-    color = grey;
-    if(hpmp.activevitality > pbs.vitality){
-        vitdisplayString += " (+" + std::to_string(hpmp.activevitality - pbs.vitality) + ")";
-        color = statgreen;
-    }
-    if(pbs.vitality == maxStats[classname][VITALITY]){
-        color = maxstatcolor;
-    }
-    vitDisplayText.AddComponent<TextLabelComponent>(vitdisplayString,"statfont2", color, true,0,0,0);
+    vitDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
     vitDisplayText.AddComponent<DisplayStatComponent>();
     vitDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37,420+3), glm::vec2(1.0,1.0));
 
     Entity wisDisplayText = registry->CreateEntity();
-    std::string wisdisplayString = std::to_string(hpmp.activewisdom);
-    color = grey;
-    if(hpmp.activewisdom > pbs.wisdom){
-        wisdisplayString += " (+" + std::to_string(hpmp.activewisdom - pbs.wisdom) + ")";
-        color = statgreen;
-    }
-    if(pbs.wisdom == maxStats[classname][WISDOM]){
-        color = maxstatcolor;
-    }
-    wisDisplayText.AddComponent<TextLabelComponent>(wisdisplayString,"statfont2", color, true,0,0,0);
+    wisDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
     wisDisplayText.AddComponent<DisplayStatComponent>();
     wisDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37,420+3), glm::vec2(1.0,1.0));
 
@@ -780,30 +723,46 @@ void Game::LoadGui(classes className){
     xpText.AddComponent<TransformComponent>(glm::vec2(767, 295), glm::vec2(1.0,1.0));
     xpText.AddComponent<DisplayStatComponent>();
 
-    // these texts aren't ever updated so they're separate from their respective "values"
-    Entity att = registry->CreateEntity();
-    att.AddComponent<TextLabelComponent>("ATT - ", "statfont", grey, true,0,0,0);
-    att.AddComponent<TransformComponent>(glm::vec2(780+2, 380), glm::vec2(1.0,1.0));
+    int width; 
+    int height;
+    SDL_Surface* ttfSurface;
+    SDL_Texture* ttfTextureFromSurface;
 
-    Entity def = registry->CreateEntity();
-    def.AddComponent<TextLabelComponent>("DEF - ", "statfont", grey, true,0,0,0);
-    def.AddComponent<TransformComponent>(glm::vec2(900, 380), glm::vec2(1.0,1.0));
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "ATT -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {32,380, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
-    Entity spd = registry->CreateEntity();
-    spd.AddComponent<TextLabelComponent>("SPD - ","statfont", grey, true,0,0,0);
-    spd.AddComponent<TransformComponent>(glm::vec2(780,400), glm::vec2(1.0,1.0));
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEF -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {150,380, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
-    Entity dex = registry->CreateEntity();
-    dex.AddComponent<TextLabelComponent>("DEX - ","statfont", grey, true,0,0,0);
-    dex.AddComponent<TransformComponent>(glm::vec2(900,400), glm::vec2(1.0,1.0));
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "SPD -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {30,400, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
-    Entity vit = registry->CreateEntity();
-    vit.AddComponent<TextLabelComponent>("VIT - ","statfont", grey, true,0,0,0);
-    vit.AddComponent<TransformComponent>(glm::vec2(780+6,420), glm::vec2(1.0,1.0));
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEX -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {150,400, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
-    Entity wis = registry->CreateEntity();
-    wis.AddComponent<TextLabelComponent>("WIS - ","statfont", grey, true,0,0,0);
-    wis.AddComponent<TransformComponent>(glm::vec2(900,420), glm::vec2(1.0,1.0));
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "VIT -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {36,420, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "WIS -", grey);
+    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+    dstRect = {150,420, width, height};
+    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
     Entity weaponSlot = registry->CreateEntity();
     weaponSlot.AddComponent<TransformComponent>(glm::vec2(765, 450), glm::vec2(1.25,1.25)); 
@@ -825,7 +784,6 @@ void Game::LoadGui(classes className){
         abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*7, 0, true);
     }
 
-
     Entity armorSlot = registry->CreateEntity();
     armorSlot.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 450), glm::vec2(1.25,1.25));
     if(classname == WARRIOR){
@@ -835,7 +793,6 @@ void Game::LoadGui(classes className){
     } else if (classname == PRIEST){
         armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*5, 0, true);
     }
-
 
     Entity ringSlot = registry->CreateEntity();
     ringSlot.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 450), glm::vec2(1.25,1.25));
@@ -913,6 +870,14 @@ void Game::LoadGui(classes className){
     invslotEight.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 564+((44+12+1)*2) + 10), glm::vec2(1.25,1.25));
     invslotEight.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
     invslotEight.AddComponent<InteractUIComponent>();
+
+    assetStore->AddTexture(renderer, STATICHUD, staticHUD);
+    Entity statichud = registry->CreateEntity();
+    statichud.AddComponent<SpriteComponent>(STATICHUD, 250, 750, 10, 0, 0 , true);
+    statichud.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
+    SDL_FreeSurface(ttfSurface);
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
 }
 
 void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
@@ -1009,10 +974,11 @@ void Game::Setup(){ // everything in setup occurs before game loop begins
     PopulateAssetStore();
     PopulateRegistry();
     LoadPlayer(ARCHER); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
-    //TODO populate ability function pointers?
-    
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
     LoadGui(playerClassName);
+    registry->Update();
+    registry->GetSystem<UpdateDisplayStatTextSystem>().SubscribeToEvents(eventBus);
+    eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
     LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
 
 }

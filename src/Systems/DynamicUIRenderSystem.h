@@ -17,7 +17,11 @@ This system is responsible for updating the xp,hp, and mp bars of the UI
 // this system updates the parts of the UI that are made of rectangles. 
 class DynamicUIRenderSystem: public System{
     private:
-        // std::vector<long> nextXPToLevelUp{0,50,200,450,800,1250,1800,2450,3200,4050,5000,6050,7200,8450,9800,11250,12800,14450,16200,18050};
+        // perhaps more efficient to store 3 vectors
+        // each vector contains the hp/mp/txt bar textures at 0% to 100%
+        // ex: if hp = 75% use texture at hpBarTextures[75] 
+        // rather than do SDL_Render stuff can just access an already existing texture? 
+        // this may be slightly more performant. 
     public:
 
         DynamicUIRenderSystem(){
@@ -30,16 +34,8 @@ class DynamicUIRenderSystem: public System{
             const auto& offenseStats = player.GetComponent<OffenseStatComponent>();
             const auto& baseStats = player.GetComponent<BaseStatComponent>();
             auto entities = GetSystemEntities();
-            int i = 0;
-            // first 3 are the grey background bars
-            for(i; i < 3; i++){
-                auto& data = entities[i].GetComponent<DynamicUIEntityComponent>();
-                SDL_SetRenderDrawColor(renderer, data.r, data.g, data.b, 255);
-                SDL_RenderFillRect(renderer, &data.rect);
-            }
 
-            // next 3 are the real, colored bars
-            DynamicUIEntityComponent& lvlbarData = entities[3].GetComponent<DynamicUIEntityComponent>();
+            DynamicUIEntityComponent& lvlbarData = entities[0].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, lvlbarData.r, lvlbarData.g, lvlbarData.b, 255);
             if(baseStats.xp < 18050){
                 lvlbarData.rect.w = (static_cast<double>(baseStats.xp) - nextXPToLevelUp[baseStats.level-1]) / (nextXPToLevelUp[baseStats.level] - nextXPToLevelUp[baseStats.level-1] ) * 225;
@@ -48,7 +44,7 @@ class DynamicUIRenderSystem: public System{
             }
             SDL_RenderFillRect(renderer, &lvlbarData.rect);
 
-            DynamicUIEntityComponent& hpbarData = entities[4].GetComponent<DynamicUIEntityComponent>();
+            DynamicUIEntityComponent& hpbarData = entities[1].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, hpbarData.r, hpbarData.g, hpbarData.b, 255);
             hpbarData.rect.w = HPMPstats.activehp / HPMPstats.maxhp * 225;
             if(hpbarData.rect.w < 0){
@@ -56,7 +52,7 @@ class DynamicUIRenderSystem: public System{
             }
             SDL_RenderFillRect(renderer, &hpbarData.rect);
 
-            DynamicUIEntityComponent& mpbarData = entities[5].GetComponent<DynamicUIEntityComponent>();
+            DynamicUIEntityComponent& mpbarData = entities[2].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, mpbarData.r, mpbarData.g, mpbarData.b, 255);
             mpbarData.rect.w = HPMPstats.activemp / HPMPstats.maxmp * 225;
             SDL_RenderFillRect(renderer, &mpbarData.rect);

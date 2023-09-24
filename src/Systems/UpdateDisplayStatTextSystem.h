@@ -32,6 +32,10 @@ class UpdateDisplayStatTextSystem: public System{
             eventBus->SubscribeToEvent<UpdateDisplayStatEvent>(this, &UpdateDisplayStatTextSystem::onDisplayStatUpdate);
         }
 
+        void onUpdateDisplayName(){
+            //todo
+        }
+
         // event update for att,def,spd,dex,vit,wis and display string
         void onDisplayStatUpdate(UpdateDisplayStatEvent& event){
             auto entities = GetSystemEntities();
@@ -45,7 +49,7 @@ class UpdateDisplayStatTextSystem: public System{
 
             auto& attDisplayText = entities[ATTACK].GetComponent<TextLabelComponent>();
             std::string attdisplayString = std::to_string(offenseStats.activeattack);
-                color = grey;
+            color = grey;
             if(offenseStats.activeattack > pbs.attack){
                 attdisplayString += " (+" + std::to_string(offenseStats.activeattack - pbs.attack) + ")";
                 color = statgreen;

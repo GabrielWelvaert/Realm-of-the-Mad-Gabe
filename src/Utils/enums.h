@@ -423,7 +423,9 @@ enum textureEnums{
     BIGWALL,
     BIGCEILING,
     LOFIOBJ5B,
-    LOFIOBJ6
+    LOFIOBJ6,
+    STATICHUD,
+    STATICHUD2
 
 };
 
