@@ -425,7 +425,8 @@ enum textureEnums{
     LOFIOBJ5B,
     LOFIOBJ6,
     STATICHUD,
-    STATICHUD2
+    STATICHUD2,
+    BAGSLOTS
 
 };
 

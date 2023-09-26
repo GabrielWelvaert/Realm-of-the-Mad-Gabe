@@ -171,8 +171,10 @@ void Game::ProcessInput(){
                                 factory.createItemInBag(registry, T5BOW, lbc);
                                 factory.createItemInBag(registry, T4ATTRING, lbc);
                                 factory.createItemInBag(registry, T8HELM, lbc);
-                                factory.createItemInBag(registry, T14SWORD, lbc);
-
+                                factory.createItemInBag(registry, T0ATTRING, lbc);
+                                factory.createItemInBag(registry, T6QUIVER, lbc);
+                                factory.createItemInBag(registry, T4BOW, lbc);
+                                factory.createItemInBag(registry, T13LIGHTARMOR, lbc);
                             }
                             if(x == SDLK_3){
                                 LoadEnemy({mouseX + camera.x, mouseY + camera.y}, REDKNIGHT0); 
@@ -765,119 +767,110 @@ void Game::LoadGui(classes className){
     SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
     Entity weaponSlot = registry->CreateEntity();
-    weaponSlot.AddComponent<TransformComponent>(glm::vec2(765, 450), glm::vec2(1.25,1.25)); 
+    weaponSlot.AddComponent<TransformComponent>(glm::vec2(765+5, 450+5), glm::vec2(1.25,1.25)); 
     if(classname == WARRIOR){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*6, 0, true);
+        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*6+4, 0+4, true);
     } else if (classname == PRIEST){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*8, 0, true);
+        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 0+4, true);
     } else if (classname == ARCHER){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*1, 0, true);
+        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 0+4, true);
     }
+    equipmentIconIds.push_back(weaponSlot.GetId());
 
     Entity abilitySlot = registry->CreateEntity();
-    abilitySlot.AddComponent<TransformComponent>(glm::vec2(765+44+12+1, 450), glm::vec2(1.25,1.25));
+    abilitySlot.AddComponent<TransformComponent>(glm::vec2(765+44+12+1 +5, 450+5), glm::vec2(1.25,1.25));
     if(classname == WARRIOR){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*0, 0, true);
+        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 0+4, true);
     } else if (classname == ARCHER){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*0, 44*1, true);
+        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 44*1+4, true);
     } else if (classname == PRIEST){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*7, 0, true);
+        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*7+4, 0+4, true);
     }
+    equipmentIconIds.push_back(abilitySlot.GetId());
 
     Entity armorSlot = registry->CreateEntity();
-    armorSlot.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 450), glm::vec2(1.25,1.25));
+    armorSlot.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1 +5, 450+5), glm::vec2(1.25,1.25));
     if(classname == WARRIOR){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*2, 0, true);
+        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 0+4, true);
     } else if (classname == ARCHER){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*3, 0, true);
+        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 0+4, true);
     } else if (classname == PRIEST){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*5, 0, true);
+        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS,44-8, 44-8, 11, 44*5+4, 0+4, true);
     }
+    equipmentIconIds.push_back(armorSlot.GetId());
 
     Entity ringSlot = registry->CreateEntity();
-    ringSlot.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 450), glm::vec2(1.25,1.25));
-    ringSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*4, 0, true);
+    ringSlot.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1 +5, 450+5), glm::vec2(1.25,1.25));
+    ringSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 0+4, true);
+    equipmentIconIds.push_back(ringSlot.GetId());
 
-    Entity slotOne = registry->CreateEntity();
-    slotOne.AddComponent<TransformComponent>(glm::vec2(765, 450+44+12+1), glm::vec2(1.25,1.25));
-    slotOne.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
+    int invSlotDimension = static_cast<int>(44 * 1.25);
+    srcRect = {44*9, 0, 44, 44};
 
-    Entity slotTwo = registry->CreateEntity();
-    slotTwo.AddComponent<TransformComponent>(glm::vec2(765+44*1+12*1+1, 450+44+12+1), glm::vec2(1.25,1.25));
-    slotTwo.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
+    dstRect = {15, 450, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // weapon slot bg
+    dstRect = {(765+44+12+1)-750, 450, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ability slot bg
+    dstRect = {(765+44*2+12*2+1)-750, 450, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // armor slot bg
+    dstRect = {(765+44*3+12*3+1)-750, 450, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ring slot bg
 
-    Entity slotThree = registry->CreateEntity();
-    slotThree.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 450+44+12+1), glm::vec2(1.25,1.25));
-    slotThree.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
+    dstRect = {(765)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot one bg
+    dstRect = {(765+44*1+12*1+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot two bg
+    dstRect = {(765+44*2+12*2+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot three bg
+    dstRect = {(765+44*3+12*3+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot four bg
+    dstRect = {(765)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot five bg
+    dstRect = {(765+44*1+12*1+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot six bg
+    dstRect = {(765+44*2+12*2+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot seven bg
+    dstRect = {(765+44*3+12*3+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot eight bg
 
-    Entity slotFour = registry->CreateEntity();
-    slotFour.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 450+44+12+1), glm::vec2(1.25,1.25));
-    slotFour.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
-
-    Entity slotFive = registry->CreateEntity();
-    slotFive.AddComponent<TransformComponent>(glm::vec2(765, 450+((44+12+1)*2)), glm::vec2(1.25,1.25));
-    slotFive.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
-
-    Entity slotSix = registry->CreateEntity();
-    slotSix.AddComponent<TransformComponent>(glm::vec2(765+44*1+12*1+1, 450+((44+12+1)*2)), glm::vec2(1.25,1.25));
-    slotSix.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
-
-    Entity slotSeven = registry->CreateEntity();
-    slotSeven.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 450+((44+12+1)*2)), glm::vec2(1.25,1.25));
-    slotSeven.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
-
-    Entity slotEight = registry->CreateEntity();
-    slotEight.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 450+((44+12+1)*2)), glm::vec2(1.25,1.25));
-    slotEight.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 11, 44*9, 0, true);
-
-    // next 8 are bag slots
-    Entity invslotOne = registry->CreateEntity();
-    invslotOne.AddComponent<TransformComponent>(glm::vec2(765, 564+44+12+1 + 10), glm::vec2(1.25,1.25));
-    invslotOne.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotOne.AddComponent<InteractUIComponent>();
-
-    Entity invslotTwo = registry->CreateEntity();
-    invslotTwo.AddComponent<TransformComponent>(glm::vec2(765+44*1+12*1+1, 564+44+12+1 + 10), glm::vec2(1.25,1.25));
-    invslotTwo.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotTwo.AddComponent<InteractUIComponent>();
-
-    Entity invslotThree = registry->CreateEntity();
-    invslotThree.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 564+44+12+1 + 10), glm::vec2(1.25,1.25));
-    invslotThree.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotThree.AddComponent<InteractUIComponent>();
-
-    Entity invslotFour = registry->CreateEntity();
-    invslotFour.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 564+44+12+1 + 10), glm::vec2(1.25,1.25));
-    invslotFour.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotFour.AddComponent<InteractUIComponent>();
-
-    Entity invslotFive = registry->CreateEntity();
-    invslotFive.AddComponent<TransformComponent>(glm::vec2(765, 564+((44+12+1)*2) + 10), glm::vec2(1.25,1.25));
-    invslotFive.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotFive.AddComponent<InteractUIComponent>();
-
-    Entity invslotSix = registry->CreateEntity();
-    invslotSix.AddComponent<TransformComponent>(glm::vec2(765+44*1+12*1+1, 564+((44+12+1)*2) + 10), glm::vec2(1.25,1.25));
-    invslotSix.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotSix.AddComponent<InteractUIComponent>();
-
-    Entity invslotSeven = registry->CreateEntity();
-    invslotSeven.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1, 564+((44+12+1)*2) + 10), glm::vec2(1.25,1.25));
-    invslotSeven.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotSeven.AddComponent<InteractUIComponent>();
-
-    Entity invslotEight = registry->CreateEntity();
-    invslotEight.AddComponent<TransformComponent>(glm::vec2(765+44*3+12*3+1, 564+((44+12+1)*2) + 10), glm::vec2(1.25,1.25));
-    invslotEight.AddComponent<SpriteComponent>(INVENTORYICONS, 44, 44, 9, 44*9, 0, true);
-    invslotEight.AddComponent<InteractUIComponent>();
+    //todo make inventory icons (numbers 1-8) & push back to the vector 
 
     assetStore->AddTexture(renderer, STATICHUD, staticHUD);
     Entity statichud = registry->CreateEntity();
     statichud.AddComponent<SpriteComponent>(STATICHUD, 250, 750, 10, 0, 0 , true);
     statichud.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
-    SDL_FreeSurface(ttfSurface);
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
+
+    /* inventory slots are their own texture */
+    SDL_Texture * bagslots =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
+    SDL_SetTextureBlendMode(bagslots, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, bagslots);
+    dstRect = {765-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot one bg
+    dstRect = {822-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot two bg
+    dstRect = {878-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot three bg
+    dstRect = {934-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot four bg
+    dstRect = {765-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot five bg
+    dstRect = {822-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot six bg
+    dstRect = {878-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot seven bg
+    dstRect = {934-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot eight bg
+    assetStore->AddTexture(renderer, BAGSLOTS, bagslots);
+    Entity bagSlots = registry->CreateEntity();
+    bagSlots.AddComponent<SpriteComponent>(BAGSLOTS, 250, 750, 9, 0, 0, true);
+    bagSlots.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
+    bagSlots.AddComponent<InteractUIComponent>();
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
+
+    SDL_FreeSurface(ttfSurface);
 }
 
 void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
@@ -1030,7 +1023,7 @@ void Game::Update(){
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
-    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player);
+    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds);
 }
 
 void Game::Render(){

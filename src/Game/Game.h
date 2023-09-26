@@ -26,6 +26,8 @@ class Game{
         const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
+        std::vector<int> inventoryIconIds;
+        std::vector<int> equipmentIconIds;
 
     public:
         Game();

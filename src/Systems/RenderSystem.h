@@ -26,9 +26,6 @@ class RenderSystem: public System {
 
             //sort(begin, end, lambda function that compares two)
             auto& entities = GetSystemEntities();
-            // std::sort(entities.begin(), entities.end(), [](const Entity& e1, const Entity& e2){
-            //     return e1.GetComponent<SpriteComponent>().zIndex < e2.GetComponent<SpriteComponent>().zIndex;
-            // });
 
             std::sort(entities.begin(), entities.end(), [](const Entity& e1, const Entity& e2){
                 const auto& e1sprite = e1.GetComponent<SpriteComponent>();
