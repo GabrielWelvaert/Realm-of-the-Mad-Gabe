@@ -161,8 +161,18 @@ enum items{
     T7HELM,
     T8HELM,
     ATTACKPENDANT,
-
-
+    HPPOT,
+    MPPOT,
+    ATTPOT,
+    DEFPOT,
+    DEXPOT,
+    SPDPOT,
+    WISPOT,
+    VITPOT,
+    LIFEPOT,
+    MANAPOT,
+    CABERNET,
+    FIREWATER,
 };
 
 
@@ -251,7 +261,7 @@ enum sprites{
     PURPLELOOTBAG,
     CYANLOOTBAG,
     BLUELOOTBAG,
-    WHITELOOTBAG
+    WHITELOOTBAG,
 };
 
 enum soundEnums{
@@ -549,7 +559,20 @@ enum groups{
     ROBE,
     LIGHTARMOR,
     HEAVYARMOR,
-    RING
+    RING,
+    HPPOTGROUP, // keep the groups at the end for logic in processInput
+    MPPOTGROUP,
+    ATTPOTGROUP,
+    DEFPOTGROUP,
+    DEXPOTGROUP,
+    SPDPOTGROUP,
+    WISPOTGROUP,
+    VITPOTGROUP,
+    LIFEPOTGROUP,
+    MANAPOTGROUP,
+    CABERNETGROUP,
+    FIREWATERGROUP,
+
 };
 
 

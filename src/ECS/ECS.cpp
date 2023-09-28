@@ -90,11 +90,11 @@ void Registry::AddEntityToSystems(Entity entity){
 
 void Registry::RemoveEntityFromSystems(Entity entity){
     for (auto system: systems){
-        // system.second->RemoveEntityFromSystem(entity);
-        const Signature& systemSignature = system.second->GetComponentSignature();
-        if((systemSignature & entity.getComponentSignature()) == systemSignature){
-            system.second->RemoveEntityFromSystem(entity);
-        }
+        system.second->RemoveEntityFromSystem(entity);
+        // const Signature& systemSignature = system.second->GetComponentSignature();
+        // if((systemSignature & entity.getComponentSignature()) == systemSignature){
+        //     system.second->RemoveEntityFromSystem(entity);
+        // }
     }
 }
 

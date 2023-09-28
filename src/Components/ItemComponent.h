@@ -4,15 +4,17 @@
 #include "../ECS/ECS.h"
 #include <memory>
 #include <map>
+#include "../Utils/enums.h"
 
 struct ItemComponent{
     items itemEnum;
     unsigned char lastPosition;
-    std::map<unsigned char, Entity>* hostMap;
+    int IdOfHostBag; // never used 
+    sprites bagSpriteEnum;
 
     ItemComponent() = default;
 
-    ItemComponent(items itemEnum, unsigned char lastPosition, std::map<unsigned char, Entity>& hostMap)
-        : itemEnum(itemEnum), lastPosition(lastPosition), hostMap(&hostMap) {}
+    ItemComponent(items itemEnum, unsigned char lastPosition, int IdOfHostBag, sprites bagSpriteEnum = BROWNLOOTBAG)
+        : itemEnum(itemEnum), lastPosition(lastPosition), IdOfHostBag(IdOfHostBag) , bagSpriteEnum(bagSpriteEnum) {}
 
 };

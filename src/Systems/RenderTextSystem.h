@@ -45,13 +45,13 @@ class RenderTextSystem: public System{
                 auto& position = entity.GetComponent<TransformComponent>().position;     
 
                 SDL_Texture* texture;
-                if(textTextures.find(textlabel.text) == textTextures.end()){ // attempts to re-use texture of existing renderText Texture! 
+                if(textTextures.find(textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r)) == textTextures.end()){ // attempts to re-use texture of existing renderText Texture! 
                     SDL_Surface* surface = TTF_RenderText_Blended(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), textlabel.color);
                     texture = SDL_CreateTextureFromSurface(renderer, surface);
                     SDL_FreeSurface(surface);    
-                    textTextures[textlabel.text] = texture;
+                    textTextures[textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r)] = texture;
                 } else {
-                    texture = textTextures.at(textlabel.text);
+                    texture = textTextures.at(textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r));
                 }
 
                 if(textlabel.spawnframe){

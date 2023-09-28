@@ -12,7 +12,9 @@
 #include "../Events/LevelUpEvent.h"
 #include "../Events/EquipItemWithStatsEvent.h"
 #include "../Events/UpdateDisplayStatEvent.h"
+#include "../Events/DrinkConsumableEvent.h"
 #include "../Utils/tables.h"
+#include "../Utils/colors.h"
 
 /*
 this system is responsbile for managing the player stat increases at level up and potion drinking via events
@@ -41,6 +43,35 @@ class StatSystem: public System{
             return RNG.randomFromRange(min, max);
         }
 
+        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+            Entity dmgText = registry->CreateEntity();
+            dmgText.AddComponent<TextLabelComponent>(
+                "+" + std::to_string(healAmount),
+                "damagefont",
+                xpgreen,
+                false,
+                350,
+                0,
+                1
+                );
+            dmgText.AddComponent<TransformComponent>(playerPosition);
+        }
+
+        inline void displayMpHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+            Entity dmgText = registry->CreateEntity();
+            dmgText.AddComponent<TextLabelComponent>(
+                "+" + std::to_string(healAmount),
+                "damagefont",
+                mpcolor,
+                false,
+                350,
+                0,
+                1
+                );
+            dmgText.AddComponent<TransformComponent>(playerPosition);
+        }
+
+
     public:
         StatSystem(){
             RequireComponent<BaseStatComponent>();
@@ -50,10 +81,167 @@ class StatSystem: public System{
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
             eventBus->SubscribeToEvent<LevelUpEvent>(this, &StatSystem::onLevelUp);
             eventBus->SubscribeToEvent<EquipItemWithStatsEvent>(this, &StatSystem::onEquipItemWithStats);
+            eventBus->SubscribeToEvent<DrinkConsumableEvent>(this, &StatSystem::onDrinkConsumablePot);
         }
 
-        void onDrinkStatPot(){
-            //todo
+        void onDrinkConsumablePot(DrinkConsumableEvent& event){
+            auto& player = event.player;
+            auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+            switch(event.itemEnum){
+                case HPPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    if(hpmp.activehp == hpmp.maxhp){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    hpmp.activehp += 100;
+                    if(hpmp.activehp > hpmp.maxhp){
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (hpmp.activehp - hpmp.maxhp));
+                        hpmp.activehp = hpmp.maxhp;
+                    } else {
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
+                    }
+                }break;
+                case MPPOT: {
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    if(hpmp.activemp == hpmp.maxmp){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    hpmp.activemp += 100;
+                    if(hpmp.activemp > hpmp.maxmp){
+                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (hpmp.activemp - hpmp.maxmp));
+                        hpmp.activemp = hpmp.maxmp;
+                    } else {
+                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
+                    }
+                }break;
+                case ATTPOT:{
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    auto& offensestats = player.GetComponent<OffenseStatComponent>();
+                    if(basestats.attack == getMaxStat(player.GetComponent<ClassNameComponent>().classname, ATTACK)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.attack ++;
+                    offensestats.activeattack ++;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+
+                }break;
+                case DEFPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.defense == getMaxStat(player.GetComponent<ClassNameComponent>().classname, DEFENSE)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.defense ++;
+                    hpmp.activedefense ++;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case DEXPOT:{
+                    auto& offensestats = player.GetComponent<OffenseStatComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.dexterity == getMaxStat(player.GetComponent<ClassNameComponent>().classname, DEXTERITY)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.dexterity ++;
+                    offensestats.activedexterity ++;
+                    auto& projectileRepeatFrequency = event.player.GetComponent<ProjectileEmitterComponent>().repeatFrequency;
+                    auto& frameSpeedRate = event.player.GetComponent<AnimationComponent>().frameSpeedRate;
+                    projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000
+                    frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; //dex to shorts per second * 2
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case SPDPOT:{
+                    auto& activespeed = player.GetComponent<SpeedStatComponent>().activespeed;
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.speed == getMaxStat(player.GetComponent<ClassNameComponent>().classname, SPEED)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.speed ++;
+                    activespeed ++;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case WISPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.wisdom == getMaxStat(player.GetComponent<ClassNameComponent>().classname, WISDOM)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.wisdom ++;
+                    hpmp.activewisdom ++;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case VITPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.vitality == getMaxStat(player.GetComponent<ClassNameComponent>().classname, VITALITY)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.vitality ++;
+                    hpmp.activevitality ++;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case LIFEPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.hp == getMaxStat(player.GetComponent<ClassNameComponent>().classname, HP)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.hp += 5;
+                    hpmp.maxhp += 5;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case MANAPOT:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    auto& basestats = player.GetComponent<BaseStatComponent>();
+                    if(basestats.mp == getMaxStat(player.GetComponent<ClassNameComponent>().classname, MP)){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    basestats.mp += 5;
+                    hpmp.maxmp += 5;
+                    event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                }break;
+                case CABERNET:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    if(hpmp.activehp == hpmp.maxhp){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    hpmp.activehp += 150;
+                    if(hpmp.activehp > hpmp.maxhp){
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (hpmp.activehp - hpmp.maxhp));
+                        hpmp.activehp = hpmp.maxhp;
+                    } else {
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150);
+                    }
+                }break;
+                case FIREWATER:{
+                    auto& hpmp = player.GetComponent<HPMPComponent>();
+                    if(hpmp.activehp == hpmp.maxhp){
+                        event.assetstore->PlaySound(ERROR);
+                        return;
+                    }
+                    hpmp.activehp += 230;
+                    if(hpmp.activehp > hpmp.maxhp){
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (hpmp.activehp - hpmp.maxhp));
+                        hpmp.activehp = hpmp.maxhp;
+                    } else {
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230);
+                    }
+                }break;
+
+            }
+            event.assetstore->PlaySound(POTION);
+            inventory.at(event.invSlot).Kill();
+            inventory.erase(event.invSlot);
         }
 
         void onEquipItemWithStats(EquipItemWithStatsEvent& event){

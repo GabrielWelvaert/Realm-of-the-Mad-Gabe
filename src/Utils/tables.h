@@ -7,6 +7,7 @@
 #include "../../libs/glm/glm.hpp"
 #include "../../libs/SDL2/SDL.h"
 #include <memory>
+#include <map>
 
 /*
 these maps, tables, vectors are used to access data associated with an enum
@@ -149,6 +150,14 @@ struct quiverData{
     textureEnums texture;
     SDL_Rect srcRect;
 };
+
+struct ItemTableComponentData{
+    std::map<int, std::vector<items>> dropTable;
+};
+
+extern std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData;
+
+extern std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum;
 
 extern std::unordered_map<items, abilityData> itemEnumToAbilityData;
 

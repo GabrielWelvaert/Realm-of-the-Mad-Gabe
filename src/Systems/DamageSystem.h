@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include "../Utils/colors.h"
+#include "../Components/ItemTableComponent.h"
 
 /*
 This system is responsible for calculating damage and emitting events such as level up and death
@@ -34,9 +35,6 @@ class DamageSystem: public System{
     private:
         Xoshiro256 RNG; // fast RNG for calculating damange in random range ex: RNG.damange(min, max)
 
-        // this hash table stops piercing projectiles from hitting same entity more than once
-        // hash table messes with cache hits but idrk if this one can be removed unless I can think of a new solution
-        // not too dire since its 1. being used only for piercing weapons (just player) 2. during events, not updates 
         std::unordered_map<unsigned int, std::unordered_set<unsigned int>> projectileVictimsAsCIDs; //projectile victim creationIDs
 
         inline void displayDamgeText(ProjectileDamageEvent& event, const glm::vec2& victimPosition, const int& dmg){
@@ -140,6 +138,13 @@ class DamageSystem: public System{
                                 event.assetStore->PlaySound(LEVELUP);
                             }
                         }
+                        if(event.victim.HasComponent<ItemTableComponent>()){
+                            auto& itc = event.victim.GetComponent<ItemTableComponent>();
+                            if(!itc.hasAlreadySpawnedBag){
+                                event.factory->createLootAtDeath(event.victim, event.registry, event.assetStore);        
+                                itc.hasAlreadySpawnedBag = true;
+                            }
+                        }
                     } // else if player is dead.. todo... 
                 } 
 
@@ -165,6 +170,13 @@ class DamageSystem: public System{
                                 event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
                             }
                             event.assetStore->PlaySound(LEVELUP);
+                        }
+                    }
+                    if(event.victim.HasComponent<ItemTableComponent>()){
+                        auto& itc = event.victim.GetComponent<ItemTableComponent>();
+                        if(!itc.hasAlreadySpawnedBag){
+                            event.factory->createLootAtDeath(event.victim, event.registry, event.assetStore);        
+                            itc.hasAlreadySpawnedBag = true;
                         }
                     }
                 } // else if player is dead.. todo... 

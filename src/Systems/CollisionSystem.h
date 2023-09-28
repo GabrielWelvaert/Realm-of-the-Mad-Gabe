@@ -123,7 +123,7 @@ class CollisionSystem: public System {
             RequireComponent<TransformComponent>();
         }
 
-        void Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, PlayerItemsComponent& playerIC) {
+        void Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, PlayerItemsComponent& playerIC, std::unique_ptr<Factory>& factory) {
             auto entities = GetSystemEntities();
             for (auto i = entities.begin(); i != entities.end(); i++){ //sliding window algorithm
                 Entity a = *i;
@@ -166,9 +166,9 @@ class CollisionSystem: public System {
                                 a.BelongsToGroup(WALLBOX) ? eventBus->EmitEvent<CollisionEvent>(a,b,getCollisionSide(bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height,aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height)) : eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height)); //wall should be first parameter
                             }
                         } else if (projectileHitSomeone(a,b) && !projectileParentGroupSameAsVictimGroup(a,b)){//no walls; someone was shot!
-                            a.BelongsToGroup(PROJECTILE) ? eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore) : eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore); 
+                            a.BelongsToGroup(PROJECTILE) ? eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory) : eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory); 
                         } else if (playerAndBag(a,b)){ // player collided with loot bag
-                            if(!playerIC.ptrToOpenBag){ // only open new bag if not currently viewing a bag
+                            if(!playerIC.viewingBag){ // only open new bag if not currently viewing a bag
                                 if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
                                     if(!b.GetComponent<LootBagComponent>().opened){ // need not open an open bag
                                         eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC);

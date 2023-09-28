@@ -38,8 +38,7 @@ class InteractUISystem: public System{
             lbc.opened = event.status;
             GetSystemEntities()[0].GetComponent<SpriteComponent>().zIndex = event.zIndex;
             int i = 0;
-            while(i < 9){ // 8 item slots (1-8) (note these dont "belong" to loot bag)
-                auto& lbc = event.lootbag.GetComponent<LootBagComponent>();
+            while(i < 8){ // 8 item slots (1-8) (note these dont "belong" to loot bag)
                 if(lbc.contents.find(i+1) != lbc.contents.end()){ // if there is an item in this inventory slot (1-8)
                     auto& item = lbc.contents[i+1];
                     const auto& position = bagSlotPositions[i];
@@ -58,7 +57,23 @@ class InteractUISystem: public System{
                 i++;
             }
             // updating player InventoryComponent's pointer to open bag (nullptr if not open bag)
-            event.status ? event.playerIC.ptrToOpenBag = &lbc.contents : event.playerIC.ptrToOpenBag = nullptr;
+            // std::string s;
+            // event.status ? s = "open" : s = "close";
+            // std::cout << s << " onDisplayBag event triggered; ";
+            
+            if(event.status){
+                event.playerIC.IdOfOpenBag = event.lootbag.GetId();
+                event.playerIC.viewingBag = true;
+                lbc.opened = true;
+            } else {
+                lbc.opened = event.playerIC.viewingBag = false;
+            }
+            
+            // if(event.status){
+            //     std::cout << " opening bag " << event.lootbag.GetId() << std::endl;
+            // } else {
+            //     std::cout << " closing bag " << event.lootbag.GetId() << std::endl;
+            // }
         }
 
 };

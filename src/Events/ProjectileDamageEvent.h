@@ -14,12 +14,11 @@ public:
     std::unique_ptr<EventBus>& eventBus; // this event can emit further events...
     std::unique_ptr<Registry>& registry; // bit hacky, but this event has registry access...
     std::unique_ptr<AssetStore>& assetStore; // is this bad lol
+    std::unique_ptr<Factory>& factory;
 
-    ProjectileDamageEvent(Entity projectile, Entity victim, std::unique_ptr<EventBus>& eventBus,std::unique_ptr<Registry>& registry,std::unique_ptr<AssetStore>& assetStore)
-        : projectile(projectile), victim(victim), eventBus(eventBus), registry(registry), assetStore(assetStore){
+    ProjectileDamageEvent(Entity projectile, Entity victim, std::unique_ptr<EventBus>& eventBus,std::unique_ptr<Registry>& registry,std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Factory>& factory)
+        : projectile(projectile), victim(victim), eventBus(eventBus), registry(registry), assetStore(assetStore), factory(factory){
     }
 };
-
-
 
 #endif

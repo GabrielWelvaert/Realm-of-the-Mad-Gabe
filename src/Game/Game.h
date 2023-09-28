@@ -8,6 +8,8 @@
 #include "../../libs/glm/glm.hpp"
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/enums.h"
+#include "../Utils/factory.h"
+
 const bool fpslimit = false;
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -23,6 +25,7 @@ class Game{
         std::unique_ptr<AssetStore> assetStore;
         std::unique_ptr<Registry> registry; 
         std::unique_ptr<EventBus> eventBus;
+        std::unique_ptr<Factory> factory;
         const bool debug = false;
         Entity player;
         Xoshiro256 RNG;

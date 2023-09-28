@@ -8,6 +8,9 @@
 #include "../Components/LootBagComponent.h"
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Events/LootBagCollisionEvent.h"
+#include "../EventBus/EventBus.h"
+#include "../AssetStore/AssetStore.h"
 
 /*
 This system is responsible for 
@@ -19,6 +22,10 @@ This system is responsible for
 class LootBagSystem: public System{
     private:
         const Uint32 bagLifeTimeMs = 60000;
+
+        inline void errorReturnItemToStartingPos(){
+
+        }
 
         inline bool CheckAABBCollision(double ax, double ay, double aw, double ah, double bx, double by, double bw, double bh){
             return (
@@ -37,12 +44,34 @@ class LootBagSystem: public System{
         // todo: event for spawning loot bag upon monster death 
 
         // update is respondible for 
-        // 1) close an open bag if player is no longer standing on-top 
-        // 2) safely kill a bag that has expired
+        // 1) safely kill a bag that has expired
+        // 2) close an open bag if player is no longer standing on-top 
         void Update(int my, Entity player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, PlayerItemsComponent& playerIC){
             for(auto entity: GetSystemEntities()){
                 auto& lbc = entity.GetComponent<LootBagComponent>();
+                if(SDL_GetTicks() > lbc.spawnTime + bagLifeTimeMs || lbc.contents.size() == 0){ // kill bag and contents! 
+                    if(playerIC.IdOfOpenBag == entity.GetId() && playerIC.viewingBag){ // player was viewing this bag; "close" it 
+                        if(playerIC.holdingItemLastFrame){
+                            // item was hoving over lootbag and not from lootbag OR item was from lootbag
+                            if((my > 627 && playerIC.heldItemStartingTransformComp.y < 627) || playerIC.heldItemStartingTransformComp.y > 627){ 
+                                playerIC.holdingItemLastFrame = false; 
+                                if(registry->HasComponent<TransformComponent>(playerIC.IdOfHeldItem)){
+                                    registry->GetComponent<TransformComponent>(playerIC.IdOfHeldItem).position = playerIC.heldItemStartingTransformComp;
+                                    assetStore->PlaySound(ERROR);
+                                }
+                            }
+                        } 
+                    }
+                    lbc.deleteContents(); // kill contents of bag
+                    entity.Kill();
+                    if(lbc.opened){
+                        eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
+                    }
+                    continue;
+                }
+
                 if(lbc.opened){
+                    // std::cout << "bag " << entity.GetId() << " open in lootbagsystem w/ " << lbc.contents.size() << " item(s). Player watching bag " << player.GetComponent<PlayerItemsComponent>().IdOfOpenBag << std::endl;
                     const auto& aCollider = entity.GetComponent<BoxColliderComponent>();
                     const auto& aTransform = entity.GetComponent<TransformComponent>();
                     const auto& bCollider = player.GetComponent<BoxColliderComponent>();
@@ -56,28 +85,17 @@ class LootBagSystem: public System{
                         bTransform.position.y + bCollider.offset[1],
                         bCollider.width,
                         bCollider.height)){
-                            eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
-                        }
-                }
-                if(SDL_GetTicks() > lbc.spawnTime + bagLifeTimeMs){ // kill bag and contents! 
-                    if(playerIC.ptrToOpenBag == &lbc.contents){ // player was viewing this bag; "close" it 
-                        eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
-                        if(playerIC.holdingItemLastFrame){
-                            if(!lbc.hasItem(playerIC.IdOfHeldItem)){ // held item not from loot bag
-                                if(my > 625){ // if player was attempting to drop item into bag but it despawned:
-                                    if(playerIC.IdOfHeldItem != 0){ // safe safe safe
+                            if(playerIC.holdingItemLastFrame){
+                                playerIC.holdingItemLastFrame = false; 
+                                if((my > 627 && playerIC.heldItemStartingTransformComp.y < 627) || playerIC.heldItemStartingTransformComp.y > 627){
+                                    if(registry->HasComponent<TransformComponent>(playerIC.IdOfHeldItem)){
                                         registry->GetComponent<TransformComponent>(playerIC.IdOfHeldItem).position = playerIC.heldItemStartingTransformComp;
-                                        assetStore->PlaySound(ERROR);    
+                                        assetStore->PlaySound(ERROR);
                                     }
                                 }
-                            } else { // held item from loot bag
-                                assetStore->PlaySound(ERROR);
                             }
-                        } 
-                    }
-                    playerIC.holdingItemLastFrame = false;
-                    lbc.deleteContents(); // kill contents of bag
-                    entity.Kill();
+                            eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
+                        }
                 }
             }
         }

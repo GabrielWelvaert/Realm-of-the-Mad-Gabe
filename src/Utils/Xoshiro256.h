@@ -32,6 +32,8 @@ public:
         s[1] = seed + 1;
         s[2] = seed + 2;
         s[3] = seed + 3;
+        next();
+        next();
 	};
 
 	inline int randomFromRange(int minX, int maxX) {

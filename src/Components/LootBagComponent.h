@@ -39,8 +39,9 @@ struct LootBagComponent{
 
     void printContents(){
         for(auto x: contents){
-            std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
+            std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << " ";
         }
+        std::cout << std::endl;
     }
 
     void deleteContents(){
@@ -49,9 +50,4 @@ struct LootBagComponent{
         }
     }
 
-    void swapItemPositions(unsigned int item1, unsigned int item2){
-        std::pair<unsigned char, Entity> tempitem = *contents.find(item1);
-        contents[item1] = contents[item2];
-        contents[item2] = tempitem.second;
-    }
 };

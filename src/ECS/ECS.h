@@ -210,6 +210,7 @@ class Registry {
         template <typename TComponent, typename ...TArgs> void AddComponent(Entity entity, TArgs&& ...args);
         template <typename TComponent> void RemoveComponent(Entity entity);
         template <typename TComponent> bool HasComponent(Entity entity);
+        template <typename TComponent> bool HasComponent(int id);
         template <typename TComponent> TComponent& GetComponent(Entity entity) const;
         template <typename TComponent> TComponent& GetComponent(int entityID) const;
 
@@ -319,6 +320,12 @@ bool Registry::HasComponent(Entity entity){
     const auto entityId = entity.GetId();
 
     return entityComponentSignatures[entityId].test(componenetId); //test is a method for Signature types
+}
+
+template <typename TComponent>
+bool Registry::HasComponent(int id){
+    const auto componenetId = Component<TComponent>::GetId();
+    return entityComponentSignatures[id].test(componenetId); //test is a method for Signature types
 }
 
 template <typename TComponent>

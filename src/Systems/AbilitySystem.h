@@ -49,7 +49,6 @@ class AbilitySytem: public System{
         }
 
         void onQuiverUse(QuiverUseEvent& event){
-            std::cout << "onQuiverUse" << std::endl;
             const auto& player = event.player;
             const auto& quiver = player.GetComponent<QuiverComponent>();
             const auto& playerpos = player.GetComponent<TransformComponent>().position;
@@ -75,7 +74,6 @@ class AbilitySytem: public System{
         }
 
         void onAbilityEquip(EquipAbilityEvent& event){
-            std::cout << " abiltiy equip event handled! " << std::endl;
             auto& player = event.player;
             auto& classname = player.GetComponent<ClassNameComponent>().classname;
             auto& ac = player.GetComponent<AbilityComponent>();

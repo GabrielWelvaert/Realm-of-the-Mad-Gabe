@@ -38,13 +38,13 @@ int Game::mapWidth; //in pixels, initialized when loading level
 int Game::mapheight; //in pixels, initialized when loading level
 int Game::mouseX;
 int Game::mouseY;
-Factory factory;
 
 Game::Game(){
     isRunning = false;
     registry = std::make_unique<Registry>();
     assetStore = std::make_unique<AssetStore>();
     eventBus = std::make_unique<EventBus>();
+    factory = std::make_unique<Factory>();
 }
 
 Game::~Game(){
@@ -138,82 +138,88 @@ std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_a, 1}, 
     {SDLK_s, 2},  
     {SDLK_d, 3},
-    //keysPressed[4] is for LMB but its not a SDL_KeyCode! 
+    //keysPressed[4] is for mouse button (any) but its not a SDL_KeyCode! 
 };
+std::bitset<8> inventoryUses; // used to enforce player can use inventory slot ONCE per ProcessInput
 bool space = false;
+SDL_Keycode key;
+unsigned int startTime;
+const unsigned int MSToReadInput = 20;
+int invetoryNumber;
 
 void Game::ProcessInput(){
-    unsigned int startTime = SDL_GetTicks();
-    const unsigned int MSToReadInput = 20;
-    // keysPressed.reset() messed with holding down buttons between sessions since its not
-    // getting re-detected as an SDL_Event. works without resetting, though
+    startTime = SDL_GetTicks();
+    inventoryUses.reset(); 
+    // DO NOT RESET KEYSPRESSED!! 
 
-    //TODO: process 1-8, f, shift-click as blocking event
     while(SDL_GetTicks() - startTime < MSToReadInput){
         SDL_Event sdlEvent;
         while(SDL_PollEvent(&sdlEvent)) {
+            key = sdlEvent.key.keysym.sym;
             switch (sdlEvent.type){
                 case SDL_QUIT: 
                     isRunning = false;
                     break;
                 case SDL_KEYDOWN:
-                    for(auto x: {SDLK_1,SDLK_2,SDLK_3,SDLK_4,SDLK_5,SDLK_6,SDLK_7,SDLK_8, SDLK_SPACE}){
-                        if(x == sdlEvent.key.keysym.sym){
-                            if(x == SDLK_1){
-                                
-                            }
-                            if(x == SDLK_2){
-                                glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            
-                                Entity lootbag = factory.creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                                auto& lbc = lootbag.GetComponent<LootBagComponent>();
-                                factory.createItemInBag(registry, T13BOW, lbc);
-                                factory.createItemInBag(registry, T5BOW, lbc);
-                                factory.createItemInBag(registry, T4ATTRING, lbc);
-                                factory.createItemInBag(registry, T8HELM, lbc);
-                                factory.createItemInBag(registry, T0ATTRING, lbc);
-                                factory.createItemInBag(registry, T6QUIVER, lbc);
-                                factory.createItemInBag(registry, T4BOW, lbc);
-                                factory.createItemInBag(registry, T13LIGHTARMOR, lbc);
-                            }
-                            if(x == SDLK_3){
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, REDKNIGHT0); 
-                            }
-                            if(x == SDLK_4){
-
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON0); 
-                            }
-                            if(x == SDLK_5){
-                                
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON1); 
-                            }
-                            if(x == SDLK_6){
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON2); 
-                            }
-                            if(x == SDLK_7){
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON3); 
-                            }
-                            if(x == SDLK_8){
-                                LoadEnemy({mouseX + camera.x, mouseY + camera.y}, SKELETON4); 
-                            }
-                            if(x == SDLK_SPACE){
-                                space = true;
-                            }
-                            
-                        }
-                    }
-                    if(sdlEvent.key.keysym.sym == SDLK_m){
+                    if(key == SDLK_m){
                         assetStore->PlayMusic("ost");
                     }
-                    if(keyindex.find(sdlEvent.key.keysym.sym) != keyindex.end()){ // is this doing a linear search every time? lol 
+                    else if(keyindex.find(key) != keyindex.end()){ // WASD PRESSED
                         // set WASD in keysPressed! 
-                        keysPressed[keyindex[sdlEvent.key.keysym.sym]] = true;
+                        keysPressed[keyindex[key]] = true;
+                    } else if(key == SDLK_SPACE){ // SPACE PRESSED
+                        space = true;
+                    } else if(static_cast<int>(key) >= 49 && static_cast<int>(key) <= 56){ // 1-8 PRESSED
+                        invetoryNumber = static_cast<int>(key)-49;
+                        if(!inventoryUses[invetoryNumber]){
+                            inventoryUses[invetoryNumber] = true;  
+                            const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+                            if(inventory.find(invetoryNumber+1) != inventory.end()){
+                                const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
+                                if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
+                                    eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
+                                } else {
+                                    assetStore->PlaySound(ERROR);
+                                }
+                            }
+                        } else {
+                            std::cout << "blocking repeated consumptoion in one proccessINput!" << std::endl;
+                        }
+                    } else if(key == SDLK_LSHIFT || key == SDLK_RSHIFT){ // SHIFT PRESSED!
+                        // todo
+                    } else if(key == SDLK_9) {
+                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                        Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                        factory->createItemInBag(registry, HPPOT, lootbag);
+                        factory->createItemInBag(registry, MPPOT, lootbag);
+                        factory->createItemInBag(registry, ATTPOT, lootbag);
+                        factory->createItemInBag(registry, DEXPOT, lootbag);
+                        factory->createItemInBag(registry, SPDPOT, lootbag);
+                        factory->createItemInBag(registry, WISPOT, lootbag);
+                        factory->createItemInBag(registry, VITPOT, lootbag);
+                        factory->createItemInBag(registry, DEFPOT, lootbag);
+                    } else if(key == SDLK_0){
+                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                        Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                        factory->createItemInBag(registry, LIFEPOT, lootbag);
+                        factory->createItemInBag(registry, MANAPOT, lootbag);
+                        factory->createItemInBag(registry, CABERNET, lootbag);
+                        factory->createItemInBag(registry, FIREWATER, lootbag);
+                        factory->createItemInBag(registry, T13BOW, lootbag);
+                        factory->createItemInBag(registry, T7TOME, lootbag);
+                        factory->createItemInBag(registry, T14ROBE, lootbag);
+                        factory->createItemInBag(registry, T8QUIVER, lootbag);
+                    } else if(key == SDLK_MINUS){
+                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                        std::vector<sprites> monsters = {SKELETON0, SKELETON1, SKELETON2, SKELETON3, SKELETON4, REDKNIGHT0, SHATTERSBOMB};
+                        int index = RNG.randomFromRange(0, monsters.size()-1);
+                        factory->spawnMonster(registry, spawnpoint, monsters[index]);
                     }
                     break;
                 case SDL_KEYUP:
-                    if(keyindex.find(sdlEvent.key.keysym.sym) != keyindex.end()){
-                        keysPressed[keyindex[sdlEvent.key.keysym.sym]] = false;
-                    } else if(sdlEvent.key.keysym.sym == SDLK_SPACE){
+                    if(keyindex.find(key) != keyindex.end()){
+                        keysPressed[keyindex[key]] = false;
+                    } else if(key == SDLK_SPACE){
                         space = false;
                     }
                     break;
@@ -874,7 +880,7 @@ void Game::LoadGui(classes className){
 }
 
 void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
-    factory.spawnMonster(registry, spawnpoint, spriteEnum);
+    factory->spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
 void Game::LoadPlayer(classes classname){
@@ -900,8 +906,8 @@ void Game::LoadPlayer(classes classname){
     player.GetComponent<HPMPComponent>().activemp = 32000;
     player.GetComponent<HPMPComponent>().maxmp = 32000;
     player.GetComponent<SpeedStatComponent>().activespeed = 50;
-    player.GetComponent<OffenseStatComponent>().activeattack = 75;
-    player.GetComponent<BaseStatComponent>().attack = 75;
+    player.GetComponent<OffenseStatComponent>().activeattack = 74;
+    player.GetComponent<BaseStatComponent>().attack = 74;
 
     player.AddComponent<ProjectileEmitterComponent>();
     player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * baseStats.dexterity + 1.5);
@@ -1016,14 +1022,15 @@ void Game::Update(){
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
-    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, playerInventory);
+    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, playerInventory, factory);
     registry->GetSystem<CameraMovementSystem>().Update(camera);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
+    // registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
+    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
-    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds);
 }
 
 void Game::Render(){

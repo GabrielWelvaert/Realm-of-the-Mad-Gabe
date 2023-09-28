@@ -8,7 +8,8 @@
 struct PlayerItemsComponent{
     std::map<unsigned char, Entity> equipment;
     std::map<unsigned char, Entity> inventory;
-    std::map<unsigned char, Entity>* ptrToOpenBag = nullptr; // points to nullptr if no bag is open...
+    int IdOfOpenBag;
+    bool viewingBag;
     bool holdingItemLastFrame = false;
     int IdOfHeldItem = 0;
     glm::vec2 heldItemStartingTransformComp;
