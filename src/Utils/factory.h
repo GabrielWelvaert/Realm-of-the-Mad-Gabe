@@ -30,6 +30,7 @@
 #include "../Components/ChaseAIComponent.h"
 #include "../Components/TrapAIComponent.h"
 #include "../Components/ItemTableComponent.h"
+#include "../Components/StatusEffectComponent.h"
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/tables.h"
@@ -44,7 +45,9 @@ class Factory{
     private:
         Xoshiro256 RNG;
 
-        inline void createMonster(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
+    public:
+    
+        inline Entity spawnMonster(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
             Entity enemy = registry->CreateEntity();
             enemy.Group(MONSTER);
             enemy.AddComponent<HPMPComponent>(spriteEnum);
@@ -53,6 +56,7 @@ class Factory{
             enemy.AddComponent<BoxColliderComponent>(spriteEnum);
             enemy.AddComponent<CollisionFlagComponent>();
             enemy.AddComponent<TransformComponent>(spawnpoint);
+            enemy.AddComponent<StatusEffectComponent>();
 
             enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
             switch(enemyCat){
@@ -80,9 +84,11 @@ class Factory{
                     enemy.AddComponent<TrapAIComponent>(spriteEnum);
                     break;
             }
+
+            return enemy;
         }
 
-        inline Entity generateLootBag(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
+        inline Entity creatLootBag(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
             Entity lootbag = registry->CreateEntity();
             lootbag.AddComponent<SpriteComponent>(spriteEnum);
             lootbag.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0,5.0));
@@ -92,7 +98,7 @@ class Factory{
             return lootbag;
         }
 
-        inline void generateItemInBag(std::unique_ptr<Registry>& registry, items itemEnum, Entity lootbag){
+        inline void createItemInBag(std::unique_ptr<Registry>& registry, items itemEnum, Entity lootbag){
             Entity item = registry->CreateEntity();
             auto& lbc = lootbag.GetComponent<LootBagComponent>();
             item.AddComponent<SpriteComponent>(itemEnum);
@@ -101,7 +107,7 @@ class Factory{
 
         }
 
-        inline void spawnLoot(Entity monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
+        inline void createLootAtDeath(Entity monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
             Entity lootbag = registry->CreateEntity();
             lootbag.Group(LOOTBAGGROUP);
             lootbag.AddComponent<LootBagComponent>();
@@ -113,7 +119,7 @@ class Factory{
                 roll = RNG.randomFromRange(1,100);
                 if(roll <= table.first){ // if value is lower than table rate, table is hit so random item from it
                     const auto& item = table.second[RNG.randomFromRange(0,table.second.size()-1)];
-                    generateItemInBag(registry, item, lootbag);
+                    createItemInBag(registry, item, lootbag);
                     
                     itemEnumToLootBagSpriteEnum.at(item) > bagsprite ? bagsprite = itemEnumToLootBagSpriteEnum.at(item) : bagsprite = bagsprite;
                 }
@@ -134,23 +140,4 @@ class Factory{
 
         // todo: force spawn item in player inventory or equipment
 
-
-    public:
-
-        void spawnMonster(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-            createMonster(registry, spawnpoint, spriteEnum);
-        }
-
-        void createItemInBag(std::unique_ptr<Registry>& registry, items itemEnum, Entity lootbag){
-            return generateItemInBag(registry, itemEnum, lootbag);
-        }
-
-        Entity creatLootBag(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
-            return generateLootBag(registry, spawnpoint, spriteEnum);
-        }
-
-        void createLootAtDeath(Entity monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
-            spawnLoot(monster, registry, assetstore);
-        }
-        
 };

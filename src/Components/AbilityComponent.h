@@ -42,6 +42,7 @@ struct QuiverComponent{
     int maxDamage;
     textureEnums texture;
     SDL_Rect srcRect;
+    statuses debuff;
 
     QuiverComponent() = default;
 

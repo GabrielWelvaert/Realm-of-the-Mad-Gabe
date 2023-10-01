@@ -30,6 +30,7 @@ class ItemMovementSystem: public System{
         std::vector<glm::vec2> equipPositions = {{773.5,458.5}, {830.5,458.5}, {886.5,458.5}, {942.5,458.5}};
         std::vector<glm::vec2> lootbagPositions = {{773.5, 639.5}, {830.5, 639.5}, {886.5, 639.5}, {942.5, 639.5}, {773.5, 696.5}, {830.5, 696.5}, {886.5, 696.5}, {942.5, 696.5}};
 
+        bool shiftblock;
 
         inline void hideIcon(std::unique_ptr<Registry>& registry, int id){
             registry->GetComponent<SpriteComponent>(id).zIndex = 9;
@@ -40,7 +41,21 @@ class ItemMovementSystem: public System{
         }
 
         // poorly organized and overcomplicated function but it works 
-        inline void swapOrMoveItemPositions(const unsigned int& item1pos, std::map<unsigned char, Entity>& contents1, const glm::vec2& item1OriginalTransformPos, const unsigned int& destPos, std::map<unsigned char, Entity>& destBag, const glm::vec2& destTransformPos, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, Entity player, std::unique_ptr<Registry>& registry, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, const int& IdOfDestBag){
+        inline void swapOrMoveItemPositions(const unsigned int& item1pos, 
+            std::map<unsigned char, Entity>& contents1, 
+            const glm::vec2& item1OriginalTransformPos, 
+            const unsigned int& destPos, 
+            std::map<unsigned char, 
+            Entity>& destBag, 
+            const glm::vec2& destTransformPos, 
+            std::unique_ptr<EventBus>& eventBus, 
+            std::unique_ptr<AssetStore>& assetStore, 
+            Entity player, 
+            std::unique_ptr<Registry>& registry, 
+            const std::vector<int>& inventoryIcons, 
+            const std::vector<int>& equipmentIcons, 
+            const bool& shift)
+            {
             // std::cout << "spawOrMoveItemPositions called with an item from bag with original position " << item1OriginalTransformPos.x << ", " << item1OriginalTransformPos.y << std::endl;
             if(contents1 == destBag && item1pos == destPos) { // same spot and bag, return
                 auto& item1 = contents1.at(item1pos);
@@ -278,7 +293,7 @@ class ItemMovementSystem: public System{
             RequireComponent<ItemComponent>();
         }
 
-        void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory){ // todo pass player inventory component and equipment component (use maps!)
+        void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift){ // todo pass player inventory component and equipment component (use maps!)
             auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
             const auto& classname = player.GetComponent<ClassNameComponent>().classname;
             for(auto& entity: GetSystemEntities()){ // gets all visible items (only items have mouseBoxComponent)
@@ -293,8 +308,85 @@ class ItemMovementSystem: public System{
                     }
                 }
                 auto& sprite = entity.GetComponent<SpriteComponent>();
+
+                if(!shift) {shiftblock=false;}
+
                 //if mouse colliding with item, clicking, and not holding item last frame (logic for first frame of holding an item!)
                 if(mx > transform.position.x && mx < transform.position.x + mb.width && my > transform.position.y && my < transform.position.y + mb.width && clicking && !playerInventory.holdingItemLastFrame){
+                    if(shift && my > 506 && !shiftblock){ // player shift-clicked consumable item from inventory or lootbag! 
+                        // some logic and flag to block shift until its released
+                        const auto& itemEnum = entity.GetComponent<ItemComponent>().itemEnum;
+                        if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // consumable item clicked from inventory or loot bag
+                            shiftblock = false;
+                            //binary search. wee
+                            if(my < 627){ // inventory 
+                                if(my < 561){ 
+                                    if(mx < 877){ 
+                                        if(mx < 819){ //1
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1);
+                                        } else { //2
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 2);
+                                        }
+                                    } else { 
+                                        if(mx < 934){ // 3 
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 3);
+                                        } else { // 4
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 4);
+                                        }
+                                    }
+                                } else { 
+                                    if(mx < 877){ 
+                                        if(mx < 819){ //5
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 5);
+                                        } else { //6
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 6);
+                                        }
+                                    } else { 
+                                        if(mx < 934){ // 7
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 7);
+                                        } else { // 8
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 8);
+                                        }
+                                    }
+                                }
+                            } else { // loot bag 
+                                 if(my < 686){ // 1-4
+                                    if(mx < 877){ 
+                                        if(mx < 819){ //1
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1, false);
+                                        } else { //2
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 2, false);
+                                        }
+                                    } else { // 3-4
+                                        if(mx < 934){ // 3 
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 3, false);
+                                        } else { // 4
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 4, false);
+                                        }
+                                    }
+                                } else { // 5-8
+                                    if(mx < 877){ // 56
+                                        if(mx < 819){ //5
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 5, false);
+                                        } else { //6
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 6, false);
+                                        }
+                                    } else { // 3-4
+                                        if(mx < 934){ // 7 
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 7, false);
+                                        } else { // 8
+                                            eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 8, false);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            shiftblock = true;
+                            assetStore->PlaySound(ERROR);
+                        }
+                        playerInventory.holdingItemLastFrame = playerInventory.IdOfHeldItem = 0;
+                        return;
+                    }
                     playerInventory.holdingItemLastFrame = true;  
                     playerInventory.IdOfHeldItem = entity.GetId();
                     playerInventory.heldItemStartingTransformComp = transform.position;
@@ -392,36 +484,44 @@ class ItemMovementSystem: public System{
                         if(my > 686){ // loot bag bottom row
                             if(mx > 877){ // spot 7 or 8
                                 if(mx > 934){ // spot 8
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 8, lootBagContents, {942.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 8, lootBagContents, {942.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 } else { // spot 7
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 7, lootBagContents, {886.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 7, lootBagContents, {886.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 }
                             } else { // spot 5 or 6
                                 if(mx > 819){ // 6
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 6, lootBagContents, {830.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 6, lootBagContents, {830.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 } else { // 5
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 5, lootBagContents, {773.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 5, lootBagContents, {773.5,696.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 }
                             }
                         } else { // loot bag top row
                             if(mx > 877){ // 3 or 4
                                 if(mx > 934){ // 4
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, lootBagContents, {942.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, lootBagContents, {942.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 } else { // 3
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, lootBagContents, {886.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, lootBagContents, {886.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 }
                             } else { //1 or 2 
                                 if(mx>819){
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 2, lootBagContents, {830.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 2, lootBagContents, {830.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 } else {
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 1, lootBagContents, {773.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,playerInventory.IdOfOpenBag);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 1, lootBagContents, {773.5,639.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 }
                             }
@@ -431,36 +531,44 @@ class ItemMovementSystem: public System{
                             if(my > 561){ // bottom row
                                 if(mx > 877){ // 8 or 7
                                     if(mx > 934){ // 8
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 8, playerInventory.inventory, {942.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 8, playerInventory.inventory, {942.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     } else { // 7
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 7, playerInventory.inventory, {886.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 7, playerInventory.inventory, {886.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     }
                                 } else { // 5 or 6
                                     if(mx > 819){ // 6
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 6, playerInventory.inventory, {830.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 6, playerInventory.inventory, {830.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     } else { // 5
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 5, playerInventory.inventory, {773.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 5, playerInventory.inventory, {773.5,572.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     }
                                 }
                             } else { // top row
                                 if(mx > 877){ // 3 or 4 
                                     if(mx > 934){ // 4
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, playerInventory.inventory, {942.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, playerInventory.inventory, {942.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     } else { // 3
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, playerInventory.inventory, {886.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, playerInventory.inventory, {886.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     }
                                 } else {// 1 or 2
                                     if(mx > 819){ // 2
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 2, playerInventory.inventory, {830.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 2, playerInventory.inventory, {830.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     } else { // 1
-                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 1, playerInventory.inventory, {773.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                        shiftblock=false;
+                                        swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 1, playerInventory.inventory, {773.5,515.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                         return;
                                     }
                                 }
@@ -468,17 +576,21 @@ class ItemMovementSystem: public System{
                         } else { // equipment slots
                             if(mx > 877){
                                 if(mx > 934){ // ring
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, playerInventory.equipment, {942.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 4, playerInventory.equipment, {942.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 } else { // armor
-                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, playerInventory.equipment, {886.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
+                                    shiftblock=false;
+                                    swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 3, playerInventory.equipment, {886.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,shift);
                                     return;
                                 }
                             } else {
                                 if(mx > 819){ // ability
+                                    shiftblock=false;
                                     swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 2, playerInventory.equipment, {830.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
                                     return;
                                 } else { // weapon
+                                    shiftblock=false;
                                     swapOrMoveItemPositions(ic.lastPosition, *originbag, playerInventory.heldItemStartingTransformComp, 1, playerInventory.equipment, {773.5,458.5}, eventBus, assetStore, player, registry, inventoryIcons, equipmentIcons,0);
                                     return;
                                 }

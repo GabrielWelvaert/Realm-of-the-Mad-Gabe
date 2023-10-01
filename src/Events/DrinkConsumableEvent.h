@@ -12,6 +12,7 @@ class DrinkConsumableEvent: public Event {
         std::unique_ptr<AssetStore>& assetstore;
         std::unique_ptr<EventBus>& eventbus;
         int invSlot;
-        DrinkConsumableEvent(Entity player, items itemEnum, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, std::unique_ptr<EventBus>& eventbus,int invSlot): 
-            player(player), itemEnum(itemEnum), registry(registry), assetstore(assetstore), eventbus(eventbus), invSlot(invSlot){}
+        bool inventory;
+        DrinkConsumableEvent(Entity player, items itemEnum, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, std::unique_ptr<EventBus>& eventbus,int invSlot, bool inventory = true): 
+            player(player), itemEnum(itemEnum), registry(registry), assetstore(assetstore), eventbus(eventbus), invSlot(invSlot), inventory(inventory){}
 };

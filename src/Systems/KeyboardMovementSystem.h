@@ -20,9 +20,11 @@
 #include "../Components/AbilityComponent.h"
 #include "../Events/TomeUseEvent.h"
 #include "../Events/QuiverUseEvent.h"
+#include "../Events/HelmUseEvent.h"
 
 /*
-This system is responsible for updating the player velocity-direction, sprite, animation, and flags based off of keyboar dinput
+This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
+It can be understood as a system that prepares certain player components for their updates (or events) based off user-input
 */
 
 class KeyboardMovementSystem: public System {
@@ -112,17 +114,12 @@ class KeyboardMovementSystem: public System {
                         const auto& classname = player.GetComponent<ClassNameComponent>().classname;
                         activemp -= ac.mpRequired;
                         ac.timeLastUsed = time;
-                        /* 
-                        I really wanted to NOT use switch-case here. I originally had the AbilityComponent hold a function pointer to member functions in ceratin systems
-                        But at some point the complexity of the solution may have induced complicated linker errors which wasted a lot of time (12+hrs; tables.h seems to have been involved...)
-                        For the sake of time, I'm just using the eventBus to process ability uses and not a fun function pointer. lame! I did learn a lot from the troubleshooting, though
-                        */ 
                         switch(classname){ 
                             case PRIEST:{
-                                eventbus->EmitEvent<TomeUseEvent>(player);
+                                eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore);
                                 break;}
                             case WARRIOR:{
-                                std::cout << "todo: emit helm use event" << std::endl;
+                                eventbus->EmitEvent<HelmUseEvent>(player, eventbus);
                                 break;}
                             case ARCHER:{
                                 eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);

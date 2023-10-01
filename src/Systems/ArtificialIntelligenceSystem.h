@@ -17,6 +17,7 @@
 #include "../Components/AnimatedNeutralAIComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Components/StatusEffectComponent.h"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -176,6 +177,7 @@ class AnimatedChaseAISystem: public System{
             RequireComponent<TransformComponent>();
             RequireComponent<RidigBodyComponent>();
             RequireComponent<SpriteComponent>();
+            RequireComponent<StatusEffectComponent>();
         }
 
         void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
@@ -228,7 +230,11 @@ class AnimatedChaseAISystem: public System{
                         asc.animatedShooting = false;
                         pec.isShooting = false;
                         ac.xmin = 0;
-                        ac.numFrames = 2;   
+                        if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+                            ac.numFrames = 2;   
+                        } else {
+                            ac.numFrames = 1;
+                        }
                     }
                 } else { // dont chase or shoot
                     asc.animatedShooting = false;

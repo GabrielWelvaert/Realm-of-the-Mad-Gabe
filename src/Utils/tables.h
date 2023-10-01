@@ -149,11 +149,18 @@ struct quiverData{
     int maxDamage;
     textureEnums texture;
     SDL_Rect srcRect;
+    statuses debuff;
 };
 
 struct ItemTableComponentData{
     std::map<int, std::vector<items>> dropTable;
 };
+
+struct helmData{
+    Uint32 duration;
+};
+
+extern std::unordered_map<items, helmData> itemEnumToHelmData;
 
 extern std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData;
 

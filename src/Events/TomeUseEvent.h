@@ -7,5 +7,8 @@
 class TomeUseEvent: public Event {
     public:
         Entity player;
-        TomeUseEvent(Entity player): player(player) {}
+        std::unique_ptr<Registry>& registry;
+        std::unique_ptr<AssetStore>& assetstore;
+        TomeUseEvent(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore): 
+            player(player), registry(registry), assetstore(assetstore) {}
 };

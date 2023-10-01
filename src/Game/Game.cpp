@@ -31,6 +31,8 @@
 #include "../Systems/ItemMovementSystem.h"
 #include "../Utils/factory.h"
 #include "../Systems/AbilitySystem.h"
+#include "../Events/StatusEffectEvent.h"
+#include "../Systems/StatusEffectSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -132,6 +134,7 @@ void Game::Run(){
     }
 }
 
+// some things used by ProcessInput:
 std::bitset<5> keysPressed; 
 std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_w, 0}, 
@@ -140,8 +143,9 @@ std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_d, 3},
     //keysPressed[4] is for mouse button (any) but its not a SDL_KeyCode! 
 };
-std::bitset<8> inventoryUses; // used to enforce player can use inventory slot ONCE per ProcessInput
+std::bitset<8> inventoryUses; // used to enforce player can use a inventory slot ONCE per ProcessInput (as to not clog eventbus)
 bool space = false;
+bool shift = false;
 SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 20;
@@ -182,38 +186,30 @@ void Game::ProcessInput(){
                                     assetStore->PlaySound(ERROR);
                                 }
                             }
-                        } else {
-                            std::cout << "blocking repeated consumptoion in one proccessINput!" << std::endl;
                         }
                     } else if(key == SDLK_LSHIFT || key == SDLK_RSHIFT){ // SHIFT PRESSED!
-                        // todo
+                        shift = true;
                     } else if(key == SDLK_9) {
                         glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                         Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        factory->createItemInBag(registry, HPPOT, lootbag);
-                        factory->createItemInBag(registry, MPPOT, lootbag);
-                        factory->createItemInBag(registry, ATTPOT, lootbag);
-                        factory->createItemInBag(registry, DEXPOT, lootbag);
-                        factory->createItemInBag(registry, SPDPOT, lootbag);
-                        factory->createItemInBag(registry, WISPOT, lootbag);
-                        factory->createItemInBag(registry, VITPOT, lootbag);
-                        factory->createItemInBag(registry, DEFPOT, lootbag);
+                        factory->createItemInBag(registry, T1QUIVER, lootbag);
+                        factory->createItemInBag(registry, T2QUIVER, lootbag);
+                        factory->createItemInBag(registry, T3QUIVER, lootbag);
+                        factory->createItemInBag(registry, T5QUIVER, lootbag);
+                        factory->createItemInBag(registry, T4HELM, lootbag);
+                        factory->createItemInBag(registry, T5HELM, lootbag);
+                        factory->createItemInBag(registry, T6HELM, lootbag);
+                        factory->createItemInBag(registry, T7HELM, lootbag);
                     } else if(key == SDLK_0){
-                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        factory->createItemInBag(registry, LIFEPOT, lootbag);
-                        factory->createItemInBag(registry, MANAPOT, lootbag);
-                        factory->createItemInBag(registry, CABERNET, lootbag);
-                        factory->createItemInBag(registry, FIREWATER, lootbag);
-                        factory->createItemInBag(registry, T13BOW, lootbag);
-                        factory->createItemInBag(registry, T7TOME, lootbag);
-                        factory->createItemInBag(registry, T14ROBE, lootbag);
-                        factory->createItemInBag(registry, T8QUIVER, lootbag);
+                        eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, 3000);
                     } else if(key == SDLK_MINUS){
                         glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                         std::vector<sprites> monsters = {SKELETON0, SKELETON1, SKELETON2, SKELETON3, SKELETON4, REDKNIGHT0, SHATTERSBOMB};
                         int index = RNG.randomFromRange(0, monsters.size()-1);
-                        factory->spawnMonster(registry, spawnpoint, monsters[index]);
+                        factory->spawnMonster(registry, spawnpoint, REDKNIGHT0);
+                        // if(monster.HasComponent<StatusEffectComponent>()){
+                        //     eventBus->EmitEvent<StatusEffectEvent>(monster, PARALYZE, eventBus, 30000);    
+                        // }
                     }
                     break;
                 case SDL_KEYUP:
@@ -221,6 +217,8 @@ void Game::ProcessInput(){
                         keysPressed[keyindex[key]] = false;
                     } else if(key == SDLK_SPACE){
                         space = false;
+                    } else if(key == SDLK_LSHIFT || key == SDLK_RSHIFT){
+                        shift = false;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -902,12 +900,14 @@ void Game::LoadPlayer(classes classname){
     player.Group(PLAYER);
     player.AddComponent<PlayerItemsComponent>();
     player.AddComponent<AnimatedShootingComponent>(classname);
+    player.AddComponent<StatusEffectComponent>();
 
     player.GetComponent<HPMPComponent>().activemp = 32000;
     player.GetComponent<HPMPComponent>().maxmp = 32000;
-    player.GetComponent<SpeedStatComponent>().activespeed = 50;
     player.GetComponent<OffenseStatComponent>().activeattack = 74;
     player.GetComponent<BaseStatComponent>().attack = 74;
+    player.GetComponent<SpeedStatComponent>().activespeed = 50;
+    player.GetComponent<BaseStatComponent>().speed = 50;
 
     player.AddComponent<ProjectileEmitterComponent>();
     player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * baseStats.dexterity + 1.5);
@@ -957,7 +957,8 @@ void Game::PopulateRegistry(){
     registry->AddSystem<LootBagSystem>();
     registry->AddSystem<InteractUISystem>();
     registry->AddSystem<ItemMovementSystem>();
-    registry->AddSystem<AbilitySytem>();
+    registry->AddSystem<AbilitySystem>();
+    registry->AddSystem<StatusEffectSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -998,13 +999,15 @@ void Game::Update(){
     eventBus->Reset();
 
     // SUBCRIPTION IS FRAME-BY-FRAME BINDING. ; do we want to subscribe this frame?
+    // later may make it not frame-by-frame and make it static
     registry->GetSystem<MovementSystem>().SubscribeToEvents(eventBus); 
     registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<StatSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<UpdateDisplayStatTextSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<InteractUISystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
-    registry->GetSystem<AbilitySytem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<AbilitySystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<StatusEffectSystem>().SubscribeToEvents(eventBus);
     
     // update registry to process entities that are awaitng creation/deletion and add them to system vectors
     registry->Update();
@@ -1028,9 +1031,9 @@ void Game::Update(){
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
-    // registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
-    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory);
+    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
+    registry->GetSystem<StatusEffectSystem>().Update(eventBus);
 }
 
 void Game::Render(){

@@ -9,12 +9,14 @@
 #include "../Events/TomeUseEvent.h"
 #include "../Events/QuiverUseEvent.h"
 #include "../Utils/Xoshiro256.h"
+#include "../Events/HelmUseEvent.h"
+#include "../Events/StatusEffectEvent.h"
 
 /*
 This system is responsible for being the event handler for equipping abilities and using them!
 */
 
-class AbilitySytem: public System{
+class AbilitySystem: public System{
     private:
 
         Xoshiro256 RNG;
@@ -27,24 +29,47 @@ class AbilitySytem: public System{
             return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
         }
 
+        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+            Entity dmgText = registry->CreateEntity();
+            dmgText.AddComponent<TextLabelComponent>(
+                "+" + std::to_string(healAmount),
+                "damagefont",
+                xpgreen,
+                false,
+                350,
+                0,
+                1
+                );
+            dmgText.AddComponent<TransformComponent>(playerPosition);
+        }
+
+
     public:
-        AbilitySytem(){
+        AbilitySystem(){
             RequireComponent<AbilityComponent>();
         }
 
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
-            eventBus->SubscribeToEvent<EquipAbilityEvent>(this, &AbilitySytem::onAbilityEquip);
-            eventBus->SubscribeToEvent<TomeUseEvent>(this, &AbilitySytem::onTomeUse);
-            eventBus->SubscribeToEvent<QuiverUseEvent>(this, &AbilitySytem::onQuiverUse);
+            eventBus->SubscribeToEvent<EquipAbilityEvent>(this, &AbilitySystem::onAbilityEquip);
+            eventBus->SubscribeToEvent<TomeUseEvent>(this, &AbilitySystem::onTomeUse);
+            eventBus->SubscribeToEvent<QuiverUseEvent>(this, &AbilitySystem::onQuiverUse);
+            eventBus->SubscribeToEvent<HelmUseEvent>(this, &AbilitySystem::onHelmUse);
         }
 
         void onTomeUse(TomeUseEvent& event){
             // at this point we've done everything (check tome, mp, subtract mp) except use the tome, so use it!
             auto& HPMP = event.player.GetComponent<HPMPComponent>();
             const auto& tome = event.player.GetComponent<TomeComponent>();
+            if(HPMP.activehp == HPMP.maxhp){
+                event.assetstore->PlaySound(ERROR);
+                return;
+            }
             HPMP.activehp += tome.hp;
             if(HPMP.activehp > HPMP.maxhp){
+                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp - (static_cast<int>(HPMP.activehp) - static_cast<int>(HPMP.maxhp)));
                 HPMP.activehp = HPMP.maxhp;
+            } else {
+                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp);
             }
         }
 
@@ -67,10 +92,15 @@ class AbilitySytem: public System{
             projectile.AddComponent<SpriteComponent>(quiver.texture, 8, 8, quiver.srcRect, 3, false, true);
             projectile.AddComponent<BoxColliderComponent>(8,8,glm::vec2(16,16));
             projectile.AddComponent<TransformComponent>(glm::vec2(playerpos.x, playerpos.y+10), glm::vec2(6.0,6.0), rotationDegrees);
-            projectile.AddComponent<ProjectileComponent>(damage, 1000, true, player, 4);
-            // todo add paralyze infliction to the projectile
+            projectile.AddComponent<ProjectileComponent>(damage, 1000, true, player, 4, true, quiver.debuff, 3000);
             projectile.Group(PROJECTILE);
             
+        }
+
+        void onHelmUse(HelmUseEvent& event){
+            const auto& duration = event.player.GetComponent<HelmComponent>().berserkDuration;
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, duration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, duration);
         }
 
         void onAbilityEquip(EquipAbilityEvent& event){
@@ -90,6 +120,7 @@ class AbilitySytem: public System{
                     quiver.minDamage = newquiverdata.minDamage;
                     quiver.srcRect = newquiverdata.srcRect;
                     quiver.texture = newquiverdata.texture;
+                    quiver.debuff = newquiverdata.debuff;
                     break;
                 }
                 case PRIEST: {
@@ -99,6 +130,9 @@ class AbilitySytem: public System{
                 }
                 case WARRIOR: {
                     auto& helm = player.GetComponent<HelmComponent>();
+                    Uint32 duration = itemEnumToHelmData.at(event.itemEnum).duration;
+                    helm.berserkDuration = duration;
+                    player.GetComponent<AbilityComponent>().coolDownMS = duration;
                     break;
                 }
             }

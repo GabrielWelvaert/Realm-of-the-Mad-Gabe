@@ -12,16 +12,33 @@ struct ProjectileComponent {
     bool piercing;
     unsigned char parentGroupEnumInt;
 
+    bool inflictsStatusEffect = false;
+    statuses statsusEffect = QUIET;
+    unsigned short SEdurationMS = 0;
+
     ProjectileComponent() = default;
 
-    ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt): 
+    // ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt): 
+    //     damage(damage), 
+    //     duration(duration), 
+    //     piercing(piercing), 
+    //     parent(parent), 
+    //     // not an argument!:
+    //     startTime(SDL_GetTicks()), 
+    //     parentGroupEnumInt(parentGroupEnumInt)
+    //     {} 
+
+    ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
         damage(damage), 
         duration(duration), 
         piercing(piercing), 
         parent(parent), 
         // not an argument!:
         startTime(SDL_GetTicks()), 
-        parentGroupEnumInt(parentGroupEnumInt)
+        parentGroupEnumInt(parentGroupEnumInt),
+        inflictsStatusEffect(inflictsStatusEffect),
+        statsusEffect(statsusEffect),
+        SEdurationMS(SEdurationMS)
         {} 
 };
 

@@ -34,6 +34,11 @@ struct ProjectileEmitterComponent{
     unsigned short boxheight;
     glm::vec2 boxoffset;
 
+    // data about status effect infliction 
+    bool inflictsStatusEffect = false;
+    statuses statusEffect = QUIET;
+    unsigned short durationMS = 0;
+
     ProjectileEmitterComponent() = default;
 
     ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 

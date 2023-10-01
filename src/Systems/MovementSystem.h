@@ -11,6 +11,7 @@
 #include "../Components/ClassNameComponent.h"
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/CollisionFlagComponent.h"
+#include "../Components/StatusEffectComponent.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/CollisionEvent.h"
 #include <unordered_map>
@@ -77,9 +78,8 @@ class MovementSystem: public System {
             auto& lastlastSideHitFlag = flags.lastlastSideHitflag;
             auto& msLastCollisionFlag = flags.msLastCollisionFlag;
             int move = .0167 * activespeed + 2.495;
-            //int move = .021 * speed + 2.495;
             bool firstmove = false;
-            int msDoubleCollisionBuffer = 10; // may need to be scaled with speed stat
+            int msDoubleCollisionBuffer = 10; // may need to be scaled with deltatime / speed
             sidehit currentSide = event.side;
 
             if(msLastCollisionFlag == 0){ //firstmove case
@@ -120,16 +120,27 @@ class MovementSystem: public System {
 
         void Update(const double& deltaTime, std::unique_ptr<Registry>& registry) {
             for (auto entity: GetSystemEntities()){
+                if(entity.HasComponent<StatusEffectComponent>()){
+                    if(entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+                        return; // entity is paralyzed; do not move! 
+                    }
+                }
+
                 auto& transform = entity.GetComponent<TransformComponent>();
                 auto& rigidbody = entity.GetComponent<RidigBodyComponent>();
                 auto& flags = entity.GetComponent<CollisionFlagComponent>();
-                
+                float speedinpixelspersecond;
+
                 if(entity.HasComponent<SpeedStatComponent>()){ // things like projectiles dont have statComponent
                     const auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
-                    float speedinpixelspersecond = 2.25 * activespeed + 120; // = (0.0746667 * SPD + 3.9813333) * 35
+                    speedinpixelspersecond = 2.25 * activespeed + 120; // = (0.0746667 * SPD + 3.9813333) * 35
+                    
+                    
                     rigidbody.velocity.x *= speedinpixelspersecond;
                     rigidbody.velocity.y *= speedinpixelspersecond;
                 }
+
+                
 
                 // if collionFlag, check if next move will result in collision and release if necessary
                 if(flags.collisionFlag != NONESIDE){

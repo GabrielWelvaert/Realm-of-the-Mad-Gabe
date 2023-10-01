@@ -87,6 +87,18 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     
 };
 
+std::unordered_map<items, helmData> itemEnumToHelmData = {
+    { T0HELM, {3000} },
+    { T1HELM, {4000} },
+    { T2HELM, {4500} },
+    { T3HELM, {5000} },
+    { T4HELM, {5500} },
+    { T5HELM, {6000} },
+    { T6HELM, {6500} },
+    { T7HELM, {7000} },
+    { T8HELM, {7500} }
+};
+
 std::unordered_map<items, tomeData> itemEnumToTomeData = {
     {T0TOME, {100}},
     {T1TOME, {130}},
@@ -100,15 +112,15 @@ std::unordered_map<items, tomeData> itemEnumToTomeData = {
 };
 
 std::unordered_map<items, quiverData> itemEnumToQuiverData = {
-    {T0QUIVER, {80,120,LOFIPROJS,{8*2,8*7,8,8}}}, //red arrow
-    {T1QUIVER, {140,180,LOFIPROJS,{8*2,8*7,8,8}}}, //red arrow
-    {T2QUIVER, {220,120,LOFIPROJS,{8,8*7,8,8}}}, // green arrow 
-    {T3QUIVER, {340,400,LOFIPROJS,{8*2,8*7,8,8}}}, //purple arrow 
-    {T4QUIVER, {440,540,LOFIPROJS,{8*2,8*7,8,8}}}, //purple arrow 
-    {T5QUIVER, {560,660,LOFIPROJS,{8*4, 8*7, 8, 8}}}, // gold arrow
-    {T6QUIVER, {675,775,LOFIPROJS,{8*3, 8*7, 8, 8}}}, // blue 
-    {T7QUIVER, {800,900,LOFIPROJS,{8*2,8*7,8,8}}}, // red 
-    {T8QUIVER, {975,1100,LOFIPROJS,{8,8*7,8,8}}}, // green 
+    {T0QUIVER, {80,120,LOFIPROJS,{8*2,8*7,8,8}, SLOWED}}, //red arrow
+    {T1QUIVER, {140,180,LOFIPROJS,{8*2,8*7,8,8}, SLOWED}}, //red arrow
+    {T2QUIVER, {220,120,LOFIPROJS,{8,8*7,8,8}, SLOWED}}, // green arrow 
+    {T3QUIVER, {340,400,LOFIPROJS,{8*2,8*7,8,8}, PARALYZE}}, //purple arrow 
+    {T4QUIVER, {440,540,LOFIPROJS,{8*2,8*7,8,8}, PARALYZE}}, //purple arrow 
+    {T5QUIVER, {560,660,LOFIPROJS,{8*4, 8*7, 8, 8}, PARALYZE}}, // gold arrow
+    {T6QUIVER, {675,775,LOFIPROJS,{8*3, 8*7, 8, 8}, PARALYZE}}, // blue 
+    {T7QUIVER, {800,900,LOFIPROJS,{8*2,8*7,8,8}, PARALYZE}}, // red 
+    {T8QUIVER, {975,1100,LOFIPROJS,{8,8*7,8,8}, PARALYZE}}, // green 
 };
 
 std::unordered_map<classes, BaseStatData> classToBaseStats = {
@@ -875,11 +887,11 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
                 // currently, loadmonster() doesn't give rigidybodycomp if spd is set to 0
                 //hp,mp,att,def,spd,dex,vit,wis
     {SKELETON0, {100,1,1,5,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON1, {100,1,1,10,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON2, {100,1,1,15,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON3, {100,1,1,5,0,1,10,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
-    {SKELETON4, {100,1,1,15,35,1,10,1,SKELETONSHIT,SKELETONSDEATH}}, //king
-    {REDKNIGHT0, {1000,1,1,30,20,1,10,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
+    {SKELETON1, {150,1,1,10,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
+    {SKELETON2, {200,1,1,15,20,1,20,1,SKELETONSHIT,SKELETONSDEATH}},
+    {SKELETON3, {200,1,1,5,0,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
+    {SKELETON4, {250,1,1,15,35,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //king
+    {REDKNIGHT0, {1000,1,1,30,20,1,30,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
     {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}}
 };
 

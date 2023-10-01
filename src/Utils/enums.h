@@ -575,5 +575,13 @@ enum groups{
 
 };
 
+enum statuses{
+    QUIET,
+    SLOWED,
+    PARALYZE,
+    SPEEDY,
+    BERSERK
+};
+
 
 #endif

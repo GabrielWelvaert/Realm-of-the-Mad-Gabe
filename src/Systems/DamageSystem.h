@@ -24,6 +24,7 @@
 #include <unordered_set>
 #include "../Utils/colors.h"
 #include "../Components/ItemTableComponent.h"
+#include "../Events/StatusEffectEvent.h"
 
 /*
 This system is responsible for calculating damage and emitting events such as level up and death
@@ -102,7 +103,7 @@ class DamageSystem: public System{
                 }
             }
 
-            if(event.victim.GetId() == 0){
+            if(event.victim.BelongsToGroup(PLAYER)){
                 soundEnums playerHitSounds[6] = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
                 int noise = RNG.randomFromRange(0,5);
                 hitSoundId = playerHitSounds[noise];
@@ -116,6 +117,11 @@ class DamageSystem: public System{
             if(projectileComponent.piercing){
                 if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) == projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
                     victimHPMPComponent.activehp -= realdamage;
+                    if(projectileComponent.statsusEffect){
+                        if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
+                            event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, projectileComponent.SEdurationMS);    
+                        }
+                    }
                     projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId());
                     if(victimHPMPComponent.activehp >= 0){ // victim hit but not dead (player or monster)
                         event.assetStore->PlaySound(hitSoundId);
@@ -150,7 +156,11 @@ class DamageSystem: public System{
 
             } else { // projectile doesnt pierce; destroy projectile
                 victimHPMPComponent.activehp -= realdamage;
-                //std::cout << "Entity " << event.victim.GetId() << " took " << realdamage << " damage from " << event.projectile.GetId() << " and now has " << victimHPMPComponent.activehp << " hp" << std::endl;
+                if(projectileComponent.statsusEffect){
+                    if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
+                        event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, projectileComponent.SEdurationMS);    
+                    }
+                }
                 if(victimHPMPComponent.activehp >= 0){
                     event.assetStore->PlaySound(hitSoundId);
                     if(realdamage > 0){
@@ -192,12 +202,13 @@ class DamageSystem: public System{
 
             // wis regen mp for player
             auto& hpmp = player.GetComponent<HPMPComponent>();
-            if(hpmp.activemp < hpmp.maxmp){
+            const auto& quiet = player.GetComponent<StatusEffectComponent>().effects[QUIET];
+            if(!quiet && hpmp.activemp < hpmp.maxmp){
                 hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/1000;
                 if(hpmp.activemp > hpmp.maxmp){
                     hpmp.activemp = hpmp.maxmp;
                 }
-            }
+            } 
 
             // vit regen hp for everyone
             for(auto entity: GetSystemEntities()){

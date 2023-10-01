@@ -96,7 +96,7 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 100;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (hpmp.activehp - hpmp.maxhp));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
                         hpmp.activehp = hpmp.maxhp;
                     } else {
                         displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
@@ -104,13 +104,13 @@ class StatSystem: public System{
                 }break;
                 case MPPOT: {
                     auto& hpmp = player.GetComponent<HPMPComponent>();
-                    if(hpmp.activemp == hpmp.maxmp){
+                    if(hpmp.activemp == hpmp.maxmp || player.GetComponent<StatusEffectComponent>().effects[QUIET]){
                         event.assetstore->PlaySound(ERROR);
                         return;
                     }
                     hpmp.activemp += 100;
                     if(hpmp.activemp > hpmp.maxmp){
-                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (hpmp.activemp - hpmp.maxmp));
+                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)));
                         hpmp.activemp = hpmp.maxmp;
                     } else {
                         displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
@@ -196,6 +196,9 @@ class StatSystem: public System{
                     }
                     basestats.hp += 5;
                     hpmp.maxhp += 5;
+                    if(basestats.hp > getMaxStat(player.GetComponent<ClassNameComponent>().classname, HP)){
+                        basestats.hp = getMaxStat(player.GetComponent<ClassNameComponent>().classname, HP);
+                    }
                     event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
                 }break;
                 case MANAPOT:{
@@ -207,6 +210,9 @@ class StatSystem: public System{
                     }
                     basestats.mp += 5;
                     hpmp.maxmp += 5;
+                    if(basestats.mp > getMaxStat(player.GetComponent<ClassNameComponent>().classname, MP)){
+                        basestats.mp = getMaxStat(player.GetComponent<ClassNameComponent>().classname, MP);
+                    }
                     event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
                 }break;
                 case CABERNET:{
@@ -217,7 +223,7 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 150;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (hpmp.activehp - hpmp.maxhp));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
                         hpmp.activehp = hpmp.maxhp;
                     } else {
                         displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150);
@@ -231,7 +237,7 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 230;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (hpmp.activehp - hpmp.maxhp));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
                         hpmp.activehp = hpmp.maxhp;
                     } else {
                         displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230);
@@ -240,8 +246,14 @@ class StatSystem: public System{
 
             }
             event.assetstore->PlaySound(POTION);
-            inventory.at(event.invSlot).Kill();
-            inventory.erase(event.invSlot);
+            if(event.inventory){ // item from inventory
+                inventory.at(event.invSlot).Kill();
+                inventory.erase(event.invSlot);
+            } else { // item from loot bag
+                auto& lootbag = event.registry->GetComponent<LootBagComponent>(player.GetComponent<PlayerItemsComponent>().IdOfOpenBag).contents;
+                lootbag.at(event.invSlot).Kill();
+                lootbag.erase(event.invSlot);
+            }
         }
 
         void onEquipItemWithStats(EquipItemWithStatsEvent& event){
