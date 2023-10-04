@@ -454,6 +454,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIENVIRONMENT, "./assets/images/lofiEnvironment.png");
     assetStore->AddTexture(renderer, LOFIOBJ5B, "./assets/images/lofiObj5b.png");
     assetStore->AddTexture(renderer, LOFIOBJ6, "./assets/images/lofiObj6.png");
+    assetStore->AddTexture(renderer, PLAYBAR, "./assets/images/playbar.png");
+    assetStore->AddTexture(renderer, LOFICHAR2, "./assets/images/lofiChar2.png");
     
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -612,7 +614,10 @@ void Game::PopulateAssetStore(){
     assetStore->AddFont("uifont1","./assets/fonts/myriadprosemibold.ttf", 16);
     assetStore->AddFont("statfont", "./assets/fonts/myriadpro.ttf", 15);
     assetStore->AddFont("statfont2", "./assets/fonts/myriadprosemibold.ttf", 15);
-    assetStore->AddFont("mpb","./assets/fonts/myriadprobold.ttf", 32);
+    assetStore->AddFont("mpb","./assets/fonts/myriadprobold.ttf", 64);
+    assetStore->AddFont("mpb2","./assets/fonts/myriadprobold.ttf", 128);
+    assetStore->AddFont("damagefont2", "./assets/fonts/myriadprosemibold.ttf", 48);
+    assetStore->AddFont("damagefont3", "./assets/fonts/myriadprosemibold.ttf", 16);
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 }
@@ -966,14 +971,254 @@ void Game::PopulateRegistry(){
     
 }
 
-void Game::LoadLevel(int level){
-    
+void Game::LoadLevel(int level){}
+
+std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is press play
+    int width = 1024*10;
+    int height = 768*10;
+    SDL_Texture * menubgtexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height); 
+    SDL_SetTextureBlendMode(menubgtexture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, menubgtexture);
+    SDL_Rect srcRect = {8*8,4*8,8,8};
+    SDL_Rect dstRect = {0,0,8,8};
+    std::vector<SDL_Rect> decorations = { // uses LOFIENVIRONMENT
+        {8*9,4*8,8,8},
+        {8*10,4*8,8,8},
+        {8*11,4*8,8,8},
+        {8*12,4*8,8,8},
+        {8*13,4*8,8,8},
+        {8*14,4*8,8,8},
+        {8*15,4*8,8,8},
+        {8*9,5*8,8,8},
+        {8*12,6*8,8,8},
+        {8*13,6*8,8,8},
+        {8*14,6*8,8,8},
+        {8*15,6*8,8,8},  
+    };
+
+    for(int i = 0; i <= width/64; i++){
+        for(int j =0; j <= height/64; j++){
+            dstRect = {8*i, 8*j, 8,8};
+            SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &srcRect, &dstRect);    
+            if(RNG.randomFromRange(0,12) <= 1){
+                SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &decorations[RNG.randomFromRange(0,decorations.size()-1)], &dstRect);
+            }
+        }
+    }
+    SDL_Rect rect = {0, 0, 1024*10, 768*10};
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 100);
+    SDL_RenderFillRect(renderer, &rect);
+    Entity menubg = registry->CreateEntity();
+    menubg.AddComponent<TransformComponent>(glm::vec2(0.0,0.0), glm::vec2(8.0,8.0));
+    assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture);
+    menubg.AddComponent<SpriteComponent>(MAINMENUBG, 1024, 768, 1, 0,0,0);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    Entity oryxIcon = registry->CreateEntity();
+    srcRect = {8*8,8*20,16,16};
+    oryxIcon.AddComponent<SpriteComponent>(LOFICHAR, 16, 16, srcRect, 10, true, false);
+    oryxIcon.AddComponent<TransformComponent>(glm::vec2(340.0,50.0), glm::vec2(20.0,20.0));
+    Entity rot = registry->CreateEntity();
+    rot.AddComponent<TextLabelComponent>("REALM OF THE", "mpb", titleRed, true, 1,0,0);
+    rot.AddComponent<TransformComponent>(glm::vec2(278.0,400.0));
+    Entity mg = registry->CreateEntity();
+    mg.AddComponent<TextLabelComponent>("MAD GABE", "mpb2", titleRed, true, 1, 0, 0);
+    mg.AddComponent<TransformComponent>(glm::vec2(172.5,450));
+    Entity bar = registry->CreateEntity();
+    srcRect = {0,0,1000,75};
+    bar.AddComponent<SpriteComponent>(PLAYBAR, 1000,75, srcRect, 10, true, false);
+    bar.AddComponent<TransformComponent>(glm::vec2(0,650), glm::vec2(1.0,0.9));
+    Entity play = registry->CreateEntity();
+    play.AddComponent<TextLabelComponent>("play", "damagefont2", white, true, 1,0,0);
+    play.AddComponent<TransformComponent>(glm::vec2(456,659.75));
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
+    registry->Update();
+    return {oryxIcon, rot, mg, bar, play};
 }
 
-void Game::Setup(){ // everything in setup occurs before game loop begins
+std::vector<Entity> Game::loadMenuTwo(int numcharacters){
+    Entity loadCharacter = registry->CreateEntity();
+    std::vector<Entity> disposables;
+    loadCharacter.AddComponent<TextLabelComponent>("Load Character", "damagefont2", white, true, 1,0,0 );
+    loadCharacter.AddComponent<TransformComponent>(glm::vec2(500-(314/2),25));
+    int ypos = 100;
+    SDL_Rect rect = {0,0,400,75};
+    SDL_Rect iconrect;
+    classes classname = WIZARD;
+    int level = 1;
+    for(int i = 0; i < numcharacters; i++){
+        // todo derive classname and level
+        Entity characterSlot = registry->CreateEntity();
+        characterSlot.AddComponent<SpriteComponent>(PLAYBAR, 400, 75, rect, 10, true, false);
+        characterSlot.AddComponent<TransformComponent>(glm::vec2(300,(75*i)+ypos), glm::vec2(1.0,1.0));
+        Entity characterSlotText = registry->CreateEntity();
+        std::string str = classesToString.at(classname);
+        str.append(" " + std::to_string(level));
+        characterSlotText.AddComponent<TextLabelComponent>(str, "damagefont", white, true, 1,0,0);
+        auto& textlabel = characterSlot.GetComponent<TextLabelComponent>();
+        TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
+        characterSlotText.AddComponent<TransformComponent>(glm::vec2(400, (75*i)+ypos+21.5));
+        Entity icon = registry->CreateEntity();
+        iconrect = {0,24*classname,8,8};
+        icon.AddComponent<SpriteComponent>(PLAYERS, 8, 8, iconrect, 11, true, false);
+        icon.AddComponent<TransformComponent>(glm::vec2(330, (75*i)+ypos+16.5), glm::vec2(5.0,5.0));
+        disposables.push_back(characterSlotText);
+        disposables.push_back(characterSlot);
+        disposables.push_back(icon);
+        ypos += 25;
+    }
+    if(numcharacters < 3){
+        int iconx = RNG.randomFromRange(0,15);
+        int icony = RNG.randomFromRange(0,14);
+        Entity makeCharacter = registry->CreateEntity();
+        makeCharacter.AddComponent<SpriteComponent>(PLAYBAR, 400, 75, rect, 10, true, false);
+        makeCharacter.AddComponent<TransformComponent>(glm::vec2(300,(75*numcharacters)+ypos), glm::vec2(1.0,1.0));
+        Entity makeCharacterText = registry->CreateEntity();
+        makeCharacterText.AddComponent<TextLabelComponent>("New Character", "damagefont", white, true, 1, 0, 0);
+        auto& textlabel = makeCharacterText.GetComponent<TextLabelComponent>();
+        TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
+        makeCharacterText.AddComponent<TransformComponent>(glm::vec2(400, (75*numcharacters)+ypos+21.5));
+        Entity icon = registry->CreateEntity();
+        iconrect = {iconx*8, icony*8,8,8};
+        icon.AddComponent<SpriteComponent>(LOFICHAR, 8, 8, iconrect, 11, true, false);
+        icon.AddComponent<TransformComponent>(glm::vec2(330, (75*numcharacters)+ypos+16.5), glm::vec2(5.0,5.0));
+        disposables.push_back(icon); 
+        disposables.push_back(makeCharacter);
+        disposables.push_back(makeCharacterText);
+    }
+    registry->Update();
+    return disposables;
+}
+
+std::vector<Entity> Game::loadMenuThree(){
+    return {};
+}
+
+void Game::Setup(){ // after initialize and before actual game loop starts 
     PopulateAssetStore();
     PopulateRegistry();
-    LoadPlayer(ARCHER); // MUST LOAD PLAYER FIRST SO THEY HAVE ENTITYID OF 0!
+    
+    std::vector<Entity> menuonedisposables = loadMenuOne();
+    SDL_Event sdlEvent;
+    int direction = -1;
+    bool proceed = false;
+    while(mainmenuone){ // title screen and play button 
+        if(proceed){
+            break;
+        }
+        while(SDL_PollEvent(&sdlEvent)) {
+            key = sdlEvent.key.keysym.sym;
+            switch (sdlEvent.type){
+                case SDL_QUIT:
+                    Destory();
+                    exit(0); 
+                case SDL_MOUSEBUTTONDOWN:
+                    SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
+                    if(mouseX > 456 && mouseX < 544 && mouseY > 660 && mouseY < 716){ // clicked play
+                        proceed = true;
+                        for(auto& entity: menuonedisposables){
+                            entity.Kill();
+                        }
+                        registry->Update();
+                        assetStore->PlaySound(BUTTON);
+                    } 
+                    break;
+                default:
+                    break;
+            }
+        }
+        double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
+        if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
+            SDL_Delay(timeToWait); 
+            deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
+        SDL_RenderClear(renderer);
+        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+        registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
+        millisecsPreviousFrame = SDL_GetTicks();
+        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
+        camera.x += 1 * direction;
+        camera.y += 1 * direction;
+        SDL_RenderPresent(renderer); 
+    }
+
+    int numcharacters = 1;
+    std::vector<Entity> menutwodisposables = loadMenuTwo(numcharacters);
+    proceed = false;
+    while(mainmenutwo){ // character selection 
+        if(proceed){
+            break;
+        }
+        while(SDL_PollEvent(&sdlEvent)) {
+            key = sdlEvent.key.keysym.sym;
+            switch (sdlEvent.type){
+                case SDL_QUIT:
+                    Destory();
+                    exit(0); 
+                case SDL_MOUSEBUTTONDOWN:
+                    SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
+                    if(mouseX > 300 && mouseX < 700 && mouseY){
+                        if(mouseY > 100 && mouseY < 175){
+                            if(numcharacters == 0){
+                                std::cout << "new character pressed" << std::endl;
+                                proceed = true;
+                            } else {
+                                std::cout << "Tload character 1" << std::endl;    
+                                mainmenuthree = false;
+                            }
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 200 && mouseY < 275 && numcharacters >= 1){
+                            if(numcharacters == 1){
+                                std::cout << "new character pressed" << std::endl;
+                                proceed = true;
+                            } else{
+                                std::cout << "load character 2" << std::endl;    
+                                mainmenuthree = false;
+                            }
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 300 && mouseY < 375 && numcharacters >= 2){
+                            if(numcharacters == 2){
+                                std::cout << "new character pressed" << std::endl;
+                                proceed = true;
+                            }else{
+                                std::cout << "load character 3" << std::endl; 
+                                mainmenuthree = false;   
+                            }
+                            assetStore->PlaySound(BUTTON);
+                        }
+
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
+        if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
+            SDL_Delay(timeToWait); 
+            deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
+        SDL_RenderClear(renderer);
+        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+        registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
+        millisecsPreviousFrame = SDL_GetTicks();
+        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
+        camera.x += 1 * direction;
+        camera.y += 1 * direction;
+        SDL_RenderPresent(renderer); 
+    }
+
+    while(mainmenuthree){ // new character selection (bypassed if existing character is selected)
+
+    }
+
+
+    LoadPlayer(ARCHER);
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
     LoadGui(playerClassName);
     registry->Update();
@@ -985,12 +1230,12 @@ void Game::Setup(){ // everything in setup occurs before game loop begins
 
 void Game::Update(){
     // SDL_GetTicks counts ms passed since SDL_Init was called in Initialize(); 
-    if (fpslimit) {
-        int timeToWait = MILLISECONDS_PER_FRAME - SDL_GetTicks() - millisecsPreviousFrame; 
-        if (timeToWait > 0 && timeToWait <= MILLISECONDS_PER_FRAME){
-            SDL_Delay(timeToWait); //doesn't burn clock cycles; returns resources to OS for timeToWait
-        }
-    }
+    // if (fpslimit) {
+    //     int timeToWait = MILLISECONDS_PER_FRAME - SDL_GetTicks() - millisecsPreviousFrame; 
+    //     if (timeToWait > 0 && timeToWait <= MILLISECONDS_PER_FRAME){
+    //         SDL_Delay(timeToWait); //doesn't burn clock cycles; returns resources to OS for timeToWait
+    //     }
+    // }
     // difference in ticks since last frame in seconds
     double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
     millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick

@@ -68,9 +68,9 @@ class MovementSystem: public System {
 
         // wall collision event, emitted by movementSystem!
         void onCollision(CollisionEvent& event){
-            if(!(event.b.BelongsToGroup(MONSTER) || event.b.GetId() == 0)){
-                std::cout << "wall being used as monster/player in movementSystem::onCollision!" << std::endl;
-            } 
+            // if(!(event.b.BelongsToGroup(MONSTER) || event.b.BelongsToGroup(PLAYER))){
+            //     std::cout << "wall being used as monster/player in movementSystem::onCollision!" << std::endl;
+            // } 
             auto& transform = event.b.GetComponent<TransformComponent>();
             auto& flags = event.b.GetComponent<CollisionFlagComponent>();
             const auto& activespeed = event.b.GetComponent<SpeedStatComponent>().activespeed;

@@ -245,6 +245,7 @@ class Registry {
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
         void printEntitiesToBeKilled() const {for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}}
         void printNumEntities() const {std::cout << numEntities << std::endl;}
+        void killAllEntities();
 
 };
 

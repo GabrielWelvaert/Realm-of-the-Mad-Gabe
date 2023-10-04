@@ -93,7 +93,7 @@ class ProjectileEmitSystem: public System{
                         const auto& piercing = PEC.piercing;
                         const auto& arcgap = PEC.arcgap;
                         int shots = PEC.shots;
-                        const bool IsPlayer = entity.GetId() == 0;
+                        const bool IsPlayer = entity.BelongsToGroup(PLAYER);
                         const auto& parentSprite = entity.GetComponent<SpriteComponent>(); // sprite of projectile's parent
                         const auto& transform = entity.GetComponent<TransformComponent>(); // transform of projectile's parent
                         const auto& isDiagonal = PEC.spritediagonalSprite;

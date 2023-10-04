@@ -12,5 +12,6 @@ const SDL_Color& xpgreen = {26,220,18};
 const SDL_Color& statgreen = {65,113,45};
 const SDL_Color& maxstatcolor = {208,201,60};
 const SDL_Color& mpcolor = {95,133,228};
+const SDL_Color& titleRed = {234,80,75};
 
 #endif

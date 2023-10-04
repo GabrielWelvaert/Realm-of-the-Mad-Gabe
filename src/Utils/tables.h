@@ -160,6 +160,8 @@ struct helmData{
     Uint32 duration;
 };
 
+extern std::unordered_map<classes, const char*> classesToString;
+
 extern std::unordered_map<items, helmData> itemEnumToHelmData;
 
 extern std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData;

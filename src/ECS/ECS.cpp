@@ -49,6 +49,15 @@ const Signature& System::GetComponentSignature() const {
     return ComponentSignature;
 }
 
+void Registry::killAllEntities(){
+    for(auto& system: systems){
+        for(auto& entity: system.second->GetSystemEntities()){
+            entity.Kill();
+        }
+    }
+    Update();
+}
+
 Entity Registry::CreateEntity(){
     creationId++;
     int entityId;

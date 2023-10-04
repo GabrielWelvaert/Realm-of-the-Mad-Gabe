@@ -17,6 +17,9 @@ const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 class Game{
     private:
         bool isRunning;
+        bool mainmenuone = true;
+        bool mainmenutwo = true;
+        bool mainmenuthree = true;
         int millisecsPreviousFrame = 0;
         SDL_Window* window;
         SDL_Renderer* renderer; 
@@ -49,6 +52,9 @@ class Game{
         void LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum);
         void LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile);
         void PopulateRegistry();
+        std::vector<Entity> loadMenuOne();
+        std::vector<Entity> loadMenuTwo(int numcharacters);
+        std::vector<Entity> loadMenuThree();
        
         static int windowWidth;
         static int windowHeight;

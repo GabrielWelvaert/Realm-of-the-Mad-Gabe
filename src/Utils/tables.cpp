@@ -54,6 +54,22 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
     }
 };
 
+std::unordered_map<classes, const char*> classesToString = {
+    {ROGUE, "Rogue"},
+    {ARCHER, "Archer"},
+    {WIZARD, "Wizard"},
+    {PRIEST, "Priest"},
+    {WARRIOR, "Warrior"},
+    {KNIGHT, "Knight"},
+    {PALADIN, "Paladin"},
+    {ASSASSIN, "Assassin"},
+    {NECROMANCER, "Necromancer"},
+    {HUNTRESS, "Huntress"},
+    {MYSTIC, "Mystic"},
+    {TRICKSTER, "Trickster"},
+    {SORCERER, "Sorcerer"}
+};
+
 std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and mp required
     {T0TOME, {500,60}},
     {T1TOME, {500,65}},

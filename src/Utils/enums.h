@@ -436,7 +436,10 @@ enum textureEnums{
     LOFIOBJ6,
     STATICHUD,
     STATICHUD2,
-    BAGSLOTS
+    BAGSLOTS,
+    MAINMENUBG,
+    PLAYBAR,
+    LOFICHAR2
 
 };
 
