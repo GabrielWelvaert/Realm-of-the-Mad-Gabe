@@ -34,6 +34,11 @@ struct BaseStatData{
     unsigned char wisdom;
 };
 
+struct startingEquipment{
+    items startingWeapon;
+    items startingEquipment;
+};
+
 struct spritedata { // can be used to initialize SpriteComponents.
     textureEnums assetId; 
     int width;
@@ -160,6 +165,8 @@ struct helmData{
     Uint32 duration;
 };
 
+extern std::unordered_map<classes, startingEquipment> classesToStartingItems;
+
 extern std::unordered_map<classes, const char*> classesToString;
 
 extern std::unordered_map<items, helmData> itemEnumToHelmData;
@@ -184,7 +191,6 @@ extern std::vector<groups> validability;
 extern std::vector<groups> validarmor;
 
 extern std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory;
-
 
 extern std::unordered_map<items, groups> itemToGroup;
 

@@ -54,6 +54,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
     }
 };
 
+std::unordered_map<classes, startingEquipment> classesToStartingItems = {
+    {ARCHER, {T0BOW, T0QUIVER}},
+    {PRIEST, {T0WAND, T0TOME}},
+    {WARRIOR, {T0SWORD, T0HELM}},
+};
+
 std::unordered_map<classes, const char*> classesToString = {
     {ROGUE, "Rogue"},
     {ARCHER, "Archer"},

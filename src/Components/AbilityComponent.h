@@ -8,8 +8,8 @@ Each ability inherits from parent ability class and abilities are used via their
 struct AbilityComponent{
     bool abilityEquipped;
     Uint32 timeLastUsed;
-    int mpRequired;
-    int coolDownMS;
+    int mpRequired = 20;
+    int coolDownMS = 500;
 
     AbilityComponent() = default;
 

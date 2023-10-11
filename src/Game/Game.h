@@ -9,6 +9,7 @@
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/enums.h"
 #include "../Utils/factory.h"
+#include "../Utils/CharacterManager.h"
 
 const bool fpslimit = false;
 const int FPS = 60;
@@ -17,9 +18,6 @@ const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 class Game{
     private:
         bool isRunning;
-        bool mainmenuone = true;
-        bool mainmenutwo = true;
-        bool mainmenuthree = true;
         int millisecsPreviousFrame = 0;
         SDL_Window* window;
         SDL_Renderer* renderer; 
@@ -29,11 +27,13 @@ class Game{
         std::unique_ptr<Registry> registry; 
         std::unique_ptr<EventBus> eventBus;
         std::unique_ptr<Factory> factory;
+        std::unique_ptr<CharacterManager> characterManager;
         const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
         std::vector<int> inventoryIconIds;
         std::vector<int> equipmentIconIds;
+        std::string activeCharacterID; // ID for saving character
 
     public:
         Game();
@@ -48,10 +48,12 @@ class Game{
         void LoadLevel(int level);
         void PopulateAssetStore();
         void LoadPlayer(classes classname);
+        void LoadPlayer(std::string characterID);
         void LoadGui(classes className);
         void LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum);
         void LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile);
         void PopulateRegistry();
+        void MainMenus();
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();

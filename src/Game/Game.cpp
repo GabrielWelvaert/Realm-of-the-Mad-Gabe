@@ -47,6 +47,7 @@ Game::Game(){
     assetStore = std::make_unique<AssetStore>();
     eventBus = std::make_unique<EventBus>();
     factory = std::make_unique<Factory>();
+    characterManager = std::make_unique<CharacterManager>();
 }
 
 Game::~Game(){
@@ -111,6 +112,7 @@ void Game::Initialize(){
         }
     }
     SDL_SetWindowIcon(window, iconlarge);
+    SDL_FreeSurface(empty1);
     SDL_FreeSurface(iconsmall);
     SDL_FreeSurface(iconlarge);
     SDL_FreeSurface(atlas);
@@ -886,6 +888,67 @@ void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
     factory->spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
+void Game::LoadPlayer(std::string characterID){
+    player = registry->CreateEntity();
+    player.Group(PLAYER);
+    std::vector<int> fbs = characterManager->GetLineValuesFromCharacterFile(characterID, 4); 
+    std::vector<int> levelAndXp = characterManager->GetLineValuesFromCharacterFile(characterID, 3);
+    for(auto x: fbs){
+        std::cout << x << std::endl;
+    }
+    for(auto x: levelAndXp){
+        std::cout << x << std::endl;
+    }
+    BaseStatComponent basestats = BaseStatComponent(fbs[0], fbs[1], fbs[2], fbs[3], fbs[4], fbs[5], fbs[6], fbs[7], levelAndXp[0], levelAndXp[1]);
+    classes classname = static_cast<classes>(characterManager->GetLineValuesFromCharacterFile(characterID, 2)[0]);
+
+    player.AddComponent<TransformComponent>(playerSpawn); 
+    player.AddComponent<SpriteComponent>(classname);
+    player.AddComponent<ClassNameComponent>(classname); 
+    player.AddComponent<BaseStatComponent>(classname);
+    player.AddComponent<HPMPComponent>(basestats);
+    player.AddComponent<OffenseStatComponent>(basestats);
+    player.AddComponent<RidigBodyComponent>();
+    player.AddComponent<SpeedStatComponent>(basestats);
+    player.AddComponent<AnimationComponent>(2,50, false);
+    player.AddComponent<KeyboardControlledComponent>();
+    player.AddComponent<BoxColliderComponent>(STANDARD);
+    player.AddComponent<CameraFollowComponent>();
+    player.AddComponent<CollisionFlagComponent>();
+    player.AddComponent<PlayerItemsComponent>();
+    player.AddComponent<AnimatedShootingComponent>(classname);
+    player.AddComponent<StatusEffectComponent>();
+    player.AddComponent<ProjectileEmitterComponent>();
+    player.AddComponent<AbilityComponent>();
+    const auto& bs = player.GetComponent<BaseStatComponent>();
+    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * bs.dexterity + 1.5);
+    switch(classname){
+        case ARCHER:{
+            player.AddComponent<QuiverComponent>();
+            break;
+        }
+        case PRIEST: {
+            player.AddComponent<TomeComponent>();
+            break;
+        }
+        case WARRIOR: {
+            player.AddComponent<HelmComponent>();
+            break;
+        }
+    }
+
+    // TODO UPDATE PLAYERS INVENTORY AND EQUIPMENT FROM SAVED DATA!!!!!
+
+    // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
+    player.GetComponent<HPMPComponent>().activemp = 32000;
+    player.GetComponent<HPMPComponent>().maxmp = 32000;
+    player.GetComponent<OffenseStatComponent>().activeattack = 74;
+    player.GetComponent<BaseStatComponent>().attack = 74;
+    player.GetComponent<SpeedStatComponent>().activespeed = 50;
+    player.GetComponent<BaseStatComponent>().speed = 50;
+
+}
+
 void Game::LoadPlayer(classes classname){
     player = registry->CreateEntity();
     player.AddComponent<TransformComponent>(playerSpawn); //scaled by 6, an 8x8 sprite is effectively 48x48 pixels
@@ -1039,28 +1102,31 @@ std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is pr
 
 std::vector<Entity> Game::loadMenuTwo(int numcharacters){
     Entity loadCharacter = registry->CreateEntity();
-    std::vector<Entity> disposables;
     loadCharacter.AddComponent<TextLabelComponent>("Load Character", "damagefont2", white, true, 1,0,0 );
     loadCharacter.AddComponent<TransformComponent>(glm::vec2(500-(314/2),25));
     int ypos = 100;
+    std::vector<Entity> disposables = {loadCharacter};
     SDL_Rect rect = {0,0,400,75};
     SDL_Rect iconrect;
-    classes classname = WIZARD;
-    int level = 1;
+    std::vector<std::string> characterIDs = characterManager->GetAllCharacterValuesAtLineNumber(1);
+    std::vector<std::string> classNames = characterManager->GetAllCharacterValuesAtLineNumber(2);
+    std::vector<std::string> levels = characterManager->GetAllCharacterValuesAtLineNumber(3);
+
     for(int i = 0; i < numcharacters; i++){
         // todo derive classname and level
         Entity characterSlot = registry->CreateEntity();
         characterSlot.AddComponent<SpriteComponent>(PLAYBAR, 400, 75, rect, 10, true, false);
         characterSlot.AddComponent<TransformComponent>(glm::vec2(300,(75*i)+ypos), glm::vec2(1.0,1.0));
         Entity characterSlotText = registry->CreateEntity();
-        std::string str = classesToString.at(classname);
-        str.append(" " + std::to_string(level));
+        std::string str = classesToString.at(static_cast<classes>(stoi(classNames[i])));
+        str.push_back(' ');
+        str.push_back(levels[i][0]);
         characterSlotText.AddComponent<TextLabelComponent>(str, "damagefont", white, true, 1,0,0);
-        auto& textlabel = characterSlot.GetComponent<TextLabelComponent>();
+        auto& textlabel = characterSlotText.GetComponent<TextLabelComponent>();
         TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
         characterSlotText.AddComponent<TransformComponent>(glm::vec2(400, (75*i)+ypos+21.5));
         Entity icon = registry->CreateEntity();
-        iconrect = {0,24*classname,8,8};
+        iconrect = {0,24*stoi(classNames[i]),8,8};
         icon.AddComponent<SpriteComponent>(PLAYERS, 8, 8, iconrect, 11, true, false);
         icon.AddComponent<TransformComponent>(glm::vec2(330, (75*i)+ypos+16.5), glm::vec2(5.0,5.0));
         disposables.push_back(characterSlotText);
@@ -1092,133 +1158,186 @@ std::vector<Entity> Game::loadMenuTwo(int numcharacters){
 }
 
 std::vector<Entity> Game::loadMenuThree(){
-    return {};
+    std::vector<Entity> disposables;
+    SDL_Rect rect = {50,20,10,10};
+    SDL_Rect playerRect = {0, 0, 8, 8};
+    int xpos = 100;
+    std::vector<classes> classesVector = {ARCHER, PRIEST, WARRIOR};
+    for(int i = 0; i < 3; i++){
+        Entity buttonbg = registry->CreateEntity();
+        buttonbg.AddComponent<SpriteComponent>(PLAYBAR, 200, 200, rect, 10, true, false);
+        buttonbg.AddComponent<TransformComponent>(glm::vec2(xpos,200), glm::vec2(1.0,1.0));    
+        Entity buttonClassName = registry->CreateEntity();
+        buttonClassName.AddComponent<TextLabelComponent>(classesToString.at(classesVector[i]), "damagefont", white, true, 1, 0, 0);
+        auto& textlabel = buttonClassName.GetComponent<TextLabelComponent>();
+        TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
+        buttonClassName.AddComponent<TransformComponent>(glm::vec2( (xpos + 100) - (textlabel.textwidth/2), 240));
+        Entity buttonIcon = registry->CreateEntity();
+        playerRect.y = classesVector[i] * 24 + 8;
+        buttonIcon.AddComponent<SpriteComponent>(PLAYERS, 64, 64, playerRect, 11, true, false);
+        buttonIcon.AddComponent<TransformComponent>(glm::vec2((xpos + 100) - (64/2), 280), glm::vec2(1.0,1.0));
+        xpos += 300;
+        disposables.push_back(buttonIcon);
+        disposables.push_back(buttonbg);
+        disposables.push_back(buttonClassName);
+    }
+    registry->Update();
+    return disposables;
+}
+
+void Game::MainMenus(){ // could take bool args to load just menu 2 for example
+
+    std::vector<Entity> menuonedisposables = loadMenuOne();
+    std::vector<Entity> menutwodisposables;
+    std::vector<Entity> menuthreedisposables;
+    SDL_Event sdlEvent;
+    int direction = -1;
+    bool proceed = false;
+    bool killMenuOne = false;
+    bool killMenuTwo = false;
+    bool killMenuThree = false;
+    bool mainmenutwo = false;
+    bool mainmenuthree = false;
+    bool mainmenuone = true;
+    
+    characterManager->KillInvalidCharacterFiles();
+    characterManager->KillExcessCharacterFiles();
+
+    int numcharacters = characterManager->GetFileCountInCharacterDirectory();
+    std::vector<std::string> characterIDs = characterManager->GetAllCharacterValuesAtLineNumber(1);
+    std::vector<std::string> classNames = characterManager->GetAllCharacterValuesAtLineNumber(2);
+    std::vector<std::string> levels = characterManager->GetAllCharacterValuesAtLineNumber(3);
+    std::string selectedCharacterID;
+
+    for(;;){ // main menus 
+        if(killMenuOne){ // clear main menu one stuff
+            for(auto& entity: menuonedisposables){entity.Kill();}
+            menuonedisposables.clear();
+            menutwodisposables = loadMenuTwo(numcharacters);
+            killMenuOne = mainmenuone = false;
+            mainmenutwo = true;
+            registry->Update();
+        } else if(killMenuTwo){ // clean main menu two stuff 
+            for(auto& entity: menutwodisposables){entity.Kill();}
+            menutwodisposables.clear();
+            registry->Update();
+            killMenuTwo = mainmenutwo = false;
+            if(mainmenuthree){ 
+                menuthreedisposables = loadMenuThree();
+            }
+        } else if(killMenuThree){ // clean main menu three stuff 
+            for(auto& entity: menuthreedisposables){entity.Kill();}
+            menuthreedisposables.clear();
+            registry->Update();
+            killMenuThree = false;
+        }
+
+        if(proceed){ // main menus done; proceed to actual game
+            registry->killAllEntities();
+            // kill all entities doesn't work...
+            if(!characterManager->ValidateCharacterFile(selectedCharacterID)){ // human attempted to modify character data post-selection; restart game...
+                MainMenus();
+            } else { // selected character is valid; retain id and exit this function
+                Game::activeCharacterID = selectedCharacterID;
+                break;    
+            }
+        }
+
+        while(SDL_PollEvent(&sdlEvent)) {
+            key = sdlEvent.key.keysym.sym;
+            if(sdlEvent.type == SDL_QUIT) {
+                Destory();
+                exit(0);
+            } else if(sdlEvent.type == SDL_MOUSEBUTTONDOWN){
+                SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
+                if(mainmenuone){ // first main menu: title art and select character
+                    if(mouseX > 456 && mouseX < 544 && mouseY > 660 && mouseY < 716){ // clicked play
+                        killMenuOne = true;
+                        assetStore->PlaySound(BUTTON);
+                    }
+                } else if(mainmenutwo){ // second main menu: selecting character (or opt to make new one)
+                    if(mouseX > 300 && mouseX < 700 && mouseY){
+                        if(mouseY > 100 && mouseY < 175){ // clicked top button 
+                            if(numcharacters == 0){ // no characters; must be create new character button
+                                mainmenuthree = true;
+                            } else {
+                                std::cout << "load character " << characterIDs[0] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[0]))) << ")" << std::endl; 
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[0];
+                                proceed = true;  
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 200 && mouseY < 275 && numcharacters >= 1){ // clicked middle button and it exists
+                            if(numcharacters == 1){ // one existing character; middle button must be create new character button
+                                mainmenuthree = true;
+                            } else{
+                                std::cout << "load character " << characterIDs[1] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[1]))) << ")" << std::endl;   
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[1];
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 300 && mouseY < 375 && numcharacters >= 2){ // clicked lower button and it exists
+                            if(numcharacters == 2){// two existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[2];
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        }
+                    }
+                } else if(mainmenuthree){ // third main menu (optional): select class for new character
+                    if(mouseX > 100 && mouseX < 900 && mouseY > 200 && mouseY < 400){
+                        if(mouseX <= 300){ // first button; archer
+                            selectedCharacterID = characterManager->CreateNewCharacterFile(ARCHER);
+                            killMenuThree = true;
+                            proceed = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseX >= 400 && mouseX <= 600){ // second button; priest
+                            selectedCharacterID = characterManager->CreateNewCharacterFile(PRIEST);
+                            killMenuThree = true;
+                            proceed = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseX >= 700){ // third button; warrior 
+                            selectedCharacterID = characterManager->CreateNewCharacterFile(WARRIOR);
+                            killMenuThree = true;
+                            proceed = true;
+                            assetStore->PlaySound(BUTTON);
+                        }
+                    }
+                }
+            }
+        }
+
+        // moving the background. must enforce FPS limit otherwise deltatime is near 0 due to FPS in thousands
+        double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
+        if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
+            SDL_Delay(timeToWait); 
+            deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+        }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
+        SDL_RenderClear(renderer);
+        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+        registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
+        millisecsPreviousFrame = SDL_GetTicks();
+        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
+        camera.x += 1 * direction;
+        camera.y += 1 * direction;
+        SDL_RenderPresent(renderer);
+    }
 }
 
 void Game::Setup(){ // after initialize and before actual game loop starts 
     PopulateAssetStore();
     PopulateRegistry();
-    
-    std::vector<Entity> menuonedisposables = loadMenuOne();
-    SDL_Event sdlEvent;
-    int direction = -1;
-    bool proceed = false;
-    while(mainmenuone){ // title screen and play button 
-        if(proceed){
-            break;
-        }
-        while(SDL_PollEvent(&sdlEvent)) {
-            key = sdlEvent.key.keysym.sym;
-            switch (sdlEvent.type){
-                case SDL_QUIT:
-                    Destory();
-                    exit(0); 
-                case SDL_MOUSEBUTTONDOWN:
-                    SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
-                    if(mouseX > 456 && mouseX < 544 && mouseY > 660 && mouseY < 716){ // clicked play
-                        proceed = true;
-                        for(auto& entity: menuonedisposables){
-                            entity.Kill();
-                        }
-                        registry->Update();
-                        assetStore->PlaySound(BUTTON);
-                    } 
-                    break;
-                default:
-                    break;
-            }
-        }
-        double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
-        if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
-            SDL_Delay(timeToWait); 
-            deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-        }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
-        SDL_RenderClear(renderer);
-        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
-        registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
-        millisecsPreviousFrame = SDL_GetTicks();
-        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
-        camera.x += 1 * direction;
-        camera.y += 1 * direction;
-        SDL_RenderPresent(renderer); 
-    }
-
-    int numcharacters = 1;
-    std::vector<Entity> menutwodisposables = loadMenuTwo(numcharacters);
-    proceed = false;
-    while(mainmenutwo){ // character selection 
-        if(proceed){
-            break;
-        }
-        while(SDL_PollEvent(&sdlEvent)) {
-            key = sdlEvent.key.keysym.sym;
-            switch (sdlEvent.type){
-                case SDL_QUIT:
-                    Destory();
-                    exit(0); 
-                case SDL_MOUSEBUTTONDOWN:
-                    SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
-                    if(mouseX > 300 && mouseX < 700 && mouseY){
-                        if(mouseY > 100 && mouseY < 175){
-                            if(numcharacters == 0){
-                                std::cout << "new character pressed" << std::endl;
-                                proceed = true;
-                            } else {
-                                std::cout << "Tload character 1" << std::endl;    
-                                mainmenuthree = false;
-                            }
-                            assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 200 && mouseY < 275 && numcharacters >= 1){
-                            if(numcharacters == 1){
-                                std::cout << "new character pressed" << std::endl;
-                                proceed = true;
-                            } else{
-                                std::cout << "load character 2" << std::endl;    
-                                mainmenuthree = false;
-                            }
-                            assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 300 && mouseY < 375 && numcharacters >= 2){
-                            if(numcharacters == 2){
-                                std::cout << "new character pressed" << std::endl;
-                                proceed = true;
-                            }else{
-                                std::cout << "load character 3" << std::endl; 
-                                mainmenuthree = false;   
-                            }
-                            assetStore->PlaySound(BUTTON);
-                        }
-
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
-        if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
-            SDL_Delay(timeToWait); 
-            deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-        }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
-        SDL_RenderClear(renderer);
-        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
-        registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
-        millisecsPreviousFrame = SDL_GetTicks();
-        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
-        camera.x += 1 * direction;
-        camera.y += 1 * direction;
-        SDL_RenderPresent(renderer); 
-    }
-
-    while(mainmenuthree){ // new character selection (bypassed if existing character is selected)
-
-    }
-
-
-    LoadPlayer(ARCHER);
+    MainMenus();
+    // LoadPlayer(ARCHER);
+    std::cout << "after main menus and before loading player there are " << registry->getNumberOfLivingEntities() << " living entities..." << std::endl;
+    LoadPlayer(activeCharacterID);
     const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
     LoadGui(playerClassName);
     registry->Update();
@@ -1229,14 +1348,6 @@ void Game::Setup(){ // after initialize and before actual game loop starts
 }
 
 void Game::Update(){
-    // SDL_GetTicks counts ms passed since SDL_Init was called in Initialize(); 
-    // if (fpslimit) {
-    //     int timeToWait = MILLISECONDS_PER_FRAME - SDL_GetTicks() - millisecsPreviousFrame; 
-    //     if (timeToWait > 0 && timeToWait <= MILLISECONDS_PER_FRAME){
-    //         SDL_Delay(timeToWait); //doesn't burn clock cycles; returns resources to OS for timeToWait
-    //     }
-    // }
-    // difference in ticks since last frame in seconds
     double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
     millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
 

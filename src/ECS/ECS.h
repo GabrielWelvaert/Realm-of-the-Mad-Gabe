@@ -86,6 +86,8 @@ class Pool: public IPool { //pool of component, where each index represents enti
         
         virtual ~Pool() = default;
         
+        void printSize() const {std::cout << size << std::endl;}
+
         bool IsEmpty() const { return size==0; }
 
         int GetSize() const { return size; }
@@ -213,6 +215,7 @@ class Registry {
         template <typename TComponent> bool HasComponent(int id);
         template <typename TComponent> TComponent& GetComponent(Entity entity) const;
         template <typename TComponent> TComponent& GetComponent(int entityID) const;
+        template <typename TComponent> void printPoolSize() const;
 
         //needs to be template since system type is generic 
         template <typename TSystem, typename ...TArgs> void AddSystem(TArgs&& ...args);
@@ -240,11 +243,10 @@ class Registry {
 
         unsigned int GetCreationIdFromEntityId(unsigned int Id) const;
         unsigned int getCurrentCreationId() const {return creationId;};
-        unsigned int getNumberOfLivingEntities() const {return numEntities;};
+        unsigned int getNumberOfLivingEntities() const {return numEntities - freeIds.size();};
 
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
         void printEntitiesToBeKilled() const {for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}}
-        void printNumEntities() const {std::cout << numEntities << std::endl;}
         void killAllEntities();
 
 };
@@ -270,6 +272,13 @@ template <typename TSystem>
 TSystem& Registry::GetSystem() const {
     auto system = systems.find(std::type_index(typeid(TSystem)));
     return *(std::static_pointer_cast<TSystem>(system->second)); //dereference the whole thing! 
+}
+
+template <typename TComponent>
+void Registry::printPoolSize() const {
+    const auto componentId = Component<TComponent>::GetId();
+    std::shared_ptr<Pool<TComponent>> componentPool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
+    componentPool->printSize();
 }
 
 template <typename TComponent, typename ...TArgs> // targs is like *args; we dont know number of parameters
