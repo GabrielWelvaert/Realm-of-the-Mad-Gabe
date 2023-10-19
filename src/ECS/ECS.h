@@ -68,6 +68,8 @@ class IPool {
     public:
         virtual ~IPool() = default;
         virtual void RemoveEntityFromPool(int entityId) = 0;
+        virtual void printSize() = 0;
+        virtual void Clear() = 0;
 };
 
 template <typename T>
@@ -86,16 +88,21 @@ class Pool: public IPool { //pool of component, where each index represents enti
         
         virtual ~Pool() = default;
         
-        void printSize() const {std::cout << size << std::endl;}
+        void printSize() override {std::cout << size << std::endl;}
 
         bool IsEmpty() const { return size==0; }
 
         int GetSize() const { return size; }
 
-        void Resize(int n){ data.resize(n); }
+        void Resize(int n){ 
+            data.resize(n); 
+            // std::cout << "###################################### " << std::endl;    
+        }
 
-        void Clear(){ 
+        void Clear() override { 
             data.clear();
+            entityIdToIndex.clear();
+            indexToEntityId.clear();
             size = 0;    
         }
 
@@ -129,20 +136,30 @@ class Pool: public IPool { //pool of component, where each index represents enti
             entityIdToIndex.erase(entityId);
             indexToEntityId.erase(indexOfLast);
             size--;
+            if(size > 4000000000){
+                std::cout << "overflow of some pool! " << std::endl;
+            }
         
         }
 
         void RemoveEntityFromPool(int entityId) override {
+
             if(entityIdToIndex.find(entityId) != entityIdToIndex.end()){
+                // std::cout << "entity " << entityId << " being removed from pool because it was found in there" << std::endl;
                 Remove(entityId);
             }
         }
 
         T& Get(int entityId) { 
+            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+                std::cout << "getComp performed on entity lacking this component" << std::endl;
+            }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }
 
-        T& operator [](unsigned int index){ return data[index]; }
+        T& operator [](unsigned int index){ 
+            return data[index]; 
+        }
 
 };
 
@@ -248,6 +265,7 @@ class Registry {
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
         void printEntitiesToBeKilled() const {for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}}
         void killAllEntities();
+        void printFreeIds() const {for(const auto& x: freeIds){std::cout << x << std::endl;}}
 
 };
 
@@ -283,7 +301,7 @@ void Registry::printPoolSize() const {
 
 template <typename TComponent, typename ...TArgs> // targs is like *args; we dont know number of parameters
 void Registry::AddComponent(Entity entity, TArgs&& ...args){
-
+    
     //get compnentid and entityid
     const auto componentId = Component<TComponent>::GetId();
     const auto entityId = entity.GetId();

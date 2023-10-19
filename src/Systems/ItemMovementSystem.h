@@ -29,8 +29,10 @@ class ItemMovementSystem: public System{
     private:                                    // weapon, ability, armor, ring
         std::vector<glm::vec2> equipPositions = {{773.5,458.5}, {830.5,458.5}, {886.5,458.5}, {942.5,458.5}};
         std::vector<glm::vec2> lootbagPositions = {{773.5, 639.5}, {830.5, 639.5}, {886.5, 639.5}, {942.5, 639.5}, {773.5, 696.5}, {830.5, 696.5}, {886.5, 696.5}, {942.5, 696.5}};
+        std::vector<glm::vec2> inventoryPositions = {{773.5, 515.5}, {830.5, 515.5}, {886.5, 515.5}, {942.5, 515.5}, {773.5, 572.5}, {830.5, 572.5}, {886.5, 572.5}, {942.5, 572.5}};
 
         bool shiftblock;
+        std::map<unsigned char, Entity> * originbag;
 
         inline void hideIcon(std::unique_ptr<Registry>& registry, int id){
             registry->GetComponent<SpriteComponent>(id).zIndex = 9;
@@ -180,23 +182,12 @@ class ItemMovementSystem: public System{
                         }
                     }
                 }
-                // std::cout << "item 1 moved to " << destPos << " from " <<  static_cast<int>(item1ic.lastPosition) << std::endl;
                 item1TransformPosition = item2TranformPosition;
                 item2TranformPosition = item1OriginalTransformPos;
                 item1ic.lastPosition = destPos;
                 item2ic.lastPosition = item1pos;
-                // item1ic.hostMap = &destBag;
-                // item2ic.hostMap = &contents1;
                 contents1[item1pos] = destBag[destPos];
                 destBag[destPos] = tempitem.second;
-                // std::cout << "bag 1: " << std::endl;
-                // for(auto x: contents1){
-                //     std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
-                // }
-                // std::cout << "bag 2: " << std::endl;
-                // for(auto x: destBag){
-                //     std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
-                // }
                 assetStore->PlaySound(INVENTORY); 
             /*one item involved*/
             } else { // destination spot is vacant; move 
@@ -268,22 +259,10 @@ class ItemMovementSystem: public System{
                 } 
                 item1.GetComponent<TransformComponent>().position = destTransformPos;
                 ic.lastPosition = destPos;
-                // ic.hostMap = &destBag;
-
                 destBag[destPos] = contents1[item1pos];
                 contents1.erase(item1pos);
-                // std::cout << "bag 1: " << std::endl;
-                // for(auto x: contents1){
-                //     std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
-                // }
-                // std::cout << "bag 2: " << std::endl;
-                // for(auto x: destBag){
-                //     std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << std::endl;
-                // }
                 assetStore->PlaySound(INVENTORY); 
             }
-            // std::cout << destBag.size() << " = destbag after" << std::endl;
-            // std::cout << contents1.size() << " = origin after" << std::endl;
     }
     
     public:
@@ -291,6 +270,81 @@ class ItemMovementSystem: public System{
         ItemMovementSystem(){
             RequireComponent<MouseBoxComponent>();
             RequireComponent<ItemComponent>();
+        }
+
+        // place item into inventory slot of player. Only used once when spawning player; never use otherwise. assumes vacancy in position 
+        inline void ForcePlayerEquipItem(std::unique_ptr<Registry>& registry, std::unique_ptr<EventBus>& eventbus, Entity& player, const items& itemEnum, const int& position, const std::vector<int>& equipmentIconIds){
+            Entity item = registry->CreateEntity();
+            auto& equipment = player.GetComponent<PlayerItemsComponent>().equipment;
+            auto& classname = player.GetComponent<ClassNameComponent>().classname;
+            item.AddComponent<SpriteComponent>(itemEnum);
+            item.AddComponent<ItemComponent>(itemEnum, position);
+            item.AddComponent<MouseBoxComponent>(40,40);
+            item.Group(itemToGroup.at(itemEnum));
+            switch(position){
+                case 1:{
+                    if(itemToGroup.at(itemEnum) == validWeapons.at(classname)){
+                        equipment[position] = item;
+                        eventbus->EmitEvent<WeaponEquipEvent>(itemEnum, player);
+                        item.AddComponent<TransformComponent>(equipPositions[0], glm::vec2(5.0,5.0));
+                        hideIcon(registry, equipmentIconIds[0]);
+                        registry->Update();
+                    } else {
+                        return;
+                    }
+                }break;
+                case 2:{
+                    if(itemToGroup.at(itemEnum) == validability.at(classname)){
+                        equipment[position] = item;
+                        eventbus->EmitEvent<EquipAbilityEvent>(player, itemEnum);
+                        item.AddComponent<TransformComponent>(equipPositions[1], glm::vec2(5.0,5.0));
+                        if(itemEnumToStatData.find(itemEnum) != itemEnumToStatData.end()){
+                            eventbus->EmitEvent<EquipItemWithStatsEvent>(false, itemEnum, true, itemEnum, player);
+                            eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        }
+                        hideIcon(registry, equipmentIconIds[1]);
+                        registry->Update();
+                    } else {
+                        return;
+                    }
+                }break;
+                case 3:{
+                    if(itemToGroup.at(itemEnum) == validarmor.at(classname)){
+                        equipment[position] = item;
+                        eventbus->EmitEvent<EquipItemWithStatsEvent>(false, itemEnum, true, itemEnum, player);
+                        eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        item.AddComponent<TransformComponent>(equipPositions[2], glm::vec2(5.0,5.0));
+                        hideIcon(registry, equipmentIconIds[2]);
+                        registry->Update();
+                    } else {
+                        return;
+                    }
+                }break;
+                case 4:{
+                    if(itemToGroup.at(itemEnum) == RING){
+                        equipment[position] = item;
+                        eventbus->EmitEvent<EquipItemWithStatsEvent>(false, itemEnum, true, itemEnum, player);
+                        eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
+                        item.AddComponent<TransformComponent>(equipPositions[3], glm::vec2(5.0,5.0));
+                        hideIcon(registry, equipmentIconIds[3]);
+                        registry->Update();
+                    } else {
+                        return;
+                    }
+                }break;
+            }
+        }   
+
+        // place item into equipment slot of player and equip it. Only used once when spawning player; never use otherwise. assumes vacancy in position 
+        inline void ForcePlayerPopulateInventory(std::unique_ptr<Registry>& registry, Entity& player, const items& itemEnum, const int& position){
+            auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+            Entity item = registry->CreateEntity();
+            item.AddComponent<SpriteComponent>(itemEnum);
+            item.AddComponent<ItemComponent>(itemEnum, position);
+            item.AddComponent<MouseBoxComponent>(40,40);
+            item.AddComponent<TransformComponent>(inventoryPositions[position-1], glm::vec2(5.0,5.0));
+            item.Group(itemToGroup.at(itemEnum));
+            inventory[position] = item;
         }
 
         void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift){ // todo pass player inventory component and equipment component (use maps!)
@@ -427,7 +481,7 @@ class ItemMovementSystem: public System{
                         } else { // spawn new lootbag if no existing bag or existing bag is full
                             Entity lootbag = factory->creatLootBag(registry, player.GetComponent<TransformComponent>().position, BROWNLOOTBAG);                            
                             pos = lootbag.GetComponent<LootBagComponent>().addItem(entity);
-                            transform.position.x = -10000000; // couldn't remove and add transform/sprite... temporary solution
+                            transform.position.x = -10000000; // couldn't remove and add transform/sprite... temporary solution ()
                             assetStore->PlaySound(LOOT);
                         }
                         if(playerInventory.heldItemStartingTransformComp.y < 506){ // item from equip
@@ -458,7 +512,7 @@ class ItemMovementSystem: public System{
                         // entity.GetComponent<TransformComponent>().position = lootbagPositions.at(pos-1);
                         return;
                     }
-                    std::map<unsigned char, Entity> * originbag;
+                    // std::map<unsigned char, Entity> * originbag;
                     if(playerInventory.heldItemStartingTransformComp.y > 627){ // item original bag is a loot bag
                         originbag = &registry->GetComponent<LootBagComponent>(playerInventory.IdOfOpenBag).contents;
                     } else if(playerInventory.heldItemStartingTransformComp.y < 506){ // item original bag is equipment 

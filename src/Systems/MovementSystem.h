@@ -60,6 +60,7 @@ class MovementSystem: public System {
             RequireComponent<TransformComponent>();
             RequireComponent<RidigBodyComponent>();
             RequireComponent<CollisionFlagComponent>();
+            RequireComponent<BoxColliderComponent>();
         }
 
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
@@ -68,9 +69,7 @@ class MovementSystem: public System {
 
         // wall collision event, emitted by movementSystem!
         void onCollision(CollisionEvent& event){
-            // if(!(event.b.BelongsToGroup(MONSTER) || event.b.BelongsToGroup(PLAYER))){
-            //     std::cout << "wall being used as monster/player in movementSystem::onCollision!" << std::endl;
-            // } 
+            // WALL IS ALWAYS EVENT.A !!! if it isn't things are going to be very bad!
             auto& transform = event.b.GetComponent<TransformComponent>();
             auto& flags = event.b.GetComponent<CollisionFlagComponent>();
             const auto& activespeed = event.b.GetComponent<SpeedStatComponent>().activespeed;
@@ -86,7 +85,7 @@ class MovementSystem: public System {
                 msLastCollisionFlag = SDL_GetTicks();
                 flags.lastSideHitFlag = currentSide;
                 firstmove = true;
-                flags.idOfWallHit = 0;
+                // flags.idOfWallHit = 0;
             }
 
             if(!(SDL_GetTicks() - msLastCollisionFlag < msDoubleCollisionBuffer && !firstmove && lastSideHitFlag == currentSide)){ //if clause detects double collision as to stop "double" bumping
@@ -113,45 +112,35 @@ class MovementSystem: public System {
                 // storing Id of wall to later be used to check for re-collision with same wall in update)
                 flags.idOfOldWallHit = flags.idOfWallHit;
                 flags.idOfWallHit = event.a.GetId();
-                // std::cout << event.a.GetId() << " stored as last hit wall " << std::endl;
             }
 
         }   
 
         void Update(const double& deltaTime, std::unique_ptr<Registry>& registry) {
-            for (auto entity: GetSystemEntities()){
+            for(auto entity: GetSystemEntities()){
                 if(entity.HasComponent<StatusEffectComponent>()){
                     if(entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
-                        return; // entity is paralyzed; do not move! 
+                        continue; // entity is paralyzed; do not move! 
                     }
                 }
 
                 auto& transform = entity.GetComponent<TransformComponent>();
                 auto& rigidbody = entity.GetComponent<RidigBodyComponent>();
                 auto& flags = entity.GetComponent<CollisionFlagComponent>();
-                float speedinpixelspersecond;
 
-                if(entity.HasComponent<SpeedStatComponent>()){ // things like projectiles dont have statComponent
+                if(entity.HasComponent<SpeedStatComponent>()){ // are there anymore moving entities w/ out a speedstat component...?
                     const auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
-                    speedinpixelspersecond = 2.25 * activespeed + 120; // = (0.0746667 * SPD + 3.9813333) * 35
-                    
-                    
+                    float speedinpixelspersecond = 2.25 * activespeed + 120; // = (0.0746667 * SPD + 3.9813333) * 35
                     rigidbody.velocity.x *= speedinpixelspersecond;
                     rigidbody.velocity.y *= speedinpixelspersecond;
                 }
 
-                
-
                 // if collionFlag, check if next move will result in collision and release if necessary
-                if(flags.collisionFlag != NONESIDE){
+                if(flags.collisionFlag != NONESIDE && flags.idOfWallHit != -1){// registry->IdBelongsToGroup(flags.idOfWallHit, WALLBOX)){
                     auto aTransform = transform;
                     const auto& aCollider = entity.GetComponent<BoxColliderComponent>();
                     const auto& bTransform = registry->GetComponent<TransformComponent>(flags.idOfWallHit);
                     const auto& bCollider = registry->GetComponent<BoxColliderComponent>(flags.idOfWallHit);
-                    const auto& bflags = registry->GetComponent<CollisionFlagComponent>(flags.idOfWallHit);
-                    const auto& cTransform = registry->GetComponent<TransformComponent>(flags.idOfOldWallHit);
-                    const auto& cCollider = registry->GetComponent<BoxColliderComponent>(flags.idOfOldWallHit);
-                    const auto& cflags = registry->GetComponent<CollisionFlagComponent>(flags.idOfOldWallHit);
 
                     aTransform.position.x += rigidbody.velocity.x * deltaTime;
                     aTransform.position.y += rigidbody.velocity.y * deltaTime;
@@ -169,7 +158,9 @@ class MovementSystem: public System {
                         // std::cout << "not gonna hit same wall " << std::endl;
                         flags.collisionFlag = NONESIDE;
                     }
-                    if(flags.idOfOldWallHit != flags.idOfWallHit && flags.idOfOldWallHit != 0){ // check for corner collision, if re-hit, apply respective flag
+                    if(flags.idOfOldWallHit != flags.idOfWallHit && flags.idOfOldWallHit != -1){// registry->IdBelongsToGroup(flags.idOfOldWallHit, WALLBOX)){//flags.idOfOldWallHit != 0){ // check for corner collision, if re-hit, apply respective flag
+                        const auto& cCollider = registry->GetComponent<BoxColliderComponent>(flags.idOfOldWallHit);
+                        const auto& cTransform = registry->GetComponent<TransformComponent>(flags.idOfOldWallHit);
                         bool nextMoveWIllCauseCornerCollision = CheckAABBCollision(
                         aTransform.position.x + aCollider.offset[0],
                         aTransform.position.y + aCollider.offset[1],
@@ -184,30 +175,16 @@ class MovementSystem: public System {
                             if((flags.lastSideHitFlag == TOPSIDE && flags.lastlastSideHitflag == LEFTSIDE) || (flags.lastSideHitFlag == LEFTSIDE && flags.lastlastSideHitflag == TOPSIDE)){
                                 transform.position.y -= 1;
                                 transform.position.x -= 1;
-                                // std::cout << "tl" << std::endl;
-                                // if(rigidbody.velocity.x > 0){rigidbody.velocity.x = 0;} // hit left, so dont move right
-                                // if(rigidbody.velocity.y > 0){rigidbody.velocity.y = 0;} // hit top, so dont move down
                             } else if (((flags.lastSideHitFlag == TOPSIDE && flags.lastlastSideHitflag == RIGHTSIDE) || (flags.lastSideHitFlag == RIGHTSIDE && flags.lastlastSideHitflag == TOPSIDE))) {
                                 transform.position.y -= 1;
                                 transform.position.x += 1;
-                                // std::cout << "tr" << std::endl;
-                                // if(rigidbody.velocity.x < 0){rigidbody.velocity.x = 0;} // hit right, so dont move left
-                                // if(rigidbody.velocity.y > 0){rigidbody.velocity.y = 0;} // hit top, so dont move down
                             } else if (((flags.lastSideHitFlag == BOTTOMSIDE && flags.lastlastSideHitflag == LEFTSIDE) || (flags.lastSideHitFlag == LEFTSIDE && flags.lastlastSideHitflag == BOTTOMSIDE))) {
                                 transform.position.y += 1;
                                 transform.position.x -= 1;
-                                // std::cout << "bl" << std::endl;
-                                // if(rigidbody.velocity.x > 0){rigidbody.velocity.x = 0;} // hit left, so dont move right
-                                // if(rigidbody.velocity.y < 0){rigidbody.velocity.y = 0;} // hit bottom, so dont move up
                             } else {
                                 transform.position.y += 1; //BR
                                 transform.position.x += 1;
-                                // std::cout << "br" << std::endl;
-                                // if(rigidbody.velocity.x < 0){rigidbody.velocity.x = 0;} // hit right, so dont move left
-                                // if(rigidbody.velocity.y < 0){rigidbody.velocity.y = 0;} // hit bottom, so dont move up
                             }
-                            
-                            
                         }
                     
                     }

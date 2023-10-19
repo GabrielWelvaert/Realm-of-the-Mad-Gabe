@@ -43,7 +43,7 @@ class StatSystem: public System{
             return RNG.randomFromRange(min, max);
         }
 
-        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),
@@ -51,13 +51,13 @@ class StatSystem: public System{
                 xpgreen,
                 false,
                 350,
-                0,
-                1
+                player.GetId(),
+                player.GetCreationId()
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
         }
 
-        inline void displayMpHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+        inline void displayMpHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),
@@ -65,8 +65,8 @@ class StatSystem: public System{
                 mpcolor,
                 false,
                 350,
-                0,
-                1
+                player.GetId(),
+                player.GetCreationId()
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
         }
@@ -96,10 +96,10 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 100;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
                         hpmp.activehp = hpmp.maxhp;
                     } else {
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100, event.player);
                     }
                 }break;
                 case MPPOT: {
@@ -110,10 +110,10 @@ class StatSystem: public System{
                     }
                     hpmp.activemp += 100;
                     if(hpmp.activemp > hpmp.maxmp){
-                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)));
+                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), event.player);
                         hpmp.activemp = hpmp.maxmp;
                     } else {
-                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100);
+                        displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100, event.player);
                     }
                 }break;
                 case ATTPOT:{
@@ -223,10 +223,10 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 150;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
                         hpmp.activehp = hpmp.maxhp;
                     } else {
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150);
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150, event.player);
                     }
                 }break;
                 case FIREWATER:{
@@ -237,10 +237,10 @@ class StatSystem: public System{
                     }
                     hpmp.activehp += 230;
                     if(hpmp.activehp > hpmp.maxhp){
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)));
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
                         hpmp.activehp = hpmp.maxhp;
                     } else {
-                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230);
+                        displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230, event.player);
                     }
                 }break;
 

@@ -111,10 +111,11 @@ class ProjectileEmitSystem: public System{
                         if(IsPlayer){                                                      
                             rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x, my+camera.y-18, originVelocity, isDiagonal);
                             const auto& activeattack = entity.GetComponent<OffenseStatComponent>().activeattack;
+                            damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                             float damageCalc = static_cast<float>(damage)*((static_cast<float>(activeattack)+25)/50); // must cast to float so math works
                             damage = damageCalc; // damage rounds down
                             parentGroupEnumInt = 4; // hardcoded. must be changed if groups enum is altered!
-                            damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
+                            // damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                         } else{
                             rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x, playerPos.y+8, originVelocity, isDiagonal); 
                             parentGroupEnumInt = 0; // hardcoded. must be changed if groups enum is altered!

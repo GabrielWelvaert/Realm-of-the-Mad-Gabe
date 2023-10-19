@@ -212,7 +212,8 @@ enum stats{ // used to get values via indexing in statSys lvlup
     DEXTERITY,
     VITALITY,
     WISDOM,
-    XP // used in UpdateDisplayStatTextSystem only
+    XP, // used in UpdateDisplayStatTextSystem only
+    LVL // used in UpdateDisplayStatTextSystem only
 };
 
 enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS

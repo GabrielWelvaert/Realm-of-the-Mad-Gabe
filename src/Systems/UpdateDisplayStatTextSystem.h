@@ -22,7 +22,7 @@ They are rendered in RenderTextSystem
 
 class UpdateDisplayStatTextSystem: public System{
     private:
-
+        
     public:
         UpdateDisplayStatTextSystem(){
             RequireComponent<DisplayStatComponent>();
@@ -36,9 +36,15 @@ class UpdateDisplayStatTextSystem: public System{
             //todo
         }
 
+        void sort(){
+            auto& entities = GetSystemEntities();
+            std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DisplayStatComponent>().statEnum < entity2.GetComponent<DisplayStatComponent>().statEnum;});
+        }
+
         // event update for att,def,spd,dex,vit,wis and display string
         void onDisplayStatUpdate(UpdateDisplayStatEvent& event){
-            auto entities = GetSystemEntities();
+            auto& entities = GetSystemEntities();
+            if(entities.size() == 0){return;}
             const auto& pbs = event.player.GetComponent<BaseStatComponent>();
             const auto& hpmp = event.player.GetComponent<HPMPComponent>();
             const auto& offenseStats = event.player.GetComponent<OffenseStatComponent>();
@@ -48,6 +54,7 @@ class UpdateDisplayStatTextSystem: public System{
             SDL_Color color;
 
             auto& attDisplayText = entities[ATTACK].GetComponent<TextLabelComponent>();
+            // std::cout << "attDisplay text has id " << entities[ATTACK].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
             std::string attdisplayString = std::to_string(offenseStats.activeattack);
             color = grey;
             if(offenseStats.activeattack > pbs.attack){
@@ -60,6 +67,8 @@ class UpdateDisplayStatTextSystem: public System{
             attDisplayText.text = attdisplayString;
             attDisplayText.color = color;
             attDisplayText.spawnframe = true;
+
+            // std::cout << "attDisplay text displaying " << attDisplayText.text << " at " << entities[ATTACK].GetComponent<TransformComponent>().position.x << ", " << entities[ATTACK].GetComponent<TransformComponent>().position.y << std::endl;
 
             auto& defDisplayText = entities[DEFENSE].GetComponent<TextLabelComponent>();
             std::string defdisplayString = std::to_string(hpmp.activedefense);
@@ -131,22 +140,23 @@ class UpdateDisplayStatTextSystem: public System{
             wisDisplayText.color = color;
             wisDisplayText.spawnframe = true;
 
-            //MAGIC NUMBER!!! HOORAY
-            entities[9].GetComponent<TextLabelComponent>().text = "Lvl " + std::to_string(static_cast<int>(pbs.level));
-            entities[9].GetComponent<TextLabelComponent>().spawnframe = true;
+            entities[LVL].GetComponent<TextLabelComponent>().text = "Lvl " + std::to_string(static_cast<int>(pbs.level));
+            entities[LVL].GetComponent<TextLabelComponent>().spawnframe = true;
 
         }
 
         // system update each frame if mousepos > 750 for xp, hp, mp display string
         void Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer){
             auto entities = GetSystemEntities();
-            auto& hpdisplay = entities[HP];
-            auto& mpdisplay = entities[MP];
-            auto& xpdisplay = entities[XP];
-            auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
-            auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
-            auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
+            if(entities.size() == 0){return;}
             if (mx > 750 && mx < 1000 && my > 295 && my < 370){ // if mouse is hovering over the stat bars
+                // std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DisplayStatComponent>().statEnum < entity2.GetComponent<DisplayStatComponent>().statEnum;});
+                auto& hpdisplay = entities[HP];
+                auto& mpdisplay = entities[MP];
+                auto& xpdisplay = entities[XP];
+                auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
+                auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
+                auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
                 hptext.invisible = mptext.invisible = xptext.invisible = false;
                 const auto& pbs = player.GetComponent<BaseStatComponent>();
                 const auto& hpmp = player.GetComponent<HPMPComponent>();
@@ -180,6 +190,13 @@ class UpdateDisplayStatTextSystem: public System{
                     lastxp = xptext.text;
                 }
             } else {
+                auto& hpdisplay = entities[HP];
+                auto& mpdisplay = entities[MP];
+                auto& xpdisplay = entities[XP];
+                auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
+                auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
+                auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
+                // std::cout << xptext.color.r << ", " << xptext.color.g << ", " << xptext.color.b << std::endl;
                 hptext.invisible = true;
                 mptext.invisible = true;
                 xptext.invisible = true;

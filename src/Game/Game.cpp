@@ -60,7 +60,7 @@ void Game::Initialize(){
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
     Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 );
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl"); // shoutout logan h. for finding SDL_VIDEODRIVER 
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl"); 
     Mix_AllocateChannels(32);
     Mix_Volume(-1, 64);
     Mix_VolumeMusic(64);
@@ -77,6 +77,7 @@ void Game::Initialize(){
     SDL_SetWindowResizable(window, SDL_FALSE);
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    // renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     //camera stuff
     camera.x = 0;
@@ -127,8 +128,8 @@ void Game::Initialize(){
     isRunning = true; 
 }
 
-void Game::Run(){
-    Setup();
+void Game::Run(bool populate){
+    Setup(populate);
     while (isRunning){
         ProcessInput();
         Update();
@@ -137,7 +138,7 @@ void Game::Run(){
 }
 
 // some things used by ProcessInput:
-std::bitset<5> keysPressed; 
+std::bitset<5> keysPressed; // mb,d,s,a,w
 std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_w, 0}, 
     {SDLK_a, 1}, 
@@ -145,7 +146,7 @@ std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_d, 3},
     //keysPressed[4] is for mouse button (any) but its not a SDL_KeyCode! 
 };
-std::bitset<8> inventoryUses; // used to enforce player can use a inventory slot ONCE per ProcessInput (as to not clog eventbus)
+std::bitset<8> inventoryUses; // used to enforce player can use an inventory slot ONCE per ProcessInput (as to not clog eventbus)
 bool space = false;
 bool shift = false;
 SDL_Keycode key;
@@ -164,67 +165,101 @@ void Game::ProcessInput(){
             key = sdlEvent.key.keysym.sym;
             switch (sdlEvent.type){
                 case SDL_QUIT: 
+                    characterManager->SaveCharacter(activeCharacterID, player);
                     isRunning = false;
+                    Destory();
+                    exit(0);
                     break;
                 case SDL_KEYDOWN:
-                    if(key == SDLK_m){
-                        assetStore->PlayMusic("ost");
-                    }
-                    else if(keyindex.find(key) != keyindex.end()){ // WASD PRESSED
-                        // set WASD in keysPressed! 
-                        keysPressed[keyindex[key]] = true;
-                    } else if(key == SDLK_SPACE){ // SPACE PRESSED
-                        space = true;
-                    } else if(static_cast<int>(key) >= 49 && static_cast<int>(key) <= 56){ // 1-8 PRESSED
-                        invetoryNumber = static_cast<int>(key)-49;
-                        if(!inventoryUses[invetoryNumber]){
-                            inventoryUses[invetoryNumber] = true;  
-                            const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
-                            if(inventory.find(invetoryNumber+1) != inventory.end()){
-                                const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
-                                if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
-                                    eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
-                                } else {
-                                    assetStore->PlaySound(ERROR);
+                    switch(key){
+                        case SDLK_ESCAPE:{
+                            // todo save character
+                            characterManager->SaveCharacter(activeCharacterID, player);
+                            player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                            registry->killAllEntities();
+                            Run(false); // call run, but pass false to avoid re-populating assetStore etc
+                        } break;
+                        case SDLK_m:{
+                            assetStore->PlayMusic("ost");
+                        } break;
+                        case SDLK_w:
+                        case SDLK_a:
+                        case SDLK_s:
+                        case SDLK_d:{
+                            keysPressed[keyindex[key]] = true;
+                        } break;
+                        case SDLK_1:
+                        case SDLK_2:
+                        case SDLK_3:
+                        case SDLK_4:
+                        case SDLK_5:
+                        case SDLK_6:
+                        case SDLK_7:
+                        case SDLK_8:{
+                            invetoryNumber = static_cast<int>(key)-49; 
+                            if(!inventoryUses[invetoryNumber]){
+                                inventoryUses[invetoryNumber] = true;  
+                                const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+                                if(inventory.find(invetoryNumber+1) != inventory.end()){
+                                    const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
+                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
+                                    } else {
+                                        assetStore->PlaySound(ERROR);
+                                    }
                                 }
                             }
-                        }
-                    } else if(key == SDLK_LSHIFT || key == SDLK_RSHIFT){ // SHIFT PRESSED!
-                        shift = true;
-                    } else if(key == SDLK_9) {
-                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        factory->createItemInBag(registry, T1QUIVER, lootbag);
-                        factory->createItemInBag(registry, T2QUIVER, lootbag);
-                        factory->createItemInBag(registry, T3QUIVER, lootbag);
-                        factory->createItemInBag(registry, T5QUIVER, lootbag);
-                        factory->createItemInBag(registry, T4HELM, lootbag);
-                        factory->createItemInBag(registry, T5HELM, lootbag);
-                        factory->createItemInBag(registry, T6HELM, lootbag);
-                        factory->createItemInBag(registry, T7HELM, lootbag);
-                    } else if(key == SDLK_0){
-                        eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, 3000);
-                    } else if(key == SDLK_MINUS){
-                        glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        std::vector<sprites> monsters = {SKELETON0, SKELETON1, SKELETON2, SKELETON3, SKELETON4, REDKNIGHT0, SHATTERSBOMB};
-                        int index = RNG.randomFromRange(0, monsters.size()-1);
-                        factory->spawnMonster(registry, spawnpoint, REDKNIGHT0);
-                        // if(monster.HasComponent<StatusEffectComponent>()){
-                        //     eventBus->EmitEvent<StatusEffectEvent>(monster, PARALYZE, eventBus, 30000);    
-                        // }
-                    }
-                    break;
+                        } break;
+                        case SDLK_SPACE:{
+                            space = true;
+                        } break;
+                        case SDLK_LSHIFT:
+                        case SDLK_RSHIFT:{
+                            shift = true;
+                        } break;
+                        case SDLK_9:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T6BOW, lootbag);
+                            factory->createItemInBag(registry, T5BOW, lootbag);
+                            factory->createItemInBag(registry, T7BOW, lootbag);
+                            factory->createItemInBag(registry, T12BOW, lootbag);
+                            factory->createItemInBag(registry, T4HELM, lootbag);
+                            factory->createItemInBag(registry, T5HELM, lootbag);
+                            factory->createItemInBag(registry, T6HELM, lootbag);
+                            factory->createItemInBag(registry, T7HELM, lootbag);
+                        } break;
+                        case SDLK_0:{
+                            player.GetComponent<BaseStatComponent>().xp += 100000;
+                        } break;
+                        case SDLK_MINUS:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            std::vector<sprites> monsters = {SKELETON0, SKELETON1, SKELETON2, SKELETON3, SKELETON4, REDKNIGHT0, SHATTERSBOMB};
+                            int index = RNG.randomFromRange(0, monsters.size()-1);
+                            factory->spawnMonster(registry, spawnpoint, monsters[index]);    
+                        } break;
+                        default:
+                            break;
+                    } 
+                    break; // break out of SDL_KEYDOWN
                 case SDL_KEYUP:
-                    if(keyindex.find(key) != keyindex.end()){
-                        keysPressed[keyindex[key]] = false;
-                    } else if(key == SDLK_SPACE){
-                        space = false;
-                    } else if(key == SDLK_LSHIFT || key == SDLK_RSHIFT){
-                        shift = false;
+                    switch(key){
+                        case SDLK_w:
+                        case SDLK_a:
+                        case SDLK_s:
+                        case SDLK_d:{
+                            keysPressed[keyindex[key]] = false;
+                        } break;
+                        case SDLK_SPACE:{
+                            space = false;
+                        } break;
+                        case SDLK_LSHIFT:
+                        case SDLK_RSHIFT:{
+                            shift = false;
+                        } break;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    // std::cout << mouseX << " " << mouseY << std::endl;
                     keysPressed[4] = true;
                     break;
                 case SDL_MOUSEBUTTONUP: //remove this ?
@@ -626,6 +661,8 @@ void Game::PopulateAssetStore(){
 
 void Game::LoadGui(classes className){
 
+    equipmentIconIds.clear();
+
     SDL_Texture * staticHUD =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
     SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
     SDL_SetRenderTarget(renderer, staticHUD);
@@ -659,13 +696,13 @@ void Game::LoadGui(classes className){
     playerName.AddComponent<TransformComponent>(glm::vec2(800, 257)); // name. could be static, but isn't for now (will do later)
 
     Entity xpBar = registry->CreateEntity();
-    xpBar.AddComponent<DynamicUIEntityComponent>(765,291, 225, 20, 87,117,32);
+    xpBar.AddComponent<DynamicUIEntityComponent>(765,291, 225, 20, 87,117,32, XP);
 
     Entity hpBar = registry->CreateEntity();
-    hpBar.AddComponent<DynamicUIEntityComponent>(765,319, 225, 20, 239,68,46);
+    hpBar.AddComponent<DynamicUIEntityComponent>(765,319, 225, 20, 239,68,46, HP);
 
     Entity mpBar = registry->CreateEntity();
-    mpBar.AddComponent<DynamicUIEntityComponent>(765,347, 225, 20, 95,133,228);
+    mpBar.AddComponent<DynamicUIEntityComponent>(765,347, 225, 20, 95,133,228, MP);
 
     Entity hpText = registry->CreateEntity();
     hpText.AddComponent<TextLabelComponent>("HP", "uifont1", white, true,0,0,0);
@@ -685,56 +722,66 @@ void Game::LoadGui(classes className){
     Entity hpDisplayText = registry->CreateEntity();
     hpDisplayText.AddComponent<TextLabelComponent>("", "statfont2", white, true,0,0,0);
     hpDisplayText.GetComponent<TextLabelComponent>().invisible = true;
-    hpDisplayText.AddComponent<DisplayStatComponent>();
+    hpDisplayText.AddComponent<DisplayStatComponent>(HP);
     hpDisplayText.AddComponent<TransformComponent>(glm::vec2(850,323), glm::vec2(1.0,1.0));
+    // std::cout << "hpDisplayText text has id " << hpDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity mpDisplayText = registry->CreateEntity();
     mpDisplayText.AddComponent<TextLabelComponent>("", "statfont2", white, true,0,0,0);
     mpDisplayText.GetComponent<TextLabelComponent>().invisible = true;
-    mpDisplayText.AddComponent<DisplayStatComponent>();
+    mpDisplayText.AddComponent<DisplayStatComponent>(MP);
     mpDisplayText.AddComponent<TransformComponent>(glm::vec2(850,351), glm::vec2(1.0,1.0));
+    // std::cout << "mpDisplayText text has id " << mpDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity attDisplayText = registry->CreateEntity();
     attDisplayText.AddComponent<TextLabelComponent>("", "statfont2", grey, true,0,0,0);
-    attDisplayText.AddComponent<DisplayStatComponent>();
+    attDisplayText.AddComponent<DisplayStatComponent>(ATTACK);
     attDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37, 380+3), glm::vec2(1.0,1.0));
+    // std::cout << "attDisplay text has id " << attDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity defDisplayText = registry->CreateEntity();
     defDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
-    defDisplayText.AddComponent<DisplayStatComponent>();
+    defDisplayText.AddComponent<DisplayStatComponent>(DEFENSE);
     defDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37, 380+3), glm::vec2(1.0,1.0));
+    // std::cout << "defDisplayText text has id " << defDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity spdDisplayText = registry->CreateEntity();
     spdDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
-    spdDisplayText.AddComponent<DisplayStatComponent>();
+    spdDisplayText.AddComponent<DisplayStatComponent>(SPEED);
     spdDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37,400+3), glm::vec2(1.0,1.0));
+    // std::cout << "spdDisplayText text has id " << spdDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity dexDisplayText = registry->CreateEntity();
     dexDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
-    dexDisplayText.AddComponent<DisplayStatComponent>();
+    dexDisplayText.AddComponent<DisplayStatComponent>(DEXTERITY);
     dexDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37,400+3), glm::vec2(1.0,1.0));
+    // std::cout << "dexDisplayText text has id " << dexDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity vitDisplayText = registry->CreateEntity();
     vitDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
-    vitDisplayText.AddComponent<DisplayStatComponent>();
+    vitDisplayText.AddComponent<DisplayStatComponent>(VITALITY);
     vitDisplayText.AddComponent<TransformComponent>(glm::vec2(780+37,420+3), glm::vec2(1.0,1.0));
+    // std::cout << "vitDisplayText text has id " << vitDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity wisDisplayText = registry->CreateEntity();
     wisDisplayText.AddComponent<TextLabelComponent>("","statfont2", grey, true,0,0,0);
-    wisDisplayText.AddComponent<DisplayStatComponent>();
+    wisDisplayText.AddComponent<DisplayStatComponent>(WISDOM);
     wisDisplayText.AddComponent<TransformComponent>(glm::vec2(900+37,420+3), glm::vec2(1.0,1.0));
+    // std::cout << "wisDisplayText text has id " << wisDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     Entity xpDisplayText = registry->CreateEntity();
     xpDisplayText.AddComponent<TextLabelComponent>("", "statfont2", white, true,0,0,0);
     xpDisplayText.GetComponent<TextLabelComponent>().invisible = true;
-    xpDisplayText.AddComponent<DisplayStatComponent>();
+    xpDisplayText.AddComponent<DisplayStatComponent>(XP);
     xpDisplayText.AddComponent<TransformComponent>(glm::vec2(850, 295), glm::vec2(1.0,1.0));
+    // std::cout << "xpDisplayText text has id " << xpDisplayText.GetId() << " in LoadGui()" << std::endl;
 
     //xp text hard-coded at position 9 in UpdateDisplayStatTextSystem.entities
     Entity xpText = registry->CreateEntity();
     xpText.AddComponent<TextLabelComponent>("Lvl " + std::to_string(static_cast<int>(pbs.level)) , "uifont1", white, true,0,0,0);
     xpText.AddComponent<TransformComponent>(glm::vec2(767, 295), glm::vec2(1.0,1.0));
-    xpText.AddComponent<DisplayStatComponent>();
+    xpText.AddComponent<DisplayStatComponent>(LVL);
+    // std::cout << "xpText text has id " << xpText.GetId() << " in LoadGui()" << std::endl;
 
     int width; 
     int height;
@@ -888,24 +935,17 @@ void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
     factory->spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
-void Game::LoadPlayer(std::string characterID){
+void Game::LoadPlayer(){
     player = registry->CreateEntity();
     player.Group(PLAYER);
-    std::vector<int> fbs = characterManager->GetLineValuesFromCharacterFile(characterID, 4); 
-    std::vector<int> levelAndXp = characterManager->GetLineValuesFromCharacterFile(characterID, 3);
-    for(auto x: fbs){
-        std::cout << x << std::endl;
-    }
-    for(auto x: levelAndXp){
-        std::cout << x << std::endl;
-    }
-    BaseStatComponent basestats = BaseStatComponent(fbs[0], fbs[1], fbs[2], fbs[3], fbs[4], fbs[5], fbs[6], fbs[7], levelAndXp[0], levelAndXp[1]);
-    classes classname = static_cast<classes>(characterManager->GetLineValuesFromCharacterFile(characterID, 2)[0]);
-
+    std::vector<int> fbs = characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 4); 
+    std::vector<int> levelAndXp = characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 3);
+    classes classname = static_cast<classes>(characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 2)[0]);
     player.AddComponent<TransformComponent>(playerSpawn); 
     player.AddComponent<SpriteComponent>(classname);
     player.AddComponent<ClassNameComponent>(classname); 
-    player.AddComponent<BaseStatComponent>(classname);
+    player.AddComponent<BaseStatComponent>(fbs[0], fbs[1], fbs[2], fbs[3], fbs[4], fbs[5], fbs[6], fbs[7], levelAndXp[0], levelAndXp[1]);
+    const auto& basestats = player.GetComponent<BaseStatComponent>();
     player.AddComponent<HPMPComponent>(basestats);
     player.AddComponent<OffenseStatComponent>(basestats);
     player.AddComponent<RidigBodyComponent>();
@@ -920,8 +960,7 @@ void Game::LoadPlayer(std::string characterID){
     player.AddComponent<StatusEffectComponent>();
     player.AddComponent<ProjectileEmitterComponent>();
     player.AddComponent<AbilityComponent>();
-    const auto& bs = player.GetComponent<BaseStatComponent>();
-    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * bs.dexterity + 1.5);
+    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * basestats.dexterity + 1.5);
     switch(classname){
         case ARCHER:{
             player.AddComponent<QuiverComponent>();
@@ -936,9 +975,6 @@ void Game::LoadPlayer(std::string characterID){
             break;
         }
     }
-
-    // TODO UPDATE PLAYERS INVENTORY AND EQUIPMENT FROM SAVED DATA!!!!!
-
     // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
     player.GetComponent<HPMPComponent>().activemp = 32000;
     player.GetComponent<HPMPComponent>().maxmp = 32000;
@@ -946,56 +982,19 @@ void Game::LoadPlayer(std::string characterID){
     player.GetComponent<BaseStatComponent>().attack = 74;
     player.GetComponent<SpeedStatComponent>().activespeed = 50;
     player.GetComponent<BaseStatComponent>().speed = 50;
-
 }
 
-void Game::LoadPlayer(classes classname){
-    player = registry->CreateEntity();
-    player.AddComponent<TransformComponent>(playerSpawn); //scaled by 6, an 8x8 sprite is effectively 48x48 pixels
-    player.AddComponent<SpriteComponent>(classname);
-    player.AddComponent<ClassNameComponent>(classname); 
-    player.AddComponent<BaseStatComponent>(classname);
-    const auto& baseStats = player.GetComponent<BaseStatComponent>();
-    player.AddComponent<HPMPComponent>(baseStats);
-    player.AddComponent<OffenseStatComponent>(baseStats);
-    player.AddComponent<SpeedStatComponent>(baseStats);
-    player.AddComponent<RidigBodyComponent>();
-    player.AddComponent<AnimationComponent>(2,50, false);
-    player.AddComponent<KeyboardControlledComponent>();
-    player.AddComponent<BoxColliderComponent>(STANDARD);
-    player.AddComponent<CameraFollowComponent>();
-    player.AddComponent<CollisionFlagComponent>();
-    player.Group(PLAYER);
-    player.AddComponent<PlayerItemsComponent>();
-    player.AddComponent<AnimatedShootingComponent>(classname);
-    player.AddComponent<StatusEffectComponent>();
-
-    player.GetComponent<HPMPComponent>().activemp = 32000;
-    player.GetComponent<HPMPComponent>().maxmp = 32000;
-    player.GetComponent<OffenseStatComponent>().activeattack = 74;
-    player.GetComponent<BaseStatComponent>().attack = 74;
-    player.GetComponent<SpeedStatComponent>().activespeed = 50;
-    player.GetComponent<BaseStatComponent>().speed = 50;
-
-    player.AddComponent<ProjectileEmitterComponent>();
-    player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * baseStats.dexterity + 1.5);
-
-    player.AddComponent<AbilityComponent>();
-    auto& ac = player.GetComponent<AbilityComponent>();
-    ac.coolDownMS = 500;
-    ac.mpRequired = 20;
-    switch(classname){
-        case ARCHER:{
-            player.AddComponent<QuiverComponent>();
-            break;
+void Game::PopulatePlayerInventoryAndEquipment(){
+    std::vector<int> itemsToEquip = characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 5);
+    for(int i = 1; i < 5; i++){
+        if(itemsToEquip[i-1] != -1){
+            registry->GetSystem<ItemMovementSystem>().ForcePlayerEquipItem(registry, eventBus, player, static_cast<items>(itemsToEquip[i-1]), i, equipmentIconIds);    
         }
-        case PRIEST: {
-            player.AddComponent<TomeComponent>();
-            break;
-        }
-        case WARRIOR: {
-            player.AddComponent<HelmComponent>();
-            break;
+    }
+    std::vector<int> inventoryItems = characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 6);
+    for(int i = 1; i < 9; i++){
+        if(inventoryItems[i-1] != -1){
+            registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, static_cast<items>(inventoryItems[i-1]), i);
         }
     }
 }
@@ -1036,7 +1035,7 @@ void Game::PopulateRegistry(){
 
 void Game::LoadLevel(int level){}
 
-std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is press play
+void Game::Background(){
     int width = 1024*10;
     int height = 768*10;
     SDL_Texture * menubgtexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height); 
@@ -1076,9 +1075,13 @@ std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is pr
     menubg.AddComponent<TransformComponent>(glm::vec2(0.0,0.0), glm::vec2(8.0,8.0));
     assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture);
     menubg.AddComponent<SpriteComponent>(MAINMENUBG, 1024, 768, 1, 0,0,0);
+    registry->Update();
+}
+
+std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is press play
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     Entity oryxIcon = registry->CreateEntity();
-    srcRect = {8*8,8*20,16,16};
+    SDL_Rect srcRect = {8*8,8*20,16,16};
     oryxIcon.AddComponent<SpriteComponent>(LOFICHAR, 16, 16, srcRect, 10, true, false);
     oryxIcon.AddComponent<TransformComponent>(glm::vec2(340.0,50.0), glm::vec2(20.0,20.0));
     Entity rot = registry->CreateEntity();
@@ -1121,6 +1124,9 @@ std::vector<Entity> Game::loadMenuTwo(int numcharacters){
         std::string str = classesToString.at(static_cast<classes>(stoi(classNames[i])));
         str.push_back(' ');
         str.push_back(levels[i][0]);
+        if(levels[i][1] != ','){
+            str.push_back(levels[i][1]);
+        }
         characterSlotText.AddComponent<TextLabelComponent>(str, "damagefont", white, true, 1,0,0);
         auto& textlabel = characterSlotText.GetComponent<TextLabelComponent>();
         TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
@@ -1188,9 +1194,10 @@ std::vector<Entity> Game::loadMenuThree(){
 void Game::MainMenus(){ // could take bool args to load just menu 2 for example
 
     std::vector<Entity> menuonedisposables = loadMenuOne();
-    std::vector<Entity> menutwodisposables;
-    std::vector<Entity> menuthreedisposables;
+    std::vector<Entity> menutwodisposables = {};
+    std::vector<Entity> menuthreedisposables = {};
     SDL_Event sdlEvent;
+    camera.x = camera.y = 0;
     int direction = -1;
     bool proceed = false;
     bool killMenuOne = false;
@@ -1199,17 +1206,18 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
     bool mainmenutwo = false;
     bool mainmenuthree = false;
     bool mainmenuone = true;
+    bool softreset = false;
     
     characterManager->KillInvalidCharacterFiles();
     characterManager->KillExcessCharacterFiles();
 
     int numcharacters = characterManager->GetFileCountInCharacterDirectory();
-    std::vector<std::string> characterIDs = characterManager->GetAllCharacterValuesAtLineNumber(1);
-    std::vector<std::string> classNames = characterManager->GetAllCharacterValuesAtLineNumber(2);
-    std::vector<std::string> levels = characterManager->GetAllCharacterValuesAtLineNumber(3);
-    std::string selectedCharacterID;
+    std::string selectedCharacterID = "";
 
     for(;;){ // main menus 
+        if(numcharacters != characterManager->GetFileCountInCharacterDirectory() && !killMenuThree){ // user created or deleted files in character directory in menus
+            softreset = true;
+        }
         if(killMenuOne){ // clear main menu one stuff
             for(auto& entity: menuonedisposables){entity.Kill();}
             menuonedisposables.clear();
@@ -1230,14 +1238,29 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
             menuthreedisposables.clear();
             registry->Update();
             killMenuThree = false;
+        } else if(softreset){
+            for(auto& entity: menuonedisposables){entity.Kill();}
+            menuonedisposables.clear();
+            for(auto& entity: menutwodisposables){entity.Kill();}
+            menutwodisposables.clear();
+            for(auto& entity: menuthreedisposables){entity.Kill();}
+            menuthreedisposables.clear();
+            registry->Update();
+            menuonedisposables = loadMenuOne();
+            proceed = killMenuOne = killMenuTwo = killMenuThree = mainmenutwo = mainmenuthree = softreset = false;
+            mainmenuone = true;
+            characterManager->KillInvalidCharacterFiles();
+            characterManager->KillExcessCharacterFiles();
+            numcharacters = characterManager->GetFileCountInCharacterDirectory();
+            selectedCharacterID = "";
         }
 
         if(proceed){ // main menus done; proceed to actual game
-            registry->killAllEntities();
-            // kill all entities doesn't work...
+            registry->killAllEntities(); //kills everything, including background! 
             if(!characterManager->ValidateCharacterFile(selectedCharacterID)){ // human attempted to modify character data post-selection; restart game...
-                MainMenus();
-            } else { // selected character is valid; retain id and exit this function
+                softreset = true;
+            } else { // selected character is valid; retain id and exit this function to proceed to game
+                // std::cout << "selected character is valid" << std::endl;
                 Game::activeCharacterID = selectedCharacterID;
                 break;    
             }
@@ -1248,7 +1271,17 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
             if(sdlEvent.type == SDL_QUIT) {
                 Destory();
                 exit(0);
+            } else if(sdlEvent.type == SDL_KEYDOWN){
+                if(key == SDLK_m){
+                    assetStore->PlayMusic("ost");
+                } else if(key == SDLK_ESCAPE){
+                    softreset = true;
+                    break;
+                }
             } else if(sdlEvent.type == SDL_MOUSEBUTTONDOWN){
+                if(key == SDLK_ESCAPE && !mainmenuone){
+                    softreset = true;
+                }
                 SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
                 if(mainmenuone){ // first main menu: title art and select character
                     if(mouseX > 456 && mouseX < 544 && mouseY > 660 && mouseY < 716){ // clicked play
@@ -1261,8 +1294,9 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                             if(numcharacters == 0){ // no characters; must be create new character button
                                 mainmenuthree = true;
                             } else {
-                                std::cout << "load character " << characterIDs[0] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[0]))) << ")" << std::endl; 
+                                // std::cout << "load character " << characterIDs[0] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[0]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[0];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[0] << std::endl;
                                 proceed = true;  
                             }
                             killMenuTwo = true;
@@ -1271,8 +1305,9 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                             if(numcharacters == 1){ // one existing character; middle button must be create new character button
                                 mainmenuthree = true;
                             } else{
-                                std::cout << "load character " << characterIDs[1] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[1]))) << ")" << std::endl;   
+                                // std::cout << "load character " << characterIDs[1] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[1]))) << ")" << std::endl;   
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[1];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[1] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
@@ -1281,8 +1316,9 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                             if(numcharacters == 2){// two existing characters; lower button must be create new character button
                                 mainmenuthree = true;
                             }else{
-                                std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
+                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[2];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
@@ -1324,38 +1360,16 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
         registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
         registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
         millisecsPreviousFrame = SDL_GetTicks();
-        if(camera.y == 5392 || camera.y == 0){direction *= -1;}
+        if(camera.y == 5392 || camera.y == 0){
+            direction *= -1;
+        }
         camera.x += 1 * direction;
         camera.y += 1 * direction;
         SDL_RenderPresent(renderer);
     }
 }
 
-void Game::Setup(){ // after initialize and before actual game loop starts 
-    PopulateAssetStore();
-    PopulateRegistry();
-    MainMenus();
-    // LoadPlayer(ARCHER);
-    std::cout << "after main menus and before loading player there are " << registry->getNumberOfLivingEntities() << " living entities..." << std::endl;
-    LoadPlayer(activeCharacterID);
-    const auto& playerClassName = player.GetComponent<ClassNameComponent>().classname;
-    LoadGui(playerClassName);
-    registry->Update();
-    registry->GetSystem<UpdateDisplayStatTextSystem>().SubscribeToEvents(eventBus);
-    eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
-    LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
-
-}
-
-void Game::Update(){
-    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-    millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
-
-    //reset all event handlers; reset subscribers 
-    eventBus->Reset();
-
-    // SUBCRIPTION IS FRAME-BY-FRAME BINDING. ; do we want to subscribe this frame?
-    // later may make it not frame-by-frame and make it static
+void Game::PopulateEventBus(){
     registry->GetSystem<MovementSystem>().SubscribeToEvents(eventBus); 
     registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<StatSystem>().SubscribeToEvents(eventBus);
@@ -1364,13 +1378,39 @@ void Game::Update(){
     registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<AbilitySystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<StatusEffectSystem>().SubscribeToEvents(eventBus);
+}
+
+
+void Game::Setup(bool populate){ // after initialize and before actual game loop starts 
+    if(populate){
+        PopulateAssetStore();
+        PopulateRegistry();
+        PopulateEventBus();        
+    }
+    Background();
+    MainMenus();
+    LoadPlayer();
+    LoadGui(player.GetComponent<ClassNameComponent>().classname);
+    registry->Update(); // because we made gui and player
+    registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
+    PopulatePlayerInventoryAndEquipment();
+    registry->Update(); // because we made new entities (spawned items)
+    eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+    LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
+    registry->Update(); // becuase we loaded the map
+}
+
+void Game::Update(){
+    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+    millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
     
-    // update registry to process entities that are awaitng creation/deletion and add them to system vectors
     registry->Update();
 
     // TODO PASS BY CONSTANT REFERENCE INSTANCE OF COPY WHERE APPROPRIATE
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
+    registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     registry->GetSystem<PassiveAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<ChaseAISystem>().Update(playerpos, assetStore);
@@ -1389,7 +1429,6 @@ void Game::Update(){
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
-    registry->GetSystem<StatusEffectSystem>().Update(eventBus);
 }
 
 void Game::Render(){

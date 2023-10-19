@@ -139,6 +139,7 @@ class TrapAISystem: public System{
             RequireComponent<ProjectileEmitterComponent>();
             RequireComponent<HPMPComponent>();
             RequireComponent<AnimationComponent>();
+            RequireComponent<TransformComponent>();
         }
 
         void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){

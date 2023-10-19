@@ -12,6 +12,14 @@ struct CollisionFlagComponent{
     int idOfWallHit;
     int idOfOldWallHit; 
 
-    CollisionFlagComponent(): collisionFlag(NONESIDE), lastSideHitFlag(NONESIDE), lastlastSideHitflag(NONESIDE), msLastCollisionFlag(0), idOfWallHit(0), idOfOldWallHit(0) {}
+    CollisionFlagComponent(): 
+        collisionFlag(NONESIDE), 
+        lastSideHitFlag(NONESIDE), 
+        lastlastSideHitflag(NONESIDE), 
+        msLastCollisionFlag(0), 
+        idOfWallHit(-1), 
+        idOfOldWallHit(-1) {
+            // std::cout << "collisionFlagComponent constructor called" << std::endl; // this constructor gets called a ton for some reason when loading player!
+        }
 
 };

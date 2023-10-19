@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include "../Utils/enums.h"
+#include "../Components/BoxColliderComponent.h"
 
 int IComponent::nextId = 0;
 
@@ -50,12 +51,18 @@ const Signature& System::GetComponentSignature() const {
 }
 
 void Registry::killAllEntities(){
+    entitiesToBeAdded.clear();
     for(auto& system: systems){
         for(auto& entity: system.second->GetSystemEntities()){
             entity.Kill();
         }
     }
     Update();
+    // for(auto& pool: componentPools){
+    //     if(pool){
+    //         pool->Clear();    
+    //     }
+    // }
 }
 
 Entity Registry::CreateEntity(){
@@ -92,6 +99,7 @@ void Registry::AddEntityToSystems(Entity entity){
         const auto& systemComponentSignature = system.second->GetComponentSignature();
         bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
         if (isInterested){
+            // if(entity.GetId() == 0)std::cout << "adding entity " << entity.GetId() << " to system " << std::endl;
             system.second->AddEntityToSystem(entity);
         }
     }
@@ -99,11 +107,17 @@ void Registry::AddEntityToSystems(Entity entity){
 
 void Registry::RemoveEntityFromSystems(Entity entity){
     for (auto system: systems){
-        system.second->RemoveEntityFromSystem(entity);
-        // const Signature& systemSignature = system.second->GetComponentSignature();
-        // if((systemSignature & entity.getComponentSignature()) == systemSignature){
-        //     system.second->RemoveEntityFromSystem(entity);
-        // }
+        // system.second->RemoveEntityFromSystem(entity);
+        const Signature& systemSignature = system.second->GetComponentSignature();
+        if((systemSignature & entity.getComponentSignature()) == systemSignature){
+            // if(entity.GetId()==0){
+            //     std::cout << entity.GetId() << " being removed from a system" << std::endl;
+            //     if(entity.HasComponent<BoxColliderComponent>()){
+            //         std::cout << "entity 0 has box collider" << std::endl;
+            //     }
+            // }
+            system.second->RemoveEntityFromSystem(entity);
+        }
     }
 }
 
@@ -115,6 +129,7 @@ void Registry::Update() {
     entitiesToBeAdded.clear();
     //todo: remove entities that are waiting to be killed
     for (auto entity: entitiesToBeKilled){
+        // std::cout << entity.GetId() << " being processed for removal in registry->Update"<<std::endl;
         auto entityId = entity.GetId();
         RemoveEntityFromSystems(entity);
         entityComponentSignatures[entityId].reset();
@@ -123,6 +138,7 @@ void Registry::Update() {
         for(auto pool: componentPools){
             if(pool){ // edge case where last entity 
                 pool->RemoveEntityFromPool(entityId);
+                // pool->printSize();
             }
         }
 

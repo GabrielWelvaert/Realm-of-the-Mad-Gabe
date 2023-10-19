@@ -10,6 +10,7 @@ class HelmUseEvent: public Event {
     public:
         Entity player;
         std::unique_ptr<EventBus>& eventbus;
-        HelmUseEvent(Entity player, std::unique_ptr<EventBus>& eventbus):
-            player(player), eventbus(eventbus) {}
+        std::unique_ptr<Registry>& registry;
+        HelmUseEvent(Entity player, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry):
+            player(player), eventbus(eventbus), registry(registry) {}
 };

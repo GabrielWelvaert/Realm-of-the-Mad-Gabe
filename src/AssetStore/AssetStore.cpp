@@ -28,7 +28,7 @@ void AssetStore::ClearAssets(){
     music.clear();
 }
 
-void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, const std::string filePath){
+void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, const std::string& filePath){
     SDL_Surface* surface = IMG_Load(filePath.c_str());
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);    
@@ -36,7 +36,9 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId,
 }
 
 void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, SDL_Texture * texture){
-    textures.emplace(assetId, texture);
+    // textures.emplace(assetId, texture);
+    textures.insert_or_assign(assetId, texture);
+
 }
 
 SDL_Texture* AssetStore::GetTexture(const textureEnums& assetId){
@@ -46,7 +48,7 @@ SDL_Texture* AssetStore::GetTexture(const textureEnums& assetId){
     return textures.at(assetId);
 }
 
-void AssetStore::AddFont(const std::string& assetId, const std::string filePath, unsigned int fontSize){
+void AssetStore::AddFont(const std::string& assetId, const std::string& filePath, const unsigned int& fontSize){
     fonts.emplace(assetId, TTF_OpenFont(filePath.c_str(), fontSize));
 
 }
@@ -78,9 +80,6 @@ void AssetStore::AddMusic(const std::string& assetId, const std::string& filePat
 
 void AssetStore::PlayMusic(const std::string& assetId){
     if(!Mix_PlayingMusic()){
-        if(music.find(assetId) == music.end()){
-            // std::cout << assetId << " not found in assetStore's music. Perhaps there was a typo! " << std::endl;
-        }
         Mix_PlayMusic(music.at(assetId), -1);
     } else {
         Mix_HaltMusic();

@@ -15,4 +15,15 @@ struct PlayerItemsComponent{
     glm::vec2 heldItemStartingTransformComp;
 
     PlayerItemsComponent() = default;
+
+    void KillPlayerItems(){
+        for(auto& x: equipment){
+            x.second.Kill();
+        }
+        equipment.clear();
+        for(auto& x: inventory){
+            x.second.Kill();
+        }
+        inventory.clear();
+    }
 };

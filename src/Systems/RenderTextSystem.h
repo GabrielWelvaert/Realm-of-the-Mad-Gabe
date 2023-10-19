@@ -8,6 +8,7 @@
 #include "../Components/TransformComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Utils/colors.h"
 
 /*
 this system is responsible for rendering text

@@ -29,7 +29,7 @@ class AbilitySystem: public System{
             return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
         }
 
-        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount){
+        inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),
@@ -37,8 +37,8 @@ class AbilitySystem: public System{
                 xpgreen,
                 false,
                 350,
-                0,
-                1
+                player.GetId(),
+                player.GetCreationId()
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
         }
@@ -57,19 +57,14 @@ class AbilitySystem: public System{
         }
 
         void onTomeUse(TomeUseEvent& event){
-            // at this point we've done everything (check tome, mp, subtract mp) except use the tome, so use it!
             auto& HPMP = event.player.GetComponent<HPMPComponent>();
             const auto& tome = event.player.GetComponent<TomeComponent>();
-            if(HPMP.activehp == HPMP.maxhp){
-                event.assetstore->PlaySound(ERROR);
-                return;
-            }
             HPMP.activehp += tome.hp;
             if(HPMP.activehp > HPMP.maxhp){
-                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp - (static_cast<int>(HPMP.activehp) - static_cast<int>(HPMP.maxhp)));
+                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp - (static_cast<int>(HPMP.activehp) - static_cast<int>(HPMP.maxhp)), event.player);
                 HPMP.activehp = HPMP.maxhp;
             } else {
-                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp);
+                displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp, event.player);
             }
         }
 
@@ -81,9 +76,9 @@ class AbilitySystem: public System{
             float rotationDegrees = getRotationFromCoordiante(
                 1024, 
                 playerpos.x, 
-                playerpos.y+10, 
+                playerpos.y, 
                 event.mx + event.camera.x, 
-                event.my + event.camera.y,
+                event.my + event.camera.y-36,
                 originVelocity,
                 true);
             int damage = RNG.randomFromRange(quiver.minDamage, quiver.maxDamage);
@@ -99,8 +94,8 @@ class AbilitySystem: public System{
 
         void onHelmUse(HelmUseEvent& event){
             const auto& duration = event.player.GetComponent<HelmComponent>().berserkDuration;
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, duration);
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, duration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, duration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, duration);
         }
 
         void onAbilityEquip(EquipAbilityEvent& event){

@@ -20,25 +20,45 @@ struct TextLabelComponent{
     int textheight;
     bool invisible;
 
-    TextLabelComponent(std::string text = "", 
-        std::string assetId = "damagefont", 
+    TextLabelComponent(
+        const std::string& text = "", 
+        const std::string& assetId = "damagefont", 
         const SDL_Color& color = {185,185,185}, 
         bool isFixed = true, 
         unsigned long msDuration = 500, 
         int parentId = 0, 
-        int parentCreationId = 0){
+        int parentCreationId = 0) 
+        : text(text), 
+        assetId(assetId),
+        color(color), 
+        isFixed(isFixed),
+        msDuration(msDuration), 
+        parentId(parentId), 
+        parentCreationId(parentCreationId), 
+        birthTime(SDL_GetTicks()), 
+        spawnframe(true), 
+        invisible(false) 
+        {}
+
+    // TextLabelComponent(std::string text = "", 
+    //     std::string assetId = "damagefont", 
+    //     const SDL_Color& color = {185,185,185}, 
+    //     bool isFixed = true, 
+    //     unsigned long msDuration = 500, 
+    //     int parentId = 0, 
+    //     int parentCreationId = 0){
         
-        this->text = text;
-        this->assetId = assetId;
-        this->color = color;
-        this->isFixed = isFixed;
-        this->msDuration = msDuration;
-        this->birthTime = SDL_GetTicks();
-        this->parentId = parentId;
-        this->parentCreationId = parentCreationId;
-        this->spawnframe = true;
-        this->invisible = false;
-    }
+    //     this->text = text;
+    //     this->assetId = assetId;
+    //     this->color = color;
+    //     this->isFixed = isFixed;
+    //     this->msDuration = msDuration;
+    //     this->birthTime = SDL_GetTicks();
+    //     this->parentId = parentId;
+    //     this->parentCreationId = parentCreationId;
+    //     this->spawnframe = true;
+    //     this->invisible = false;
+    // }
 
 };
 

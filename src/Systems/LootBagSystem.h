@@ -21,11 +21,7 @@ This system is responsible for
 
 class LootBagSystem: public System{
     private:
-        const Uint32 bagLifeTimeMs = 60000;
-
-        inline void errorReturnItemToStartingPos(){
-
-        }
+        const Uint32 bagLifeTimeMs = 5000;
 
         inline bool CheckAABBCollision(double ax, double ay, double aw, double ah, double bx, double by, double bw, double bh){
             return (
@@ -39,9 +35,8 @@ class LootBagSystem: public System{
     public:
         LootBagSystem(){
             RequireComponent<LootBagComponent>();
+            RequireComponent<BoxColliderComponent>();
         }
-
-        // todo: event for spawning loot bag upon monster death 
 
         // update is respondible for 
         // 1) safely kill a bag that has expired

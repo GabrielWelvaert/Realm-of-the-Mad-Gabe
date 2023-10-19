@@ -53,7 +53,7 @@ class DamageSystem: public System{
             dmgText.AddComponent<TransformComponent>(victimPosition);
         }
 
-        inline void displayXPText(ProjectileDamageEvent& event, const glm::vec2& playerPosition, const int& xp){
+        inline void displayXPText(ProjectileDamageEvent& event, const glm::vec2& playerPosition, const int& xp, const Entity& player){
             Entity dmgText = event.registry->CreateEntity();
             // std::cout << "victimposition in displayerdamagetext func " << victimPosition.x << ", " << victimPosition.y << std::endl;
             dmgText.AddComponent<TextLabelComponent>(
@@ -62,8 +62,8 @@ class DamageSystem: public System{
                 xpgreen,
                 false,
                 350,
-                0,
-                1
+                player.GetId(),
+                player.GetCreationId()
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
         }
@@ -119,7 +119,7 @@ class DamageSystem: public System{
                     victimHPMPComponent.activehp -= realdamage;
                     if(projectileComponent.statsusEffect){
                         if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
-                            event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, projectileComponent.SEdurationMS);    
+                            event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
                         }
                     }
                     projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId());
@@ -136,7 +136,7 @@ class DamageSystem: public System{
                         int xp = victimHPMPComponent.maxhp / 10;
                         if(xp > 0){ 
                             playerBaseStats.xp += xp;  
-                            displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp);
+                            displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
                             if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){
                                 while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
                                     event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
@@ -158,7 +158,7 @@ class DamageSystem: public System{
                 victimHPMPComponent.activehp -= realdamage;
                 if(projectileComponent.statsusEffect){
                     if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
-                        event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, projectileComponent.SEdurationMS);    
+                        event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
                     }
                 }
                 if(victimHPMPComponent.activehp >= 0){
@@ -174,7 +174,7 @@ class DamageSystem: public System{
                     int xp = victimHPMPComponent.maxhp / 10;
                     if(xp > 0){ 
                         playerBaseStats.xp += xp;  
-                        displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp);
+                        displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
                         if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){
                             while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
                                 event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);

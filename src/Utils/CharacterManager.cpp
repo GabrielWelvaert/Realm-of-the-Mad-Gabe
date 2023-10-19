@@ -35,12 +35,14 @@ void CharacterManager::KillInvalidCharacterFiles(){
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
         if(!FileHasValidLineCount(fileName) || !ValidateCharacterFile(fileName)){
-            std::filesystem::remove(file.path());
+            std::cout << file.path().c_str() << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
+            exit(-1); 
+            // std::filesystem::remove(file.path());
         }
     }
 }
 
-// kills youngest files in character directory until 3 remain 
+// kills youngest files in character directory until 3 remain regardless of validity
 void CharacterManager::KillExcessCharacterFiles(){
     while(GetFileCountInCharacterDirectory() > 3){
         std::filesystem::path youngestFile;
@@ -65,24 +67,24 @@ std::string CharacterManager::GetHashCharacterFile(const std::string& filename) 
     std::string line;
     std::string message;
     int lineCount = 0;
-    while (std::getline(file, line) && lineCount < lineNumberOfHash-1) {
+    while(std::getline(file, line) && lineCount < lineNumberOfHash-1) {
         for (char c : line) {
             message += std::to_string((int)c);
         }
         lineCount++;
     }
     std::stringstream numericMessageStream;
-    for (char c : message) {
+    for(char c : message) {
         numericMessageStream << std::to_string((int)c);
     }
     std::string numericMessage = numericMessageStream.str();
     const int chunkSize = 16; 
     std::vector<std::string> chunks;
-    for (size_t i = 0; i < numericMessage.length(); i += chunkSize) {
+    for(size_t i = 0; i < numericMessage.length(); i += chunkSize) {
         chunks.push_back(numericMessage.substr(i, chunkSize));
     }
     long long ciphertext = 1;
-    for (const std::string& chunk : chunks) {
+    for(const std::string& chunk : chunks) {
         long long numericValue = std::stoll(chunk);
         for (int i = 0; i < 3; ++i) {
             ciphertext = (ciphertext * numericValue) % 36093706366919953;
@@ -93,7 +95,6 @@ std::string CharacterManager::GetHashCharacterFile(const std::string& filename) 
 
 bool CharacterManager::ValidateCharacterFile(const std::string& filename){ // checks if character file has been tampered
     std::string filePath = (std::filesystem::path(characterFolderPath) / filename).replace_extension(".txt").string();
-    std::cout << "validating " << filePath << std::endl;
     std::string currentHash = GetHashCharacterFile(filename);
     std::string storedHash;
     int lineCount = 1;
@@ -132,14 +133,14 @@ std::string CharacterManager::CreateNewCharacterFile(classes className){
     return std::to_string(time);
 }
 
-void CharacterManager::SaveCharacter(std::int64_t characterID, Entity player){ // not for making a new character; this is for saving progress on an EXISITNG character!
-    std::string filePath = (std::filesystem::path(characterFolderPath) / std::to_string(characterID)).replace_extension(".txt").string();
+void CharacterManager::SaveCharacter(const std::string& activeCharacterID, Entity player){ // not for making a new character; this is for saving progress on an EXISITNG character!
+    std::string filePath = (std::filesystem::path(characterFolderPath) / activeCharacterID).replace_extension(".txt").string();
     std::ofstream characterFile(filePath, std::ofstream::trunc);
     const auto& stats = player.GetComponent<BaseStatComponent>();
     const auto& equipment = player.GetComponent<PlayerItemsComponent>().equipment;
     const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
     const auto& className = player.GetComponent<ClassNameComponent>().classname;
-    characterFile << characterID << std::endl;
+    characterFile << activeCharacterID << std::endl;
     characterFile << className << std::endl;
     characterFile << static_cast<int>(stats.level) << "," << stats.xp << std::endl;
     characterFile << stats.hp << "," << stats.mp << "," << static_cast<int>(stats.attack) << "," << static_cast<int>(stats.defense) << "," << static_cast<int>(stats.speed) << "," << static_cast<int>(stats.dexterity) << "," << static_cast<int>(stats.vitality) << "," << static_cast<int>(stats.wisdom) << std::endl;
@@ -180,7 +181,7 @@ std::vector<std::string> CharacterManager::GetAllCharacterValuesAtLineNumber(int
 }
 
 // returns a vector of integers copied from data originating at linenumber in fileName
-std::vector<int> CharacterManager::GetLineValuesFromCharacterFile(std::string fileName, int linenumber){ 
+std::vector<int> CharacterManager::GetLineValuesFromCharacterFile(const std::string& fileName, int linenumber){ 
     std::vector<int> res;
     std::string filePath = (std::filesystem::path(characterFolderPath) / fileName).replace_extension(".txt").string();
     int lineCount = 1;
@@ -205,8 +206,4 @@ std::vector<int> CharacterManager::GetLineValuesFromCharacterFile(std::string fi
         lineCount++;
     }
     return res;
-}
-
-void CharacterManager::GetExistingCharacterData(){
-
 }

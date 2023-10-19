@@ -11,10 +11,12 @@ class StatusEffectEvent: public Event {
         statuses statusEffectEnum;
         Uint32 duration;
         std::unique_ptr<EventBus>& eventbus;
-        StatusEffectEvent(Entity recipient, statuses statusEffectEnum, std::unique_ptr<EventBus>& eventbus, Uint32 duration = 0): 
+        std::unique_ptr<Registry>& registry;
+        StatusEffectEvent(Entity recipient, statuses statusEffectEnum, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry, Uint32 duration = 0): 
             recipient(recipient), 
             statusEffectEnum(statusEffectEnum),  
             eventbus(eventbus),
+            registry(registry),
             duration(duration)
             {}
 

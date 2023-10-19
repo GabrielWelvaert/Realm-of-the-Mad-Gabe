@@ -165,6 +165,7 @@ struct helmData{
     Uint32 duration;
 };
 
+
 extern std::unordered_map<classes, startingEquipment> classesToStartingItems;
 
 extern std::unordered_map<classes, const char*> classesToString;

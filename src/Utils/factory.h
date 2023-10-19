@@ -57,6 +57,7 @@ class Factory{
             enemy.AddComponent<CollisionFlagComponent>();
             enemy.AddComponent<TransformComponent>(spawnpoint);
             enemy.AddComponent<StatusEffectComponent>();
+            enemy.AddComponent<SpeedStatComponent>(spriteEnum); // stationary enemies still have their speedstatcomp taken when hit by quivers
 
             enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
             switch(enemyCat){
@@ -64,7 +65,6 @@ class Factory{
                     enemy.AddComponent<AnimationComponent>(spriteEnum);
                     enemy.AddComponent<AnimatedChaseAIComponent>(spriteEnum);
                     enemy.AddComponent<RidigBodyComponent>();
-                    enemy.AddComponent<SpeedStatComponent>(spriteEnum);
                     enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
                     enemy.AddComponent<ItemTableComponent>(spriteEnum);
                     break;
@@ -76,8 +76,8 @@ class Factory{
                     break;
                 case SC: // shooting chase category
                     enemy.AddComponent<RidigBodyComponent>();
-                    enemy.AddComponent<SpeedStatComponent>(spriteEnum);
                     enemy.AddComponent<ChaseAIComponent>(spriteEnum);
+                    enemy.AddComponent<ItemTableComponent>(spriteEnum);
                     break;
                 case T: // trap category
                     enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded!
@@ -108,6 +108,7 @@ class Factory{
         }
 
         inline void createLootAtDeath(Entity monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
+            //optimize: dont make a bag if its not going to have any loot. store roll values. then create bag if we got something. also pass monster by const ref/
             Entity lootbag = registry->CreateEntity();
             lootbag.Group(LOOTBAGGROUP);
             lootbag.AddComponent<LootBagComponent>();
@@ -120,7 +121,6 @@ class Factory{
                 if(roll <= table.first){ // if value is lower than table rate, table is hit so random item from it
                     const auto& item = table.second[RNG.randomFromRange(0,table.second.size()-1)];
                     createItemInBag(registry, item, lootbag);
-                    
                     itemEnumToLootBagSpriteEnum.at(item) > bagsprite ? bagsprite = itemEnumToLootBagSpriteEnum.at(item) : bagsprite = bagsprite;
                 }
             }

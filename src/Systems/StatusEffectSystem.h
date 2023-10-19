@@ -12,6 +12,7 @@
 #include "../Components/ProjectileEmitterComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../Events/UpdateDisplayStatEvent.h"
+#include "../Utils/colors.h"
 
 /*
 This system manages status effects
@@ -20,6 +21,27 @@ It is the event handler of StatusEffectEvents to enable them, and it disables ex
 
 class StatusEffectSystem: public System{
     private:
+        // intentionally, only displays debuffs (felt it would be obnoxious for warriors to be spammed w "berzerk" and "speedy everytime they press space")
+        inline void displayStatusEffectText(std::unique_ptr<Registry>& registry, const statuses& statusEnum, const Entity& entity){
+            Entity statusText = registry->CreateEntity();
+            std::string text;
+            switch(statusEnum){
+                case QUIET:{
+                    text = "QUIET";
+                }break;
+                case SLOWED:{
+                    text = "SLOWED";
+                }break;
+                case PARALYZE:{
+                    text = "PARALYZED";
+                }break;
+                default:{
+                    return;
+                }break;
+            }
+            statusText.AddComponent<TextLabelComponent>(text, "damagefont", damagered, false, 350, entity.GetId(), entity.GetCreationId());
+            statusText.AddComponent<TransformComponent>(entity.GetComponent<TransformComponent>().position);
+        }
 
     public:
         StatusEffectSystem(){
@@ -34,7 +56,9 @@ class StatusEffectSystem: public System{
             auto& entity = event.recipient;
             auto& sec = entity.GetComponent<StatusEffectComponent>();            
             const auto& statusEnum = event.statusEffectEnum;
-            if(sec.effects[statusEnum]){return;} // return if this status effect is already enabled
+            if(sec.effects[statusEnum]){ // return if this status effect is already enabled
+                return;
+            } 
             const auto& duration = event.duration;
             sec.set(statusEnum, duration);
             switch(statusEnum){
@@ -44,8 +68,12 @@ class StatusEffectSystem: public System{
                         auto& hpmp = entity.GetComponent<HPMPComponent>();
                         hpmp.activemp = 0;
                     }
+                    displayStatusEffectText(event.registry, statusEnum, entity);
                 }break;
                 case SLOWED:{
+                    if(!entity.HasComponent<SpeedStatComponent>()){
+                        return;
+                    }
                     auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
                     if(entity.BelongsToGroup(PLAYER)){
                         const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -56,12 +84,15 @@ class StatusEffectSystem: public System{
                         sec.modificiations[SLOWED] = activespeed / 2;
                         activespeed -= activespeed / 2;
                     }
-                    
+                    displayStatusEffectText(event.registry, statusEnum, entity);
                 }break;
                 case PARALYZE:{
-                    //movement system watches the respective bit for this; nothing to change
+                    displayStatusEffectText(event.registry, statusEnum, entity);                 
                 }break;
                 case SPEEDY:{
+                    if(!entity.HasComponent<SpeedStatComponent>()){
+                        return;
+                    }
                     auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
                     if(entity.BelongsToGroup(PLAYER)){
                         const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -91,7 +122,7 @@ class StatusEffectSystem: public System{
             }
         }
 
-        void onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus){ // revert changes if necessary, called from Update()
+        void onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus){ // revert changes if necessary, called from this system's Update()
             auto& sec = recipient.GetComponent<StatusEffectComponent>();
             switch(statusEnum){
                 case 0:{// QUIET

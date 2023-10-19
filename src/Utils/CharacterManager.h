@@ -15,33 +15,31 @@
 #include <filesystem>
 
 class CharacterManager {
-private:
-    const int lineNumberOfHash = 7;
-    const std::string characterFolderPath = (std::filesystem::current_path() / "data/characters").string();
-    std::filesystem::directory_iterator dirItr;
+    private:
+        const int lineNumberOfHash = 7; // line where hash resides in character txt file. first line is line 1. 
+        const std::string characterFolderPath = (std::filesystem::current_path() / "data/characters").string();
+        std::filesystem::directory_iterator dirItr;
 
-    bool FileHasValidLineCount(const std::string& filename);
+        bool FileHasValidLineCount(const std::string& filename);
 
-public:
-    CharacterManager();
+    public:
+        CharacterManager();
 
-    int GetFileCountInCharacterDirectory();
+        int GetFileCountInCharacterDirectory();
 
-    void KillInvalidCharacterFiles();
+        void KillInvalidCharacterFiles();
 
-    void KillExcessCharacterFiles();
+        void KillExcessCharacterFiles();
 
-    std::string GetHashCharacterFile(const std::string& filename);
+        std::string GetHashCharacterFile(const std::string& filename);
 
-    bool ValidateCharacterFile(const std::string& filename);
+        bool ValidateCharacterFile(const std::string& filename);
 
-    std::string CreateNewCharacterFile(classes className);
+        std::string CreateNewCharacterFile(classes className);
 
-    void SaveCharacter(std::int64_t characterID, Entity player);
+        void SaveCharacter(const std::string& activeCharacterID, Entity player);
 
-    void GetExistingCharacterData();
+        std::vector<std::string> GetAllCharacterValuesAtLineNumber(int linenumber);
 
-    std::vector<std::string> GetAllCharacterValuesAtLineNumber(int linenumber);
-
-    std::vector<int> GetLineValuesFromCharacterFile(std::string fileName, int linenumber);
+        std::vector<int> GetLineValuesFromCharacterFile(const std::string& fileName, int linenumber);
 };

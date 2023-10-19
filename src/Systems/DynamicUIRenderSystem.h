@@ -8,7 +8,9 @@
 #include "../Components/SpeedStatComponent.h"
 #include "../Components/OffenseStatComponent.h"
 #include "../Components/DynamicUIEntityComponent.h"
+#include "../Components/HPMPComponent.h"
 #include "../Utils/tables.h"
+#include <algorithm>
 
 /*
 This system is responsible for updating the xp,hp, and mp bars of the UI
@@ -17,25 +19,29 @@ This system is responsible for updating the xp,hp, and mp bars of the UI
 // this system updates the parts of the UI that are made of rectangles. 
 class DynamicUIRenderSystem: public System{
     private:
-        // perhaps more efficient to store 3 vectors
-        // each vector contains the hp/mp/txt bar textures at 0% to 100%
-        // ex: if hp = 75% use texture at hpBarTextures[75] 
-        // rather than do SDL_Render stuff can just access an already existing texture? 
-        // this may be slightly more performant. 
+
     public:
 
         DynamicUIRenderSystem(){
             RequireComponent<DynamicUIEntityComponent>();
         }
 
-        void Update(SDL_Renderer* renderer, Entity player){ // pass player stats by const &
-            const auto& speed = player.GetComponent<SpeedStatComponent>();
-            const auto& HPMPstats = player.GetComponent<HPMPComponent>();
-            const auto& offenseStats = player.GetComponent<OffenseStatComponent>();
-            const auto& baseStats = player.GetComponent<BaseStatComponent>();
-            auto entities = GetSystemEntities();
+        void sort(){
+            auto& entities = GetSystemEntities();
+            std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DynamicUIEntityComponent>().statEnum < entity2.GetComponent<DynamicUIEntityComponent>().statEnum;});
+        }
 
-            DynamicUIEntityComponent& lvlbarData = entities[0].GetComponent<DynamicUIEntityComponent>();
+        void Update(SDL_Renderer* renderer, Entity player){ // pass player stats by const &
+            auto& entities = GetSystemEntities();
+            if(entities.size() == 0){return;}
+
+            const auto& HPMPstats = player.GetComponent<HPMPComponent>();
+            const auto& baseStats = player.GetComponent<BaseStatComponent>();
+
+            // correct order according to stat enums is HP,MP,LVL
+            // std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DynamicUIEntityComponent>().statEnum < entity2.GetComponent<DynamicUIEntityComponent>().statEnum;});
+
+            DynamicUIEntityComponent& lvlbarData = entities[2].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, lvlbarData.r, lvlbarData.g, lvlbarData.b, 255);
             if(baseStats.xp < 18050){
                 lvlbarData.rect.w = (static_cast<double>(baseStats.xp) - nextXPToLevelUp[baseStats.level-1]) / (nextXPToLevelUp[baseStats.level] - nextXPToLevelUp[baseStats.level-1] ) * 225;
@@ -44,7 +50,7 @@ class DynamicUIRenderSystem: public System{
             }
             SDL_RenderFillRect(renderer, &lvlbarData.rect);
 
-            DynamicUIEntityComponent& hpbarData = entities[1].GetComponent<DynamicUIEntityComponent>();
+            DynamicUIEntityComponent& hpbarData = entities[0].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, hpbarData.r, hpbarData.g, hpbarData.b, 255);
             hpbarData.rect.w = HPMPstats.activehp / HPMPstats.maxhp * 225;
             if(hpbarData.rect.w < 0){
@@ -52,10 +58,11 @@ class DynamicUIRenderSystem: public System{
             }
             SDL_RenderFillRect(renderer, &hpbarData.rect);
 
-            DynamicUIEntityComponent& mpbarData = entities[2].GetComponent<DynamicUIEntityComponent>();
+            DynamicUIEntityComponent& mpbarData = entities[1].GetComponent<DynamicUIEntityComponent>();
             SDL_SetRenderDrawColor(renderer, mpbarData.r, mpbarData.g, mpbarData.b, 255);
             mpbarData.rect.w = HPMPstats.activemp / HPMPstats.maxmp * 225;
             SDL_RenderFillRect(renderer, &mpbarData.rect);
+            
 
         }
 };

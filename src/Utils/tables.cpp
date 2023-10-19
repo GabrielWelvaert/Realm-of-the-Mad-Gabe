@@ -12,7 +12,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {10, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {10, {T4BOW, T4SWORD, T4WAND}}
+                {10, {T4BOW, T4SWORD, T4WAND}},
+                {20, {HPPOT, MPPOT}}
             }
         }
     },
@@ -21,7 +22,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {20, {T2TOME, T2QUIVER, T2HELM}},
-                {20, {T4BOW, T4SWORD, T4WAND}}
+                {20, {T4BOW, T4SWORD, T4WAND}},
+                {20, {HPPOT, MPPOT}},
+                {15, {T3HEAVYARMOR, T3ROBE, T3LIGHTARMOR}},
             }
         }
     },
@@ -30,7 +33,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T5HEAVYARMOR, T5ROBE, T5LIGHTARMOR}},
-                {20, {T5BOW, T5SWORD, T5WAND}}
+                {20, {T5BOW, T5SWORD, T5WAND}},
+                {20, {HPPOT, MPPOT}}
             }
         }
     },
@@ -48,7 +52,18 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {20, {T6SWORD}}
+                {20, {T6SWORD, T6BOW, T6WAND}}
+            }
+        }
+    },
+    {
+        REDKNIGHT0,
+        {
+            {
+                {15, {FIREWATER, CABERNET}},
+                {15, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
+                {25, {T7SWORD, T7WAND, T7BOW}},
+                {10, {T8BOW,T8WAND,T8SWORD}}
             }
         }
     }
@@ -75,7 +90,7 @@ std::unordered_map<classes, const char*> classesToString = {
     {TRICKSTER, "Trickster"},
     {SORCERER, "Sorcerer"}
 };
-
+//cooldown, mp cost
 std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and mp required
     {T0TOME, {500,60}},
     {T1TOME, {500,65}},
@@ -95,15 +110,15 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6QUIVER, {500,75}},
     {T7QUIVER, {500,80}},
     {T8QUIVER, {500,85}},
-    {T0HELM, {500,60}},
-    {T1HELM, {500,65}},
-    {T2HELM, {500,70}},
-    {T3HELM, {500,75}},
-    {T4HELM, {500,80}},
-    {T5HELM, {500,85}},
-    {T6HELM, {500,85}},
-    {T7HELM, {500,90}},
-    {T8HELM, {500,95}},
+    {T0HELM, {3000,60}},
+    {T1HELM, {4000,65}},
+    {T2HELM, {4500,70}},
+    {T3HELM, {5000,75}},
+    {T4HELM, {5500,80}},
+    {T5HELM, {6000,85}},
+    {T6HELM, {6500,85}},
+    {T7HELM, {7000,90}},
+    {T8HELM, {7500,95}},
 
 
     
@@ -145,7 +160,7 @@ std::unordered_map<items, quiverData> itemEnumToQuiverData = {
     {T8QUIVER, {975,1100,LOFIPROJS,{8,8*7,8,8}, PARALYZE}}, // green 
 };
 
-std::unordered_map<classes, BaseStatData> classToBaseStats = {
+std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats 
     {ARCHER, {130,100,12,0,12,12,12,10}},
     {WARRIOR, {200,100,15,0,7,10,10,10}},
     {PRIEST, {100,100,12,0,12,12,10,15}}
@@ -836,15 +851,15 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T3BOW, {440, 25, 55, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T4BOW, {440, 35, 65, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T5BOW, {440, 45, 65, 1024, true,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T6BOW, {440, 30, 50, 1024, true,2,12,LOFIOBJ, 3,6, {8*10,8*5,3,6},3,true,8,8,{0,10}}},
+    {T6BOW, {440, 30, 50, 1024, true,2,12,LOFIPROJS, 8,8, {8*3, 8*7, 8, 8},3,true,8,8,{16,16}}},
     {T7BOW, {469, 50, 70, 1024, true,1,0,LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}}},
-    {T8BOW, {440, 40, 60, 1024, true,3,12,LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T9BOW, {440, 40, 65, 1024, true,3,12,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T10BOW, {440, 45, 65, 1024, true,3,12,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T11BOW, {440, 45, 70, 1024, true,3,12,LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T12BOW, {440, 50, 70, 1024, true,3,12,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T13BOW, {440, 55, 75, 1024, true,3,12,LOFIOBJ5B, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
-    {T14BOW, {440, 60, 80, 1024, true,3,12,LOFIOBJ5B, 8, 8, {8*14, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
+    {T8BOW, {440, 40, 60, 1024, true,3,24,LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
+    {T9BOW, {440, 40, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
+    {T10BOW, {440, 45, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
+    {T11BOW, {440, 45, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
+    {T12BOW, {440, 50, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
+    {T13BOW, {440, 55, 75, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
+    {T14BOW, {440, 60, 80, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*14, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
 
     {T0WAND, {832, 20, 40, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
     {T1WAND, {832, 30, 50, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},

@@ -22,10 +22,10 @@ class AssetStore{
         AssetStore();
         ~AssetStore(); 
         void ClearAssets();
-        void AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, const std::string filePath);
+        void AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, const std::string& filePath);
         void AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, SDL_Texture * texture);
         SDL_Texture* GetTexture(const textureEnums& assetId);
-        void AddFont(const std::string& assetId, const std::string filePath, unsigned int fontSize);
+        void AddFont(const std::string& assetId, const std::string& filePath, const unsigned int& fontSize);
         TTF_Font* GetFont(const std::string& assetId);
         void AddSound(const soundEnums& assetId, const std::string& filePath);
         void PlaySound(const soundEnums& assetId);

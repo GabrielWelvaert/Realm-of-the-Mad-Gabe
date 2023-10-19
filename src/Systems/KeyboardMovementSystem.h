@@ -93,7 +93,8 @@ class KeyboardMovementSystem: public System {
             RequireComponent<KeyboardControlledComponent>(); //only the player has this.
         }
 
-        void Update(std::bitset<5> keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
+        void Update(const std::bitset<5>& keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
+            if(GetSystemEntities().size() == 0){return;}
             const auto& player = GetSystemEntities()[0]; //asumes this system has 1 entity: the player
             auto& sprite = player.GetComponent<SpriteComponent>();
             auto& rigidbody = player.GetComponent<RidigBodyComponent>();
@@ -107,21 +108,28 @@ class KeyboardMovementSystem: public System {
                 auto& ac = player.GetComponent<AbilityComponent>(); 
                 auto& activemp = player.GetComponent<HPMPComponent>().activemp;
                 Uint32 time = SDL_GetTicks();
-                if(ac.abilityEquipped && time >= ac.timeLastUsed + ac.coolDownMS){ // if ability item equipped and not in cooldown
+                if(ac.abilityEquipped && ( ac.timeLastUsed == 0 || time >= ac.timeLastUsed + ac.coolDownMS) ){ // if ability item equipped and not in cooldown
                     if(activemp < ac.mpRequired){ // if not enough mana
                         assetStore->PlaySound(NOMANA);
                     } else { // else, we have enough mana: evoke ability
                         const auto& classname = player.GetComponent<ClassNameComponent>().classname;
-                        activemp -= ac.mpRequired;
-                        ac.timeLastUsed = time;
                         switch(classname){ 
                             case PRIEST:{
-                                eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore);
+                                auto& HPMP = player.GetComponent<HPMPComponent>();
+                                if(HPMP.activehp < HPMP.maxhp){
+                                    activemp -= ac.mpRequired;
+                                    ac.timeLastUsed = time;
+                                    eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore);
+                                }
                                 break;}
                             case WARRIOR:{
-                                eventbus->EmitEvent<HelmUseEvent>(player, eventbus);
+                                activemp -= ac.mpRequired;
+                                ac.timeLastUsed = time;
+                                eventbus->EmitEvent<HelmUseEvent>(player, eventbus, registry);
                                 break;}
                             case ARCHER:{
+                                activemp -= ac.mpRequired;
+                                ac.timeLastUsed = time;
                                 eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);
                                 break;}
                         }
