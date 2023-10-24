@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EQUIPABILITYEVENT_H
+#define EQUIPABILITYEVENT_H
 
 #include "../ECS/ECS.h"
 #include "../EventBus/Event.h"
@@ -8,6 +9,8 @@ class EquipAbilityEvent: public Event {
     public:
         Entity player;
         items itemEnum;
-        EquipAbilityEvent(Entity player, items itemEnum): player(player), itemEnum(itemEnum) {}
+        inline EquipAbilityEvent(Entity player, items itemEnum): player(player), itemEnum(itemEnum) {}
 
 };
+
+#endif

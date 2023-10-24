@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef LOOTBAGCOMPONENT_H
+#define LOOTBAGCOMPONENT_H
 
 #include "../ECS/ECS.h"
 #include "../../libs/SDL2/SDL.h"
@@ -10,10 +11,10 @@ struct LootBagComponent{
     std::map<unsigned char, Entity> contents;
     bool opened;
 
-    LootBagComponent():
-    spawnTime(SDL_GetTicks()), opened(false) {}
+    inline LootBagComponent():
+        spawnTime(SDL_GetTicks()), opened(false) {}
 
-    unsigned char addItem(Entity item){
+    inline unsigned char addItem(Entity item){
         int i = 1;
         while(i < 9){
             if(contents.find(i) == contents.end()){
@@ -28,7 +29,7 @@ struct LootBagComponent{
     }
 
     // returns true if item is in this bag
-    bool hasItem(int id){
+    inline bool hasItem(int id){
         for(auto x: contents){
             if(x.second.GetId() == id){
                 return true;
@@ -37,17 +38,12 @@ struct LootBagComponent{
         return false;
     }
 
-    void printContents(){
-        for(auto x: contents){
-            std::cout << static_cast<int>(x.first) << ", " << x.second.GetId() << " ";
-        }
-        std::cout << std::endl;
-    }
-
-    void deleteContents(){
+    inline void deleteContents(){
         for(auto & pair: contents){
             pair.second.Kill();
         }
     }
 
 };
+
+#endif

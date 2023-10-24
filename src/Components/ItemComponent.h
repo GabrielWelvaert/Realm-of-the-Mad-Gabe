@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef ITEMCOMPONENT_H
+#define ITEMCOMPONENT_H
 
 #include "../../libs/SDL2/SDL.h"
 #include "../ECS/ECS.h"
@@ -12,13 +13,15 @@ struct ItemComponent{
     int IdOfHostBag;
     sprites bagSpriteEnum;
 
-    ItemComponent() = default;
+    inline ItemComponent() = default;
 
-    ItemComponent(items itemEnum, unsigned char lastPosition, int IdOfHostBag, sprites bagSpriteEnum = BROWNLOOTBAG)
+    inline ItemComponent(items itemEnum, unsigned char lastPosition, int IdOfHostBag, sprites bagSpriteEnum = BROWNLOOTBAG)
         : itemEnum(itemEnum), lastPosition(lastPosition), IdOfHostBag(IdOfHostBag) , bagSpriteEnum(bagSpriteEnum) {}
 
     // used for spawning player and populating their inventory and equipment
-    ItemComponent(items itemEnum, unsigned char lastPosition)
+    inline ItemComponent(items itemEnum, unsigned char lastPosition)
         : itemEnum(itemEnum), lastPosition(lastPosition), IdOfHostBag(-1) , bagSpriteEnum(itemEnumToLootBagSpriteEnum.at(itemEnum)) {}
 
 };
+
+#endif

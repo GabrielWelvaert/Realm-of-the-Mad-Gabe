@@ -1,8 +1,11 @@
-#pragma once 
+#ifndef PASSIVEAICOMPONENT_H
+#define PASSIVEAICOMPONENT_H
 
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
 
 struct PassiveAIComponent{
-    PassiveAIComponent() = default;
+    inline PassiveAIComponent() = default;
 };
+
+#endif

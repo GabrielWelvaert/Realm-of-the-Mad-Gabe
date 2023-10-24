@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef STATUSEFFECTCOMPONENT_H
+#define STATUSEFFECTCOMPONENT_H
 
 #include <iostream>
 #include "../../libs/SDL2/SDL.h"
@@ -11,13 +12,15 @@ struct StatusEffectComponent{
     std::bitset<8> effects; 
     // could also add a bitset<8> that represents immunities if I wanted to
     std::vector<Uint32> endTimes = {0,0,0,0,0,0,0,0};
-    std::vector<int> modificiations = {0,0,0,0,0,0,0,0};
+    std::vector<int> modifications = {0,0,0,0,0,0,0,0};
 
-    StatusEffectComponent() = default;
+    inline StatusEffectComponent() = default;
 
-    void set(statuses status, Uint32 durationMS){
+    inline void set(statuses status, Uint32 durationMS){
         effects[status] = true;
         endTimes[status] = SDL_GetTicks() + durationMS;
     }
 
 };
+
+#endif

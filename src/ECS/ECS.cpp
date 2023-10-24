@@ -2,7 +2,6 @@
 #include <algorithm>
 #include <iostream>
 #include "../Utils/enums.h"
-#include "../Components/BoxColliderComponent.h"
 
 int IComponent::nextId = 0;
 

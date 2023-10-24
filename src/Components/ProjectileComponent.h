@@ -4,6 +4,7 @@
 #include "../../libs/SDL2/SDL.h"
 #include <unordered_set>
 
+
 struct ProjectileComponent {
     Entity parent;
     short damage;
@@ -16,19 +17,9 @@ struct ProjectileComponent {
     statuses statsusEffect = QUIET;
     unsigned short SEdurationMS = 0;
 
-    ProjectileComponent() = default;
+    inline ProjectileComponent() = default;
 
-    // ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt): 
-    //     damage(damage), 
-    //     duration(duration), 
-    //     piercing(piercing), 
-    //     parent(parent), 
-    //     // not an argument!:
-    //     startTime(SDL_GetTicks()), 
-    //     parentGroupEnumInt(parentGroupEnumInt)
-    //     {} 
-
-    ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
+    inline ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
         damage(damage), 
         duration(duration), 
         piercing(piercing), 

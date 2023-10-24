@@ -7,13 +7,13 @@
 struct SpeedStatComponent{
     unsigned char activespeed;
 
-    SpeedStatComponent() : activespeed(0) {}
+    inline SpeedStatComponent() : activespeed(0) {}
 
-    SpeedStatComponent(unsigned char speed): activespeed(speed) {}
+    inline SpeedStatComponent(unsigned char speed): activespeed(speed) {}
 
-    SpeedStatComponent(BaseStatComponent bsc) : activespeed(bsc.speed) {}
+    inline SpeedStatComponent(BaseStatComponent bsc) : activespeed(bsc.speed) {}
 
-    SpeedStatComponent(sprites spriteEnum){
+    inline SpeedStatComponent(sprites spriteEnum){
         statData data = spriteEnumToStatData.at(spriteEnum);
         this->activespeed = data.activespeed;
     }

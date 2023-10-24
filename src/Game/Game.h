@@ -56,6 +56,7 @@ class Game{
         void PopulateEventBus();
         void MainMenus();
         void Background();
+        void PopulateItemIconsInAssetStore();
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();

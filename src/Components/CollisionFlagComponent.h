@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef COLLISIONFLAGCOMPONENT_H
+#define COLLISIONFLAGCOMPONENT_H
 
 #include "../../libs/glm/glm.hpp"
 #include "../Utils/enums.h"
@@ -12,7 +13,7 @@ struct CollisionFlagComponent{
     int idOfWallHit;
     int idOfOldWallHit; 
 
-    CollisionFlagComponent(): 
+    inline CollisionFlagComponent(): 
         collisionFlag(NONESIDE), 
         lastSideHitFlag(NONESIDE), 
         lastlastSideHitflag(NONESIDE), 
@@ -23,3 +24,5 @@ struct CollisionFlagComponent{
         }
 
 };
+
+#endif

@@ -6,6 +6,7 @@
 #include "../Utils/enums.h"
 #include "../ECS/ECS.h"
 #include <unordered_map>
+#include "../Utils/tables.h"
 
 struct ProjectileEmitterComponent{
     bool isShooting; 
@@ -39,9 +40,9 @@ struct ProjectileEmitterComponent{
     statuses statusEffect = QUIET;
     unsigned short durationMS = 0;
 
-    ProjectileEmitterComponent() = default;
+    inline ProjectileEmitterComponent() = default;
 
-    ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
+    inline ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
         parent(parent),
         isShooting(isShooting),
         repeatFrequency(repeatFrequency),
@@ -63,7 +64,7 @@ struct ProjectileEmitterComponent{
         boxheight(boxheight),
         boxoffset(boxoffset){}
 
-    ProjectileEmitterComponent(int repeatFrequency, int duration, Entity parent, int damage, int lastEmissionTime, bool isShooting){
+    inline ProjectileEmitterComponent(int repeatFrequency, int duration, Entity parent, int damage, int lastEmissionTime, bool isShooting){
         this->repeatFrequency = repeatFrequency; // old default of 100
         this->duration = duration; // old default of 50000
         this->parent = parent;
@@ -73,7 +74,7 @@ struct ProjectileEmitterComponent{
     }
 
     // used by monsters
-    ProjectileEmitterComponent(sprites spriteEnum, Entity self){
+    inline ProjectileEmitterComponent(sprites spriteEnum, Entity self){
         auto pecdata = spriteEnumToPEC.at(spriteEnum);
         this->parent = self;
         this->duration = pecdata.duration; 
@@ -97,7 +98,7 @@ struct ProjectileEmitterComponent{
     }
 
     // used for player. updates will occur when equipping items 
-    ProjectileEmitterComponent(Entity parent, boxColliderData bcdata, spritedata sdata){ //used for player, later equipping items will manually update PEC enums 
+    inline ProjectileEmitterComponent(Entity parent, boxColliderData bcdata, spritedata sdata){ //used for player, later equipping items will manually update PEC enums 
         this->repeatFrequency = 250; // old default of 100
         this->duration = 500; // old default of 50000
         this->parent = parent;

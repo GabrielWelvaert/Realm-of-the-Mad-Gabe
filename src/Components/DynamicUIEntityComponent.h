@@ -11,9 +11,9 @@ struct DynamicUIEntityComponent{
     unsigned char b;
     stats statEnum;
 
-    DynamicUIEntityComponent() = default;
+    inline DynamicUIEntityComponent() = default;
 
-    DynamicUIEntityComponent(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b, stats statEnum){
+    inline DynamicUIEntityComponent(int x, int y, int w, int h, unsigned char r, unsigned char g, unsigned char b, stats statEnum){
         this->rect = {x,y,w,h};
         this->r = r;
         this->g = g;

@@ -475,6 +475,98 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     }
 }
 
+void Game::PopulateItemIconsInAssetStore(){
+    items item = T0SWORD;
+    itemToDescription.at(item);
+    itemToName.at(item);
+    // bullshit.at(0);
+    // bullshittwo.at("");
+    itemToIconTexture.at(item);
+    for(int i = 0; i <= 170; i++){
+        items item = static_cast<items>(i);
+        std::cout << itemToName.at(item) << ": ";
+        std::cout << itemToDescription.at(item) << " (";
+        std::cout << itemToIconTexture.at(item) << ")" << std::endl;
+    }
+
+
+
+    // int totalNumItems = 170; // hard coded value equal to highest item enum + 1!
+    // totalNumItems = 0; // for testing, just making item icon for T0SWORD
+    // SDL_Surface * ttfSurface;
+    // SDL_Texture * ttfTextureFromSurface;
+    // for(int i = 0; i <= totalNumItems; i++){
+    //     items itemEnum = static_cast<items>(i);
+    //     const int divider = 10; // pixels between elements and border
+    //     const int imageDimension = 40; // image of item in top-left of icon
+    //     int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight;
+    //     std::string name = itemToName.at(itemEnum);
+    //     std::string description = itemToDescription.at(itemEnum);
+    //     std::cout << name << std::endl;
+    //     std::cout << description << std::endl;
+    //     exit(1);
+    //     std::string info = "";
+    //     switch(itemToGroup.at(itemEnum)){
+    //         case LIGHTARMOR:
+    //         case HEAVYARMOR:
+    //         case ROBE:{ // on equip 
+
+    //         }break;
+    //         case HPPOTGROUP:
+    //         case MPPOTGROUP:
+    //         case ATTPOTGROUP:
+    //         case DEFPOTGROUP:
+    //         case DEXPOTGROUP:
+    //         case SPDPOTGROUP:
+    //         case WISPOTGROUP:
+    //         case VITPOTGROUP:
+    //         case LIFEPOTGROUP:
+    //         case MANAPOTGROUP:
+    //         case CABERNETGROUP:
+    //         case FIREWATERGROUP:{ // on consumption
+
+    //         }break;
+    //         case QUIVER:
+    //         case TOME:
+    //         case HELM:
+    //         case RING:{
+
+    //         }break;
+    //         default:{ // weapon info 
+
+    //         }break;
+
+    //     }
+
+
+    //     // ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), )
+
+    //     iconWidth = divider + imageDimension + divider + nameWidth + divider;
+    //     iconHeight = divider + imageDimension + descriptionHeight + divider + infoHeight + divider;
+    //     SDL_Rect dstRect = {divider, divider, imageDimension, imageDimension}; // scaling item image by 10 
+    //     SDL_Rect srcRect = itemEnumTospriteData.at(itemEnum).srcRect;
+    //     SDL_Texture * itemIconTexture =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, iconWidth, iconHeight);
+    //     SDL_SetTextureBlendMode(itemIconTexture, SDL_BLENDMODE_BLEND);
+    //     SDL_SetRenderTarget(renderer, itemIconTexture);
+    //     SDL_RenderCopy(renderer, assetStore->GetTexture(itemEnumTospriteData.at(itemEnum).assetId), &srcRect, &dstRect); //icon picture
+
+    //     assetStore->AddTexture(renderer, itemToIconTexture.at(itemEnum), itemIconTexture);
+    // }
+
+    // // delete this when done initial testing:
+    // Entity testViewIcon = registry->CreateEntity();
+    // testViewIcon.AddComponent<TransformComponent>(glm::vec2(0.0), glm::vec2(1.0));
+    // int w,h;
+    // SDL_QueryTexture(assetStore->GetTexture(itemToIconTexture.at(T0SWORD)), NULL, NULL, &w, &h);
+    // testViewIcon.AddComponent<SpriteComponent>(T0SWORDICON, w, h, 20, true, false);
+
+    // SDL_DestroyTexture(ttfTextureFromSurface);
+    // SDL_FreeSurface(ttfSurface);
+    // SDL_SetRenderTarget(renderer, nullptr);
+    // SDL_RenderClear(renderer);
+
+}
+
 void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFICHAR, "./assets/images/lofi_char.png"); 
     assetStore->AddTexture(renderer, PLAYERS, "./assets/images/players.png");
@@ -1385,7 +1477,8 @@ void Game::Setup(bool populate){ // after initialize and before actual game loop
     if(populate){
         PopulateAssetStore();
         PopulateRegistry();
-        PopulateEventBus();        
+        PopulateEventBus();
+        PopulateItemIconsInAssetStore();        
     }
     Background();
     MainMenus();
@@ -1397,7 +1490,7 @@ void Game::Setup(bool populate){ // after initialize and before actual game loop
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
-    LoadTileMap(UDL, "./assets/tilemaps/wallTest.map");
+    LoadTileMap(UDL, "./assets/tilemaps/wallTest.map"); // should load nexus!
     registry->Update(); // becuase we loaded the map
 }
 
@@ -1422,7 +1515,7 @@ void Game::Update(){
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, playerInventory, factory);
-    registry->GetSystem<CameraMovementSystem>().Update(camera);
+    registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);

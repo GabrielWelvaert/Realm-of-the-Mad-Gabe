@@ -20,14 +20,14 @@ struct BaseStatComponent{
     unsigned char level;
     unsigned int xp;
 
-    BaseStatComponent()
+    inline BaseStatComponent()
         : hp(0), mp(0), attack(0), defense(0), speed(0),
           dexterity(0), vitality(0), wisdom(0), level(0), xp(0) {}
 
-    BaseStatComponent(int hp, int mp, int att, int def, int spd, int dex, int vit, int wis, int level, int xp):
+    inline BaseStatComponent(int hp, int mp, int att, int def, int spd, int dex, int vit, int wis, int level, int xp):
         hp(hp), mp(mp), attack(att), defense(def), speed(spd), dexterity(dex), vitality(vit), wisdom(wis), level(level), xp(xp) {}
 
-    BaseStatComponent(classes classname) : 
+    inline BaseStatComponent(classes classname) : 
         hp(classToBaseStats.at(classname).hp),
         mp(classToBaseStats.at(classname).mp),
         attack(classToBaseStats.at(classname).attack),

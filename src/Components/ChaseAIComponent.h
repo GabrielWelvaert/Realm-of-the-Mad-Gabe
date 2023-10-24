@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef CHASEAICOMPONENT_H
+#define CHASEAICOMPONENT_H
 
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
@@ -8,9 +9,9 @@ struct ChaseAIComponent{
     unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
     unsigned short maxDistance; // closest distance in pixels monster wants to get to player (so monster doens't stand on top of player, or if so they do)
 
-    ChaseAIComponent() = default;
+    inline ChaseAIComponent() = default;
 
-    ChaseAIComponent(sprites se){
+    inline ChaseAIComponent(sprites se){
         auto data = spritesToaiChaseData.at(se);
         auto pec = spriteEnumToPEC.at(se);
         this->engageRange = (pec.projectileSpeed * pec.duration / 1000);
@@ -18,3 +19,5 @@ struct ChaseAIComponent{
         data.detectRange < engageRange ? this->detectRange = engageRange : this->detectRange = data.detectRange;
     }
 };
+
+#endif

@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef PROJECTILEMOVEMENTSYSTEM_H
+#define PROJECTILEMOVEMENTSYSTEM_H
 
 #include "../ECS/ECS.h"
 #include "../Components/ProjectileComponent.h"
@@ -13,19 +14,10 @@
 
 class ProjectileMovementSystem: public System{
     public:
-        ProjectileMovementSystem(){
-            RequireComponent<ProjectileComponent>();
-            RequireComponent<RidigBodyComponent>();
-            RequireComponent<TransformComponent>();
-        }
+        ProjectileMovementSystem();
 
-        void Update(const double& deltaTime){
-            for(auto entity: GetSystemEntities()){
-                auto& transform = entity.GetComponent<TransformComponent>();
-                auto& rigidbody = entity.GetComponent<RidigBodyComponent>();
-                transform.position.x += rigidbody.velocity.x * deltaTime;
-                transform.position.y += rigidbody.velocity.y * deltaTime;
-            }
-        }
+        void Update(const double& deltaTime);
 
 };
+
+#endif

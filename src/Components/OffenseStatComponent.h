@@ -7,13 +7,13 @@ struct OffenseStatComponent{
     unsigned char activeattack;
     unsigned char activedexterity;
 
-    OffenseStatComponent() 
+    inline OffenseStatComponent() 
         : activeattack(0), activedexterity(0) {}
 
-    OffenseStatComponent(unsigned char activeattack, unsigned char activedexterity)
+    inline OffenseStatComponent(unsigned char activeattack, unsigned char activedexterity)
         : activeattack(activeattack), activedexterity(activedexterity) {}
 
-    OffenseStatComponent(BaseStatComponent bsc)
+    inline OffenseStatComponent(BaseStatComponent bsc)
         : activeattack(bsc.attack), activedexterity(bsc.dexterity) {}
         
 };

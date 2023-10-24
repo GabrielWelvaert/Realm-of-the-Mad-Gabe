@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ANIMATIONCOMPONENT_H
+#define ANIMATIONCOMPONENT_H
+
 // #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
@@ -11,7 +13,7 @@ struct AnimationComponent{
     Uint32 startTime;
     unsigned char xmin;
 
-    AnimationComponent(int numFrames = 1, int frameSpeedRate = 1,  int xmin = 1){
+    inline AnimationComponent(int numFrames = 1, int frameSpeedRate = 1,  int xmin = 1){
         this->numFrames = numFrames;
         this->frameSpeedRate = frameSpeedRate;
         this->startTime = SDL_GetTicks();
@@ -19,7 +21,7 @@ struct AnimationComponent{
         this->currentFrame = xmin;
     }
 
-    AnimationComponent(sprites spriteEnum){
+    inline AnimationComponent(sprites spriteEnum){
         auto data = spriteToAnimationData.at(spriteEnum);
         this->numFrames = data.numFrames;
         this->xmin = data.xmin;
@@ -30,3 +32,5 @@ struct AnimationComponent{
     }
 
 };
+
+#endif

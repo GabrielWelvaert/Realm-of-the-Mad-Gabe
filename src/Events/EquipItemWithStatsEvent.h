@@ -1,4 +1,5 @@
-#pragma once
+#ifndef EQUIPITEMWITHSTATSEVENT_H
+#define EQUIPITEMWITHSTATSEVENT_H
 
 #include "../ECS/ECS.h"
 #include "../EventBus/Event.h"
@@ -12,6 +13,8 @@ class EquipItemWithStatsEvent: public Event{
         bool equip;
         items newItem;
 
-        EquipItemWithStatsEvent(bool unequip, items previousItem, bool equip, items newItem, Entity player): unequip(unequip), previousItem(previousItem), equip(equip), newItem(newItem), player(player) {}
+        inline EquipItemWithStatsEvent(bool unequip, items previousItem, bool equip, items newItem, Entity player): unequip(unequip), previousItem(previousItem), equip(equip), newItem(newItem), player(player) {}
         
 };
+
+#endif

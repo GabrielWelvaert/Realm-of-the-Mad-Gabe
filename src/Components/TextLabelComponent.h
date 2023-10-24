@@ -20,7 +20,7 @@ struct TextLabelComponent{
     int textheight;
     bool invisible;
 
-    TextLabelComponent(
+    inline TextLabelComponent(
         const std::string& text = "", 
         const std::string& assetId = "damagefont", 
         const SDL_Color& color = {185,185,185}, 

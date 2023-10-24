@@ -5,7 +5,7 @@
 
 struct KeyboardControlledComponent{
 
-    KeyboardControlledComponent(){
+    inline KeyboardControlledComponent(){
     }
 };
 

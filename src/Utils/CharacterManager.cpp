@@ -35,7 +35,7 @@ void CharacterManager::KillInvalidCharacterFiles(){
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
         if(!FileHasValidLineCount(fileName) || !ValidateCharacterFile(fileName)){
-            std::cout << file.path().c_str() << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
+            std::cout << fileName << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
             exit(-1); 
             // std::filesystem::remove(file.path());
         }

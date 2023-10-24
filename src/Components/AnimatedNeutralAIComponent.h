@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef ANIMATEDNEUTRALAICOMPONENT_H
+#define ANIMATEDNEUTRALAICOMPONENT_H
 
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
@@ -6,10 +7,12 @@
 struct AnimatedNeutralAIComponent{
     unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
     
-    AnimatedNeutralAIComponent() = default;
+    inline AnimatedNeutralAIComponent() = default;
 
-    AnimatedNeutralAIComponent(sprites se){
+    inline AnimatedNeutralAIComponent(sprites se){
         auto pec = spriteEnumToPEC.at(se);
         this->engageRange = (pec.projectileSpeed * pec.duration / 1000);
     }
 };
+
+#endif 

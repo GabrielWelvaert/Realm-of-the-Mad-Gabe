@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef MOUSEBOXCOMPONENT_H
+#define MOUSEBOXCOMPONENT_H
 
 #include "../../libs/SDL2/SDL.h"
 #include "../../libs/glm/glm.hpp"
@@ -12,10 +13,12 @@ struct MouseBoxComponent{
     unsigned long height;
     glm::vec2 offset;
 
-    MouseBoxComponent(int width = 0, int height = 0, glm::vec2 offset = glm::vec2(0,0)){
+    inline MouseBoxComponent(int width = 0, int height = 0, glm::vec2 offset = glm::vec2(0,0)){
         this->width = width;
         this->height = height;
         this->offset = offset;
     }
 
 };
+
+#endif

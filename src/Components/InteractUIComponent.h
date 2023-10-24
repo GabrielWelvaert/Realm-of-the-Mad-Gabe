@@ -1,5 +1,8 @@
-#pragma once 
+#ifndef INTERACTUICOMPONENT_H
+#define INTERACTUICOMPONENT_H
 
 struct InteractUIComponent{
-    InteractUIComponent() = default;
+    inline InteractUIComponent() = default;
 };
+
+#endif

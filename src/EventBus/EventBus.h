@@ -12,8 +12,8 @@ class IEventCallback{
     private:
         virtual void Call(Event& e) = 0; //pure virtual function
     public:
-        virtual ~IEventCallback() = default;
-        void Execute(Event& e){
+        inline virtual ~IEventCallback() = default;
+        inline void Execute(Event& e){
             Call(e);
         }
 };
@@ -51,10 +51,10 @@ class EventBus{
         std::map<std::type_index, std::unique_ptr<HandlerList>> subscribers;
 
     public:
-        EventBus(){};
-        ~EventBus(){};
+        inline EventBus(){};
+        inline ~EventBus(){};
 
-        void Reset(){ //clear subscribers 
+        inline void Reset(){ //clear subscribers 
             subscribers.clear();
         }
 

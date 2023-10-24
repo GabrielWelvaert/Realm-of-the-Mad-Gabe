@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef TRAPAICOMPONENT_H
+#define TRAPAICOMPONENT_H
 
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
@@ -8,11 +9,13 @@ struct TrapAIComponent{
     bool igntied;
     unsigned char iginitionFrame; 
 
-    TrapAIComponent() = default;
+    inline TrapAIComponent() = default;
 
-    TrapAIComponent(sprites se){
+    inline TrapAIComponent(sprites se){
         auto data = spritetotrap.at(se);
         this->engageRange = data.engageRange;
         this->iginitionFrame = data.iginitionFrame;
     }
 };
+
+#endif

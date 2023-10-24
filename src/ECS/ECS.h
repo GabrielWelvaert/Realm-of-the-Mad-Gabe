@@ -152,7 +152,7 @@ class Pool: public IPool { //pool of component, where each index represents enti
 
         T& Get(int entityId) { 
             if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
-                std::cout << "getComp performed on entity lacking this component" << std::endl;
+                std::cout << "engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
             }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }

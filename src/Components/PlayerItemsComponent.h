@@ -1,6 +1,7 @@
-#pragma once
+#ifndef PLAYERITEMSCOMPONENT_H
+#define PLAYERITEMSCOMPONENT_H
 
-#include "../ECS/ECS.h"
+// #include "../ECS/ECS.h"
 #include "../../libs/SDL2/SDL.h"
 #include <map>  
 #include "../Components/ItemComponent.h"
@@ -14,9 +15,9 @@ struct PlayerItemsComponent{
     int IdOfHeldItem = 0;
     glm::vec2 heldItemStartingTransformComp;
 
-    PlayerItemsComponent() = default;
+    inline PlayerItemsComponent() = default;
 
-    void KillPlayerItems(){
+    inline void KillPlayerItems(){
         for(auto& x: equipment){
             x.second.Kill();
         }
@@ -27,3 +28,5 @@ struct PlayerItemsComponent{
         inventory.clear();
     }
 };
+
+#endif

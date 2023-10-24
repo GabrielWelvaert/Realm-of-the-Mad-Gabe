@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LOOTBAGCOLLISIONEVENT_H
+#define LOOTBAGCOLLISIONEVENT_H
 
 #include "../ECS/ECS.h"
 #include "../EventBus/Event.h"
@@ -11,6 +12,8 @@ class LootBagCollisionEvent: public Event{
         bool status;
         std::unique_ptr<Registry>& registry;
         PlayerItemsComponent& playerIC;
-        LootBagCollisionEvent(Entity lootbag, unsigned char zIndex, bool status, std::unique_ptr<Registry>& registry, PlayerItemsComponent& playerIC): 
-        lootbag(lootbag), zIndex(zIndex), status(status), registry(registry), playerIC(playerIC) {}
+        inline LootBagCollisionEvent(Entity lootbag, unsigned char zIndex, bool status, std::unique_ptr<Registry>& registry, PlayerItemsComponent& playerIC): 
+            lootbag(lootbag), zIndex(zIndex), status(status), registry(registry), playerIC(playerIC) {}
 };
+
+#endif

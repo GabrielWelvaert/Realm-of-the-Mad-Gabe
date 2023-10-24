@@ -3,7 +3,7 @@
 
 class Event {
     public:
-        Event() = default;
+        inline Event() = default;
 };
 
 #endif

@@ -7,9 +7,9 @@
 struct DisplayStatComponent{
     std::string lastDisplayed;
     stats statEnum;
-    DisplayStatComponent() = default;
+    inline DisplayStatComponent() = default;
 
-    DisplayStatComponent(stats statEnum): statEnum(statEnum) {}
+    inline DisplayStatComponent(stats statEnum): statEnum(statEnum) {}
 };
 
 #endif

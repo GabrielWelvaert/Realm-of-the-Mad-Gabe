@@ -10,10 +10,9 @@ class CollisionEvent: public Event {
     public:
         Entity a;
         Entity b;
-        // std::string side;
         sidehit side;
         double deltatime;
-        CollisionEvent(Entity a, Entity b, sidehit side): a(a), b(b), side(side) {};
+        inline CollisionEvent(Entity a, Entity b, sidehit side): a(a), b(b), side(side) {};
 };
 
 #endif 

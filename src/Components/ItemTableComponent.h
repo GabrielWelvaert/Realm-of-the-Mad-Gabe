@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef ITEMTABLECOMPONENT_H
+#define ITEMTABLECOMPONENT_H
 
 #include "../Utils/enums.h"
 #include <vector>
@@ -8,10 +9,12 @@ struct ItemTableComponent{
     std::map<int, std::vector<items>> dropTable;
     bool hasAlreadySpawnedBag = false;
 
-    ItemTableComponent() = default;
+    inline ItemTableComponent() = default;
 
-    ItemTableComponent(sprites spriteEnum){
+    inline ItemTableComponent(sprites spriteEnum){
         const auto& data = spriteEnumToItemTableComponentData.at(spriteEnum);
         this->dropTable = data.dropTable;
     }
 };
+
+#endif

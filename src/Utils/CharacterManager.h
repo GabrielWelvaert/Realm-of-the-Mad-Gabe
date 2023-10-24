@@ -1,4 +1,5 @@
-#pragma once
+#ifndef CHARACTERMANAGER_H
+#define CHARACTERMANAGER_H
 
 #include <iostream> 
 #include <cmath>
@@ -6,12 +7,10 @@
 #include <fstream>
 #include <sstream>
 #include <cstdint>
-#include "../ECS/ECS.h"
-#include "../Utils/enums.h"
-#include "../Utils/tables.h"
 #include "../Components/BaseStatComponent.h"
 #include "../Components/ClassNameComponent.h"
 #include "../Components/PlayerItemsComponent.h"
+#include "../Components/ItemComponent.h"
 #include <filesystem>
 
 class CharacterManager {
@@ -43,3 +42,5 @@ class CharacterManager {
 
         std::vector<int> GetLineValuesFromCharacterFile(const std::string& fileName, int linenumber);
 };
+
+#endif

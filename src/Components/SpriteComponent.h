@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef SPRITECOMPONENT_H
+#define SPRITECOMPONENT_H
 
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
@@ -16,12 +17,12 @@ struct SpriteComponent {
     SDL_RendererFlip flip;
 
     //assetid, w, h, srcrect{}, zindex, isfixed, diagonal
-    SpriteComponent(textureEnums const& assetId, unsigned long width, unsigned long height, SDL_Rect const& srcRect, unsigned char const& zindex, bool isFixed, bool diagonalSprite):
+    inline SpriteComponent(textureEnums const& assetId, unsigned long width, unsigned long height, SDL_Rect const& srcRect, unsigned char const& zindex, bool isFixed, bool diagonalSprite):
     assetId(assetId), width(width), height(height), srcRect(srcRect), zIndex(zindex), isFixed(isFixed), diagonalSprite(diagonalSprite), flip(SDL_FLIP_NONE) {}
 
     //used for tiles and shit 
     //assetId, width, height, zindex, srcRectx, srcRecty, isfixed
-    SpriteComponent(textureEnums assetId = LOFIENVIRONMENT, int width = 0, int height = 0, int zindex = 0, int srcRectX = 0, int srcRectY = 0, bool isFixed = false) {
+    inline SpriteComponent(textureEnums assetId = LOFIENVIRONMENT, int width = 0, int height = 0, int zindex = 0, int srcRectX = 0, int srcRectY = 0, bool isFixed = false) {
         this->assetId = assetId;
         this->width = width;
         this->height = height;
@@ -33,7 +34,7 @@ struct SpriteComponent {
     }
 
     // used by player
-    SpriteComponent(classes cn){
+    inline SpriteComponent(classes cn){
         spritedata data = classToSpriteData.at(cn);
         this->assetId = data.assetId;
         this->width = data.width;
@@ -46,7 +47,7 @@ struct SpriteComponent {
     }
 
     // used by monsters 
-    SpriteComponent(sprites spriteEnum){
+    inline SpriteComponent(sprites spriteEnum){
         spritedata data = enumToSpriteComponent.at(spriteEnum);
         this->assetId = data.assetId;
         this->width = data.width;
@@ -58,7 +59,7 @@ struct SpriteComponent {
         this->flip = SDL_FLIP_NONE;
     }
 
-    SpriteComponent(items itemEnum){
+    inline SpriteComponent(items itemEnum){
         spritedata data = itemEnumTospriteData.at(itemEnum);
         this->assetId = data.assetId;
         this->width = data.width;
@@ -71,3 +72,5 @@ struct SpriteComponent {
     }
 
 };
+
+#endif

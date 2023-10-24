@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef ABILITYCOMPONENT_H
+#define ABILITYCOMPONENT_H
 
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
@@ -11,9 +12,9 @@ struct AbilityComponent{
     int mpRequired = 20;
     int coolDownMS = 500;
 
-    AbilityComponent() = default;
+    inline AbilityComponent() = default;
 
-    AbilityComponent(int mpRequired, int coolDownMS):
+    inline AbilityComponent(int mpRequired, int coolDownMS):
         abilityEquipped(false), 
         timeLastUsed(0), 
         mpRequired(mpRequired), 
@@ -23,18 +24,18 @@ struct AbilityComponent{
 struct TomeComponent{
     int hp;
 
-    TomeComponent() = default;
+    inline TomeComponent() = default;
 
-    TomeComponent(int hp): hp(hp) {} 
+    inline TomeComponent(int hp): hp(hp) {} 
 
 };
 
 struct HelmComponent{
     int berserkDuration;
 
-    HelmComponent() = default;
+    inline HelmComponent() = default;
 
-    HelmComponent(int berserkDuration): berserkDuration(berserkDuration) {}
+    inline HelmComponent(int berserkDuration): berserkDuration(berserkDuration) {}
 };
 
 struct QuiverComponent{
@@ -44,8 +45,10 @@ struct QuiverComponent{
     SDL_Rect srcRect;
     statuses debuff;
 
-    QuiverComponent() = default;
+    inline QuiverComponent() = default;
 
-    QuiverComponent(int minDamage, int maxDamage): minDamage(minDamage), maxDamage(maxDamage), texture(LOFIPROJS), srcRect{0,0,0,0} {}
+    inline QuiverComponent(int minDamage, int maxDamage): minDamage(minDamage), maxDamage(maxDamage), texture(LOFIPROJS), srcRect{0,0,0,0} {}
 
 };
+
+#endif
