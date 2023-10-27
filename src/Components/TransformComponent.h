@@ -9,11 +9,11 @@ struct TransformComponent {
     glm::vec2 scale;
     double rotation;    
 
-    inline TransformComponent(glm::vec2 position = glm::vec2(0,0), glm::vec2 scale = glm::vec2(6.0,6.0), double rotation = 0.0){
-        this->position = position;
-        this->scale = scale; 
-        this->rotation = rotation;
-    }
+    inline TransformComponent(glm::vec2 position = glm::vec2(0,0), glm::vec2 scale = glm::vec2(6.0,6.0), double rotation = 0.0):
+        position(position),
+        scale(scale),
+        rotation(rotation)
+        {}
 
 };
 

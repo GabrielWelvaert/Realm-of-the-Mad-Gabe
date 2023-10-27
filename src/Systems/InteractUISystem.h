@@ -14,6 +14,7 @@
 #include "../Events/LootBagCollisionEvent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/MouseBoxComponent.h"
+#include "../Events/KillItemIconEvent.h"
 
 /*
 This system is responsible for managing the interact-gui (lowest portion)
@@ -29,6 +30,7 @@ class InteractUISystem: public System{
         InteractUISystem();
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
         void displayBag(LootBagCollisionEvent& event);
+        // display portal button 
 
 };
 

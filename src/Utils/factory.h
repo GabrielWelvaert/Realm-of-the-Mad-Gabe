@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef FACTORY_H
+#define FACTORY_H
 
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
@@ -39,7 +40,6 @@
 The factory class contains methods for spawning entities that represent important things such as 
 lootbags, monsters, items, portals
 */
-
 
 class Factory{
     private:
@@ -141,3 +141,5 @@ class Factory{
         // todo: force spawn item in player inventory or equipment
 
 };
+
+#endif

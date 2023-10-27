@@ -27,6 +27,7 @@ void InteractUISystem::displayBag(LootBagCollisionEvent& event){
                 item.RemoveComponent<TransformComponent>(); 
                 item.RemoveComponent<MouseBoxComponent>();
                 event.registry->AddEntityToSystems(item); 
+                event.eventBus->EmitEvent<KillItemIconEvent>(); // kill item icon if it exists
             }
         } 
         i++;

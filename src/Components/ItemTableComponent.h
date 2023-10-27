@@ -11,10 +11,9 @@ struct ItemTableComponent{
 
     inline ItemTableComponent() = default;
 
-    inline ItemTableComponent(sprites spriteEnum){
-        const auto& data = spriteEnumToItemTableComponentData.at(spriteEnum);
-        this->dropTable = data.dropTable;
-    }
+    inline ItemTableComponent(sprites spriteEnum):
+        dropTable(spriteEnumToItemTableComponentData.at(spriteEnum).dropTable)
+        {}
 };
 
 #endif

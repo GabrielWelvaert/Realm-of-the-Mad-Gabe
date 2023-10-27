@@ -24,7 +24,7 @@ void LootBagSystem::Update(int my, Entity player, std::unique_ptr<EventBus>& eve
             lbc.deleteContents(); // kill contents of bag
             entity.Kill();
             if(lbc.opened){
-                eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
+                eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC, eventBus);
             }
             continue;
         }
@@ -53,7 +53,7 @@ void LootBagSystem::Update(int my, Entity player, std::unique_ptr<EventBus>& eve
                             }
                         }
                     }
-                    eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC);
+                    eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC, eventBus);
                 }
         }
     }

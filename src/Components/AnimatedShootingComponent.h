@@ -10,15 +10,16 @@ struct AnimatedShootingComponent{
 
     inline AnimatedShootingComponent(unsigned char extraPixels = 0, bool animatedShooting = false) : extraPixels(extraPixels), animatedShooting(animatedShooting) {}
 
-    inline AnimatedShootingComponent(classes cn){
-        this->extraPixels = classToAnimatedShootingData.at(cn).extraPixels;
-        this->animatedShooting = false;
-    }
+    inline AnimatedShootingComponent(classes cn):
+        extraPixels(classToAnimatedShootingData.at(cn).extraPixels),
+        animatedShooting(false)
+        {}
 
-    inline AnimatedShootingComponent(sprites sprite){
-        this->extraPixels = spriteToAnimatedShootingData.at(sprite).extraPixels;
-        this->animatedShooting = false; 
-    }
+    inline AnimatedShootingComponent(sprites sprite):
+        extraPixels(spriteToAnimatedShootingData.at(sprite).extraPixels),
+        animatedShooting(false)
+        {}
+        
 };
 
 #endif

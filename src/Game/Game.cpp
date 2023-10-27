@@ -33,6 +33,7 @@
 #include "../Systems/AbilitySystem.h"
 #include "../Events/StatusEffectEvent.h"
 #include "../Systems/StatusEffectSystem.h"
+#include "../Systems/ItemIconSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -476,94 +477,130 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    items item = T0SWORD;
-    itemToDescription.at(item);
-    itemToName.at(item);
-    // bullshit.at(0);
-    // bullshittwo.at("");
-    itemToIconTexture.at(item);
-    for(int i = 0; i <= 170; i++){
-        items item = static_cast<items>(i);
-        std::cout << itemToName.at(item) << ": ";
-        std::cout << itemToDescription.at(item) << " (";
-        std::cout << itemToIconTexture.at(item) << ")" << std::endl;
+    int totalNumItems = 170; // hard coded value equal to highest item enum
+    SDL_Surface * ttfSurface;
+    SDL_Texture * ttfTextureFromSurface;
+    SDL_Texture * itemIconTexture;
+    std::vector<std::string> statNames = {"HP", "MP", "Attack", "Defense", "Speed", "Dexterity", "Vitality", "Wisdom"};
+    int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight;
+    for(int i = 0; i <= totalNumItems; i++){
+        items itemEnum = static_cast<items>(i);
+        const int divider = 10; // pixels between elements and border
+        const int imageDimension = 40; // image of item in top-left of icon
+        std::string name = itemToName.at(itemEnum);
+        std::string description = itemToDescription.at(itemEnum);
+        std::vector<std::string> info; // keep pushing back new info lines as needed!
+        if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
+            std::string onConsumption = "On Consumption: ";
+            onConsumption.append(consumableItemToInfo.at(itemEnum));
+            info.push_back(onConsumption);
+        }else{ // not consumable item; has more complicated info 
+            if(itemEnumToStatData.find(itemEnum) != itemEnumToStatData.end()){ // item gives player stat bonus
+                std::string onEquip = "On Equip:";
+                auto statData = itemEnumToStatData.at(itemEnum);
+                std::vector<int> stats = {static_cast<int>(statData.hp),static_cast<int>(statData.mp),static_cast<int>(statData.attack),static_cast<int>(statData.defense),static_cast<int>(statData.speed),static_cast<int>(statData.dexterity),static_cast<int>(statData.vitality),static_cast<int>(statData.wisdom)};
+                for(int j = 0; j <= 7; j++){
+                    if(stats[j] > 0){ // if this item gives player a stat bonus for this stat
+                        if(onEquip.size() > 10){onEquip.append(",");}
+                        onEquip.append(" +" + std::to_string(stats[j]) + " " + statNames[j]);
+                    }
+                }
+                info.push_back(onEquip);
+            }  
+            switch(itemToGroup.at(itemEnum)){
+                case SWORD:
+                case BOW:
+                case WAND:{ // item is a weapon
+                    auto pec = itemEnumToPECdata.at(itemEnum);
+                    std::string damage = std::to_string(pec.minDamage) + " - " + std::to_string(pec.maxDamage);
+                    std::string shots = std::to_string(pec.shots);
+                    std::string range = std::to_string(static_cast<float>(pec.duration) * static_cast<float>(pec.projectileSpeed) / 64 / 1000);
+                    if(range.size() > 4){ // if its more than xx.x, trim it down
+                        while(range.size() > 4){
+                            range.pop_back();
+                        }
+                        if(range.back() == '0'){
+                            range.pop_back();
+                        }
+                        if(range.back() == '.'){
+                            range.pop_back();
+                        }
+                    }
+                    info.push_back("Damage: " + damage);
+                    info.push_back("Shots: " + shots);
+                    info.push_back("Range: " + range);
+                } break;
+                case TOME:{ // item is a tome
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum); 
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    auto tomeData = itemEnumToTomeData.at(itemEnum);
+                    std::string onUse = "On Use: Heal self for " + std::to_string(tomeData.hp) + " HP";
+                    info.push_back(onUse);
+                    info.push_back(cost);
+                } break;
+                case HELM:{ // item is a helm
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum); 
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    auto helmData = itemEnumToHelmData.at(itemEnum);
+                    std::string onUse = "On Use: Speedy and Berzerk on self for ";
+                    std::string duration = std::to_string(static_cast<float>(helmData.duration)/1000);
+                    while(duration.back() == '0' || duration.back() == '.'){
+                        duration.pop_back();
+                    }
+                    info.push_back(onUse + duration + " seconds");
+                    info.push_back(cost);
+                } break;
+                case QUIVER:{ // ite is a quiver
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum); 
+                    auto quiverData = itemEnumToQuiverData.at(itemEnum);
+                    std::string onUse = "On Use: Shoots a ";
+                    onUse.append(abillityItemToInfo.at(itemEnum));
+                    onUse.append(" arrow");
+                    std::string damage = "Damage " + std::to_string(quiverData.minDamage) + " - " + std::to_string(quiverData.maxDamage);
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back(cost);
+                } break;
+            }
+        }
+
+        // vector of all text surfaces (name, description, then rest are info lines)
+        std::vector<SDL_Surface *> textSurfaces; 
+
+        // name text 
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconNameFont"), name.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("iconNameFont"), name.c_str(), &nameWidth, &nameHeight);
+        textSurfaces.push_back(ttfSurface);
+
+        // description text
+
+
+        // info text
+
+        // making the actual icon
+        iconWidth = divider + imageDimension + divider + nameWidth + divider;
+        iconHeight = 100;
+        SDL_Rect dstRect = {divider, divider, imageDimension, imageDimension}; // first thing to render for icon is item image
+        SDL_Rect srcRect = itemEnumTospriteData.at(itemEnum).srcRect;
+
+        itemIconTexture =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, iconWidth, iconHeight);
+        SDL_SetTextureBlendMode(itemIconTexture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(renderer, itemIconTexture);
+        SDL_RenderCopy(renderer, assetStore->GetTexture(itemEnumTospriteData.at(itemEnum).assetId), &srcRect, &dstRect); // rendering icon picture
+
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, textSurfaces[0]); // rendering name to icon texture
+        dstRect = {divider+imageDimension+divider, divider, nameWidth, nameHeight};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+
+        assetStore->AddTexture(renderer, itemToIconTexture.at(itemEnum), itemIconTexture);
     }
 
-
-
-    // int totalNumItems = 170; // hard coded value equal to highest item enum + 1!
-    // totalNumItems = 0; // for testing, just making item icon for T0SWORD
-    // SDL_Surface * ttfSurface;
-    // SDL_Texture * ttfTextureFromSurface;
-    // for(int i = 0; i <= totalNumItems; i++){
-    //     items itemEnum = static_cast<items>(i);
-    //     const int divider = 10; // pixels between elements and border
-    //     const int imageDimension = 40; // image of item in top-left of icon
-    //     int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight;
-    //     std::string name = itemToName.at(itemEnum);
-    //     std::string description = itemToDescription.at(itemEnum);
-    //     std::cout << name << std::endl;
-    //     std::cout << description << std::endl;
-    //     exit(1);
-    //     std::string info = "";
-    //     switch(itemToGroup.at(itemEnum)){
-    //         case LIGHTARMOR:
-    //         case HEAVYARMOR:
-    //         case ROBE:{ // on equip 
-
-    //         }break;
-    //         case HPPOTGROUP:
-    //         case MPPOTGROUP:
-    //         case ATTPOTGROUP:
-    //         case DEFPOTGROUP:
-    //         case DEXPOTGROUP:
-    //         case SPDPOTGROUP:
-    //         case WISPOTGROUP:
-    //         case VITPOTGROUP:
-    //         case LIFEPOTGROUP:
-    //         case MANAPOTGROUP:
-    //         case CABERNETGROUP:
-    //         case FIREWATERGROUP:{ // on consumption
-
-    //         }break;
-    //         case QUIVER:
-    //         case TOME:
-    //         case HELM:
-    //         case RING:{
-
-    //         }break;
-    //         default:{ // weapon info 
-
-    //         }break;
-
-    //     }
-
-
-    //     // ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), )
-
-    //     iconWidth = divider + imageDimension + divider + nameWidth + divider;
-    //     iconHeight = divider + imageDimension + descriptionHeight + divider + infoHeight + divider;
-    //     SDL_Rect dstRect = {divider, divider, imageDimension, imageDimension}; // scaling item image by 10 
-    //     SDL_Rect srcRect = itemEnumTospriteData.at(itemEnum).srcRect;
-    //     SDL_Texture * itemIconTexture =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, iconWidth, iconHeight);
-    //     SDL_SetTextureBlendMode(itemIconTexture, SDL_BLENDMODE_BLEND);
-    //     SDL_SetRenderTarget(renderer, itemIconTexture);
-    //     SDL_RenderCopy(renderer, assetStore->GetTexture(itemEnumTospriteData.at(itemEnum).assetId), &srcRect, &dstRect); //icon picture
-
-    //     assetStore->AddTexture(renderer, itemToIconTexture.at(itemEnum), itemIconTexture);
-    // }
-
-    // // delete this when done initial testing:
-    // Entity testViewIcon = registry->CreateEntity();
-    // testViewIcon.AddComponent<TransformComponent>(glm::vec2(0.0), glm::vec2(1.0));
-    // int w,h;
-    // SDL_QueryTexture(assetStore->GetTexture(itemToIconTexture.at(T0SWORD)), NULL, NULL, &w, &h);
-    // testViewIcon.AddComponent<SpriteComponent>(T0SWORDICON, w, h, 20, true, false);
-
-    // SDL_DestroyTexture(ttfTextureFromSurface);
-    // SDL_FreeSurface(ttfSurface);
-    // SDL_SetRenderTarget(renderer, nullptr);
-    // SDL_RenderClear(renderer);
+    SDL_DestroyTexture(ttfTextureFromSurface);
+    SDL_DestroyTexture(itemIconTexture);
+    SDL_FreeSurface(ttfSurface);
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
 
 }
 
@@ -747,6 +784,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddFont("mpb2","./assets/fonts/myriadprobold.ttf", 128);
     assetStore->AddFont("damagefont2", "./assets/fonts/myriadprosemibold.ttf", 48);
     assetStore->AddFont("damagefont3", "./assets/fonts/myriadprosemibold.ttf", 16);
+    assetStore->AddFont("iconNameFont", "./assets/fonts/myriadpro.ttf", 32);
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 }
@@ -1118,6 +1156,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<ItemMovementSystem>();
     registry->AddSystem<AbilitySystem>();
     registry->AddSystem<StatusEffectSystem>();
+    registry->AddSystem<ItemIconSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -1470,6 +1509,7 @@ void Game::PopulateEventBus(){
     registry->GetSystem<ProjectileEmitSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<AbilitySystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<StatusEffectSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<ItemIconSystem>().SubscribeToEvents(eventBus);
 }
 
 
@@ -1500,7 +1540,6 @@ void Game::Update(){
     
     registry->Update();
 
-    // TODO PASS BY CONSTANT REFERENCE INSTANCE OF COPY WHERE APPROPRIATE
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
     registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
@@ -1530,6 +1569,7 @@ void Game::Render(){
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
+    registry->GetSystem<ItemIconSystem>().Update(renderer, assetStore);
     if(debug){
         registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);
         registry->GetSystem<RenderMouseBoxSystem>().Update(renderer, camera);

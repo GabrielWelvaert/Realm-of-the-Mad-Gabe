@@ -53,11 +53,11 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                     if(!playerIC.viewingBag){ // only open new bag if not currently viewing a bag
                         if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
                             if(!b.GetComponent<LootBagComponent>().opened){ // need not open an open bag
-                                eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC);
+                                eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC, eventBus);
                             }
                         } else { // a is the loot bag
                             if(!a.GetComponent<LootBagComponent>().opened){ // need not open an open bag
-                                eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, playerIC);
+                                eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, playerIC, eventBus);
                             }
                         }
                     } 

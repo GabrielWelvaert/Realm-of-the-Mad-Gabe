@@ -10,6 +10,7 @@
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/InteractUIComponent.h"
+#include "../Components/ItemIconComponent.h"
 #include "../EventBus/EventBus.h"
 #include "../Events/LootBagCollisionEvent.h"
 #include "../Components/SpriteComponent.h"
@@ -26,6 +27,7 @@
 #include "../Components/ClassNameComponent.h"
 #include "../Utils/factory.h"
 #include "../Events/WeaponEquipEvent.h"
+#include "../Events/KillItemIconEvent.h"
 
 /*
 This system is responsible for allowing the player to move items between loot bags, their inventory, and their equipment slots
@@ -38,8 +40,12 @@ class ItemMovementSystem: public System{
         std::vector<glm::vec2> equipPositions = {{773.5,458.5}, {830.5,458.5}, {886.5,458.5}, {942.5,458.5}};
         std::vector<glm::vec2> lootbagPositions = {{773.5, 639.5}, {830.5, 639.5}, {886.5, 639.5}, {942.5, 639.5}, {773.5, 696.5}, {830.5, 696.5}, {886.5, 696.5}, {942.5, 696.5}};
         std::vector<glm::vec2> inventoryPositions = {{773.5, 515.5}, {830.5, 515.5}, {886.5, 515.5}, {942.5, 515.5}, {773.5, 572.5}, {830.5, 572.5}, {886.5, 572.5}, {942.5, 572.5}};
-
-        bool shiftblock;
+        Uint32 hoverStartTime;
+        bool hoveringItemLastFrame = false;
+        int hoveredItemId = 0;
+        int iconEntityId = 0;
+        bool displayingIcon = false;
+        bool shiftblock = false;
         std::map<unsigned char, Entity> * originbag;
 
         inline void hideIcon(std::unique_ptr<Registry>& registry, int id){

@@ -1,4 +1,5 @@
-#pragma once 
+#ifndef TABLES_H
+#define TABLES_H
 
 #include <unordered_map>
 #include <array>
@@ -165,50 +166,34 @@ struct helmData{
     Uint32 duration;
 };
 
-
+extern std::unordered_map<items, const char *> abillityItemToInfo;
+extern std::unordered_map<items, const char *> consumableItemToInfo;
+extern std::unordered_map<items, const char *> itemToDescription;
+extern std::unordered_map<items, const char *> itemToName;
+extern std::unordered_map<items, textureEnums> itemToIconTexture;
 extern std::unordered_map<classes, startingEquipment> classesToStartingItems;
-
 extern std::unordered_map<classes, const char*> classesToString;
-
 extern std::unordered_map<items, helmData> itemEnumToHelmData;
-
 extern std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData;
-
 extern std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum;
-
 extern std::unordered_map<items, abilityData> itemEnumToAbilityData;
-
 extern std::unordered_map<items, quiverData> itemEnumToQuiverData;
-
 extern std::unordered_map<items, tomeData> itemEnumToTomeData;
-
 extern std::unordered_map<classes, BaseStatData> classToBaseStats;
-
 extern std::unordered_map<items, BaseStatData> itemEnumToStatData;
-
 // indexing with player classname returns valid item group for weapon slot
 extern std::vector<groups> validWeapons;
 extern std::vector<groups> validability;
 extern std::vector<groups> validarmor;
-
 extern std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory;
-
 extern std::unordered_map<items, groups> itemToGroup;
-
 // DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
 extern std::unordered_map<items, spritedata> itemEnumTospriteData;
-
-
 extern std::unordered_map<items, playerPECupdateData> itemEnumToPECdata;
-
 extern std::vector<long> nextXPToLevelUp;
-
 extern std::unordered_map<wallTheme, wallData> wallThemeToWallData;
-
 extern std::unordered_map<classes, std::array<int, 8>> maxStats;
-
 extern std::unordered_map<classes, AnimatedShootingData> classToAnimatedShootingData;
-
 extern std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData;
 
 
@@ -237,3 +222,5 @@ extern std::unordered_map<sprites, aiChaseData> spritesToaiChaseData;
 extern std::unordered_map<sprites, trapaidata> spritetotrap;
 
 extern std::unordered_map<sprites, animationData> spriteToAnimationData;
+
+#endif
