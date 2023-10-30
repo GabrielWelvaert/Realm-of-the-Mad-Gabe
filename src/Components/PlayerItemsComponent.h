@@ -15,6 +15,13 @@ struct PlayerItemsComponent{
     int IdOfHeldItem = 0;
     glm::vec2 heldItemStartingTransformComp;
 
+    //variables for displaying item icon
+    Uint32 hoverStartTime;
+    bool hoveringItemLastFrame = false;
+    bool displayingIcon = false;
+    int hoveredItemId = 0;
+    int iconEntityId = 0;
+
     inline PlayerItemsComponent() = default;
 
     inline void KillPlayerItems(){

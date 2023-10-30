@@ -5,7 +5,7 @@ CollisionSystem::CollisionSystem(){
     RequireComponent<TransformComponent>();
 }
 
-void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, PlayerItemsComponent& playerIC, std::unique_ptr<Factory>& factory) {
+void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, Entity& player, std::unique_ptr<Factory>& factory) {
     auto entities = GetSystemEntities();
     for (auto i = entities.begin(); i != entities.end(); i++){ //sliding window algorithm
         Entity a = *i;
@@ -50,14 +50,14 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                 } else if (projectileHitSomeone(a,b) && !projectileParentGroupSameAsVictimGroup(a,b)){//no walls; someone was shot!
                     a.BelongsToGroup(PROJECTILE) ? eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory) : eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory); 
                 } else if (playerAndBag(a,b)){ // player collided with loot bag
-                    if(!playerIC.viewingBag){ // only open new bag if not currently viewing a bag
+                    if(!player.GetComponent<PlayerItemsComponent>().viewingBag){ // only open new bag if not currently viewing a bag
                         if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
                             if(!b.GetComponent<LootBagComponent>().opened){ // need not open an open bag
-                                eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, playerIC, eventBus);
+                                eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, player, eventBus);
                             }
                         } else { // a is the loot bag
                             if(!a.GetComponent<LootBagComponent>().opened){ // need not open an open bag
-                                eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, playerIC, eventBus);
+                                eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, player, eventBus);
                             }
                         }
                     } 

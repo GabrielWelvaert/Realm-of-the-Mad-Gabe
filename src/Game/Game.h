@@ -11,7 +11,6 @@
 #include "../Utils/factory.h"
 #include "../Utils/CharacterManager.h"
 
-const bool fpslimit = false;
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
 
@@ -28,7 +27,7 @@ class Game{
         std::unique_ptr<EventBus> eventBus;
         std::unique_ptr<Factory> factory;
         std::unique_ptr<CharacterManager> characterManager;
-        const bool debug = true;
+        const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
         std::vector<int> inventoryIconIds;

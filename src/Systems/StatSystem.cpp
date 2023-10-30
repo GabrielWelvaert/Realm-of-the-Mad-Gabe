@@ -12,7 +12,8 @@ void StatSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 
 void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& player = event.player;
-    auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+    auto& playerIC = player.GetComponent<PlayerItemsComponent>();
+    auto& inventory = playerIC.inventory;
     switch(event.itemEnum){
         case HPPOT:{
             auto& hpmp = player.GetComponent<HPMPComponent>();
@@ -256,6 +257,12 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
         auto& oldItemStats = itemEnumToStatData.at(event.previousItem);
         hpmp.maxhp -= oldItemStats.hp;
         hpmp.maxmp -= oldItemStats.mp;
+        if(hpmp.activehp > hpmp.maxhp){
+            hpmp.activehp -= oldItemStats.hp;
+        }
+        if(hpmp.activemp > hpmp.maxmp){
+            hpmp.activemp -= oldItemStats.mp;
+        }
         hpmp.activedefense -= oldItemStats.defense;
         hpmp.activevitality -= oldItemStats.vitality;
         hpmp.activewisdom -= oldItemStats.wisdom;

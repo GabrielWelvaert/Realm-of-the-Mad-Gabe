@@ -122,7 +122,7 @@ class CollisionSystem: public System {
     public:
         CollisionSystem();
 
-        void Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, PlayerItemsComponent& playerIC, std::unique_ptr<Factory>& factory);
+        void Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, Entity& player, std::unique_ptr<Factory>& factory);
 };
 
 #endif

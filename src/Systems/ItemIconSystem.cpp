@@ -9,7 +9,7 @@ void ItemIconSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 }
 
 void ItemIconSystem::KillIcon(KillItemIconEvent& event){
-    std::cout << "killing icon" << std::endl;
+    // std::cout << "KillItemIconEvent handled" << std::endl;
     for(auto& entity: GetSystemEntities()){ // kills our single item icon
         entity.Kill();
     }
@@ -18,7 +18,6 @@ void ItemIconSystem::KillIcon(KillItemIconEvent& event){
 void ItemIconSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
     for(auto& entity: GetSystemEntities()){
         auto& itemIcon = entity.GetComponent<ItemIconComponent>();
-        std::cout << "icon detected in ItemIconSystem::Update()" << std::endl;
         SDL_Rect srcRect = {
             0,
             0,

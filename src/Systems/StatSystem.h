@@ -23,6 +23,7 @@
 #include "../Components/ProjectileEmitterComponent.h"
 #include "../Components/AnimationComponent.h"
 #include "../Components/LootBagComponent.h"
+#include "../Events/KillItemIconEvent.h"
 
 /*
 this system is responsbile for managing the player stat increases at level up and potion drinking via events

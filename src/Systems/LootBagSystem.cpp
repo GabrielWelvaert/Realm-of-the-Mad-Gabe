@@ -5,7 +5,8 @@ LootBagSystem::LootBagSystem(){
     RequireComponent<BoxColliderComponent>();
 }
 
-void LootBagSystem::Update(int my, Entity player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, PlayerItemsComponent& playerIC){
+void LootBagSystem::Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry){
+    auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     for(auto entity: GetSystemEntities()){
         auto& lbc = entity.GetComponent<LootBagComponent>();
         if(SDL_GetTicks() > lbc.spawnTime + bagLifeTimeMs || lbc.contents.size() == 0){ // kill bag and contents! 
@@ -24,7 +25,7 @@ void LootBagSystem::Update(int my, Entity player, std::unique_ptr<EventBus>& eve
             lbc.deleteContents(); // kill contents of bag
             entity.Kill();
             if(lbc.opened){
-                eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC, eventBus);
+                eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, player, eventBus);
             }
             continue;
         }
@@ -53,7 +54,7 @@ void LootBagSystem::Update(int my, Entity player, std::unique_ptr<EventBus>& eve
                             }
                         }
                     }
-                    eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, playerIC, eventBus);
+                    eventBus->EmitEvent<LootBagCollisionEvent>(entity, 9, false, registry, player, eventBus);
                 }
         }
     }

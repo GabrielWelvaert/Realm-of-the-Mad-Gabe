@@ -10,6 +10,7 @@ void InteractUISystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 
 void InteractUISystem::displayBag(LootBagCollisionEvent& event){
     auto& lbc = event.lootbag.GetComponent<LootBagComponent>();
+    auto& playerIC = event.player.GetComponent<PlayerItemsComponent>();
     lbc.opened = event.status;
     GetSystemEntities()[0].GetComponent<SpriteComponent>().zIndex = event.zIndex;
     int i = 0;
@@ -27,18 +28,22 @@ void InteractUISystem::displayBag(LootBagCollisionEvent& event){
                 item.RemoveComponent<TransformComponent>(); 
                 item.RemoveComponent<MouseBoxComponent>();
                 event.registry->AddEntityToSystems(item); 
-                event.eventBus->EmitEvent<KillItemIconEvent>(); // kill item icon if it exists
             }
         } 
         i++;
     }
     
     if(event.status){
-        event.playerIC.IdOfOpenBag = event.lootbag.GetId();
-        event.playerIC.viewingBag = true;
+        playerIC.IdOfOpenBag = event.lootbag.GetId();
+        playerIC.viewingBag = true;
         lbc.opened = true;
     } else {
-        lbc.opened = event.playerIC.viewingBag = false;
+        lbc.opened = playerIC.viewingBag = false;
+        // if player was displaying icon of an item residing in loot bag
+        if(playerIC.displayingIcon && !event.registry->HasComponent<TransformComponent>(playerIC.hoveredItemId)){ // if hovered item lacks transformComp, it must be from lootbag not viewed anymore
+            event.eventBus->EmitEvent<KillItemIconEvent>();    
+            playerIC.hoveringItemLastFrame = playerIC.iconEntityId = playerIC.hoveredItemId = playerIC.displayingIcon = false;
+        }
     }
 
 }

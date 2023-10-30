@@ -152,7 +152,7 @@ bool space = false;
 bool shift = false;
 SDL_Keycode key;
 unsigned int startTime;
-const unsigned int MSToReadInput = 20;
+const unsigned int MSToReadInput = 1;
 int invetoryNumber;
 
 void Game::ProcessInput(){
@@ -221,14 +221,14 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T6BOW, lootbag);
-                            factory->createItemInBag(registry, T5BOW, lootbag);
-                            factory->createItemInBag(registry, T7BOW, lootbag);
-                            factory->createItemInBag(registry, T12BOW, lootbag);
-                            factory->createItemInBag(registry, T4HELM, lootbag);
-                            factory->createItemInBag(registry, T5HELM, lootbag);
-                            factory->createItemInBag(registry, T6HELM, lootbag);
-                            factory->createItemInBag(registry, T7HELM, lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
                             player.GetComponent<BaseStatComponent>().xp += 100000;
@@ -477,12 +477,12 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    int totalNumItems = 170; // hard coded value equal to highest item enum
+    const int totalNumItems = 170; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
     std::vector<std::string> statNames = {"HP", "MP", "Attack", "Defense", "Speed", "Dexterity", "Vitality", "Wisdom"};
-    int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight;
+    int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight, maxTextWidth;
     for(int i = 0; i <= totalNumItems; i++){
         items itemEnum = static_cast<items>(i);
         const int divider = 10; // pixels between elements and border
@@ -565,39 +565,130 @@ void Game::PopulateItemIconsInAssetStore(){
             }
         }
 
-        // vector of all text surfaces (name, description, then rest are info lines)
-        std::vector<SDL_Surface *> textSurfaces; 
-
         // name text 
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconNameFont"), name.c_str(), white);
         TTF_SizeText(assetStore->GetFont("iconNameFont"), name.c_str(), &nameWidth, &nameHeight);
-        textSurfaces.push_back(ttfSurface);
-
-        // description text
-
-
-        // info text
-
-        // making the actual icon
         iconWidth = divider + imageDimension + divider + nameWidth + divider;
-        iconHeight = 100;
-        SDL_Rect dstRect = {divider, divider, imageDimension, imageDimension}; // first thing to render for icon is item image
-        SDL_Rect srcRect = itemEnumTospriteData.at(itemEnum).srcRect;
 
+        int currentLineWidth;
+        maxTextWidth = imageDimension + divider + nameWidth;
+
+        // obtaining and formatting description text
+        std::vector<std::string> descriptionStrings;
+        TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), description.c_str(), &descriptionWidth, &descriptionHeight); 
+        float estimatedDescriptionLines = (descriptionWidth-divider*2)/iconWidth;
+        int maxCharsPerLine = description.size() / estimatedDescriptionLines;
+        std::string currentLine;
+        for(const char& c: description){
+            TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), currentLine.c_str(), &currentLineWidth, NULL); 
+            if(currentLineWidth < maxTextWidth){
+                currentLine.push_back(c);
+            } else {
+                std::string cutoff;
+                cutoff.push_back(c);
+                for(int i = currentLine.size()-1; i > 0; i--){
+                    if(currentLine[i] == ' '){
+                        descriptionStrings.push_back(currentLine);
+                        currentLine = "";
+                        break;
+                    } else {
+                        cutoff.push_back(currentLine[i]);
+                        currentLine.pop_back();
+                    }
+                }
+                if(cutoff.size() > 0){
+                    std::reverse(cutoff.begin(), cutoff.end());
+                    currentLine += cutoff;    
+                }
+            }
+        }
+        descriptionStrings.push_back(currentLine);
+
+        // info text (todo)
+        int totalinfolines = 0;
+        std::vector<std::string> infoStrings;
+        for(const auto& line: info){
+            std::string currentLine; 
+            for(const char& c: line){
+                TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), currentLine.c_str(), &currentLineWidth, NULL); 
+                if(currentLineWidth < maxTextWidth){
+                    currentLine.push_back(c);
+                } else {
+                    std::string cutoff;
+                    cutoff.push_back(c);
+                    for(int i = currentLine.size()-1; i > 0; i--){
+                        if(currentLine[i] == ' '){
+                            infoStrings.push_back(currentLine);
+                            totalinfolines++;
+                            currentLine = "";
+                            break;
+                        } else {
+                            cutoff.push_back(currentLine[i]);
+                            currentLine.pop_back();
+                        }
+                    }
+                    if(cutoff.size() > 0){
+                        std::reverse(cutoff.begin(), cutoff.end());
+                        currentLine += cutoff;    
+                    }
+                }
+            }
+            infoStrings.push_back(currentLine);
+            totalinfolines++;
+        }
+
+        iconHeight = divider + imageDimension + divider + (descriptionHeight * descriptionStrings.size()) + (descriptionHeight * totalinfolines) + divider + divider;
+
+        // creating target texture
         itemIconTexture =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, iconWidth, iconHeight);
         SDL_SetTextureBlendMode(itemIconTexture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, itemIconTexture);
+
+        // rendering background
+        SDL_Rect dstRect = {0,0,iconWidth,iconHeight};
+        SDL_Rect srcRect = {0,0,1,1};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(GUIBACKGROUND), &srcRect, &dstRect);
+
+        // rendering picture of item to icon texture
+        dstRect = {divider, divider, imageDimension, imageDimension}; // first thing to render for icon is item image
+        srcRect = itemEnumTospriteData.at(itemEnum).srcRect;
         SDL_RenderCopy(renderer, assetStore->GetTexture(itemEnumTospriteData.at(itemEnum).assetId), &srcRect, &dstRect); // rendering icon picture
 
-        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, textSurfaces[0]); // rendering name to icon texture
+        // rendering name to icon
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface); // rendering name to icon texture
         dstRect = {divider+imageDimension+divider, divider, nameWidth, nameHeight};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
 
-        assetStore->AddTexture(renderer, itemToIconTexture.at(itemEnum), itemIconTexture);
+        // rendering description texts to icon
+        for(int i = 0; i < descriptionStrings.size(); i++){
+            const std::string& line = descriptionStrings[i]; // for each line 
+            ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
+            int w,h; 
+            TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
+            ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface); // turning surface into renderable texture
+            dstRect = {divider, divider + imageDimension + divider + h * i, w, h}; // dstRect as render destination in the texture
+            SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+        }
+
+        int infoStartingYPos = dstRect.y + dstRect.h + divider; 
+        // rendering info texts to icon 
+        for(int i = 0; i < infoStrings.size(); i++){
+            const std::string& line = infoStrings[i];
+            ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
+            int w,h; 
+            TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
+            ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface); // turning surface into renderable texture
+            dstRect = {divider, infoStartingYPos + h * i, w, h}; // dstRect as render destination in the texture
+            SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+        }
+
+        assetStore->AddTexture(renderer, itemToIconTexture.at(itemEnum), itemIconTexture); // adding complete texture for item icon to assetStore
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_RenderClear(renderer);
     }
 
     SDL_DestroyTexture(ttfTextureFromSurface);
-    SDL_DestroyTexture(itemIconTexture);
+    // SDL_DestroyTexture(itemIconTexture);
     SDL_FreeSurface(ttfSurface);
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
@@ -784,7 +875,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddFont("mpb2","./assets/fonts/myriadprobold.ttf", 128);
     assetStore->AddFont("damagefont2", "./assets/fonts/myriadprosemibold.ttf", 48);
     assetStore->AddFont("damagefont3", "./assets/fonts/myriadprosemibold.ttf", 16);
-    assetStore->AddFont("iconNameFont", "./assets/fonts/myriadpro.ttf", 32);
+    assetStore->AddFont("iconNameFont", "./assets/fonts/myriadpro.ttf", 28);
+    assetStore->AddFont("iconDescriptionInfoFont", "./assets/fonts/myriadpro.ttf", 20);
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 }
@@ -1479,7 +1571,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
             }
         }
 
-        // moving the background. must enforce FPS limit otherwise deltatime is near 0 due to FPS in thousands
+        // moving the background. must enforce FPS limit otherwise deltatime is near 0 due to FPS around 7000
         double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
         int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
         if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
@@ -1541,7 +1633,6 @@ void Game::Update(){
     registry->Update();
 
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
     registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     registry->GetSystem<PassiveAISystem>().Update(playerpos, assetStore);
@@ -1553,14 +1644,14 @@ void Game::Update(){
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
-    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, playerInventory, factory);
+    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, player, factory);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
-    registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, playerInventory);
+    registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry);
 }
 
 void Game::Render(){
