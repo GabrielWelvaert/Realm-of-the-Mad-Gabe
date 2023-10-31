@@ -57,7 +57,8 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                 Entity projectile;
                 glm::vec2 originVelocity;
                 if(IsPlayer){                                                      
-                    rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x, my+camera.y-18, originVelocity, isDiagonal);
+                    int yDestOffset = 18; // 18 perfect for bolts
+                    rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x, my+camera.y-yDestOffset, originVelocity, isDiagonal);
                     const auto& activeattack = entity.GetComponent<OffenseStatComponent>().activeattack;
                     damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                     float damageCalc = static_cast<float>(damage)*((static_cast<float>(activeattack)+25)/50); // must cast to float so math works

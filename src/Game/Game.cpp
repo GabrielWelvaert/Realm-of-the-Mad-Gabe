@@ -296,8 +296,11 @@ LoadTileMap version 2.
 Params: 1) wallTheme enum 2) path to .map file
 creates three big textures for floor, ceiling, and wall tiles 
 also makes the boxCollider entities for the walls (as separate entities!) 
+only works with lofiEnvironment.png for now. doesn't add boxColliders to trees and rocks.
 */
 void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile){
+    std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
+    SDL_Rect grass = {8*8, 8*4, 8,8}; // grass
     auto wallData = wallThemeToWallData.at(wallTheme);
     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(wallData.texture);
     std::vector<glm::ivec2> walls = wallData.walls;
@@ -315,6 +318,9 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     std::vector<glm::ivec2> wallCoordinates; // used to create contiguous boxColliders later
     std::unordered_map<glm::ivec2, glm::vec2, Vec2Hash> coordinateToPos; // used to create contiguous boxColliders later
     std::unordered_set<glm::vec2, Vec2Hash> wallCoordinatesHashSet; // used to create contiguous boxColliders later
+    std::vector<glm::ivec2> ceilingCoordinates; 
+    std::unordered_map<glm::ivec2, glm::vec2, Vec2Hash> ceilingCoordinateToPos; 
+    std::unordered_set<glm::vec2, Vec2Hash> ceilingCoordinateHashSet; 
     std::ifstream file(pathToMapFile); // counting rows and columns in .map file to find map width and height
     char c;
     int rows = 1;
@@ -349,16 +355,20 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
         for (std::string tileid; std::getline(stream, tileid, ',');){
             xpos++;
             int value = std::stoi(tileid);
-            x = value % 10; //extract ones digit as x-place
-            y = value / 10; //extract tens digit as y-place
+            y = value % 10; //extract ones digit as x-place
+            x = value / 10; //extract tens digit as y-place
             srcRect = {x*tileSize,y*tileSize,tileSize,tileSize};
             dstRect = {xpos*tileSize, ypos*tileSize, tileSize, tileSize};
-            glm::ivec2 currentCoord = {y,x};
+            // glm::ivec2 currentCoord = {y,x};
+            glm::ivec2 currentCoord = {x,y};
             bool isFloor = true;
             for(auto wall: walls){
                 if(currentCoord == wall){ // wall or ceiling tile 
-                    isFloor = false;
+                    isFloor = false; 
                     if(currentCoord == ceiling){ // ceiling tile
+                        ceilingCoordinates.push_back(glm::ivec2(xpos,ypos)); // storing some ceiling information so I can make boxColliders there 
+                        ceilingCoordinateToPos.insert({glm::ivec2(xpos,ypos), glm::vec2(xpos*tileSize*tileScale, ypos*tileSize*tileScale)});
+                        ceilingCoordinateHashSet.insert(glm::ivec2(xpos,ypos));
                         SDL_SetRenderTarget(renderer, bigCeilingTexture);
                         SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
                         SDL_SetRenderTarget(renderer, nullptr);
@@ -387,6 +397,15 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
             if(isFloor){ // floor tile
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
+                // if floor is grass, 1/16 chance to add render decoration (like flowers) on top of it
+                if(srcRect.x == grass.x && srcRect.y == grass.y){
+                    if(RNG.randomFromRange(1,16) == 1){
+                        SDL_SetRenderTarget(renderer, nullptr);
+                        SDL_SetRenderTarget(renderer, bigFloorTexture);
+                        SDL_Rect decoration = grassDecorations[RNG.randomFromRange(0,grassDecorations.size()-1)];
+                        SDL_RenderCopy(renderer, spriteAtlasTexture, &decoration, &dstRect);
+                    }
+                }
                 SDL_SetRenderTarget(renderer, nullptr);
                 SDL_SetRenderTarget(renderer, bigCeilingTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcAlpha, &dstRect);
@@ -396,7 +415,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
                 SDL_SetRenderTarget(renderer, nullptr);
                 
             }
-            // todo if(isAlpha)
         }
     }
     assetStore->AddTexture(renderer, BIGWALL, bigWallTexture);
@@ -414,6 +432,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     int scale = tileSize*tileScale;
     // x-clusters
     for(int i = 0; i < wallCoordinates.size()-1; i++){
+        if(wallCoordinates.size() == 0){return;} //no walls
         if(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
             group.push_back(wallCoordinates[i]);
             Xclusters.insert(wallCoordinates[i]);
@@ -436,7 +455,11 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
             }
         }
     }
-    std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) {
+    std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { // sorting so can analyze y-clusters
+        if (a.x != b.x) {return a.x < b.x;}
+        return a.y < b.y; 
+    });
+    std::sort(ceilingCoordinates.begin(), ceilingCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { 
         if (a.x != b.x) {return a.x < b.x;}
         return a.y < b.y; 
     });
@@ -473,6 +496,23 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
         wallbox.AddComponent<TransformComponent>(position);
         wallbox.AddComponent<BoxColliderComponent>(scale, scale);
         wallbox.Group(WALLBOX);
+    }
+
+    // ceilings in vertical columns need to have boxColliders because they're imagined to have walls below
+    for(int i = 0; i < ceilingCoordinates.size()-1; i++){
+        if(ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
+            group.push_back(ceilingCoordinates[i]);
+            while(ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
+                group.push_back(ceilingCoordinates[i+1]);
+                i++;
+            }
+            const auto& position = ceilingCoordinateToPos.at(group[1]);
+            Entity wallbox = registry->CreateEntity();
+            wallbox.AddComponent<TransformComponent>(position);
+            wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
+            wallbox.Group(WALLBOX);
+            group.clear();
+        }
     }
 }
 
@@ -1622,7 +1662,7 @@ void Game::Setup(bool populate){ // after initialize and before actual game loop
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
-    LoadTileMap(UDL, "./assets/tilemaps/wallTest.map"); // should load nexus!
+    LoadTileMap(NEXUS, "./assets/tilemaps/nexus.map"); 
     registry->Update(); // becuase we loaded the map
 }
 

@@ -258,10 +258,10 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
         hpmp.maxhp -= oldItemStats.hp;
         hpmp.maxmp -= oldItemStats.mp;
         if(hpmp.activehp > hpmp.maxhp){
-            hpmp.activehp -= oldItemStats.hp;
+            hpmp.activehp = hpmp.maxhp;
         }
         if(hpmp.activemp > hpmp.maxmp){
-            hpmp.activemp -= oldItemStats.mp;
+            hpmp.activemp = hpmp.maxmp;
         }
         hpmp.activedefense -= oldItemStats.defense;
         hpmp.activevitality -= oldItemStats.vitality;

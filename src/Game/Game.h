@@ -27,7 +27,7 @@ class Game{
         std::unique_ptr<EventBus> eventBus;
         std::unique_ptr<Factory> factory;
         std::unique_ptr<CharacterManager> characterManager;
-        const bool debug = false;
+        const bool debug = true;
         Entity player;
         Xoshiro256 RNG;
         std::vector<int> inventoryIconIds;
@@ -66,7 +66,7 @@ class Game{
         static int mapheight;
         static int mouseX;
         static int mouseY;
-        glm::vec2 playerSpawn = glm::vec2(750/2 - 20, 750/2 - 20);
+        glm::vec2 playerSpawn = glm::vec2(750, 1575);
 };
 
 #endif
