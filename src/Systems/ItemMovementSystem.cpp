@@ -33,7 +33,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                 if(shift && my > 506 && !shiftblock){ // player shift-clicked consumable item from inventory or lootbag! 
                     // some logic and flag to block shift until its released
                     const auto& itemEnum = entity.GetComponent<ItemComponent>().itemEnum;
-                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // consumable item clicked from inventory or loot bag
+                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 17){ // consumable item clicked from inventory or loot bag
                         shiftblock = false;
                         //binary search. wee
                         if(my < 627){ // inventory 

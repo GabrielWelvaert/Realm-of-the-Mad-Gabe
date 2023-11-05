@@ -12,9 +12,8 @@
 
 class AssetStore{
     private:
-        std::unordered_map<textureEnums, SDL_Texture*> textures; // each PNG becomes a SDL_Texture* mapped to a string 
-        std::unordered_map<std::string, TTF_Font*> fonts; // each font becomes a TTF_Font* mapped to a string
-        // private members of AssetStore class 
+        std::unordered_map<textureEnums, SDL_Texture*> textures; 
+        std::unordered_map<std::string, TTF_Font*> fonts; 
         std::unordered_map<soundEnums, Mix_Chunk*> sounds; 
         std::unordered_map<std::string, Mix_Music*> music; 
 

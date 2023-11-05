@@ -39,7 +39,7 @@ class LootBagSystem: public System{
         // update is respondible for 
         // 1) safely kill a bag that has expired
         // 2) close an open bag if player is no longer standing on-top 
-        void Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry);
+        void Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, wallTheme area);
 
 };
 

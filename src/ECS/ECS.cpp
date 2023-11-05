@@ -57,11 +57,6 @@ void Registry::killAllEntities(){
         }
     }
     Update();
-    // for(auto& pool: componentPools){
-    //     if(pool){
-    //         pool->Clear();    
-    //     }
-    // }
 }
 
 Entity Registry::CreateEntity(){

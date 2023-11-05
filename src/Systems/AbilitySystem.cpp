@@ -33,7 +33,7 @@ void AbilitySystem::onQuiverUse(QuiverUseEvent& event){
         1024, 
         playerpos.x, 
         playerpos.y, 
-        event.mx + event.camera.x, 
+        event.mx + event.camera.x-24, 
         event.my + event.camera.y-36,
         originVelocity,
         true);

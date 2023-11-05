@@ -5,11 +5,11 @@ LootBagSystem::LootBagSystem(){
     RequireComponent<BoxColliderComponent>();
 }
 
-void LootBagSystem::Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry){
+void LootBagSystem::Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, wallTheme area){
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     for(auto entity: GetSystemEntities()){
         auto& lbc = entity.GetComponent<LootBagComponent>();
-        if(SDL_GetTicks() > lbc.spawnTime + bagLifeTimeMs || lbc.contents.size() == 0){ // kill bag and contents! 
+        if(area != VAULT && (SDL_GetTicks() > lbc.spawnTime + bagLifeTimeMs || lbc.contents.size() == 0)){ // kill bag and contents! 
             if(playerIC.IdOfOpenBag == entity.GetId() && playerIC.viewingBag){ // player was viewing this bag; "close" it 
                 if(playerIC.holdingItemLastFrame){
                     // item was hoving over lootbag and not from lootbag OR item was from lootbag

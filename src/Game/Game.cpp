@@ -34,6 +34,7 @@
 #include "../Events/StatusEffectEvent.h"
 #include "../Systems/StatusEffectSystem.h"
 #include "../Systems/ItemIconSystem.h"
+#include "../Systems/VaultSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -130,7 +131,7 @@ void Game::Initialize(){
 }
 
 void Game::Run(bool populate){
-    Setup(populate);
+    Setup(populate, true, VAULT);
     while (isRunning){
         ProcessInput();
         Update();
@@ -167,6 +168,7 @@ void Game::ProcessInput(){
             switch (sdlEvent.type){
                 case SDL_QUIT: 
                     characterManager->SaveCharacter(activeCharacterID, player);
+                    characterManager->SaveVaults(registry);
                     isRunning = false;
                     Destory();
                     exit(0);
@@ -176,6 +178,7 @@ void Game::ProcessInput(){
                         case SDLK_ESCAPE:{
                             // todo save character
                             characterManager->SaveCharacter(activeCharacterID, player);
+                            characterManager->SaveVaults(registry);
                             player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                             registry->killAllEntities();
                             Run(false); // call run, but pass false to avoid re-populating assetStore etc
@@ -203,7 +206,7 @@ void Game::ProcessInput(){
                                 const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
                                 if(inventory.find(invetoryNumber+1) != inventory.end()){
                                     const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
-                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
+                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 17){ // magic number, start of end of group enums which contains consumable items
                                         eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
                                     } else {
                                         assetStore->PlaySound(ERROR);
@@ -213,6 +216,12 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_SPACE:{
                             space = true;
+                        } break;
+                        case SDLK_f:{
+                            if(currentArea != NEXUS){
+                                characterManager->SaveCharacter(activeCharacterID, player);
+                                Setup(false, false, NEXUS);    
+                            }
                         } break;
                         case SDLK_LSHIFT:
                         case SDLK_RSHIFT:{
@@ -269,11 +278,20 @@ void Game::ProcessInput(){
             }
         }
     }
-    //get mouse pos at end of 20ms block so we shoot to most recent position 
-    SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
-    if(keysPressed[4] && mouseX <= 750){
-        // SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
-        player.GetComponent<ProjectileEmitterComponent>().isShooting = true;
+    SDL_GetMouseState(&Game::mouseX, &Game::mouseY); // call this regardless of player shooting attempt; various systems need it!
+    // if(keysPressed[4]){
+    //     std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl;
+    // }
+    if(keysPressed[4]){
+        if(mouseX <= 750){
+            player.GetComponent<ProjectileEmitterComponent>().isShooting = true;
+        } else if(mouseX >= 970 && mouseY <= 280 && mouseY >= 250 && mouseX <= 990){ // clicked nexus button
+            if(currentArea != NEXUS){
+                assetStore->PlaySound(BUTTON);
+                characterManager->SaveCharacter(activeCharacterID, player);
+                Setup(false, false, NEXUS); 
+            }
+        }
     } else {
         player.GetComponent<ProjectileEmitterComponent>().isShooting = false;
     }
@@ -298,7 +316,19 @@ creates three big textures for floor, ceiling, and wall tiles
 also makes the boxCollider entities for the walls (as separate entities!) 
 only works with lofiEnvironment.png for now. doesn't add boxColliders to trees and rocks.
 */
-void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile){
+void Game::LoadTileMap(const wallTheme& wallTheme){
+    std::vector<std::vector<int>> map;
+    switch(wallTheme){
+        case NEXUS:{
+            map = nexusMap;
+        }break;
+        case VAULT:{
+            map = vaultMap;
+        }break;
+        default:{
+            //todo call a procedural map generation method
+        }break;
+    }
     std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
     SDL_Rect grass = {8*8, 8*4, 8,8}; // grass
     auto wallData = wallThemeToWallData.at(wallTheme);
@@ -321,21 +351,11 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     std::vector<glm::ivec2> ceilingCoordinates; 
     std::unordered_map<glm::ivec2, glm::vec2, Vec2Hash> ceilingCoordinateToPos; 
     std::unordered_set<glm::vec2, Vec2Hash> ceilingCoordinateHashSet; 
-    std::ifstream file(pathToMapFile); // counting rows and columns in .map file to find map width and height
     char c;
-    int rows = 1;
-    int columns = 1;
-    while(file.get(c)){
-        if(c == ',' && rows == 1){
-            columns++;
-        }
-        if(c == '\n'){
-            rows++;
-        }
-    }
+    int rows = map[0].size();
+    int columns = map.size();
     mapWidth = columns * tileSize * tileScale;  
     mapheight = rows * tileSize * tileScale;
-    file.close();
     SDL_Texture * bigFloorTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
     SDL_Texture * bigWallTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
     SDL_Texture * bigCeilingTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, mapWidth, mapheight);
@@ -345,16 +365,13 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     SDL_Rect srcRect; 
     SDL_Rect dstRect;
     SDL_Rect srcAlpha = {wallData.alpha.x*tileSize, wallData.alpha.y*tileSize, tileSize, tileSize};
-    std::fstream map(pathToMapFile);
     int ypos = -1;
-    for (std::string line; std::getline(map, line, '\n');){
+    for(const auto& line: map){
         int xpos = -1;
         ypos++;
-        std::stringstream stream;
-        stream << line;
-        for (std::string tileid; std::getline(stream, tileid, ',');){
+        for(const auto& tileid: line){
             xpos++;
-            int value = std::stoi(tileid);
+            int value = tileid;
             y = value % 10; //extract ones digit as x-place
             x = value / 10; //extract tens digit as y-place
             srcRect = {x*tileSize,y*tileSize,tileSize,tileSize};
@@ -424,7 +441,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapF
     bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
     bigFloorEntity.AddComponent<SpriteComponent>(BIGFLOOR, mapWidth, mapheight, 0, 0,0,0);
     SDL_RenderClear(renderer);
-    map.close();
     // adding boxComponent entities where walls are: (unoptomized algorithm; not at play-time so doens't matter much)
     std::set<glm::ivec2, Vec2Comparator> Xclusters;
     std::set<glm::ivec2, Vec2Comparator> solos; 
@@ -921,8 +937,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 }
 
-void Game::LoadGui(classes className){
-
+void Game::LoadGui(){
+    auto& className = player.GetComponent<ClassNameComponent>().classname;
     equipmentIconIds.clear();
 
     SDL_Texture * staticHUD =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
@@ -1289,6 +1305,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<AbilitySystem>();
     registry->AddSystem<StatusEffectSystem>();
     registry->AddSystem<ItemIconSystem>();
+    registry->AddSystem<VaultSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -1520,7 +1537,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
 
         if(proceed){ // main menus done; proceed to actual game
             registry->killAllEntities(); //kills everything, including background! 
-            if(!characterManager->ValidateCharacterFile(selectedCharacterID)){ // human attempted to modify character data post-selection; restart game...
+            if(!characterManager->ValidateCharacterFileHash(selectedCharacterID)){ // human attempted to modify character data post-selection; restart game...
                 softreset = true;
             } else { // selected character is valid; retain id and exit this function to proceed to game
                 // std::cout << "selected character is valid" << std::endl;
@@ -1645,24 +1662,43 @@ void Game::PopulateEventBus(){
 }
 
 
-void Game::Setup(bool populate){ // after initialize and before actual game loop starts 
+void Game::SpawnAreaEntities(wallTheme area){
+    switch(area){
+        case VAULT: { // create entities for vault chests
+            factory->spawnVaultChests(registry, characterManager);
+        } break;
+        // for dungeon, spawn monsters and stuff
+    }
+}
+
+void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts 
+    if(currentArea == VAULT){ // just left vault, save it
+        characterManager->SaveVaults(registry);
+    }
+    currentArea = area;
+    registry->killAllEntities();
     if(populate){
         PopulateAssetStore();
         PopulateRegistry();
         PopulateEventBus();
         PopulateItemIconsInAssetStore();        
     }
-    Background();
-    MainMenus();
+    if(mainmenus){
+        Background();
+        MainMenus();        
+    }
+    SpawnAreaEntities(area);
+    registry->Update();
+    playerSpawn = wallThemeToSpawnPoint.at(area);
     LoadPlayer();
-    LoadGui(player.GetComponent<ClassNameComponent>().classname);
+    LoadGui();
     registry->Update(); // because we made gui and player
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
-    LoadTileMap(NEXUS, "./assets/tilemaps/nexus.map"); 
+    LoadTileMap(area); 
     registry->Update(); // becuase we loaded the map
 }
 
@@ -1691,7 +1727,7 @@ void Game::Update(){
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
-    registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry);
+    registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
 }
 
 void Game::Render(){

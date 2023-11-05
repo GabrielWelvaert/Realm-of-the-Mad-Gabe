@@ -27,7 +27,7 @@ class Game{
         std::unique_ptr<EventBus> eventBus;
         std::unique_ptr<Factory> factory;
         std::unique_ptr<CharacterManager> characterManager;
-        const bool debug = true;
+        const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
         std::vector<int> inventoryIconIds;
@@ -39,7 +39,7 @@ class Game{
         ~Game();
         void Initialize();
         void Run(bool populate);
-        void Setup(bool populate);
+        void Setup(bool populate, bool mainmenus, wallTheme area = NEXUS);
         void ProcessInput();
         void Update();
         void Render();
@@ -47,15 +47,16 @@ class Game{
         void LoadLevel(int level);
         void PopulateAssetStore();
         void LoadPlayer();
-        void LoadGui(classes className);
+        void LoadGui();
         void LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum);
-        void LoadTileMap(const wallTheme& wallTheme, const std::string& pathToMapFile);
+        void LoadTileMap(const wallTheme& wallTheme);
         void PopulateRegistry();
         void PopulatePlayerInventoryAndEquipment();
         void PopulateEventBus();
         void MainMenus();
         void Background();
         void PopulateItemIconsInAssetStore();
+        void SpawnAreaEntities(wallTheme area);
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();
@@ -67,6 +68,7 @@ class Game{
         static int mouseX;
         static int mouseY;
         glm::vec2 playerSpawn = glm::vec2(750, 1575);
+        wallTheme currentArea = NEXUS;
 };
 
 #endif
