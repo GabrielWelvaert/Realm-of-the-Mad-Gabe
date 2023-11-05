@@ -40,9 +40,10 @@ void InteractUISystem::displayBag(LootBagCollisionEvent& event){
     } else {
         lbc.opened = playerIC.viewingBag = false;
         // if player was displaying icon of an item residing in loot bag
-        if(playerIC.displayingIcon && !event.registry->HasComponent<TransformComponent>(playerIC.hoveredItemId)){ // if hovered item lacks transformComp, it must be from lootbag not viewed anymore
-            event.eventBus->EmitEvent<KillItemIconEvent>();    
+        if(!event.registry->HasComponent<TransformComponent>(playerIC.hoveredItemId)){ // item hovered is from lootbag no longer viewed
+            if(playerIC.displayingIcon){event.eventBus->EmitEvent<KillItemIconEvent>();}
             playerIC.hoveringItemLastFrame = playerIC.iconEntityId = playerIC.hoveredItemId = playerIC.displayingIcon = false;
+            playerIC.hoverStartTime = 0 - 1;
         }
     }
 

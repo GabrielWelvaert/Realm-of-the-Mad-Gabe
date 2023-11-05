@@ -67,7 +67,7 @@ class ItemMovementSystem: public System{
             const std::vector<int>& equipmentIcons, 
             const bool& shift)
             {
-            std::cout << "spawOrMoveItemPositions called with an item from bag with original position " << item1OriginalTransformPos.x << ", " << item1OriginalTransformPos.y << std::endl;
+            // std::cout << "spawOrMoveItemPositions called with an item from bag with original position " << item1OriginalTransformPos.x << ", " << item1OriginalTransformPos.y << std::endl;
             if(contents1 == destBag && item1pos == destPos) { // same spot and bag, return
                 auto& item1 = contents1.at(item1pos);
                 item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;

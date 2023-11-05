@@ -123,7 +123,6 @@ void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::uni
     auto entities = GetSystemEntities();
     if(entities.size() == 0){return;}
     if (mx > 750 && mx < 1000 && my > 295 && my < 370){ // if mouse is hovering over the stat bars
-        // std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DisplayStatComponent>().statEnum < entity2.GetComponent<DisplayStatComponent>().statEnum;});
         auto& hpdisplay = entities[HP];
         auto& mpdisplay = entities[MP];
         auto& xpdisplay = entities[XP];
@@ -135,7 +134,13 @@ void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::uni
         const auto& hpmp = player.GetComponent<HPMPComponent>();
         const auto& classname = player.GetComponent<ClassNameComponent>().classname;
         hptext.text = std::to_string(static_cast<int>(hpmp.activehp)) + "/" + std::to_string(hpmp.maxhp);
+        if(hpmp.maxhp > pbs.hp){
+            hptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxhp)-static_cast<int>(pbs.hp)) + ")");
+        }
         mptext.text  = std::to_string(static_cast<int>(hpmp.activemp)) + "/" + std::to_string(hpmp.maxmp);
+        if(hpmp.maxhp > pbs.mp){
+            mptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxmp)-static_cast<int>(pbs.mp)) + ")");
+        }
         if(pbs.level < 20){
             xptext.text = std::to_string(pbs.xp - nextXPToLevelUp[pbs.level-1]) + "/" + std::to_string(nextXPToLevelUp[pbs.level] - nextXPToLevelUp[pbs.level-1]);
         } else {

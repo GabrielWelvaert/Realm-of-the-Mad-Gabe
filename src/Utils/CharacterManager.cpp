@@ -2,12 +2,23 @@
 
 /*
 The CharacterManager is responsible for managing files associated with saved characters
-It saves, creates, processes, and validates character files 
+It saves, creates, processes, and validates character files, including vault files
 */
 
-CharacterManager::CharacterManager(){}
+CharacterManager::CharacterManager(){
+    std::string dataFolderPath = (std::filesystem::current_path() / "data").string();
+    if(!std::filesystem::exists(dataFolderPath)){
+        std::filesystem::create_directories(dataFolderPath);
+    }
+    if(!std::filesystem::exists(vaultFolderPath)){
+        std::filesystem::create_directories(vaultFolderPath);
+    }
+    if(!std::filesystem::exists(characterFolderPath)){
+        std::filesystem::create_directories(characterFolderPath);
+    }
+}
 
-bool CharacterManager::FileHasValidLineCount(const std::string& filename){
+bool CharacterManager::CharacterFileHasValidLineCount(const std::string& filename){
     std::string filePath = (std::filesystem::path(characterFolderPath) / filename).replace_extension(".txt").string();
     std::ifstream file(filePath);
     std::string line;
@@ -15,7 +26,18 @@ bool CharacterManager::FileHasValidLineCount(const std::string& filename){
     while(std::getline(file, line)){
         lineCount++;
     }
-    return (lineCount == lineNumberOfHash);
+    return (lineCount == characterLineNumberOfHash);
+}
+
+bool CharacterManager::VaultFileHasValidLineCount(const std::string& filename){
+    std::string filePath = (std::filesystem::path(vaultFolderPath) / filename).replace_extension(".txt").string();
+    std::ifstream file(filePath);
+    std::string line;
+    int lineCount = 0;
+    while(std::getline(file, line)){
+        lineCount++;
+    }
+    return (lineCount == vaultLineNumberOfHash);
 }
 
 int CharacterManager::GetFileCountInCharacterDirectory(){
@@ -29,17 +51,92 @@ int CharacterManager::GetFileCountInCharacterDirectory(){
     return res;
 }
 
+int CharacterManager::GetFileCountInVaultDirectory(){
+    int res = 0;
+    dirItr = std::filesystem::directory_iterator(vaultFolderPath);
+    for(const auto& entry : dirItr){
+        if(entry.is_regular_file()){
+            res++;
+        }
+    }
+    return res;
+}
+
 // kills character files of invalid line length or invalid hash
 void CharacterManager::KillInvalidCharacterFiles(){
     dirItr = std::filesystem::directory_iterator(characterFolderPath);
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
-        if(!FileHasValidLineCount(fileName) || !ValidateCharacterFile(fileName)){
+        if(!CharacterFileHasValidLineCount(fileName) || !ValidateCharacterFileHash(fileName)){
             std::cout << fileName << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
             exit(-1); 
             // std::filesystem::remove(file.path());
         }
     }
+}
+
+void CharacterManager::CreateNewVaultFile(const std::string& fileName){
+    std::cout << "CreateNewVaultFile" << std::endl;
+    std::string filePath = (std::filesystem::path(vaultFolderPath) / fileName).replace_extension(".txt").string();
+    std::ofstream vaultFile(filePath, std::ofstream::trunc);
+    vaultFile << "-1,-1,-1,-1,-1,-1,-1,-1" << std::endl;
+    vaultFile.close();
+    auto hash = GetHashVaultFile(fileName);
+    vaultFile.open(filePath, std::ios::app);
+    vaultFile << hash;
+    vaultFile.close();
+}
+
+void CharacterManager::SaveVaults(std::unique_ptr<Registry>& registry){
+    KillInvalidVaultFiles();
+    const auto& vaultEntities = registry->GetSystem<VaultSystem>().GetSystemEntities();
+    for(const auto& vault: vaultEntities){
+        std::string currentVaultEntityId = std::to_string(vault.GetComponent<VaultChestComponent>().id);
+        dirItr = std::filesystem::directory_iterator(vaultFolderPath);
+        for(auto file: dirItr){
+            std::string fileName = file.path().filename().string(); //"1", "2", "3"
+            fileName = fileName.substr(0,1);
+            if(fileName == currentVaultEntityId){
+                const auto& items = vault.GetComponent<LootBagComponent>().contents;
+                std::vector<int> ie = {-1,-1,-1,-1,-1,-1,-1,-1};
+                for(const auto& pair: items){
+                    ie[static_cast<int>(pair.first)-1] = static_cast<int>(pair.second.GetComponent<ItemComponent>().itemEnum);
+                }
+                std::string vaultItemsString = std::to_string(ie[0]) + "," + std::to_string(ie[1]) + "," + std::to_string(ie[2]) + "," + std::to_string(ie[3]) + "," + std::to_string(ie[4]) + "," + std::to_string(ie[5]) + "," + std::to_string(ie[6]) + "," + std::to_string(ie[7]);
+                std::string filePath = (std::filesystem::path(vaultFolderPath) / fileName).replace_extension(".txt").string();
+                std::ofstream vaultFile(filePath, std::ofstream::trunc);
+                vaultFile << vaultItemsString << std::endl;
+                vaultFile.close();
+                auto hash = GetHashVaultFile(fileName);
+                vaultFile.open(filePath, std::ios::app);
+                vaultFile << hash;
+                vaultFile.close();
+            }
+        }
+    }
+}
+
+// ensures we will only have 3 valid vault files
+void CharacterManager::KillInvalidVaultFiles(){
+    dirItr = std::filesystem::directory_iterator(vaultFolderPath);
+    std::set<std::string> filesToKeep;
+    // kill files that are of invalid format
+    for(auto& file: dirItr){
+        std::string fileName = file.path().filename().string();
+        if(!VaultFileHasValidLineCount(fileName) || !ValidateVaultFileHash(fileName)){ // delete invalid file
+            std::filesystem::remove(file.path());
+        } else if(fileName == "1.txt" || fileName == "2.txt" || fileName == "3.txt"){
+            filesToKeep.insert(fileName);
+        }
+    }
+    // create missing vault files
+    std::vector<std::string> files = {"1.txt", "2.txt", "3.txt"};
+    for(auto& x: files){
+        if(filesToKeep.find(x) == filesToKeep.end()){
+            CreateNewVaultFile(x.substr(0,1));
+        }
+    }
+
 }
 
 // kills youngest files in character directory until 3 remain regardless of validity
@@ -67,7 +164,7 @@ std::string CharacterManager::GetHashCharacterFile(const std::string& filename) 
     std::string line;
     std::string message;
     int lineCount = 0;
-    while(std::getline(file, line) && lineCount < lineNumberOfHash-1) {
+    while(std::getline(file, line) && lineCount < characterLineNumberOfHash-1) {
         for (char c : line) {
             message += std::to_string((int)c);
         }
@@ -93,7 +190,39 @@ std::string CharacterManager::GetHashCharacterFile(const std::string& filename) 
     return std::to_string(ciphertext);
 }
 
-bool CharacterManager::ValidateCharacterFile(const std::string& filename){ // checks if character file has been tampered
+std::string CharacterManager::GetHashVaultFile(const std::string& filename) {
+    std::string filePath = (std::filesystem::path(vaultFolderPath) / filename).replace_extension(".txt").string();
+    std::ifstream file(filePath);
+    std::string line;
+    std::string message;
+    int lineCount = 0;
+    while(std::getline(file, line) && lineCount < vaultLineNumberOfHash-1) {
+        for(char c : line) {
+            message += std::to_string((int)c);
+        }
+        lineCount++;
+    }
+    std::stringstream numericMessageStream;
+    for(char c : message) {
+        numericMessageStream << std::to_string((int)c);
+    }
+    std::string numericMessage = numericMessageStream.str();
+    const int chunkSize = 16; 
+    std::vector<std::string> chunks;
+    for(size_t i = 0; i < numericMessage.length(); i += chunkSize) {
+        chunks.push_back(numericMessage.substr(i, chunkSize));
+    }
+    long long ciphertext = 1;
+    for(const std::string& chunk : chunks) {
+        long long numericValue = std::stoll(chunk);
+        for (int i = 0; i < 3; ++i) {
+            ciphertext = (ciphertext * numericValue) % 36093706366919953;
+        }
+    }
+    return std::to_string(ciphertext);
+}
+
+bool CharacterManager::ValidateCharacterFileHash(const std::string& filename){ // checks if character file has been tampered
     std::string filePath = (std::filesystem::path(characterFolderPath) / filename).replace_extension(".txt").string();
     std::string currentHash = GetHashCharacterFile(filename);
     std::string storedHash;
@@ -101,13 +230,30 @@ bool CharacterManager::ValidateCharacterFile(const std::string& filename){ // ch
     std::string line;
     std::ifstream file(filePath);
     while(std::getline(file, line)) {
-        if(lineCount == lineNumberOfHash) {
+        if(lineCount == characterLineNumberOfHash) {
             storedHash = line;
             break;
         }
         lineCount++;
     }
     // std::cout << "comparing " << storedHash << " as stored with " << currentHash << " as current (" << (storedHash == currentHash) << ")" << std::endl;
+    return storedHash == currentHash;
+}
+
+bool CharacterManager::ValidateVaultFileHash(const std::string& filename){
+    std::string filePath = (std::filesystem::path(vaultFolderPath) / filename).replace_extension(".txt").string();
+    std::string currentHash = GetHashVaultFile(filename);
+    std::string storedHash;
+    int lineCount = 1;
+    std::string line;
+    std::ifstream file(filePath);
+    while(std::getline(file, line)) {
+        if(lineCount == vaultLineNumberOfHash) {
+            storedHash = line;
+            break;
+        }
+        lineCount++;
+    }
     return storedHash == currentHash;
 }
 
@@ -204,6 +350,27 @@ std::vector<int> CharacterManager::GetLineValuesFromCharacterFile(const std::str
             return res;  
         }
         lineCount++;
+    }
+    return res;
+}
+
+std::vector<int> CharacterManager::GetItemsFromVault(int vaultID){
+    std::vector<int> res;
+    std::string filePath = (std::filesystem::path(vaultFolderPath) / std::to_string(vaultID)).replace_extension(".txt").string();
+    std::string line;
+    std::string word = "";
+    std::ifstream currentFile(filePath);
+    while(std::getline(currentFile, line)){
+        for(auto c: line){
+            if(c != ','){
+                word += c;
+            } else {
+                res.push_back(stoi(word));
+                word = "";
+            }
+        }
+        res.push_back(stoi(word));
+        return res;
     }
     return res;
 }

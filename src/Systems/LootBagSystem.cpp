@@ -46,9 +46,10 @@ void LootBagSystem::Update(int my, Entity& player, std::unique_ptr<EventBus>& ev
                 bCollider.width,
                 bCollider.height)){
                     if(playerIC.holdingItemLastFrame){
-                        playerIC.holdingItemLastFrame = false; 
+                        // playerIC.holdingItemLastFrame = false; 
                         if((my > 627 && playerIC.heldItemStartingTransformComp.y < 627) || playerIC.heldItemStartingTransformComp.y > 627){
                             if(registry->HasComponent<TransformComponent>(playerIC.IdOfHeldItem)){
+                                playerIC.holdingItemLastFrame = false; //moved to here?
                                 registry->GetComponent<TransformComponent>(playerIC.IdOfHeldItem).position = playerIC.heldItemStartingTransformComp;
                                 assetStore->PlaySound(ERROR);
                             }

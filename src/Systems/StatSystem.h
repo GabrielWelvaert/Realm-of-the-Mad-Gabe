@@ -33,6 +33,7 @@ class StatSystem: public System{
     private:
 
         Xoshiro256 RNG;
+        
 
         std::unordered_map<classes, std::array<std::array<char, 2>, 8>> levelUpRanges = {
             // HP, MP, ATTACK, def, SPEED, DEXTERITY, VITALITY, WISDOM 

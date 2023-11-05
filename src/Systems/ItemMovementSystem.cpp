@@ -5,6 +5,13 @@ ItemMovementSystem::ItemMovementSystem(){
     RequireComponent<ItemComponent>();
 }
 
+/*
+This system is responsible for allowing the player to move items between loot bags, their inventory, and their equipment slots
+This system should not be marveled for its organization but only simply if you want to for its functionality; it has a plethora of repeated logic.
+It is extremely hard to read, debug, and develop. This is due to requirements developing alongside the system... truly.. spaghetti!
+https://tinyurl.com/w825uujs
+*/
+
 void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift){ // todo pass player inventory component and equipment component (use maps!)
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
@@ -25,22 +32,26 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
         }
 
         auto& sprite = entity.GetComponent<SpriteComponent>();
-        if(!shift) {shiftblock=false;}
+        // if(!shift) {
+        //     shiftblock=false;
+        
+        // }
 
         //if mouse colliding with item
         if(mx > transform.position.x && mx < transform.position.x + mb.width && my > transform.position.y && my < transform.position.y + mb.width){
             if(clicking && !playerInventory.holdingItemLastFrame){  
+                // std::cout << "first frame item hold detected; clicking and !holdingItemLastFrame" << std::endl;
                 if(shift && my > 506 && !shiftblock){ // player shift-clicked consumable item from inventory or lootbag! 
-                    // some logic and flag to block shift until its released
+                    // some logic and flag to block shift until its released. doing this is important as to not flood eventbus
                     const auto& itemEnum = entity.GetComponent<ItemComponent>().itemEnum;
                     if(static_cast<int>(itemToGroup.at(itemEnum)) >= 17){ // consumable item clicked from inventory or loot bag
-                        shiftblock = false;
+                        shiftblock = true;
                         //binary search. wee
                         if(my < 627){ // inventory 
                             if(my < 561){ 
                                 if(mx < 877){ 
                                     if(mx < 819){ //1
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1);    
                                     } else { //2
                                         eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 2);
                                     }
@@ -67,7 +78,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                                 }
                             }
                         } else { // loot bag 
-                                if(my < 686){ // 1-4
+                            if(my < 686){ // 1-4
                                 if(mx < 877){ 
                                     if(mx < 819){ //1
                                         eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1, false);
@@ -97,17 +108,18 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                                 }
                             }
                         }
-                    } else {
+                    } else { // tried to shift click non consumable
                         shiftblock = true;
                         assetStore->PlaySound(ERROR);
                     }
                     if(playerInventory.iconEntityId && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
                         // std::cout << "killing icon resetting flags because clicking occurred" << std::endl;
                         eventBus->EmitEvent<KillItemIconEvent>();
-                        playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
+                        // playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
                     }
+                    playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
                     playerInventory.holdingItemLastFrame = playerInventory.IdOfHeldItem = 0;
-                    return;
+                    return; // remove this return?
                 }
                 if(playerInventory.iconEntityId && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
                     // std::cout << "killing icon resetting flags because clicking occurred" << std::endl;
@@ -350,6 +362,9 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                 }
                 // std::cout << "restting flags because no longer hovering" << std::endl;
                 playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
+            }
+            if(playerInventory.hoveringItemLastFrame && shiftblock){
+                shiftblock = false;
             }
         }
     }
