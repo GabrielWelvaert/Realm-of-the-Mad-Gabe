@@ -9,9 +9,10 @@
 struct PlayerItemsComponent{
     std::map<unsigned char, Entity> equipment;
     std::map<unsigned char, Entity> inventory;
-    int IdOfOpenBag;
-    bool viewingBag;
+    int IdOfOpenBag = 0;
+    bool viewingBag = false;
     bool holdingItemLastFrame = false;
+    bool shiftblock;
     int IdOfHeldItem = 0;
     glm::vec2 heldItemStartingTransformComp;
 

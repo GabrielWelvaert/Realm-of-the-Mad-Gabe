@@ -15,17 +15,18 @@ https://tinyurl.com/w825uujs
 void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift){ // todo pass player inventory component and equipment component (use maps!)
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+    bool& shiftblock = playerInventory.shiftblock;
     for(auto& entity: GetSystemEntities()){ // gets all visible items (only items have mouseBoxComponent)
         const auto& mb = entity.GetComponent<MouseBoxComponent>();
         auto& transform = entity.GetComponent<TransformComponent>();
 
-        if(playerInventory.holdingItemLastFrame && playerInventory.IdOfHeldItem /*>0*/){ // are we holding an item?
+        if(playerInventory.holdingItemLastFrame /*&& playerInventory.IdOfHeldItem*/ /*>0*/){ // are we holding an item?
             if(entity.GetId() != playerInventory.IdOfHeldItem){
                 continue; // continue until we get the held item! 
             } else {
                 transform.position = {mx-mb.width/2,my-mb.height/2}; // held item follows mouse
             }
-        } else if(playerInventory.hoveringItemLastFrame && playerInventory.iconEntityId){ // if we're hovering an item, get that item
+        } else if(playerInventory.hoveringItemLastFrame){// && playerInventory.iconEntityId){ // if we're hovering an item, get that item
             if(entity.GetId() != playerInventory.hoveredItemId){
                 continue;
             }
@@ -112,7 +113,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                         shiftblock = true;
                         assetStore->PlaySound(ERROR);
                     }
-                    if(playerInventory.iconEntityId && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
+                    if(playerInventory.displayingIcon && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
                         // std::cout << "killing icon resetting flags because clicking occurred" << std::endl;
                         eventBus->EmitEvent<KillItemIconEvent>();
                         // playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
@@ -121,7 +122,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                     playerInventory.holdingItemLastFrame = playerInventory.IdOfHeldItem = 0;
                     return; // remove this return?
                 }
-                if(playerInventory.iconEntityId && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
+                if(playerInventory.displayingIcon && entity.GetId() == playerInventory.hoveredItemId){ // because item was clicked; remove icon and reset flags
                     // std::cout << "killing icon resetting flags because clicking occurred" << std::endl;
                     eventBus->EmitEvent<KillItemIconEvent>();
                     playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
@@ -169,9 +170,10 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                         return; 
                     } 
                     auto& ic = entity.GetComponent<ItemComponent>();
-                    if(mx < 750){ // TODO logic for if colliding with bag or not when dropping item
+                    if(mx < 750){ 
                         if(playerInventory.heldItemStartingTransformComp.y > 627){
                             transform.position = playerInventory.heldItemStartingTransformComp;
+                            std::cout << "moving lootbag/vault item back to " << playerInventory.heldItemStartingTransformComp.x << ", " << playerInventory.heldItemStartingTransformComp.y << std::endl;
                             assetStore->PlaySound(INVENTORY);
                             return;
                         }
@@ -356,15 +358,27 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                 }
             }
         } else { // mouse is not hovering current item from GetSystemEntities()
-            if(playerInventory.hoveredItemId && entity.GetId() == playerInventory.hoveredItemId ){ // mouse was hovering over current item last frame
-                if(playerInventory.iconEntityId){ // if we are displaying an icon, get rid of it
+            // if(playerInventory.hoveredItemId && entity.GetId() == playerInventory.hoveredItemId ){ // mouse was hovering over current item last frame
+            //     if(playerInventory.iconEntityId){ // if we are displaying an icon, get rid of it
+            //         eventBus->EmitEvent<KillItemIconEvent>();
+            //     }
+            //     // std::cout << "restting flags because no longer hovering" << std::endl;
+            //     playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
+            // }
+            // if(playerInventory.hoveringItemLastFrame && shiftblock){
+            //     shiftblock = false;
+            // }
+            
+            if(playerInventory.hoveringItemLastFrame){
+                if(playerInventory.displayingIcon){
                     eventBus->EmitEvent<KillItemIconEvent>();
                 }
-                // std::cout << "restting flags because no longer hovering" << std::endl;
                 playerInventory.hoveringItemLastFrame = playerInventory.iconEntityId = playerInventory.hoveredItemId = playerInventory.displayingIcon = false;
-            }
-            if(playerInventory.hoveringItemLastFrame && shiftblock){
-                shiftblock = false;
+                // if(shiftblock){
+                //     std::cout << "here" << std::endl;
+                //     shiftblock = false;
+                // }
+
             }
         }
     }

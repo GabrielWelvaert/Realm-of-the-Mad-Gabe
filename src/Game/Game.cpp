@@ -230,10 +230,10 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, MPPOT, lootbag);
+                            factory->createItemInBag(registry, MPPOT, lootbag);
+                            factory->createItemInBag(registry, MPPOT, lootbag);
+                            factory->createItemInBag(registry, MPPOT, lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
@@ -1254,7 +1254,7 @@ void Game::LoadPlayer(){
         }
     }
     // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
-    player.GetComponent<HPMPComponent>().activemp = 32000;
+    player.GetComponent<HPMPComponent>().activemp = 10000;
     player.GetComponent<HPMPComponent>().maxmp = 32000;
     player.GetComponent<OffenseStatComponent>().activeattack = 74;
     player.GetComponent<BaseStatComponent>().attack = 74;
@@ -1275,6 +1275,9 @@ void Game::PopulatePlayerInventoryAndEquipment(){
             registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, static_cast<items>(inventoryItems[i-1]), i);
         }
     }
+    // in the case of loading the player, we will grant them fully restored hp and mp 
+    player.GetComponent<HPMPComponent>().activehp = player.GetComponent<HPMPComponent>().maxhp;
+    player.GetComponent<HPMPComponent>().activemp = player.GetComponent<HPMPComponent>().maxmp;
 }
 
 void Game::PopulateRegistry(){

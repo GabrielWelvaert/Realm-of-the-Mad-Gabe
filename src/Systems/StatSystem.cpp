@@ -173,6 +173,7 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
 
     }
     event.assetstore->PlaySound(POTION);
+    playerIC.shiftblock = false;
     if(event.inventory){ // item from inventory
         inventory.at(event.invSlot).Kill();
         inventory.erase(event.invSlot);

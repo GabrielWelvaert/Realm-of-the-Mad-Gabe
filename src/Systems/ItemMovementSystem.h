@@ -40,7 +40,7 @@ class ItemMovementSystem: public System{
         std::vector<glm::vec2> equipPositions = {{773.5,458.5}, {830.5,458.5}, {886.5,458.5}, {942.5,458.5}};
         std::vector<glm::vec2> lootbagPositions = {{773.5, 639.5}, {830.5, 639.5}, {886.5, 639.5}, {942.5, 639.5}, {773.5, 696.5}, {830.5, 696.5}, {886.5, 696.5}, {942.5, 696.5}};
         std::vector<glm::vec2> inventoryPositions = {{773.5, 515.5}, {830.5, 515.5}, {886.5, 515.5}, {942.5, 515.5}, {773.5, 572.5}, {830.5, 572.5}, {886.5, 572.5}, {942.5, 572.5}};
-        bool shiftblock = false;
+        // bool shiftblock = false;
         std::map<unsigned char, Entity> * originbag;
 
         inline void hideIcon(std::unique_ptr<Registry>& registry, int id){
@@ -68,6 +68,7 @@ class ItemMovementSystem: public System{
             const bool& shift)
             {
             // std::cout << "spawOrMoveItemPositions called with an item from bag with original position " << item1OriginalTransformPos.x << ", " << item1OriginalTransformPos.y << std::endl;
+            // std::cout << item1pos << " " << destPos << std::endl;
             if(contents1 == destBag && item1pos == destPos) { // same spot and bag, return
                 auto& item1 = contents1.at(item1pos);
                 item1.GetComponent<TransformComponent>().position = item1OriginalTransformPos;
@@ -198,6 +199,9 @@ class ItemMovementSystem: public System{
                 contents1[item1pos] = destBag[destPos];
                 destBag[destPos] = tempitem.second;
                 assetStore->PlaySound(INVENTORY); 
+                if(item1TransformPosition == item2TranformPosition){
+                    std::cout << "broken shit detected use gdb bt" << std::endl;
+                }
             /*one item involved*/
             } else { // destination spot is vacant; move 
                 auto& item1 = contents1.at(item1pos);
