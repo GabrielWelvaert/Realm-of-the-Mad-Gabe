@@ -14,6 +14,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../EventBus/EventBus.h"
 #include "../Utils/factory.h"
+#include "../Events/PortalCollisionEvent.h"
 
 /*
 This system is responsible for parsing box-collider collision and emitting respective events
@@ -86,6 +87,17 @@ class CollisionSystem: public System {
             return (a.BelongsToGroup(LOOTBAGGROUP) && !b.BelongsToGroup(PLAYER)) ||
                    (!a.BelongsToGroup(PLAYER) && b.BelongsToGroup(LOOTBAGGROUP));
             
+        }
+
+        inline bool portalAndNotPlayer(const Entity& a, const Entity& b){
+            return (a.BelongsToGroup(PORTAL) && !b.BelongsToGroup(PLAYER)) ||
+                   (!a.BelongsToGroup(PLAYER) && b.BelongsToGroup(PORTAL));
+            
+        }
+
+        inline bool playerAndPortal(const Entity& a, const Entity& b){
+            return (a.BelongsToGroup(PLAYER) && b.BelongsToGroup(PORTAL)) ||
+                   (a.BelongsToGroup(PORTAL) && b.BelongsToGroup(PLAYER));
         }
 
         inline bool playerAndBag(const Entity& a, const Entity& b){

@@ -35,6 +35,7 @@
 #include "../Systems/StatusEffectSystem.h"
 #include "../Systems/ItemIconSystem.h"
 #include "../Systems/VaultSystem.h"
+#include "../Systems/PortalSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -131,7 +132,7 @@ void Game::Initialize(){
 }
 
 void Game::Run(bool populate){
-    Setup(populate, true, VAULT);
+    Setup(populate, true, NEXUS);
     while (isRunning){
         ProcessInput();
         Update();
@@ -176,12 +177,12 @@ void Game::ProcessInput(){
                 case SDL_KEYDOWN:
                     switch(key){
                         case SDLK_ESCAPE:{
-                            // todo save character
                             characterManager->SaveCharacter(activeCharacterID, player);
                             characterManager->SaveVaults(registry);
                             player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                             registry->killAllEntities();
-                            Run(false); // call run, but pass false to avoid re-populating assetStore etc
+                            // Run(false); // call run, but pass false to avoid re-populating assetStore etc
+                            Setup(false, true, NEXUS);
                         } break;
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
@@ -280,8 +281,9 @@ void Game::ProcessInput(){
     }
     SDL_GetMouseState(&Game::mouseX, &Game::mouseY); // call this regardless of player shooting attempt; various systems need it!
     // if(keysPressed[4]){
-    //     std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl;
+    //     std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl; 
     // }
+    // if(keysPressed[4]){std::cout << mouseX << ", " << mouseY << std::endl;}
     if(keysPressed[4]){
         if(mouseX <= 750){
             player.GetComponent<ProjectileEmitterComponent>().isShooting = true;
@@ -290,6 +292,16 @@ void Game::ProcessInput(){
                 assetStore->PlaySound(BUTTON);
                 characterManager->SaveCharacter(activeCharacterID, player);
                 Setup(false, false, NEXUS); 
+            }
+        } else if(player.GetComponent<PlayerItemsComponent>().viewingPortal && mouseY >= 685 && mouseY <= 735 && mouseX >= 800 && mouseX <= 950){
+            assetStore->PlaySound(BUTTON);
+            characterManager->SaveCharacter(activeCharacterID, player);
+            const auto& area = player.GetComponent<PlayerItemsComponent>().areaOfViewedPortal;
+            // std::cout << "portal click detected" << std::endl;
+            if(area != CHANGENAME){ 
+                Setup(false, false, area);        
+            } else if (area == CHANGENAME){
+                // todo change name event
             }
         }
     } else {
@@ -769,7 +781,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIOBJ6, "./assets/images/lofiObj6.png");
     assetStore->AddTexture(renderer, PLAYBAR, "./assets/images/playbar.png");
     assetStore->AddTexture(renderer, LOFICHAR2, "./assets/images/lofiChar2.png");
-    
+    assetStore->AddTexture(renderer, PORTALBUTTONBACKGROUND, "./assets/images/PortalButton.png");
+
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
     assetStore->AddSound(DAGGERSWING, "./assets/sounds/weapon_sounds/daggerSwing.wav");
@@ -1179,7 +1192,7 @@ void Game::LoadGui(){
     SDL_RenderClear(renderer);
 
     /* inventory slots are their own texture */
-    SDL_Texture * bagslots =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
+    SDL_Texture * bagslots = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
     SDL_SetTextureBlendMode(bagslots, SDL_BLENDMODE_BLEND);
     SDL_SetRenderTarget(renderer, bagslots);
     dstRect = {765-750, 631, invSlotDimension, invSlotDimension};
@@ -1202,10 +1215,55 @@ void Game::LoadGui(){
     Entity bagSlots = registry->CreateEntity();
     bagSlots.AddComponent<SpriteComponent>(BAGSLOTS, 250, 750, 9, 0, 0, true);
     bagSlots.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
-    bagSlots.AddComponent<InteractUIComponent>();
+    bagSlots.AddComponent<InteractUIComponent>(0);
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
 
+    /*Portal UI Components*/
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name"};
+    for(const auto& title: portalTitles){
+        SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
+        SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(renderer, portalTexture);
+        int w,h;
+        
+        // 1) rendering name to texture
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), title.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
+        dstRect = {static_cast<int>(125 - (.5 * w)), 15, w, h};
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+
+        // 2) rendering button to texture
+        std::string buttonText;
+        title == "Change Name" ? buttonText = "Click" : buttonText = "Enter";
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
+
+        // button background 
+        dstRect = {static_cast<int>(125 - (150 * .5)), 60, 150, 50};
+        srcRect = {0,0,150,50};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(PORTALBUTTONBACKGROUND), &srcRect, &dstRect);
+
+        // button text
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), buttonText.c_str(), &w, &h);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        dstRect = {static_cast<int>(125 - (w * .5)), static_cast<int>(60 + 25 - (h * .5)), w, h};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_RenderClear(renderer);
+        assetStore->AddTexture(renderer, PortalTitleToTexture.at(title), portalTexture);
+    }
+
+    Entity portal = registry->CreateEntity();
+    portal.AddComponent<SpriteComponent>(NEXUSPORTAL, 250, 250, 9, 0, 0, true);
+    portal.AddComponent<TransformComponent>(glm::vec2(750,625), glm::vec2(1.0,1.0));
+    portal.AddComponent<InteractUIComponent>(1);
+
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
     SDL_FreeSurface(ttfSurface);
 }
 
@@ -1309,6 +1367,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<StatusEffectSystem>();
     registry->AddSystem<ItemIconSystem>();
     registry->AddSystem<VaultSystem>();
+    registry->AddSystem<PortalSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -1669,7 +1728,14 @@ void Game::SpawnAreaEntities(wallTheme area){
     switch(area){
         case VAULT: { // create entities for vault chests
             factory->spawnVaultChests(registry, characterManager);
+            factory->spawnPortal(registry, glm::vec2(600, 700), NEXUS);
+            factory->spawnPortal(registry, glm::vec2(900, 700), NEXUS);
         } break;
+        case NEXUS: {
+            factory->spawnPortal(registry, glm::vec2(850, 1575), VAULT);
+            factory->spawnPortal(registry, glm::vec2(650, 1575), CHANGENAME);
+            // factory->spawnPortal(registry, glm::vec2());
+        }
         // for dungeon, spawn monsters and stuff
     }
 }
@@ -1698,6 +1764,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     registry->Update(); // because we made gui and player
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<InteractUISystem>().sort();
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
@@ -1731,6 +1798,7 @@ void Game::Update(){
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
+    registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
 }
 
 void Game::Render(){

@@ -1,12 +1,48 @@
 #include "InteractUISystem.h"
 
+/*
+This system is responsible for managing the interact-gui (lowest portion)
+ex: standing on loot bag, standing on portals
+*/
+
+// memory map of InteractUISystem
+// [0] = lootbag/vault slots 
+// [1] = portal entrance entity 
+
 InteractUISystem::InteractUISystem(){
     RequireComponent<InteractUIComponent>();
 }
 
+void InteractUISystem::sort(){
+    auto& entities = GetSystemEntities();
+    std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<InteractUIComponent>().InteractUIId < entity2.GetComponent<InteractUIComponent>().InteractUIId;});
+}
+
 void InteractUISystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
-        eventBus->SubscribeToEvent<LootBagCollisionEvent>(this, &InteractUISystem::displayBag);
+    eventBus->SubscribeToEvent<LootBagCollisionEvent>(this, &InteractUISystem::displayBag);
+    eventBus->SubscribeToEvent<PortalCollisionEvent>(this, &InteractUISystem::displayPortal);
+}
+
+/* if status is false, event.portal is NOT guaranteed to be a portal; could be some other entity.
+   This allows for portal UI to be closed when colliding w/ loot bag
+*/
+void InteractUISystem::displayPortal(PortalCollisionEvent& event){
+    Entity& portalUI = GetSystemEntities()[1];
+    auto& UIsprite = portalUI.GetComponent<SpriteComponent>();
+    auto& playerIC = event.player.GetComponent<PlayerItemsComponent>();
+    if(event.status){ // display portal UI
+        auto& portalComponent = event.portal.GetComponent<PortalComponent>();
+        UIsprite.assetId = wallThemeToPortalUITexture.at(portalComponent.area);    
+        UIsprite.zIndex = 11;
+        playerIC.idOfViewedPortal = event.portal.GetId();
+        playerIC.viewingPortal = portalComponent.isBeingViewed = true;
+        playerIC.areaOfViewedPortal = portalComponent.area;
+    } else { // hide portal UI
+        UIsprite.zIndex = 9;
+        event.registry->GetComponent<PortalComponent>(playerIC.idOfViewedPortal).isBeingViewed = false;
+        playerIC.viewingPortal = false;
     }
+}
 
 void InteractUISystem::displayBag(LootBagCollisionEvent& event){
     auto& lbc = event.lootbag.GetComponent<LootBagComponent>();

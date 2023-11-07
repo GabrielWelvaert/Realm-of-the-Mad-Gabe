@@ -6,6 +6,7 @@
 
 struct PortalComponent{
     wallTheme area;
+    bool isBeingViewed = false;
     inline PortalComponent() = default;
     inline PortalComponent(wallTheme area): area(area) {}
 };

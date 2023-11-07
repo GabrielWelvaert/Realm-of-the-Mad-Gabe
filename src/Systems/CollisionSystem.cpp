@@ -15,7 +15,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
         for (auto j = i; j != entities.end(); j++){
         
             Entity b = *j;
-            if( a==b || playerMonsterCollision(a,b) || bothAreWalls(a,b) || twoMonsters(a,b) || bothAreProjectiles(a,b) || bagAndNotPlayer(a,b) ) {continue;} 
+            if( a==b || playerMonsterCollision(a,b) || bothAreWalls(a,b) || twoMonsters(a,b) || bothAreProjectiles(a,b) || bagAndNotPlayer(a,b) || portalAndNotPlayer(a,b)) {continue;} 
             auto bTransform = b.GetComponent<TransformComponent>();
             auto bCollider = b.GetComponent<BoxColliderComponent>();
 
@@ -50,17 +50,35 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                 } else if (projectileHitSomeone(a,b) && !projectileParentGroupSameAsVictimGroup(a,b)){//no walls; someone was shot!
                     a.BelongsToGroup(PROJECTILE) ? eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory) : eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory); 
                 } else if (playerAndBag(a,b)){ // player collided with loot bag
-                    if(!player.GetComponent<PlayerItemsComponent>().viewingBag){ // only open new bag if not currently viewing a bag
+                    auto& playerIC = player.GetComponent<PlayerItemsComponent>();
+                    if(!playerIC.viewingBag){ // only open new bag if not currently viewing a bag
                         if(a.BelongsToGroup(PLAYER)){ // b is the loot bag
+                            if(playerIC.viewingPortal){
+                                eventBus->EmitEvent<PortalCollisionEvent>(false, a, b, registry); // if player is viewing portal, stop viewing portal; give lootbag priority
+                            }
                             if(!b.GetComponent<LootBagComponent>().opened){ // need not open an open bag
                                 eventBus->EmitEvent<LootBagCollisionEvent>(b, 11, true, registry, player, eventBus);
                             }
                         } else { // a is the loot bag
+                            if(playerIC.viewingPortal){
+                                eventBus->EmitEvent<PortalCollisionEvent>(false, b, a, registry); // if player is viewing portal, stop viewing portal; give lootbag priority
+                            }
                             if(!a.GetComponent<LootBagComponent>().opened){ // need not open an open bag
                                 eventBus->EmitEvent<LootBagCollisionEvent>(a, 11, true, registry, player, eventBus);
                             }
                         }
                     } 
+                } else if (playerAndPortal(a,b)){
+                    auto& playerIC = player.GetComponent<PlayerItemsComponent>();
+                    if(!playerIC.viewingBag && !playerIC.viewingPortal){ // if not already viewing bag or portal
+                        if(a.BelongsToGroup(PLAYER)){
+                            const auto& area = b.GetComponent<PortalComponent>().area;
+                            eventBus->EmitEvent<PortalCollisionEvent>(true, a, b, registry);
+                        } else {
+                            const auto& area = a.GetComponent<PortalComponent>().area;
+                            eventBus->EmitEvent<PortalCollisionEvent>(true, b, a, registry);
+                        }
+                    }
                 }
             }
             

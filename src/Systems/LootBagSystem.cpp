@@ -3,6 +3,7 @@
 LootBagSystem::LootBagSystem(){
     RequireComponent<LootBagComponent>();
     RequireComponent<BoxColliderComponent>();
+    RequireComponent<TransformComponent>();
 }
 
 void LootBagSystem::Update(int my, Entity& player, std::unique_ptr<EventBus>& eventBus, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, wallTheme area){

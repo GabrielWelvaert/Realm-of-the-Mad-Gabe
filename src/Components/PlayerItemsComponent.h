@@ -23,6 +23,11 @@ struct PlayerItemsComponent{
     int hoveredItemId = 0;
     int iconEntityId = 0;
 
+    // this component also holds info and flags about portals
+    bool viewingPortal = false;
+    wallTheme areaOfViewedPortal;
+    int idOfViewedPortal; 
+
     inline PlayerItemsComponent() = default;
 
     inline void KillPlayerItems(){

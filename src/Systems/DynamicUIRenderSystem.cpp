@@ -16,9 +16,6 @@ void DynamicUIRenderSystem::Update(SDL_Renderer* renderer, Entity player){ // pa
     const auto& HPMPstats = player.GetComponent<HPMPComponent>();
     const auto& baseStats = player.GetComponent<BaseStatComponent>();
 
-    // correct order according to stat enums is HP,MP,LVL
-    // std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DynamicUIEntityComponent>().statEnum < entity2.GetComponent<DynamicUIEntityComponent>().statEnum;});
-
     DynamicUIEntityComponent& lvlbarData = entities[2].GetComponent<DynamicUIEntityComponent>();
     SDL_SetRenderDrawColor(renderer, lvlbarData.r, lvlbarData.g, lvlbarData.b, 255);
     if(baseStats.xp < 18050){
