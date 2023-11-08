@@ -6,8 +6,12 @@
 #include "../Components/TextLabelComponent.h"
 #include "../Components/DisplayNameComponent.h"
 #include "../Events/UpdateDisplayNameEvent.h"
+#include "../Utils/Xoshiro256.h"
 
 class DisplayNameSystem: public System{
+    private:
+        Xoshiro256 RNG;
+
     public:
         DisplayNameSystem();
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
