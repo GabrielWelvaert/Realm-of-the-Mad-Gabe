@@ -15,14 +15,17 @@
 #include "../Components/LootBagComponent.h"
 #include "../ECS/ECS.h"
 #include "../Systems/VaultSystem.h"
+#include "../Utils/Xoshiro256.h"
 #include <filesystem>
 
 class CharacterManager {
     private:
+        Xoshiro256 RNG;
         const int characterLineNumberOfHash = 7; // line where hash resides in character txt file. first line is line 1. 
         const int vaultLineNumberOfHash = 2; // line where hash resides in character txt file. first line is line 1. 
         const std::string characterFolderPath = (std::filesystem::current_path() / "data/characters").string();
         const std::string vaultFolderPath = (std::filesystem::current_path() / "data/vaults").string();
+        const std::string nameFolderPath = (std::filesystem::current_path() / "data/name").string();
         std::filesystem::directory_iterator dirItr;
 
         bool CharacterFileHasValidLineCount(const std::string& filename);
@@ -50,6 +53,11 @@ class CharacterManager {
         void CreateNewVaultFile(const std::string& fileName);
         void SaveVaults(std::unique_ptr<Registry>& registry);
         std::vector<int> GetItemsFromVault(int vaultID);
+
+        // methods for name management
+        void KillInvalidNameFiles();
+        std::string GetName();
+        void SaveName(std::string name);
 };
 
 #endif

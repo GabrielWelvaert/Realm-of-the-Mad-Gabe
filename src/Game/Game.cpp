@@ -36,6 +36,7 @@
 #include "../Systems/ItemIconSystem.h"
 #include "../Systems/VaultSystem.h"
 #include "../Systems/PortalSystem.h"
+#include "../Systems/DisplayNameSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -301,7 +302,8 @@ void Game::ProcessInput(){
             if(area != CHANGENAME){ 
                 Setup(false, false, area);        
             } else if (area == CHANGENAME){
-                // todo change name event
+                eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
+                keysPressed[4] = false;
             }
         }
     } else {
@@ -937,6 +939,7 @@ void Game::PopulateAssetStore(){
 
     assetStore->AddFont("damagefont", "./assets/fonts/myriadprosemibold.ttf", 32);
     assetStore->AddFont("namefont","./assets/fonts/myriadprosemibold.ttf", 26);
+    assetStore->AddFont("namefonttiny","./assets/fonts/myriadprosemibold.ttf", 12);
     assetStore->AddFont("uifont1","./assets/fonts/myriadprosemibold.ttf", 16);
     assetStore->AddFont("statfont", "./assets/fonts/myriadpro.ttf", 15);
     assetStore->AddFont("statfont2", "./assets/fonts/myriadprosemibold.ttf", 15);
@@ -983,8 +986,9 @@ void Game::LoadGui(){
     tempMiniMap.AddComponent<SpriteComponent>(TEMPMINIMAP, 240, 240, 11, 0, 0, true); // mini map (not static!)
 
     Entity playerName = registry->CreateEntity();
-    playerName.AddComponent<TextLabelComponent>("Gabeeeeeee", "namefont", grey, true,0,0,0);
+    playerName.AddComponent<TextLabelComponent>(characterManager->GetName(), "namefont", grey, true,0,0,0);
     playerName.AddComponent<TransformComponent>(glm::vec2(800, 257)); // name. could be static, but isn't for now (will do later)
+    playerName.AddComponent<DisplayNameComponent>();
 
     Entity xpBar = registry->CreateEntity();
     xpBar.AddComponent<DynamicUIEntityComponent>(765,291, 225, 20, 87,117,32, XP);
@@ -1252,9 +1256,19 @@ void Game::LoadGui(){
         dstRect = {static_cast<int>(125 - (w * .5)), static_cast<int>(60 + 25 - (h * .5)), w, h};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
 
+        // change name instructions 
+        if(title == "Change Name"){
+            std::string instructions = "(Max 10. Type & press enter when done)";
+            ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), instructions.c_str(), white);
+            TTF_SizeText(assetStore->GetFont("namefont"), instructions.c_str(), &w, &h);
+            ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+            dstRect = {static_cast<int>(125 - (w * .5)), 736, w, h};
+            SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+        }
+
+        assetStore->AddTexture(renderer, PortalTitleToTexture.at(title), portalTexture);
         SDL_SetRenderTarget(renderer, nullptr);
         SDL_RenderClear(renderer);
-        assetStore->AddTexture(renderer, PortalTitleToTexture.at(title), portalTexture);
     }
 
     Entity portal = registry->CreateEntity();
@@ -1368,6 +1382,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<ItemIconSystem>();
     registry->AddSystem<VaultSystem>();
     registry->AddSystem<PortalSystem>();
+    registry->AddSystem<DisplayNameSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -1721,6 +1736,7 @@ void Game::PopulateEventBus(){
     registry->GetSystem<AbilitySystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<StatusEffectSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<ItemIconSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<DisplayNameSystem>().SubscribeToEvents(eventBus);
 }
 
 
@@ -1770,6 +1786,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
     LoadTileMap(area); 
     registry->Update(); // becuase we loaded the map
+    // std::cout << "at end of Game::Setup, registry has this many entities: " << registry->getNumberOfLivingEntities() << std::endl;
 }
 
 void Game::Update(){

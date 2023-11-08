@@ -183,12 +183,15 @@ enum enemyCategory{
     T, // trap
 };
 
-enum wallTheme{
+enum wallTheme{ //wall themes are used as primary keys for areas/dungeons 
     UDL,
     AOD,
     NEXUS,
     ORYX1,
-    GUILDHALL
+    GUILDHALL, //aka snake pit
+    VAULT,
+    CHICKENLAIR,
+    CHANGENAME // DONT SPAWN AREAS WITH THIS PLEASE! ITS JUST FOR CHANGE NAME 
 };
 
 enum itemPositions{
@@ -263,6 +266,7 @@ enum sprites{
     CYANLOOTBAG,
     BLUELOOTBAG,
     WHITELOOTBAG,
+    VAULTCHEST
 };
 
 enum soundEnums{
@@ -536,6 +540,7 @@ enum groups{
     LIGHTARMOR,
     HEAVYARMOR,
     RING,
+    PORTAL,
     HPPOTGROUP, // keep the groups at the end for logic in processInput
     MPPOTGROUP,
     ATTPOTGROUP,
@@ -566,6 +571,7 @@ enum textureEnums{
     LOFIPROJS,
     GUIBACKGROUND,
     LOFIENVIRONMENT,
+    LOFIENVIRONMENT2,
     LOFIOBJ4,
     TEMPMINIMAP,
     LOFIINTERFACEBIG,
@@ -754,8 +760,12 @@ enum textureEnums{
     LIFEPOTICON,
     MANAPOTICON,
     CABERNETICON,
-    FIREWATERICON
-
+    FIREWATERICON,
+    CHICKENLAIRPORTAL,
+    VAULTPORTAL,
+    NEXUSPORTAL,
+    CHANGENAMEPORTAL,
+    PORTALBUTTONBACKGROUND
 };
 
 #endif

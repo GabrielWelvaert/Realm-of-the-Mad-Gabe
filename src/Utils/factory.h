@@ -32,9 +32,12 @@
 #include "../Components/TrapAIComponent.h"
 #include "../Components/ItemTableComponent.h"
 #include "../Components/StatusEffectComponent.h"
+#include "../Components/PortalComponent.h"
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/tables.h"
+#include "../Utils/CharacterManager.h"
+#include "../AssetStore/AssetStore.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -47,7 +50,7 @@ class Factory{
 
     public:
     
-        inline Entity spawnMonster(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
+        inline Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
             Entity enemy = registry->CreateEntity();
             enemy.Group(MONSTER);
             enemy.AddComponent<HPMPComponent>(spriteEnum);
@@ -88,7 +91,7 @@ class Factory{
             return enemy;
         }
 
-        inline Entity creatLootBag(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, sprites spriteEnum){
+        inline Entity creatLootBag(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
             Entity lootbag = registry->CreateEntity();
             lootbag.AddComponent<SpriteComponent>(spriteEnum);
             lootbag.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0,5.0));
@@ -98,7 +101,7 @@ class Factory{
             return lootbag;
         }
 
-        inline void createItemInBag(std::unique_ptr<Registry>& registry, items itemEnum, Entity lootbag){
+        inline void createItemInBag(std::unique_ptr<Registry>& registry, const items& itemEnum, Entity& lootbag){
             Entity item = registry->CreateEntity();
             auto& lbc = lootbag.GetComponent<LootBagComponent>();
             item.AddComponent<SpriteComponent>(itemEnum);
@@ -107,7 +110,7 @@ class Factory{
 
         }
 
-        inline void createLootAtDeath(Entity monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
+        inline void createLootAtDeath(Entity& monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
             //optimize: dont make a bag if its not going to have any loot. store roll values. then create bag if we got something. also pass monster by const ref/
             Entity lootbag = registry->CreateEntity();
             lootbag.Group(LOOTBAGGROUP);
@@ -134,12 +137,40 @@ class Factory{
             }
         }
 
-        // todo: spawn portal ?
+        inline void spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, wallTheme area){
+            Entity portal = registry->CreateEntity();
+            const auto& sprite = wallThemeToSpriteData.at(area);
+            portal.Group(PORTAL);
+            portal.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+            portal.AddComponent<TransformComponent>(spawnpoint);
+            portal.AddComponent<BoxColliderComponent>(LOOTBAG); // same size, its fine
+            portal.AddComponent<PortalComponent>(area);
+        }
 
-        // todo: spawn player 
+        inline void spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager){
+            CharacterManager->KillInvalidVaultFiles();
+            for(int i = 0; i <= 2; i++){
+                std::vector<int> itemInts = CharacterManager->GetItemsFromVault(i+1);
+                glm::vec2 spawn = vaultSpawns[i];
+                Entity vaultChest = creatLootBag(registry, spawn, VAULTCHEST);
+                vaultChest.GetComponent<TransformComponent>().scale = glm::vec2(6.0,6.0);
+                vaultChest.AddComponent<VaultChestComponent>(i+1);
+                auto& contents = vaultChest.GetComponent<LootBagComponent>().contents;
+                for(int j = 1; j <= 8; j++){
+                    int currentInt = itemInts[j-1];
+                    if(currentInt != -1){
+                        items itemEnum = static_cast<items>(currentInt);    
+                        Entity item = registry->CreateEntity();
+                        // std::cout << "vault " << i << " item " << j << " has id " << item.GetId() << std::endl;
+                        item.AddComponent<SpriteComponent>(itemEnum);
+                        item.AddComponent<ItemComponent>(itemEnum, j, vaultChest.GetId());
+                        item.Group(itemToGroup.at(itemEnum));
+                        contents[j] = item;
+                    }
+                }
+            }
 
-        // todo: force spawn item in player inventory or equipment
-
+        }
 };
 
 #endif

@@ -16,6 +16,9 @@ CharacterManager::CharacterManager(){
     if(!std::filesystem::exists(characterFolderPath)){
         std::filesystem::create_directories(characterFolderPath);
     }
+    if(!std::filesystem::exists(nameFolderPath)){
+        std::filesystem::create_directories(nameFolderPath);
+    }
 }
 
 bool CharacterManager::CharacterFileHasValidLineCount(const std::string& filename){
@@ -76,7 +79,6 @@ void CharacterManager::KillInvalidCharacterFiles(){
 }
 
 void CharacterManager::CreateNewVaultFile(const std::string& fileName){
-    std::cout << "CreateNewVaultFile" << std::endl;
     std::string filePath = (std::filesystem::path(vaultFolderPath) / fileName).replace_extension(".txt").string();
     std::ofstream vaultFile(filePath, std::ofstream::trunc);
     vaultFile << "-1,-1,-1,-1,-1,-1,-1,-1" << std::endl;
@@ -373,4 +375,48 @@ std::vector<int> CharacterManager::GetItemsFromVault(int vaultID){
         return res;
     }
     return res;
+}
+
+void CharacterManager::KillInvalidNameFiles(){
+    dirItr = std::filesystem::directory_iterator(nameFolderPath);
+    bool nameFileExists;
+    for(auto& file: dirItr){
+        std::string fileName = file.path().filename().string();
+        if(fileName == "name.txt"){
+            nameFileExists = true;
+        } else {
+            std::filesystem::remove(file.path());
+        }
+    }
+    if(!nameFileExists){
+        std::string filePath = (std::filesystem::path(nameFolderPath) / "name").replace_extension(".txt").string();
+        std::ofstream nameFile(filePath, std::ofstream::trunc);
+        nameFile << defaultNames[RNG.randomFromRange(0, defaultNames.size()-1)];
+        nameFile.close();
+    }
+}
+
+void CharacterManager::SaveName(std::string name){
+    KillInvalidNameFiles();
+    std::string filePath = (std::filesystem::path(nameFolderPath) / "name").replace_extension(".txt").string();
+    std::ofstream nameFile(filePath, std::ofstream::trunc);
+    nameFile << name;
+    nameFile.close();
+}
+
+std::string CharacterManager::GetName(){
+    KillInvalidNameFiles();
+    std::string filePath = (std::filesystem::path(nameFolderPath) / "name").replace_extension(".txt").string();
+    std::ifstream file(filePath);
+    std::string line;
+    while(std::getline(file, line)){break;}
+    std::string name = "";
+    for(const auto& c: line){
+        if(name.size() == 10){
+            return name;
+        }
+        name.push_back(c);
+    }
+    return name;
+
 }
