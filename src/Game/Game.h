@@ -9,6 +9,7 @@
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/enums.h"
 #include "../Utils/factory.h"
+#include "../Utils/room.h"
 #include "../Utils/CharacterManager.h"
 
 const int FPS = 60;
@@ -33,13 +34,16 @@ class Game{
         std::vector<int> inventoryIconIds;
         std::vector<int> equipmentIconIds;
         std::string activeCharacterID; // ID for saving character
+        std::vector<room> dungeonRooms;
+        int bossRoomId;
+        bool test = false; 
 
     public:
         Game();
         ~Game();
         void Initialize();
         void Run(bool populate);
-        void Setup(bool populate, bool mainmenus, wallTheme area = NEXUS);
+        void Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bool menuTwo, bool menuThree);
         void ProcessInput();
         void Update();
         void Render();
@@ -53,10 +57,11 @@ class Game{
         void PopulateRegistry();
         void PopulatePlayerInventoryAndEquipment();
         void PopulateEventBus();
-        void MainMenus();
+        void MainMenus(bool menuOne, bool menuTwo, bool menuThree);
         void Background();
         void PopulateItemIconsInAssetStore();
         void SpawnAreaEntities(wallTheme area);
+        std::vector<std::vector<int>> GenerateMap(const wallTheme& wallTheme);
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();

@@ -3,6 +3,7 @@
 
 #include "../Components/BaseStatComponent.h"
 #include "../Utils/enums.h"
+#include "../Utils/Xoshiro256.h"
 
 struct SpeedStatComponent{
     unsigned char activespeed;
@@ -13,9 +14,9 @@ struct SpeedStatComponent{
 
     inline SpeedStatComponent(BaseStatComponent bsc) : activespeed(bsc.speed) {}
 
-    inline SpeedStatComponent(sprites spriteEnum){
+    inline SpeedStatComponent(sprites spriteEnum, Xoshiro256& RNG){
         statData data = spriteEnumToStatData.at(spriteEnum);
-        this->activespeed = data.activespeed;
+        this->activespeed = RNG.randomSmediumModification(data.activespeed);
     }
 };
 

@@ -7,7 +7,7 @@ ProjectileMovementSystem::ProjectileMovementSystem(){
 }
 
 void ProjectileMovementSystem::Update(const double& deltaTime){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         auto& transform = entity.GetComponent<TransformComponent>();
         auto& rigidbody = entity.GetComponent<RidigBodyComponent>();
         transform.position.x += rigidbody.velocity.x * deltaTime;

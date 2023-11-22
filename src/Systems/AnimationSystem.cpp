@@ -11,7 +11,7 @@ AnimationSystem::AnimationSystem(){
 }
 
 void AnimationSystem::Update(SDL_Rect camera){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         auto& animation = entity.GetComponent<AnimationComponent>();
         auto& sprite = entity.GetComponent<SpriteComponent>();
         const auto& transform = entity.GetComponent<TransformComponent>();

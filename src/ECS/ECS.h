@@ -257,6 +257,7 @@ class Registry {
         bool IdBelongsToGroup(int Id, const groups& group) const;
         std::vector<Entity> GetEntitiesByGroup(const groups& group) const;
         void RemoveEntityGroup(Entity entity);
+        inline groups IdToGroup(int id){return groupPerEntity.at(id);}
 
         unsigned int GetCreationIdFromEntityId(unsigned int Id) const;
         unsigned int getCurrentCreationId() const {return creationId;};

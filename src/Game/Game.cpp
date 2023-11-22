@@ -37,6 +37,8 @@
 #include "../Systems/VaultSystem.h"
 #include "../Systems/PortalSystem.h"
 #include "../Systems/DisplayNameSystem.h"
+#include "../Utils/room.h"
+#include <queue>
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -125,15 +127,21 @@ void Game::Initialize(){
     if(debug){
         SDL_RendererInfo rendererInfo;
         SDL_GetRendererInfo(renderer, &rendererInfo);
-        // std::cout << "SDL_GetCurrentVideoDriver() = " << SDL_GetCurrentVideoDriver() << std::endl;
-        // std::cout << "SDL_GetRendererInfo() = " << rendererInfo.name << std::endl;
+        std::cout << "SDL_GetCurrentVideoDriver() = " << SDL_GetCurrentVideoDriver() << std::endl;
+        std::cout << "SDL_GetRendererInfo() = " << rendererInfo.name << std::endl;
+
+        int maxTextureWidth = rendererInfo.max_texture_width;
+        int maxTextureHeight = rendererInfo.max_texture_height;
+
+        printf("Maximum Texture Width: %d\n", maxTextureWidth);
+        printf("Maximum Texture Height: %d\n", maxTextureHeight);
     }
 
     isRunning = true; 
 }
 
 void Game::Run(bool populate){
-    Setup(populate, true, NEXUS);
+    Setup(populate, true, NEXUS, true, false, false);
     while (isRunning){
         ProcessInput();
         Update();
@@ -157,7 +165,8 @@ SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
 int invetoryNumber;
-
+static int chicken = 0;
+std::vector<sprites> chickens = { TINYWHITECHICKEN, TINYREDCHICKEN, COCKATRICE, WHITECHICKEN, ROOSTER, BIGROOSTER, BIGTURKEY, BOSSCHICKEN, ROBOTURKEY, ORANGETURKEY, YELLOWTURKEY, CYANTURKEY };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
@@ -182,8 +191,7 @@ void Game::ProcessInput(){
                             characterManager->SaveVaults(registry);
                             player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                             registry->killAllEntities();
-                            // Run(false); // call run, but pass false to avoid re-populating assetStore etc
-                            Setup(false, true, NEXUS);
+                            Setup(false, true, NEXUS, true, false, false);
                         } break;
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
@@ -222,7 +230,7 @@ void Game::ProcessInput(){
                         case SDLK_f:{
                             if(currentArea != NEXUS){
                                 characterManager->SaveCharacter(activeCharacterID, player);
-                                Setup(false, false, NEXUS);    
+                                Setup(false, false, NEXUS, true, false, false);    
                             }
                         } break;
                         case SDLK_LSHIFT:
@@ -242,13 +250,13 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
-                            player.GetComponent<BaseStatComponent>().xp += 100000;
+                            player.GetComponent<SpeedStatComponent>().activespeed = 255;
+                            player.GetComponent<BaseStatComponent>().speed = 50;
                         } break;
                         case SDLK_MINUS:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            std::vector<sprites> monsters = {SKELETON0, SKELETON1, SKELETON2, SKELETON3, SKELETON4, REDKNIGHT0, SHATTERSBOMB};
-                            int index = RNG.randomFromRange(0, monsters.size()-1);
-                            factory->spawnMonster(registry, spawnpoint, monsters[index]);    
+                            player.GetComponent<SpeedStatComponent>().activespeed = 20;
+                            player.GetComponent<BaseStatComponent>().speed = 20;
+
                         } break;
                         default:
                             break;
@@ -292,19 +300,41 @@ void Game::ProcessInput(){
             if(currentArea != NEXUS){
                 assetStore->PlaySound(BUTTON);
                 characterManager->SaveCharacter(activeCharacterID, player);
-                Setup(false, false, NEXUS); 
+                Setup(false, false, NEXUS, true, false, false); 
             }
         } else if(player.GetComponent<PlayerItemsComponent>().viewingPortal && mouseY >= 685 && mouseY <= 735 && mouseX >= 800 && mouseX <= 950){
             assetStore->PlaySound(BUTTON);
             characterManager->SaveCharacter(activeCharacterID, player);
             const auto& area = player.GetComponent<PlayerItemsComponent>().areaOfViewedPortal;
-            // std::cout << "portal click detected" << std::endl;
-            if(area != CHANGENAME){ 
-                Setup(false, false, area);        
-            } else if (area == CHANGENAME){
-                eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
-                keysPressed[4] = false;
+            keysPressed[4] = false;
+            switch(area){
+                case CHANGENAME:{ // player wants to change name 
+                    eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
+                } break;
+                case CHANGECHAR:{ // player wants to change character
+                    characterManager->SaveCharacter(activeCharacterID, player);
+                    characterManager->SaveVaults(registry);
+                    player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                    registry->killAllEntities();
+                    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+                    Setup(false, true, NEXUS, true, false, false);
+                } break;
+                default:{ // portal is actually a door to another area (vault, dungeon)
+                    Setup(false, false, area, true, false, false);
+                } break;
             }
+            // if(area != CHANGENAME){ 
+            //     Setup(false, false, area);        
+            // } else if (area == CHANGENAME){
+            //     eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
+            //     keysPressed[4] = false;
+            // } else if (area == CHANGECHAR){
+            //     characterManager->SaveCharacter(activeCharacterID, player);
+            //     characterManager->SaveVaults(registry);
+            //     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+            //     registry->killAllEntities();
+            //     Setup(false, true, NEXUS, false, true, false);
+            // }
         }
     } else {
         player.GetComponent<ProjectileEmitterComponent>().isShooting = false;
@@ -323,6 +353,320 @@ struct Vec2Hash { // used in LoadTileMap algorithm
     }
 };
 
+std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
+    bool success = false;
+    std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
+    while(!success){
+        auto mapGenParams = wallThemeToMapGenerationData.at(wallTheme)[RNG.randomFromRange(0, wallThemeToMapGenerationData.at(wallTheme).size()-1)];
+        int mapSizeTiles = RNG.randomSmallModification(mapGenParams.mapSizeTiles);
+        int numRooms = RNG.randomSmallModification(mapGenParams.numRooms);
+        int roomSizeTiles = RNG.randomSmallModification(mapGenParams.roomSizeTiles);
+        wallData wallData = wallThemeToWallData.at(wallTheme);
+        int wall = stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
+        int alpha = stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
+        int ceiling = stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
+        int floor = stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
+        int numRoomsCreated = 0;
+        int x,y,w,h, distance;
+        // std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
+        std::vector<room> rooms; // can be indexed by id
+        std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find loops and furthest room
+        std::vector<SDL_Rect> hallways;
+        bool BFSCompleted = false;
+        std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
+        int bossRoomGenerationAttempts = 0;
+        
+        // roomSizeTiles = RNG.randomFromRange(10,30);
+        numRooms = RNG.randomFromRange(5,50);
+        // numRooms = 1;
+
+        roomsIdsInOrderOfDepth.reserve(numRooms);
+        // step 1: generate genesis room
+        // w = RNG.randomSmallModification(roomSizeTiles);
+        // h = RNG.randomSmallModification(roomSizeTiles);
+
+        w = h = RNG.randomFromRange(10,15);
+        x = mapSizeTiles / 2;
+        y = mapSizeTiles / 2;
+        room genesisRoom(numRoomsCreated, -1, x, y, w, h);
+        rooms.push_back(genesisRoom);
+        numRoomsCreated++;
+
+        int idOfMaxX = 0; // room that has farthest x + w position
+        int idOfMinX = 0; // room that has smallest x position
+        int idOfMaxY = 0; // room that has farthetst y + h position
+        int idOfMinY = 0; // rooom that has smallest y position 
+
+        int valueOfMaxX = genesisRoom.x + genesisRoom.w;
+        int valueOfMinX = genesisRoom.x;
+        int valueOfMaxY = genesisRoom.y + genesisRoom.h;
+        int valueOfMinY = genesisRoom.y;
+
+        // step 2: generate all children rooms
+        while(numRoomsCreated <= numRooms){
+            roomSizeTiles = RNG.randomFromRange(9,15);
+
+            // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
+            int IdOfParentRoom;
+            if(numRoomsCreated == numRooms - 1){ // last room, make it boss room (furthest from genesis)
+                if(!BFSCompleted){ // BFS so we know which rooms are furthest from genesis room
+                    std::unordered_set<int> visited = {0};
+                    std::queue<int> queue;
+                    queue.push(0); // starting node is genesis room which has id 0  
+                    while(!queue.empty()){
+                        int currentRoomId = queue.front();
+                        queue.pop();
+                        roomsIdsInOrderOfDepth.push_back(currentRoomId);
+                        for(int adjacent: graph.at(currentRoomId)){
+                            if(visited.find(adjacent) == visited.end()){
+                                visited.insert(adjacent);
+                                queue.push(adjacent);
+                            }
+                        }
+                    }
+                    BFSCompleted = true;
+                } 
+                if(bossRoomGenerationAttempts == 10){ // if boss room generation fails with furthest room 10 times, try next furthest room!
+                    bossRoomGenerationAttempts = 0;
+                    roomsIdsInOrderOfDepth.pop_back();
+                }
+                bossRoomGenerationAttempts++;
+                IdOfParentRoom = roomsIdsInOrderOfDepth.back();
+                w = 15;
+                h = 15;
+                distance = RNG.randomFromRange(8,12);
+            } else { // not last room, use any room as parent room
+                IdOfParentRoom = RNG.randomFromRange(0, rooms.size()-1);
+                w = RNG.randomSmallModification(roomSizeTiles);
+                h = RNG.randomSmallModification(roomSizeTiles);
+                distance = RNG.randomFromRange(6,12);    
+            }
+            const auto& pr = rooms[IdOfParentRoom]; // pr = parent room
+            cardinalDirection direction = static_cast<cardinalDirection>(RNG.randomFromRange(0,3));
+
+            // 2.3) make the room as an offshoot of parent in cardnial direction; acquire x and y positions
+            switch(direction){
+                case N:{ 
+                    x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
+                    y = RNG.randomFromRange(pr.y - distance - h, pr.y - h - 4);
+                } break;
+                case S:{ 
+                    x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
+                    y = RNG.randomFromRange(pr.y + pr.h + 4, pr.y + pr.h + distance);
+                } break;
+                case E:{
+                    x = RNG.randomFromRange(pr.x + pr.w + 4, pr.x + pr.w + distance);
+                    y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
+                } break;
+                case W:{ 
+                    x = RNG.randomFromRange(pr.x - distance - w, pr.x - w - 4);
+                    y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
+                } break;
+            }
+            room room(numRoomsCreated, pr.id, x,y,w,h);
+
+            // 2.4) delete room if colliding with another room or if out-of-bounds
+            bool validRoom = true;
+            for(const auto& b: rooms){
+                // if(b.id == room.id){continue;}
+                if(room.x < b.x + b.w + 4 && room.x + room.w > b.x - 4 && room.y < b.y + b.h + 4 && room.y + room.h > b.y - 4){
+                    validRoom = false;
+                    break;
+                }
+            }
+            if(validRoom && !(room.x <= 0 + mapSizeTiles && room.x + room.w >= 0 && room.y <= 0 + mapSizeTiles && room.y + room.h >= 0)){
+                validRoom = false;
+            } 
+
+            // 2.5) save or delete the room
+            if(validRoom){
+                numRoomsCreated++;
+            } else {
+                continue; // invalid room; restart step 2 to try again!
+            }
+
+            // check if this room is new border room for all 4 directions
+            if(room.x + room.w > valueOfMaxX){ // furthest east room
+                valueOfMaxX = room.x + room.w;
+                idOfMaxX = room.id;
+            }
+            if(room.x < valueOfMinX){ // furthest west room
+                valueOfMinX = room.x;
+                idOfMinX = room.id;
+            }
+            if(room.y + room.h > valueOfMaxY){ // furthest south room
+                valueOfMaxY = room.y + room.h;
+                idOfMaxY = room.y + room.h;
+            }
+            if(room.y < valueOfMinY){ // furthest north room
+                valueOfMinY = room.y;
+                idOfMinY = room.id;
+            }
+
+            // 2.6) add a hallway to connect child room to parent room
+            int x,y,w,h;
+            int xmax,xmin,ymin,ymax;
+            SDL_Rect hallway;
+            switch(direction){
+                case N:{
+                    h = distance;
+                    y = room.y + room.h;
+                    xmin = std::max(pr.x, room.x);
+                    xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
+                    x = RNG.randomFromRange(xmin, xmax);
+                    hallway = {x,y-1,3,h+3};
+                } break;
+                case S:{
+                    h = distance;
+                    y = pr.y + pr.h;
+                    xmin = std::max(pr.x, room.x);
+                    xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
+                    x = RNG.randomFromRange(xmin, xmax);
+                    hallway = {x,y-1,3,h+3};
+                } break;
+                case E:{
+                    w = distance;
+                    x = pr.x + pr.w;
+                    ymin = std::max(room.y, pr.y);
+                    ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
+                    y = RNG.randomFromRange(ymin,ymax);
+                    hallway = {x-1,y,w+3,3};
+                } break;
+                case W:{
+                    w = distance;
+                    x = room.x + room.w;
+                    ymin = std::max(room.y, pr.y);
+                    ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
+                    y = RNG.randomFromRange(ymin,ymax);
+                    hallway = {x-1,y,w+3,3};
+                } break;
+            }
+            hallways.push_back(hallway);
+            graph[pr.id].emplace(room.id);
+            graph[room.id].emplace(pr.id);
+            rooms.push_back(room);
+
+        } // end of while loop to make rooms
+
+        // step 3: remove all empty rows and columns; size the map accordingly
+        for(auto& room: rooms){ // sliding rooms over to so we dont have empty W columns or N rows 
+            room.x -= valueOfMinX - 3;  // -3 makes small border for later padding 
+            room.y -= valueOfMinY - 3;
+        }
+        for(auto& hallway: hallways){ // sliding hallways over to so we dont have empty W columns or N rows
+            hallway.x -= valueOfMinX - 3;
+            hallway.y -= valueOfMinY - 3;
+        }
+
+        // save data for game member fields; later used to spawn enemies
+        bossRoomId = roomsIdsInOrderOfDepth.back();
+        dungeonRooms = rooms;
+
+        // step 4: set player to spawn in genesis room
+        const auto& spawnRoom = rooms[0];
+        playerSpawn = glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+
+        // step 5: draw rooms to the map
+        map.resize(valueOfMaxY - valueOfMinY + 5, std::vector<int>(valueOfMaxX - valueOfMinX + 5, alpha));
+        for(const auto& room: rooms){ //adding rooms to the map
+            for(int y = room.y; y < room.y + room.h - 1; y++){
+                for(int x = room.x; x < room.x + room.w - 1; x++){
+                    map[y][x] = floor;
+                }
+            }
+        }
+        for(const auto& hallway: hallways){ //adding hallways to the map
+            for(int y = hallway.y; y < hallway.y + hallway.h - 1; y++){
+                for(int x = hallway.x; x < hallway.x + hallway.w - 1; x++){
+                    map[y][x] = floor;
+                }
+            }
+        }
+
+        // step 6: add walls and ceilings around perimeter of map
+        glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
+        glm::ivec2 mapItr = endPos; 
+        bool wallFail = false;
+        while(true){
+            x = mapItr.x;
+            y = mapItr.y;
+            int right = map[y][x+1];
+            int left = map[y][x-1];
+            int above = map[y-1][x];
+            int below = map[y+1][x];
+            int bottomleft = map[y+1][x-1];
+            int toptopright = map[y-2][x+1];
+            if(below == alpha && (right == floor || right == wall)){ // south traversal: floor on right && ceiling above
+                map[y][x] = ceiling;
+                mapItr.y ++;
+            } else if(right == alpha && (above == floor || above == ceiling)){ // east traversal: alpha on right 
+                map[y][x] = ceiling;
+                if(below != ceiling){
+                    map[y+1][x] = wall; 
+                }
+                mapItr.x ++;
+            } else if(above == alpha && (left == floor || (left == ceiling && below == alpha))){ // north traversal: alpha above and on right
+                if((right == wall && left == floor && toptopright == alpha)
+                || ((left == floor) && below == floor && right == ceiling)){
+                    map[y][x] = wall;
+                } else {
+                    map[y][x] = ceiling;
+                }
+                if(left == ceiling && below == alpha && right == alpha){
+                    map[y+1][x] = wall; 
+                }
+                mapItr.y --;
+            } else if(left == alpha ){ // west traversal
+                if(glm::ivec2(x,y+1) == endPos){ 
+                    map[y-1][x] = ceiling;
+                    map[y][x] = ceiling;
+                    break;
+                }
+                map[y-1][x] = ceiling; 
+                if(below == floor){
+                    map[y][x] = wall;
+                } else if(below == ceiling || below == wall){
+                    map[y][x] = ceiling;
+                } 
+                if(bottomleft == alpha){
+                    map[y-1][x-1] = ceiling;
+                }
+                mapItr.x --;
+            } else {
+                wallFail = true;
+                break;
+            }
+        } 
+        if(!wallFail){
+            success = true;    
+        }
+
+        // visual debugging (prints all rooms as rectangles on screen): 
+        // SDL_RenderClear(renderer);
+        // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        // SDL_Rect roomRect = {0,0,1000,750};
+        // SDL_RenderFillRect(renderer, &roomRect);
+        // for(const auto& c: hallways){
+        //     SDL_SetRenderDrawColor(renderer, 50,255,255, 255);
+        //     SDL_RenderFillRect(renderer, &c);
+        // }
+        // for(const auto& c: rooms){
+        //     SDL_Rect roomRect = {c.x, c.y, c.w, c.h};
+        //     if(c.id == rooms.back().id){
+        //         SDL_SetRenderDrawColor(renderer, 50,125,0, 125);
+        //     } else if(c.id == 0){
+        //         SDL_SetRenderDrawColor(renderer, 50,125,125, 0);
+        //     } else {
+        //         SDL_SetRenderDrawColor(renderer, 50,255,255, 255);    
+        //     }
+        //     SDL_RenderFillRect(renderer, &roomRect);
+        // }
+        // SDL_RenderPresent(renderer);
+
+    }
+    return map;
+}
+
 /*
 LoadTileMap version 2.
 Params: 1) wallTheme enum 2) path to .map file
@@ -340,7 +684,8 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             map = vaultMap;
         }break;
         default:{
-            //todo call a procedural map generation method
+            map = GenerateMap(CHICKENLAIR);
+            // map = GenerateMap(wallTheme);
         }break;
     }
     std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
@@ -426,6 +771,10 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 }
             }
             if(isFloor){ // floor tile
+                if(wallTheme == CHICKENLAIR && currentCoord.x == 1 && currentCoord.y ==6 ){ // random floor tile 
+                    srcRect.x = RNG.randomFromRange(1,5) * tileSize;
+                    // srcRect.y = 6 * tileSize;
+                }
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
                 // if floor is grass, 1/16 chance to add render decoration (like flowers) on top of it
@@ -451,6 +800,9 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
     assetStore->AddTexture(renderer, BIGWALL, bigWallTexture);
     assetStore->AddTexture(renderer, BIGCEILING, bigCeilingTexture);
     assetStore->AddTexture(renderer, BIGFLOOR, bigFloorTexture);
+    int textureWidth, textureHeight;
+    SDL_QueryTexture(assetStore->GetTexture(BIGFLOOR), NULL, NULL, &textureWidth, &textureHeight);
+    std::cout << "big floor has dimensions " << textureWidth << ", " << textureHeight << std::endl;
     bigWallEntity.AddComponent<SpriteComponent>(BIGWALL, mapWidth, mapheight, 3, 0,0,0);
     bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
     bigFloorEntity.AddComponent<SpriteComponent>(BIGFLOOR, mapWidth, mapheight, 0, 0,0,0);
@@ -539,11 +891,12 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             const auto& position = ceilingCoordinateToPos.at(group[1]);
             Entity wallbox = registry->CreateEntity();
             wallbox.AddComponent<TransformComponent>(position);
-            wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
+            wallbox.AddComponent<BoxColliderComponent>(scale, group.size()  * scale); // -1 because bottom ceiling doesnt need because wall there?
             wallbox.Group(WALLBOX);
             group.clear();
         }
     }
+    // exit(1);
 }
 
 void Game::PopulateItemIconsInAssetStore(){
@@ -565,7 +918,7 @@ void Game::PopulateItemIconsInAssetStore(){
             onConsumption.append(consumableItemToInfo.at(itemEnum));
             info.push_back(onConsumption);
         }else{ // not consumable item; has more complicated info 
-            if(itemEnumToStatData.find(itemEnum) != itemEnumToStatData.end()){ // item gives player stat bonus
+            if(itemEnumToStatData.find(itemEnum) != itemEnumToStatData.end() && !itemEnumToStatData.at(itemEnum).itemProvidesNoStats()){ // item gives player stat bonus
                 std::string onEquip = "On Equip:";
                 auto statData = itemEnumToStatData.at(itemEnum);
                 std::vector<int> stats = {static_cast<int>(statData.hp),static_cast<int>(statData.mp),static_cast<int>(statData.attack),static_cast<int>(statData.defense),static_cast<int>(statData.speed),static_cast<int>(statData.dexterity),static_cast<int>(statData.vitality),static_cast<int>(statData.wisdom)};
@@ -784,6 +1137,9 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, PLAYBAR, "./assets/images/playbar.png");
     assetStore->AddTexture(renderer, LOFICHAR2, "./assets/images/lofiChar2.png");
     assetStore->AddTexture(renderer, PORTALBUTTONBACKGROUND, "./assets/images/PortalButton.png");
+    assetStore->AddTexture(renderer, CHARS8X8BEACH, "./assets/images/chars8x8rBeach.png");
+    assetStore->AddTexture(renderer, CHARS8X8ENCOUNTERS, "./assets/images/chars8x8rEncounters.png");
+    assetStore->AddTexture(renderer, CHARS16X16ENCOUNTERS, "./assets/images/chars16x16rEncounters.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -1224,7 +1580,7 @@ void Game::LoadGui(){
     SDL_RenderClear(renderer);
 
     /*Portal UI Components*/
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name"};
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1240,7 +1596,7 @@ void Game::LoadGui(){
 
         // 2) rendering button to texture
         std::string buttonText;
-        title == "Change Name" ? buttonText = "Click" : buttonText = "Enter";
+        title == "Change Name" || title == "Change Character" ? buttonText = "Click" : buttonText = "Enter";
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
         TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
 
@@ -1271,6 +1627,7 @@ void Game::LoadGui(){
         SDL_RenderClear(renderer);
     }
 
+    // This entity has its sprite component updated to reflect what portal is being collided with!
     Entity portal = registry->CreateEntity();
     portal.AddComponent<SpriteComponent>(NEXUSPORTAL, 250, 250, 9, 0, 0, true);
     portal.AddComponent<TransformComponent>(glm::vec2(750,625), glm::vec2(1.0,1.0));
@@ -1282,7 +1639,7 @@ void Game::LoadGui(){
 }
 
 void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
-    factory->spawnMonster(registry, spawnpoint, spriteEnum);
+factory->spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
 void Game::LoadPlayer(){
@@ -1326,12 +1683,12 @@ void Game::LoadPlayer(){
         }
     }
     // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
-    player.GetComponent<HPMPComponent>().activemp = 10000;
-    player.GetComponent<HPMPComponent>().maxmp = 32000;
-    player.GetComponent<OffenseStatComponent>().activeattack = 74;
-    player.GetComponent<BaseStatComponent>().attack = 74;
-    player.GetComponent<SpeedStatComponent>().activespeed = 50;
-    player.GetComponent<BaseStatComponent>().speed = 50;
+    // player.GetComponent<HPMPComponent>().activemp = 10000;
+    // player.GetComponent<HPMPComponent>().maxmp = 32000;
+    // player.GetComponent<OffenseStatComponent>().activeattack = 74;
+    // player.GetComponent<BaseStatComponent>().attack = 74;
+    // player.GetComponent<SpeedStatComponent>().activespeed = 255;
+    // player.GetComponent<BaseStatComponent>().speed = 50;
 }
 
 void Game::PopulatePlayerInventoryAndEquipment(){
@@ -1548,9 +1905,8 @@ std::vector<Entity> Game::loadMenuThree(){
     return disposables;
 }
 
-void Game::MainMenus(){ // could take bool args to load just menu 2 for example
-
-    std::vector<Entity> menuonedisposables = loadMenuOne();
+void Game::MainMenus(bool menuOne, bool menuTwo, bool menuThree){ // could take bool args to load just menu 2 for example
+    std::vector<Entity> menuonedisposables = {};
     std::vector<Entity> menutwodisposables = {};
     std::vector<Entity> menuthreedisposables = {};
     SDL_Event sdlEvent;
@@ -1562,14 +1918,26 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
     bool killMenuThree = false;
     bool mainmenutwo = false;
     bool mainmenuthree = false;
-    bool mainmenuone = true;
+    bool mainmenuone = false;
     bool softreset = false;
-    
+
     characterManager->KillInvalidCharacterFiles();
     characterManager->KillExcessCharacterFiles();
 
     int numcharacters = characterManager->GetFileCountInCharacterDirectory();
     std::string selectedCharacterID = "";
+
+    if(menuOne){
+        menuonedisposables = loadMenuOne();
+        mainmenuone = true;
+    } else if(menuTwo){
+        menutwodisposables = loadMenuTwo(numcharacters);
+        mainmenutwo = true;
+    } else if(menuThree){
+        menuthreedisposables = loadMenuThree();
+        mainmenuthree = true;
+    }
+    
 
     for(;;){ // main menus 
         if(numcharacters != characterManager->GetFileCountInCharacterDirectory() && !killMenuThree){ // user created or deleted files in character directory in menus
@@ -1748,15 +2116,22 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(900, 700), NEXUS);
         } break;
         case NEXUS: {
-            factory->spawnPortal(registry, glm::vec2(850, 1575), VAULT);
+            factory->spawnPortal(registry, glm::vec2(850, 1575), CHANGECHAR);
             factory->spawnPortal(registry, glm::vec2(650, 1575), CHANGENAME);
-            // factory->spawnPortal(registry, glm::vec2());
-        }
+            factory->spawnPortal(registry, glm::vec2(750, 1675), VAULT);
+            factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
+            factory->spawnPortal(registry, glm::vec2(750,600), CHICKENLAIR); //todo dungeon 2
+            factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
+            // 750, 600
+        } break;
+        default:{
+            factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
+        } break;
         // for dungeon, spawn monsters and stuff
     }
 }
 
-void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts 
+void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bool menuTwo, bool menuThree){ // after initialize and before actual game loop starts 
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
@@ -1770,13 +2145,12 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     }
     if(mainmenus){
         Background();
-        MainMenus();        
+        MainMenus(menuOne,menuTwo,menuThree);        
     }
-    SpawnAreaEntities(area);
+    // SpawnAreaEntities(area);
     registry->Update();
-    playerSpawn = wallThemeToSpawnPoint.at(area);
     LoadPlayer();
-    LoadGui();
+    LoadGui(); // LoadGui requires player to be loaded first; it uses player's classnameComponent
     registry->Update(); // because we made gui and player
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
@@ -1784,9 +2158,19 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
-    LoadTileMap(area); 
+    LoadTileMap(area);
+    SpawnAreaEntities(area); 
     registry->Update(); // becuase we loaded the map
-    // std::cout << "at end of Game::Setup, registry has this many entities: " << registry->getNumberOfLivingEntities() << std::endl;
+    switch(area){ // if nexus or vault, spawnpoint is static; so acquire it (otherwise, it was assigned in GenerateMap())
+        case NEXUS:
+        case VAULT:{
+            playerSpawn = wallThemeToSpawnPoint.at(area);
+        } break;
+    }
+    auto& transform = player.GetComponent<TransformComponent>();
+    transform.position = playerSpawn;
+    camera.x = transform.position.x - (camera.w/2 - 20);
+    camera.y = transform.position.y - (camera.h/2 - 20);
 }
 
 void Game::Update(){
@@ -1807,7 +2191,7 @@ void Game::Update(){
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
-    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, player, factory);
+    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
@@ -1832,7 +2216,7 @@ void Game::Render(){
     SDL_RenderPresent(renderer); 
 }
 
-void Game::Destory(){
+void Game::Destory(){ // destroy... or destory
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     registry->GetSystem<RenderTextSystem>().killTextures();

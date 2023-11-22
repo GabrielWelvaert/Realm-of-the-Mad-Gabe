@@ -11,6 +11,7 @@ struct AbilityComponent{
     Uint32 timeLastUsed;
     int mpRequired = 20;
     int coolDownMS = 500;
+    bool blockNoManaSound = false;
 
     inline AbilityComponent() = default;
 

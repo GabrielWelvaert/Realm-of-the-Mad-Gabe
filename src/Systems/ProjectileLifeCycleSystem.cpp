@@ -5,7 +5,7 @@ ProjectileLifeCycleSystem::ProjectileLifeCycleSystem(){
 }
 
 void ProjectileLifeCycleSystem::Update(){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         auto projectile = entity.GetComponent<ProjectileComponent>();
         if(SDL_GetTicks() - projectile.startTime > projectile.duration){
             entity.Kill();

@@ -33,7 +33,7 @@ void ProjectileEmitSystem::onPlayerEquippedWeapon(WeaponEquipEvent& event){
 }
 
 void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect camera, int mx, int my, glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore) {
-    for (auto entity: GetSystemEntities()){
+    for (auto& entity: GetSystemEntities()){
         auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
         if(PEC.isShooting && PEC.shots > 0){
             if (SDL_GetTicks() - PEC.lastEmissionTime > PEC.repeatFrequency){ // shoot time; emit projectile!
@@ -68,7 +68,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                     parentGroupEnumInt = 4; // hardcoded. must be changed if groups enum is altered!
                     // damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
                 } else{
-                    rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x, playerPos.y+8, originVelocity, isDiagonal); 
+                    rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, playerPos.x+20, playerPos.y+8, originVelocity, isDiagonal); 
                     parentGroupEnumInt = 0; // hardcoded. must be changed if groups enum is altered!
                     damage = PEC.damage;
                     

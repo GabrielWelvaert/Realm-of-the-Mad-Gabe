@@ -6,7 +6,7 @@ RenderMouseBoxSystem::RenderMouseBoxSystem(){
 }
 
 void RenderMouseBoxSystem::Update(SDL_Renderer* renderer, SDL_Rect camera){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& transform = entity.GetComponent<TransformComponent>();
         const auto& collider = entity.GetComponent<MouseBoxComponent>();
 

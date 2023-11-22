@@ -6,7 +6,7 @@ CameraMovementSystem::CameraMovementSystem(){
 }
 
 void CameraMovementSystem::Update(SDL_Rect& camera, int mapheight, int mapwidth){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& transform = entity.GetComponent<TransformComponent>();
 
         // change camera x and y based off of entity transform x y

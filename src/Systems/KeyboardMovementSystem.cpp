@@ -12,6 +12,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     auto& animation = player.GetComponent<AnimationComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     const auto& pec = player.GetComponent<ProjectileEmitterComponent>();
+    auto& ac = player.GetComponent<AbilityComponent>(); 
 
     int move = moves[keysPressed];
 
@@ -21,7 +22,10 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
         Uint32 time = SDL_GetTicks();
         if(ac.abilityEquipped && ( ac.timeLastUsed == 0 || time >= ac.timeLastUsed + ac.coolDownMS) ){ // if ability item equipped and not in cooldown
             if(activemp < ac.mpRequired){ // if not enough mana
-                assetStore->PlaySound(NOMANA);
+                if(!ac.blockNoManaSound){
+                    assetStore->PlaySound(NOMANA);
+                    ac.blockNoManaSound = true;
+                }
             } else { // else, we have enough mana: evoke ability
                 const auto& classname = player.GetComponent<ClassNameComponent>().classname;
                 switch(classname){ 
@@ -46,6 +50,8 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                 }
             }
         }
+    } else {
+        ac.blockNoManaSound = false;
     }
 
     // update stuff based off direction of travel
@@ -152,7 +158,11 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     } else {
         const auto& activespeed = player.GetComponent<SpeedStatComponent>().activespeed;
         auto& asc = player.GetComponent<AnimatedShootingComponent>();
-        animation.frameSpeedRate = activespeed/10;
+        if(activespeed < 10){
+            animation.frameSpeedRate = 1;
+        } else {
+            animation.frameSpeedRate = activespeed/10;    
+        }
         asc.animatedShooting = false;
     }
 

@@ -3,6 +3,7 @@
 
 #include "../Utils/enums.h"
 #include "../Utils/tables.h"
+#include "../Utils/Xoshiro256.h"
 
 struct ChaseAIComponent{
     unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
@@ -11,11 +12,11 @@ struct ChaseAIComponent{
 
     inline ChaseAIComponent() = default;
 
-    inline ChaseAIComponent(sprites se){
+    inline ChaseAIComponent(sprites se, Xoshiro256& RNG){
         auto data = spritesToaiChaseData.at(se);
         auto pec = spriteEnumToPEC.at(se);
         this->engageRange = (pec.projectileSpeed * pec.duration / 1000);
-        this->maxDistance = data.maxDistance;
+        this->maxDistance = RNG.randomSmediumModification(data.maxDistance);
         data.detectRange < engageRange ? this->detectRange = engageRange : this->detectRange = data.detectRange;
     }
 };

@@ -25,7 +25,7 @@ ChaseAISystem::ChaseAISystem(){
 }
 
 void ChaseAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -72,7 +72,7 @@ NeutralAISystem::NeutralAISystem(){
 }
 
 void NeutralAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -99,7 +99,7 @@ TrapAISystem::TrapAISystem(){
 }
 
 void TrapAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         auto& aidata = entity.GetComponent<TrapAIComponent>();
@@ -133,7 +133,7 @@ AnimatedChaseAISystem::AnimatedChaseAISystem(){
 }
 
 void AnimatedChaseAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -207,7 +207,7 @@ AnimatedNeutralAISystem::AnimatedNeutralAISystem(){
 }
 
 void AnimatedNeutralAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
