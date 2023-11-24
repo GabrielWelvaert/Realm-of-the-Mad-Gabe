@@ -5,7 +5,7 @@ CollisionSystem::CollisionSystem(){
     RequireComponent<TransformComponent>();
 }
 
-void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera) {
+void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
     auto& entities = GetSystemEntities();
     const int x = 500; // 500 pixels off camera is around 8 tiles past the bounds of the camera
     for(auto i = entities.begin(); i != entities.end(); i++){
@@ -128,8 +128,9 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                             }
                         } break;
                         case PROJECTILE:{
-                            if(b.GetComponent<ProjectileComponent>().parentGroupEnumInt == 0){ // 0 = player shot this projectile
-                                eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory); // 1st is projectile 
+                            if(b.GetComponent<ProjectileComponent>().parentGroupEnumInt == 0){ // 0 = monster shot this projectile
+                                eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile 
+                                if(deadPlayer.level > 0){return;}
                             }
                         } break;
                         case WALLBOX:{
@@ -142,7 +143,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                     switch(Bgroup){
                         case PROJECTILE:{ // b is projectile
                             if(b.GetComponent<ProjectileComponent>().parentGroupEnumInt == 4){ // 4 = player shot this projectile
-                                eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory); // 1st is projectile 
+                                eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile 
                             }
                         } break;
                         case WALLBOX:{ // b is wall
@@ -154,12 +155,13 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                     switch(Bgroup){
                         case PLAYER:{
                             if(a.GetComponent<ProjectileComponent>().parentGroupEnumInt == 0){ // 0 = monster shot this projectile
-                                eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory); // 1st is projectile 
+                                eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile
+                                if(deadPlayer.level > 0){return;} 
                             }
                         } break;
                         case MONSTER:{
                             if(a.GetComponent<ProjectileComponent>().parentGroupEnumInt == 4){ // 4 = monster shot this projectile
-                                eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory); // 1st is projectile 
+                                eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile 
                             }
                         } break;
                         case WALLBOX:{

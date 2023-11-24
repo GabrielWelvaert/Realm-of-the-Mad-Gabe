@@ -40,6 +40,9 @@ struct ProjectileEmitterComponent{
     statuses statusEffect = QUIET;
     unsigned short durationMS = 0;
 
+    //sprites 
+    sprites spriteOfParent;
+
     inline ProjectileEmitterComponent() = default;
 
     inline ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
@@ -95,6 +98,7 @@ struct ProjectileEmitterComponent{
         this->boxwidth = pecdata.boxwidth;
         this->boxheight = pecdata.boxheight;
         this->boxoffset = pecdata.boxoffset;
+        this->spriteOfParent = spriteEnum;
     }
 
     // used for player. updates will occur when equipping items 

@@ -17,14 +17,16 @@ struct ProjectileComponent {
     statuses statsusEffect = QUIET;
     unsigned short SEdurationMS = 0;
 
+    sprites spriteOfParent;
+
     inline ProjectileComponent() = default;
 
-    inline ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
+    inline ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, sprites spriteOfParent, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
         damage(damage), 
         duration(duration), 
         piercing(piercing), 
         parent(parent), 
-        // not an argument!:
+        spriteOfParent(spriteOfParent),
         startTime(SDL_GetTicks()), 
         parentGroupEnumInt(parentGroupEnumInt),
         inflictsStatusEffect(inflictsStatusEffect),

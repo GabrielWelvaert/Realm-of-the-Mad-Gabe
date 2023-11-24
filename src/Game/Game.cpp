@@ -39,6 +39,7 @@
 #include "../Systems/DisplayNameSystem.h"
 #include "../Utils/room.h"
 #include <queue>
+#include <ctime>
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -141,7 +142,7 @@ void Game::Initialize(){
 }
 
 void Game::Run(bool populate){
-    Setup(populate, true, NEXUS, true, false, false);
+    Setup(populate, true, NEXUS);
     while (isRunning){
         ProcessInput();
         Update();
@@ -150,7 +151,7 @@ void Game::Run(bool populate){
 }
 
 // some things used by ProcessInput:
-std::bitset<5> keysPressed; // mb,d,s,a,w
+// std::bitset<5> keysPressed; // mb,d,s,a,w
 std::unordered_map<SDL_Keycode, int> keyindex = {
     {SDLK_w, 0}, 
     {SDLK_a, 1}, 
@@ -191,7 +192,7 @@ void Game::ProcessInput(){
                             characterManager->SaveVaults(registry);
                             player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                             registry->killAllEntities();
-                            Setup(false, true, NEXUS, true, false, false);
+                            Setup(false, true, NEXUS);
                         } break;
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
@@ -230,7 +231,7 @@ void Game::ProcessInput(){
                         case SDLK_f:{
                             if(currentArea != NEXUS){
                                 characterManager->SaveCharacter(activeCharacterID, player);
-                                Setup(false, false, NEXUS, true, false, false);    
+                                Setup(false, false, NEXUS);    
                             }
                         } break;
                         case SDLK_LSHIFT:
@@ -306,7 +307,7 @@ void Game::ProcessInput(){
             if(currentArea != NEXUS){
                 assetStore->PlaySound(BUTTON);
                 characterManager->SaveCharacter(activeCharacterID, player);
-                Setup(false, false, NEXUS, true, false, false); 
+                Setup(false, false, NEXUS); 
             }
         } else if(player.GetComponent<PlayerItemsComponent>().viewingPortal && mouseY >= 685 && mouseY <= 735 && mouseX >= 800 && mouseX <= 950){
             assetStore->PlaySound(BUTTON);
@@ -323,10 +324,10 @@ void Game::ProcessInput(){
                     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
                     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
-                    Setup(false, true, NEXUS, true, false, false);
+                    Setup(false, true, NEXUS);
                 } break;
                 default:{ // portal is actually a door to another area (vault, dungeon)
-                    Setup(false, false, area, true, false, false);
+                    Setup(false, false, area);
                 } break;
             }
         }
@@ -1287,6 +1288,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddFont("statfont2", "./assets/fonts/myriadprosemibold.ttf", 15);
     assetStore->AddFont("mpb","./assets/fonts/myriadprobold.ttf", 64);
     assetStore->AddFont("mpb2","./assets/fonts/myriadprobold.ttf", 128);
+    assetStore->AddFont("mpb32","./assets/fonts/myriadprobold.ttf", 32);
+    assetStore->AddFont("damagefont1", "./assets/fonts/myriadprosemibold.ttf", 32);
     assetStore->AddFont("damagefont2", "./assets/fonts/myriadprosemibold.ttf", 48);
     assetStore->AddFont("damagefont3", "./assets/fonts/myriadprosemibold.ttf", 16);
     assetStore->AddFont("iconNameFont", "./assets/fonts/myriadpro.ttf", 28);
@@ -1801,6 +1804,52 @@ std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is pr
     return {oryxIcon, rot, mg, bar, play};
 }
 
+std::vector<Entity> Game::loadDeathMenu(){ // main menu where all you can do is press play
+    int w,h;
+    // player icon 
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    Entity playerIcon = registry->CreateEntity();
+    SDL_Rect srcRect = {8*0,24 * deadPlayer.className,8,8};
+    playerIcon.AddComponent<SpriteComponent>(PLAYERS, 8, 8, srcRect, 10, true, false);
+    playerIcon.AddComponent<TransformComponent>(glm::vec2(340.0,50.0), glm::vec2(40.0,40.0));
+
+    // bullets surrounding player
+
+    // playerName, level X className
+    Entity rot = registry->CreateEntity();
+    std::string classname = classesToString.at(deadPlayer.className);
+    std::string playername = characterManager->GetName();
+    playername.erase(std::remove_if(playername.begin(), playername.end(), ::isspace), playername.end());
+    std::string firstText = playername + ", Level " + std::to_string(deadPlayer.level) + " " + classname;
+    TTF_SizeText(assetStore->GetFont("damagefont2"), firstText.c_str(), &w, &h);
+    rot.AddComponent<TextLabelComponent>(firstText, "damagefont2", white, true, 1,0,0);
+    rot.AddComponent<TransformComponent>(glm::vec2(500 - w / 2,400.0));
+
+    // killed on Nov 1, 2000 by a monsterName
+    Entity mg = registry->CreateEntity();
+    time_t currentTime = time(nullptr);
+    tm* timeInfo = localtime(&currentTime);
+    char formattedDate[9]; // "DD/MM/YY\0"
+    strftime(formattedDate, sizeof(formattedDate), "%m/%d/%y", timeInfo);
+    std::string secondText = "Killed on " + static_cast<std::string>(formattedDate) + " by a " + spriteToName.at(deadPlayer.murderer);
+    TTF_SizeText(assetStore->GetFont("damagefont2"), secondText.c_str(), &w, &h);
+    mg.AddComponent<TextLabelComponent>(secondText, "damagefont2", white, true, 1, 0, 0);
+    mg.AddComponent<TransformComponent>(glm::vec2(500 - w / 2,450));
+    
+    Entity bar = registry->CreateEntity();
+    srcRect = {0,0,1000,75};
+    bar.AddComponent<SpriteComponent>(PLAYBAR, 1000,75, srcRect, 10, true, false);
+    bar.AddComponent<TransformComponent>(glm::vec2(0,650), glm::vec2(1.0,0.9));
+    Entity play = registry->CreateEntity();
+    TTF_SizeText(assetStore->GetFont("damagefont2"), "continue", &w, &h);
+    play.AddComponent<TextLabelComponent>("continue", "damagefont2", white, true, 1,0,0);
+    play.AddComponent<TransformComponent>(glm::vec2(500 - w / 2, 659.75));
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
+    registry->Update();
+    return {playerIcon, rot, mg, bar, play};
+}
+
 std::vector<Entity> Game::loadMenuTwo(int numcharacters){
     Entity loadCharacter = registry->CreateEntity();
     loadCharacter.AddComponent<TextLabelComponent>("Load Character", "damagefont2", white, true, 1,0,0 );
@@ -1889,7 +1938,7 @@ std::vector<Entity> Game::loadMenuThree(){
     return disposables;
 }
 
-void Game::MainMenus(bool menuOne, bool menuTwo, bool menuThree){ // could take bool args to load just menu 2 for example
+void Game::MainMenus(){ // could take bool args to load just menu 2 for example
     std::vector<Entity> menuonedisposables = {};
     std::vector<Entity> menutwodisposables = {};
     std::vector<Entity> menuthreedisposables = {};
@@ -1902,7 +1951,7 @@ void Game::MainMenus(bool menuOne, bool menuTwo, bool menuThree){ // could take 
     bool killMenuThree = false;
     bool mainmenutwo = false;
     bool mainmenuthree = false;
-    bool mainmenuone = false;
+    bool mainmenuone = true;
     bool softreset = false;
 
     characterManager->KillInvalidCharacterFiles();
@@ -1911,15 +1960,12 @@ void Game::MainMenus(bool menuOne, bool menuTwo, bool menuThree){ // could take 
     int numcharacters = characterManager->GetFileCountInCharacterDirectory();
     std::string selectedCharacterID = "";
 
-    if(menuOne){
+    if(deadPlayer.level > 0){ // player has died
+        //todo load death screen shit
+        menuonedisposables = loadDeathMenu();
+        keysPressed.reset();
+    } else{
         menuonedisposables = loadMenuOne();
-        mainmenuone = true;
-    } else if(menuTwo){
-        menutwodisposables = loadMenuTwo(numcharacters);
-        mainmenutwo = true;
-    } else if(menuThree){
-        menuthreedisposables = loadMenuThree();
-        mainmenuthree = true;
     }
     
 
@@ -1993,7 +2039,7 @@ void Game::MainMenus(bool menuOne, bool menuTwo, bool menuThree){ // could take 
                 }
                 SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
                 if(mainmenuone){ // first main menu: title art and select character
-                    if(mouseX > 456 && mouseX < 544 && mouseY > 660 && mouseY < 716){ // clicked play
+                    if(mouseX > 400 && mouseX < 600 && mouseY > 660 && mouseY < 716){ // clicked play
                         killMenuOne = true;
                         assetStore->PlaySound(BUTTON);
                     }
@@ -2115,7 +2161,7 @@ void Game::SpawnAreaEntities(wallTheme area){
     }
 }
 
-void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bool menuTwo, bool menuThree){ // after initialize and before actual game loop starts 
+void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts 
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
@@ -2129,7 +2175,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bo
     }
     if(mainmenus){
         Background();
-        MainMenus(menuOne,menuTwo,menuThree);        
+        MainMenus();        
     }
     // SpawnAreaEntities(area);
     registry->Update();
@@ -2155,7 +2201,6 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bo
     transform.position = playerSpawn;
     camera.x = transform.position.x - (camera.w/2 - 20);
     camera.y = transform.position.y - (camera.h/2 - 20);
-    deltaTime = 0; // after loading dungeon, deltaTime will be high, so set it to 0 
 }
 
 void Game::Update(){
@@ -2177,7 +2222,7 @@ void Game::Update(){
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
-    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera);
+    registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();

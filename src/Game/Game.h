@@ -11,6 +11,7 @@
 #include "../Utils/factory.h"
 #include "../Utils/room.h"
 #include "../Utils/CharacterManager.h"
+#include "../Utils/deadPlayer.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -33,17 +34,18 @@ class Game{
         Xoshiro256 RNG;
         std::vector<int> inventoryIconIds;
         std::vector<int> equipmentIconIds;
-        std::string activeCharacterID; // ID for saving character
+        std::string activeCharacterID = "-1"; // ID for saving character; -1 means not selected, 0 means dead character
         std::vector<room> dungeonRooms;
         int bossRoomId;
         bool test = false; 
+        deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE};
 
     public:
         Game();
         ~Game();
         void Initialize();
         void Run(bool populate);
-        void Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bool menuTwo, bool menuThree);
+        void Setup(bool populate, bool mainmenus, wallTheme area);
         void ProcessInput();
         void Update();
         void Render();
@@ -57,7 +59,7 @@ class Game{
         void PopulateRegistry();
         void PopulatePlayerInventoryAndEquipment();
         void PopulateEventBus();
-        void MainMenus(bool menuOne, bool menuTwo, bool menuThree);
+        void MainMenus();
         void Background();
         void PopulateItemIconsInAssetStore();
         void SpawnAreaEntities(wallTheme area);
@@ -65,6 +67,7 @@ class Game{
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();
+        std::vector<Entity> loadDeathMenu();
         double deltaTime;
        
         static int windowWidth;
@@ -75,6 +78,7 @@ class Game{
         static int mouseY;
         glm::vec2 playerSpawn = glm::vec2(750, 1575);
         wallTheme currentArea = NEXUS;
+        std::bitset<5> keysPressed;
 };
 
 #endif

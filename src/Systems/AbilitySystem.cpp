@@ -43,7 +43,7 @@ void AbilitySystem::onQuiverUse(QuiverUseEvent& event){
     projectile.AddComponent<SpriteComponent>(quiver.texture, 8, 8, quiver.srcRect, 3, false, true);
     projectile.AddComponent<BoxColliderComponent>(8,8,glm::vec2(16,16));
     projectile.AddComponent<TransformComponent>(glm::vec2(playerpos.x, playerpos.y+10), glm::vec2(6.0,6.0), rotationDegrees);
-    projectile.AddComponent<ProjectileComponent>(damage, 1000, true, player, 4, true, quiver.debuff, 3000);
+    projectile.AddComponent<ProjectileComponent>(damage, 1000, true, player, 4, NONESPRITE, true, quiver.debuff, 3000);
     projectile.Group(PROJECTILE);
     
 }

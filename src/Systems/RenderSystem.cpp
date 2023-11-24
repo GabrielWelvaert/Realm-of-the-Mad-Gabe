@@ -25,7 +25,7 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
 
     });
 
-    for (auto entity: entities){
+    for (auto& entity: entities){
         const auto& transform = entity.GetComponent<TransformComponent>();
         const auto& sprite = entity.GetComponent<SpriteComponent>();
 

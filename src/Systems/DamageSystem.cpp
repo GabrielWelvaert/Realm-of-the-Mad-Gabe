@@ -44,6 +44,10 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
         deathSoundId = victimHPMPComponent.deathsound;
     }
 
+    /*
+    Just want to go on record and say the following code has duplicated logic. dont ask me why I did it this way. 
+    */
+
     // piercing logic, inflict damage, play hit noise
     if(projectileComponent.piercing){
         if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) == projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
@@ -82,7 +86,16 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                         itc.hasAlreadySpawnedBag = true;
                     }
                 }
-            } // else if player is dead.. todo... 
+            } else if(event.victim.BelongsToGroup(PLAYER)){ // player dead
+                event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
+                event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
+                event.dp.murderer = projectileComponent.spriteOfParent;
+                event.characterManager->KillCharacter(event.activeCharacterID);
+                event.registry->killAllEntities();
+                event.assetStore->PlaySound(DEATH);
+                event.Setup(false, true, NEXUS);
+                return;
+            }
         } 
 
     } else { // projectile doesnt pierce; destroy projectile
@@ -120,7 +133,16 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                     itc.hasAlreadySpawnedBag = true;
                 }
             }
-        } // else if player is dead.. todo... 
+        } else if(event.victim.BelongsToGroup(PLAYER)){ // player dead
+            event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
+            event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
+            event.dp.murderer = projectileComponent.spriteOfParent;
+            event.characterManager->KillCharacter(event.activeCharacterID);
+            event.registry->killAllEntities();
+            event.assetStore->PlaySound(DEATH);
+            event.Setup(false, true, NEXUS);
+            return;
+        } 
 
         projectileComponent.damage = -1; // pixel-perfect AABB will collide with all entities in-place; use -1 as flag to break next collision for this projectile
         event.projectile.Kill();

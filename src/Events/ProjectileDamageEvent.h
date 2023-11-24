@@ -8,6 +8,7 @@
 #include "../Events/LevelUpEvent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Utils/factory.h"
+#include "../Utils/deadPlayer.h"
 
 class ProjectileDamageEvent : public Event {
 public:
@@ -17,9 +18,13 @@ public:
     std::unique_ptr<Registry>& registry;
     std::unique_ptr<AssetStore>& assetStore; 
     std::unique_ptr<Factory>& factory;
+    std::function<void(bool, bool, wallTheme)> Setup;
+    deadPlayer& dp;
+    std::string& activeCharacterID;
+    std::unique_ptr<CharacterManager>& characterManager;
 
-    inline ProjectileDamageEvent(Entity projectile, Entity victim, std::unique_ptr<EventBus>& eventBus,std::unique_ptr<Registry>& registry,std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Factory>& factory)
-        : projectile(projectile), victim(victim), eventBus(eventBus), registry(registry), assetStore(assetStore), factory(factory){
+    inline ProjectileDamageEvent(Entity projectile, Entity victim, std::unique_ptr<EventBus>& eventBus,std::unique_ptr<Registry>& registry,std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Factory>& factory,std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& dp, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager)
+        : projectile(projectile), victim(victim), eventBus(eventBus), registry(registry), assetStore(assetStore), factory(factory), Setup(Setup), dp(dp), activeCharacterID(activeCharacterID), characterManager(characterManager) {
     }
 };
 
