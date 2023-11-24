@@ -22,7 +22,7 @@ This system is responsible for
 
 class LootBagSystem: public System{
     private:
-        const Uint32 bagLifeTimeMs = 30000;
+        const Uint32 bagLifeTimeMs = 60000;
 
         inline bool CheckAABBCollision(double ax, double ay, double aw, double ah, double bx, double by, double bw, double bh){
             return (

@@ -65,6 +65,7 @@ class Game{
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();
+        double deltaTime;
        
         static int windowWidth;
         static int windowHeight;

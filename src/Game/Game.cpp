@@ -250,8 +250,14 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
-                            player.GetComponent<SpeedStatComponent>().activespeed = 255;
-                            player.GetComponent<BaseStatComponent>().speed = 50;
+                            int x,y;
+                            std::cout << std::endl;
+                            std::cin >> x; 
+                            std::cout << std::endl;
+                            std::cin >> y;
+                            auto& pos = player.GetComponent<TransformComponent>().position;
+                            pos.x = x;
+                            pos.y = y;
                         } break;
                         case SDLK_MINUS:{
                             player.GetComponent<SpeedStatComponent>().activespeed = 20;
@@ -323,18 +329,6 @@ void Game::ProcessInput(){
                     Setup(false, false, area, true, false, false);
                 } break;
             }
-            // if(area != CHANGENAME){ 
-            //     Setup(false, false, area);        
-            // } else if (area == CHANGENAME){
-            //     eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
-            //     keysPressed[4] = false;
-            // } else if (area == CHANGECHAR){
-            //     characterManager->SaveCharacter(activeCharacterID, player);
-            //     characterManager->SaveVaults(registry);
-            //     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
-            //     registry->killAllEntities();
-            //     Setup(false, true, NEXUS, false, true, false);
-            // }
         }
     } else {
         player.GetComponent<ProjectileEmitterComponent>().isShooting = false;
@@ -357,34 +351,22 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
     bool success = false;
     std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
     while(!success){
-        auto mapGenParams = wallThemeToMapGenerationData.at(wallTheme)[RNG.randomFromRange(0, wallThemeToMapGenerationData.at(wallTheme).size()-1)];
-        int mapSizeTiles = RNG.randomSmallModification(mapGenParams.mapSizeTiles);
-        int numRooms = RNG.randomSmallModification(mapGenParams.numRooms);
-        int roomSizeTiles = RNG.randomSmallModification(mapGenParams.roomSizeTiles);
         wallData wallData = wallThemeToWallData.at(wallTheme);
         int wall = stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
         int alpha = stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
         int ceiling = stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
         int floor = stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
         int numRoomsCreated = 0;
-        int x,y,w,h, distance;
-        // std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
+        int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
         std::vector<room> rooms; // can be indexed by id
         std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find loops and furthest room
         std::vector<SDL_Rect> hallways;
         bool BFSCompleted = false;
         std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
         int bossRoomGenerationAttempts = 0;
-        
-        // roomSizeTiles = RNG.randomFromRange(10,30);
-        numRooms = RNG.randomFromRange(5,50);
-        // numRooms = 1;
-
+        mapSizeTiles = 750; 
+        numRooms = RNG.randomFromRange(15,30);
         roomsIdsInOrderOfDepth.reserve(numRooms);
-        // step 1: generate genesis room
-        // w = RNG.randomSmallModification(roomSizeTiles);
-        // h = RNG.randomSmallModification(roomSizeTiles);
-
         w = h = RNG.randomFromRange(10,15);
         x = mapSizeTiles / 2;
         y = mapSizeTiles / 2;
@@ -403,7 +385,7 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
         int valueOfMinY = genesisRoom.y;
 
         // step 2: generate all children rooms
-        while(numRoomsCreated <= numRooms){
+        while(numRoomsCreated < numRooms){
             roomSizeTiles = RNG.randomFromRange(9,15);
 
             // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
@@ -684,8 +666,10 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             map = vaultMap;
         }break;
         default:{
-            map = GenerateMap(CHICKENLAIR);
-            // map = GenerateMap(wallTheme);
+            while(map.size() == 0 || map[0].size() > 341 || map.size() > 341){
+                map = GenerateMap(wallTheme);    
+            }
+            // map = GenerateMap(wallTheme);  
         }break;
     }
     std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
@@ -801,8 +785,10 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
     assetStore->AddTexture(renderer, BIGCEILING, bigCeilingTexture);
     assetStore->AddTexture(renderer, BIGFLOOR, bigFloorTexture);
     int textureWidth, textureHeight;
-    SDL_QueryTexture(assetStore->GetTexture(BIGFLOOR), NULL, NULL, &textureWidth, &textureHeight);
-    std::cout << "big floor has dimensions " << textureWidth << ", " << textureHeight << std::endl;
+    // if(wallTheme != NEXUS && wallTheme != VAULT){
+    //     SDL_QueryTexture(assetStore->GetTexture(BIGFLOOR), NULL, NULL, &textureWidth, &textureHeight);
+    //     std::cout << "big floor has dimensions " << textureWidth << ", " << textureHeight << std::endl;    
+    // }
     bigWallEntity.AddComponent<SpriteComponent>(BIGWALL, mapWidth, mapheight, 3, 0,0,0);
     bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
     bigFloorEntity.AddComponent<SpriteComponent>(BIGFLOOR, mapWidth, mapheight, 0, 0,0,0);
@@ -1683,10 +1669,7 @@ void Game::LoadPlayer(){
         }
     }
     // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
-    // player.GetComponent<HPMPComponent>().activemp = 10000;
-    // player.GetComponent<HPMPComponent>().maxmp = 32000;
-    // player.GetComponent<OffenseStatComponent>().activeattack = 74;
-    // player.GetComponent<BaseStatComponent>().attack = 74;
+
     // player.GetComponent<SpeedStatComponent>().activespeed = 255;
     // player.GetComponent<BaseStatComponent>().speed = 50;
 }
@@ -1740,6 +1723,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<VaultSystem>();
     registry->AddSystem<PortalSystem>();
     registry->AddSystem<DisplayNameSystem>();
+    registry->AddSystem<BossAISystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2171,12 +2155,13 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool menuOne, bo
     transform.position = playerSpawn;
     camera.x = transform.position.x - (camera.w/2 - 20);
     camera.y = transform.position.y - (camera.h/2 - 20);
+    deltaTime = 0; // after loading dungeon, deltaTime will be high, so set it to 0 
 }
 
 void Game::Update(){
-    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+    deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
     millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
-    
+    // if(deltaTime > 30){return;}
     registry->Update();
 
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
@@ -2186,6 +2171,7 @@ void Game::Update(){
     registry->GetSystem<ChaseAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<NeutralAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
+    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory);
     registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);

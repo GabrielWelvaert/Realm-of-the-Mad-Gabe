@@ -232,3 +232,94 @@ void AnimatedNeutralAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetS
         }
     }
 }
+
+BossAISystem::BossAISystem(){
+    RequireComponent<AnimatedShootingComponent>();
+    RequireComponent<BossAIComponent>();
+    RequireComponent<AnimationComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<ProjectileEmitterComponent>();
+    RequireComponent<HPMPComponent>();
+    RequireComponent<RidigBodyComponent>();
+}
+
+void BossAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory){
+    for(auto& entity: GetSystemEntities()){
+        const auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        auto& aidata = entity.GetComponent<BossAIComponent>();
+        auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+        auto& ac = entity.GetComponent<AnimationComponent>();
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        const auto& hp = entity.GetComponent<HPMPComponent>().activehp;
+        auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
+        if(!aidata.activated){
+            float distanceToPlayer = getDistanceToPlayer(position, playerPos);
+            if(distanceToPlayer <= aidata.detectRange){
+                aidata.activated = true; 
+            }
+            return; // boss will activate next frame
+        } 
+        switch(aidata.bossType){
+            case BOSSCHICKEN: { 
+                if(pec.isShooting == false){
+                    asc.animatedShooting = true;
+                    pec.isShooting = true;
+                    ac.xmin = 4;
+                    ac.numFrames = 2; 
+                    ac.currentFrame = 1;
+                    ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                    pec.lastEmissionTime += pec.repeatFrequency / 2;
+                }
+                if(hp > aidata.secondPhase){ // first phase
+                    glm::vec2 currentDestPos = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                    if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; change destination
+                        aidata.phaseOneIndex ++;
+                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                            aidata.phaseOneIndex = 0;
+                        }    
+                    } 
+                    chasePlayer(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
+
+                } else if(hp < aidata.survival){ // survival phase
+                    if(!aidata.flag0){
+                        pec.shots = 8;
+                        pec.arcgap = 48;
+                        aidata.flag0 = true;
+                        assetStore->PlaySound(EGGSDEATH);
+                        for(int i = 0; i <= 4; i++){
+                            factory->spawnMonster(registry, aidata.phaseTwoPositions[i], WHITECHICKEN);
+                        }
+                    }
+                    if(std::abs(position.x - playerPos.x) <= 3 && std::abs(position.y - playerPos.y) <= 3){
+                        velocity.x = velocity.y = 0.0;
+                    } else {
+                        chasePlayer(position, playerPos, velocity);    
+                    }
+
+                } else { // second phase 
+                    speed = 50;
+                    pec.shots = 5;
+                    Uint32 time = SDL_GetTicks();
+                    glm::vec2 currentDestPos = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                    if(aidata.timer0 + 1500 < time || aidata.timer0 == 0){
+                        int oldIndex = aidata.phaseTwoIndex;
+                        while(aidata.phaseTwoIndex == oldIndex){
+                            aidata.phaseTwoIndex = RNG.randomFromRange(0,4);    
+                        }
+                        aidata.timer0 = time;
+                    } 
+                    if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; dont move
+                        velocity.x = velocity.y = 0.0;
+                    } else{
+                        chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);    
+                    }
+                    // chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                }
+            } break;
+        }
+        playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+    }
+}

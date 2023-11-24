@@ -21,6 +21,8 @@
 #include "../Components/SpriteComponent.h"
 #include "../Components/HPMPComponent.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Components/BossAIComponent.h"
+#include "../Utils/factory.h"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -77,4 +79,14 @@ class AnimatedNeutralAISystem: public System{
 
         void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
 };
+
+class BossAISystem: public System{
+    private:
+        Xoshiro256 RNG;
+
+    public:
+        BossAISystem();
+        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
+};
+
 #endif 
