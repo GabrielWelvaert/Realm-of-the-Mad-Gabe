@@ -9,6 +9,8 @@
 #include "../../libs/SDL2/SDL.h"
 #include <memory>
 #include <map>
+#include <string>
+#include "../Utils/roomSpawn.h"
 
 /*
 these maps, tables, vectors are used to access data associated with an enum
@@ -33,6 +35,10 @@ struct BaseStatData{
     unsigned char dexterity;
     unsigned char vitality;
     unsigned char wisdom;
+
+    inline bool itemProvidesNoStats(){
+        return hp == mp == attack == defense == speed == dexterity == vitality == wisdom == 0;
+    }
 };
 
 struct startingEquipment{
@@ -165,7 +171,17 @@ struct ItemTableComponentData{
 struct helmData{
     Uint32 duration;
 };
-
+extern std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture;
+extern std::vector<std::string> defaultNames;
+extern std::vector<glm::vec2> vaultSpawns;
+extern std::unordered_map<wallTheme, glm::vec2> wallThemeToSpawnPoint;
+extern std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMonsterSpawns;
+extern std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData;
+extern std::unordered_map<std::string, textureEnums> PortalTitleToTexture; 
+extern std::unordered_map<wallTheme, glm::vec2> wallThemeToFloor;
+extern std::unordered_map<sprites, std::string> spriteToName;
+extern std::vector<std::vector<int>> nexusMap;
+extern std::vector<std::vector<int>> vaultMap;
 extern std::unordered_map<items, const char *> abillityItemToInfo;
 extern std::unordered_map<items, const char *> consumableItemToInfo;
 extern std::unordered_map<items, const char *> itemToDescription;
@@ -181,13 +197,11 @@ extern std::unordered_map<items, quiverData> itemEnumToQuiverData;
 extern std::unordered_map<items, tomeData> itemEnumToTomeData;
 extern std::unordered_map<classes, BaseStatData> classToBaseStats;
 extern std::unordered_map<items, BaseStatData> itemEnumToStatData;
-// indexing with player classname returns valid item group for weapon slot
 extern std::vector<groups> validWeapons;
 extern std::vector<groups> validability;
 extern std::vector<groups> validarmor;
 extern std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory;
 extern std::unordered_map<items, groups> itemToGroup;
-// DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
 extern std::unordered_map<items, spritedata> itemEnumTospriteData;
 extern std::unordered_map<items, playerPECupdateData> itemEnumToPECdata;
 extern std::vector<long> nextXPToLevelUp;
@@ -195,32 +209,14 @@ extern std::unordered_map<wallTheme, wallData> wallThemeToWallData;
 extern std::unordered_map<classes, std::array<int, 8>> maxStats;
 extern std::unordered_map<classes, AnimatedShootingData> classToAnimatedShootingData;
 extern std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData;
-
-
-// GIVEN A MONSTER SPRITE, RETURNS PROJECTILE EMITTER COMPONENT
 extern std::unordered_map<sprites, enemyPECData> spriteEnumToPEC;
-
-
-// GIVEN SPRITE ENUM FOR A MONSTER, RETURNS ASSOCIATED STAT DATA and the sounds
 extern std::unordered_map<sprites, statData> spriteEnumToStatData;
-
-// GIVEN BOXCOLLIDER ENUM RETURNS ASSOCIATED BOXCOLLIDER DATA
-// copy and paste to spriteEnumToPEC
 extern std::unordered_map<boxColliders, boxColliderData> bcEnumToData;
-
-// GIVEN A SPRITE ENUM, RETURNS THE ASSOCIATE SPRITE COMPONENT DATA
 extern std::unordered_map<sprites, spritedata> enumToSpriteComponent;
-
 extern std::unordered_map<classes, spritedata> classToSpriteData;
-
 extern std::unordered_map<sprites, boxColliders> spriteToBC;
-
-
 extern std::unordered_map<sprites, aiChaseData> spritesToaiChaseData;
-
-
 extern std::unordered_map<sprites, trapaidata> spritetotrap;
-
 extern std::unordered_map<sprites, animationData> spriteToAnimationData;
 
 #endif

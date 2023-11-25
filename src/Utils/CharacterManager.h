@@ -16,6 +16,7 @@
 #include "../ECS/ECS.h"
 #include "../Systems/VaultSystem.h"
 #include "../Utils/Xoshiro256.h"
+#include "../Utils/tables.h"
 #include <filesystem>
 
 class CharacterManager {

@@ -45,6 +45,29 @@ public:
         return static_cast<int>(minX + normalized * (maxX - minX + 1));
     }
 
+    inline int randomFromRange(double minX, double maxX){
+        double normalized = static_cast<double>(next()) / UINT64_MAX;
+        return static_cast<double>(minX + normalized * (maxX - minX + 1));
+    }
+
+    inline int randomFromRange(float minX, float maxX){
+        float normalized = static_cast<float>(next()) / UINT64_MAX;
+        return static_cast<float>(minX + normalized * (maxX - minX + 1));
+    }
+
+    template <typename T>
+    inline T randomSmallModification(T num){
+        T modifier = randomFromRange(num*-.1, num*.1);
+        return num += modifier;
+    }
+
+    template <typename T>
+    inline T randomSmediumModification(T num){
+        T modifier = randomFromRange(num*-.25, num*.25);
+        return num += modifier;
+    }
+
+
 };
 
 #endif 

@@ -173,14 +173,19 @@ enum items{
     MANAPOT,
     CABERNET,
     FIREWATER,
+    ADMINCROWN,
 };
 
+enum cardinalDirection{
+    N,S,W,E
+};
 
 enum enemyCategory{
     ASC, // animated shoot chase 
     AS, // animated shoot
     SC, // shoot chase 
     T, // trap
+    CHICKENBOSSAI
 };
 
 enum wallTheme{ //wall themes are used as primary keys for areas/dungeons 
@@ -191,7 +196,8 @@ enum wallTheme{ //wall themes are used as primary keys for areas/dungeons
     GUILDHALL, //aka snake pit
     VAULT,
     CHICKENLAIR,
-    CHANGENAME // DONT SPAWN AREAS WITH THIS PLEASE! ITS JUST FOR CHANGE NAME 
+    CHANGENAME, // DONT SPAWN AREAS WITH THIS PLEASE! ITS JUST FOR CHANGE NAME 
+    CHANGECHAR
 };
 
 enum itemPositions{
@@ -226,11 +232,12 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     BLADE, // ex: low tier swords
     ARROW, // bows
     STANDARD, // 8x8 players
-    LARGE, // TODO: 32x32 enemies
     BULLETBOX, //? remove?
     CIRCLEMAGIC,
     SHATTERSBOMBBOX,
-    LOOTBAG
+    LOOTBAG,
+    WIDE,
+    BIG
 };
 
 // like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
@@ -266,7 +273,20 @@ enum sprites{
     CYANLOOTBAG,
     BLUELOOTBAG,
     WHITELOOTBAG,
-    VAULTCHEST
+    VAULTCHEST,
+    TINYWHITECHICKEN,
+    TINYREDCHICKEN,
+    COCKATRICE,
+    WHITECHICKEN,
+    ROOSTER,
+    BIGROOSTER,
+    BIGTURKEY,
+    BOSSCHICKEN,
+    ROBOTURKEY,
+    ORANGETURKEY,
+    YELLOWTURKEY,
+    CYANTURKEY,
+    NONESPRITE
 };
 
 enum soundEnums{
@@ -765,7 +785,13 @@ enum textureEnums{
     VAULTPORTAL,
     NEXUSPORTAL,
     CHANGENAMEPORTAL,
-    PORTALBUTTONBACKGROUND
+    CHANGECHARPORTAL,
+    PORTALBUTTONBACKGROUND,
+    CHARS8X8BEACH,
+    CHARS8X8ENCOUNTERS,
+    CHARS16X16ENCOUNTERS,
+    ADMINCROWNICON,
+    LOFIOBJ3
 };
 
 #endif

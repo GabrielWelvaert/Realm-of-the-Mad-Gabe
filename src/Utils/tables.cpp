@@ -5,13 +5,45 @@ these maps, tables, vectors are used to access data associated with an enum
 basically, this is a database.........
 */
 
+std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMonsterSpawns = {
+    {CHICKENLAIR,
+    {
+        {{1, TINYREDCHICKEN}, {1,TINYWHITECHICKEN}},
+        {{.6, CYANTURKEY},{.6, YELLOWTURKEY},{.6, ORANGETURKEY}},
+        {{.8, ROBOTURKEY}},
+        {{.6, BIGTURKEY}, {.5, ROOSTER}},
+        {{.6, BIGROOSTER}, {.5, ROOSTER}},
+        {{1, COCKATRICE}, {.3, WHITECHICKEN}},
+        {{.5, TINYREDCHICKEN}, {.5, TINYWHITECHICKEN}, {.5, WHITECHICKEN}},
+        {{.5, ROOSTER}, {.5, CYANTURKEY}, {.5, WHITECHICKEN}, {.25, TINYREDCHICKEN}},
+        {{1, COCKATRICE}, {.3, TINYREDCHICKEN}},
+        {{.6, WHITECHICKEN}, {.5, ROOSTER}},
+        
+    }},
+    {UDL,
+    {
+        {{}},
+        {{}},
+        
+    }},
+};
+
+std::unordered_map<wallTheme, glm::vec2> wallThemeToSpawnPoint = {
+    {NEXUS, {750,1575}},
+    {VAULT, {750,700}},
+};
+
+std::vector<glm::vec2> vaultSpawns = {
+    {600,500}, {750,500}, {900,500}
+};
+
 std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData = {
     {
         SKELETON0,
         {
             {
                 {10, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {10, {T4BOW, T4SWORD, T4WAND}},
+                {11, {T4BOW, T4SWORD, T4WAND}},
                 {20, {HPPOT, MPPOT}}
             }
         }
@@ -21,8 +53,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {20, {T2TOME, T2QUIVER, T2HELM}},
-                {20, {T4BOW, T4SWORD, T4WAND}},
-                {20, {HPPOT, MPPOT}},
+                {19, {T4BOW, T4SWORD, T4WAND}},
+                {18, {HPPOT, MPPOT}},
                 {15, {T3HEAVYARMOR, T3ROBE, T3LIGHTARMOR}},
             }
         }
@@ -32,8 +64,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T5HEAVYARMOR, T5ROBE, T5LIGHTARMOR}},
-                {20, {T5BOW, T5SWORD, T5WAND}},
-                {20, {HPPOT, MPPOT}}
+                {16, {T5BOW, T5SWORD, T5WAND}},
+                {17, {HPPOT, MPPOT}}
             }
         }
     },
@@ -42,7 +74,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T7WAND, T7ROBE}},
-                {15, {T3TOME}}
+                {14, {T3TOME}}
             }
         }
     },
@@ -60,12 +92,268 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {FIREWATER, CABERNET}},
-                {15, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
-                {25, {T7SWORD, T7WAND, T7BOW}},
+                {14, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
+                {19, {T7SWORD, T7WAND, T7BOW}},
                 {10, {T8BOW,T8WAND,T8SWORD}}
             }
         }
-    }
+    },
+    {
+        TINYWHITECHICKEN,
+        {
+            {
+                {20, {HPPOT, MPPOT}},
+                {5, {T0ATTRING, T0WISRING, T0DEFRING, T0DEXRING, T0VITRING, T0HPRING, T0MPRING}},
+                {4, {T1SWORD, T1WAND, T1BOW}},
+            }
+        }
+    },
+    {
+        TINYREDCHICKEN,
+        {
+            {
+                {20, {HPPOT, MPPOT}},
+                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+            }
+        }
+    },
+    {
+        COCKATRICE,
+        {
+            {
+                {15, {T2SWORD, T2BOW, T2WAND}},
+                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
+                {11, {T2TOME, T2HELM, T2QUIVER}},
+                {16, {HPPOT}}
+            }
+        }
+    },
+    {
+        WHITECHICKEN,
+        {
+            {
+                {15, {T1SWORD, T1BOW, T1WAND}},
+                {11, {T1TOME, T1HELM, T1QUIVER}},
+                {16, {HPPOT}}
+            }
+        }
+    },
+    {
+        ROOSTER,
+        {
+            {
+                {15, {T1SWORD, T1BOW, T1WAND}},
+                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
+                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {16, {HPPOT}}
+            }
+        }
+    },
+    {
+        BIGROOSTER,
+        {
+            {
+                {15, {T3SWORD, T3BOW, T3WAND}},
+                {12, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
+                {15, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
+                {18, {HPPOT}}
+            }
+        }
+    },
+    {
+        BIGTURKEY,
+        {
+            {
+                {15, {T3SWORD, T3BOW, T3WAND}},
+                {12, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
+                {15, {T2TOME, T2HELM, T2QUIVER}},
+                {18, {HPPOT, MPPOT}}
+            }
+        }
+    },
+    {
+        BOSSCHICKEN,
+        {
+            {
+                {100, {SPDPOT, MPPOT}},
+                {50, {CABERNET, FIREWATER}},
+                {18, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
+                {16, {T4SWORD, T4WAND, T4BOW}},
+                {15, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
+                {17, {T2TOME, T2HELM, T2QUIVER}},
+                {5, {HPPOT}}
+            }
+        }
+    },
+    {
+        ROBOTURKEY,
+        {
+            {
+                {15, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
+                {5, {HPPOT}},
+                {15, {T2SWORD, T2BOW, T2WAND}},
+                {15, {T1TOME, T1HELM, T1QUIVER}},
+            }
+        }
+    },
+    {
+        ORANGETURKEY,
+        {
+            {
+                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {16, {HPPOT}},
+                {17, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}}
+            }
+        }
+    },
+    {
+        YELLOWTURKEY,
+        {
+            {
+                {15, {T1SWORD, T1BOW, T1WAND}},
+                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
+                {16, {MPPOT}}
+            }
+        }
+    },
+    {
+        CYANTURKEY,
+        {
+            {
+                {15, {T1SWORD, T1BOW, T1WAND}},
+                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {16, {HPPOT, MPPOT}},
+                {5, {T2TOME, T2HELM, T2QUIVER}},
+            }
+        }
+    },
+};
+
+std::vector<std::vector<int>> vaultMap = {
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,35,35,35,35,35,35,35,35,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,05,05,05,05,05,05,05,05,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,35,35,35,35,35,35,35,35,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,05,05,05,05,05,05,05,05,05,05,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+};
+
+std::vector<std::vector<int>> nexusMap = {
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,35,35,35,35,35,35,35,35,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,05,05,05,05,05,05,05,05,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,04,04,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,35,35,35,35,04,04,35,35,35,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,05,05,05,35,04,04,35,05,05,05,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,35,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,35,05,04,04,05,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,05,04,04,04,04,05,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,35,04,04,04,04,04,04,35,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,05,35,35,35,35,35,35,05,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,05,05,05,05,05,05,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84},
+    {84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84,84}
+};
+
+std::unordered_map<sprites, std::string> spriteToName = {
+    {SKELETON0, std::string("Skeleton Warrior 1")},
+    {SKELETON1, std::string("Skeleton Warrior 2")},
+    {SKELETON2, std::string("Skeleton Warrior 3")},
+    {SKELETON3, std::string("Skeleton Mage")},
+    {SKELETON4, std::string("Skeleton King")},
+    {REDKNIGHT0, std::string("Red Knight")},
+    {SHATTERSBOMB, std::string("Shatters Bomb")},
+    {TINYWHITECHICKEN, std::string("Tiny White Chicken")},
+    {TINYREDCHICKEN, std::string("Tiny Red Chicken")},
+    {COCKATRICE, std::string("Cockatrice")},
+    {WHITECHICKEN, std::string("White Chicken")},
+    {ROOSTER, std::string("Rooster")},
+    {BIGROOSTER, std::string("Big Rooster")},
+    {BIGTURKEY, std::string("Big Turkey")},
+    {BOSSCHICKEN, std::string("Boss Chicken")},
+    {ROBOTURKEY, std::string("Robo-Turkey")},
+    {ORANGETURKEY, std::string("Orange Turkey")},
+    {YELLOWTURKEY, std::string("Yellow Turkey")},
+    {CYANTURKEY, std::string("Cyan Turkey")},
+
+};
+
+// portal images
+std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData = {
+    {UDL, {LOFIENVIRONMENT, 8, 8, {15*8,14*8,8,8}, 4, false, false}},
+    {NEXUS, {LOFIENVIRONMENT, 8, 8, {6*8, 15*8,8,8}, 4, false, false}},
+    {VAULT, {LOFIENVIRONMENT, 8, 8, {7*8,15*8,8,8}, 4, false, false}},
+    {CHICKENLAIR, {LOFIENVIRONMENT, 8, 8, {15*8,14*8,8,8}, 4, false, false}},
+    {CHANGECHAR, {LOFICHAR, 8, 8, {8*10,0,8,8}, 4, false, false}},
+    {CHANGENAME, {LOFICHAR, 8, 8, {8*8,0,8,8}, 4, false, false}},
+};
+
+std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
+    {std::string("Chicken Lair"), CHICKENLAIRPORTAL},
+    {std::string("Vault"), VAULTPORTAL},
+    {std::string("Nexus"), NEXUSPORTAL},
+    {std::string("Change Name"), CHANGENAMEPORTAL},
+    {std::string("Change Character"), CHANGECHARPORTAL},
+};
+
+std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
+    {VAULT, VAULTPORTAL},
+    {NEXUS, NEXUSPORTAL},
+    {CHANGENAME, CHANGENAMEPORTAL},
+    {CHANGECHAR, CHANGECHARPORTAL},
+    {CHICKENLAIR, CHICKENLAIRPORTAL}
+
+};
+
+std::unordered_map<wallTheme, glm::vec2> wallThemeToFloor = {
+    {NEXUS, {3,4}},
+    {UDL, {5,0}},
+    {VAULT, {3,4}},
+    {CHICKENLAIR, {1,6}}
 };
 
 std::unordered_map<items, const char *> abillityItemToInfo = {
@@ -192,8 +480,9 @@ std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats
     {WARRIOR, {200,100,15,0,7,10,10,10}},
     {PRIEST, {100,100,12,0,12,12,10,15}}
 };
-
+//hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 std::unordered_map<items, BaseStatData> itemEnumToStatData = {
+    {ADMINCROWN, {65000,65000,50,50,50,50,200,0}},
     {T0ATTRING, {0,0,3,0,0,0,0,0}},
     {T1ATTRING, {0,0,5,0,0,0,0,0}},
     {T2ATTRING, {0,0,6,0,0,0,0,0}},
@@ -279,7 +568,7 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T12ROBE, {0,55,4,13,0,0,0,6}},
     {T13ROBE, {0,65,5,15,0,0,0,7}},
     {T14ROBE, {0,75,6,17,0,0,0,8}},
-    // {T0QUIVER, {0,0,0,0,0,0,0,0}},
+    {T0QUIVER, {0,0,0,0,0,0,0,0}},
     {T1QUIVER, {0,0,0,0,0,1,0,0}},
     {T2QUIVER, {0,0,0,0,0,2,0,0}},
     {T3QUIVER, {0,0,0,0,0,3,0,0}},
@@ -288,12 +577,12 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T6QUIVER, {0,0,0,0,0,6,2,2}},
     {T7QUIVER, {0,0,0,0,0,7,4,4}},
     {T8QUIVER, {0,0,0,0,0,8,8,8}},
-    // {T0TOME, {0,0,0,0,0,0,0,0}},
-    // {T1TOME, {0,0,0,0,0,0,0,0}},
-    // {T2TOME, {0,0,0,0,0,0,0,0}},
-    // {T3TOME, {0,0,0,0,0,0,0,0}},
-    // {T4TOME, {0,0,0,0,0,0,0,0}},
-    // {T5TOME, {0,0,0,0,0,0,0,0}},
+    {T0TOME, {0,0,0,0,0,0,0,0}},
+    {T1TOME, {0,0,0,0,0,0,0,0}},
+    {T2TOME, {0,0,0,0,0,0,0,0}},
+    {T3TOME, {0,0,0,0,0,0,0,0}},
+    {T4TOME, {0,0,0,0,0,0,0,0}},
+    {T5TOME, {0,0,0,0,0,0,0,0}},
     {T6TOME, {0,0,0,0,0,0,2,2}},
     {T7TOME, {0,0,0,0,0,0,4,4}},
     {T8TOME, {0,0,0,0,0,0,8,8}},
@@ -321,7 +610,19 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {SKELETON3, AS},
     {SKELETON4, ASC},
     {REDKNIGHT0, SC},
-    {SHATTERSBOMB, T}
+    {SHATTERSBOMB, T},
+    {TINYWHITECHICKEN,SC},
+    {TINYREDCHICKEN,SC},
+    {COCKATRICE,SC},
+    {WHITECHICKEN,ASC},
+    {ROOSTER,AS},
+    {BIGROOSTER,ASC},
+    {BIGTURKEY,ASC},
+    {BOSSCHICKEN,CHICKENBOSSAI},
+    {ROBOTURKEY,ASC},
+    {ORANGETURKEY,ASC},
+    {YELLOWTURKEY,SC},
+    {CYANTURKEY,ASC},
 };
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -495,7 +796,8 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {LIFEPOT, LIFEPOTICON},
     {MANAPOT, MANAPOTICON},
     {CABERNET, CABERNETICON},
-    {FIREWATER, FIREWATERICON}
+    {FIREWATER, FIREWATERICON},
+    {ADMINCROWN, ADMINCROWNICON}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -669,10 +971,12 @@ std::unordered_map<items, const char *> itemToName = {
     {LIFEPOT, "Potion of Life"},
     {MANAPOT, "Potion of Mana"},
     {CABERNET, "Cabernet"},
-    {FIREWATER, "Fire Water"}
+    {FIREWATER, "Fire Water"},
+    {ADMINCROWN, "Admin Crown"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
+    {ADMINCROWN, "Super regal!"},
     {T0SWORD, "A steel short sword"},
     {T1SWORD, "A broad-bladed steel sword"},
     {T2SWORD, "A single-edged light sword"},
@@ -845,6 +1149,8 @@ std::unordered_map<items, const char *> itemToDescription = {
     {CABERNET, "A potent draught from Oryx's wine cellar which is favored amongst henchmen for its accessibility"},
     {FIREWATER, "A potent draught from Oryx's wine cellar which is favored by the Mad God himself"}
 };
+
+std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
 
 std::unordered_map<items, groups> itemToGroup = {
     {T0SWORD, SWORD},
@@ -1019,10 +1325,12 @@ std::unordered_map<items, groups> itemToGroup = {
     {MANAPOT, MANAPOTGROUP},
     {CABERNET, CABERNETGROUP},
     {FIREWATER, FIREWATERGROUP},
+    {ADMINCROWN, RING}
     
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
+    {ADMINCROWN, BROWNLOOTBAG},
     {T0SWORD, BROWNLOOTBAG},
     {T1SWORD, BROWNLOOTBAG},
     {T2SWORD, BROWNLOOTBAG},
@@ -1371,7 +1679,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {MANAPOT, {LOFIOBJ2, 8, 8 ,{8*7, 8*2, 8, 8}, 12, true, false}},
     {CABERNET, {LOFIOBJ2, 8, 8 ,{8*15, 8*2, 8, 8}, 12, true, false}},
     {FIREWATER, {LOFIOBJ2, 8, 8 ,{8*11, 8*2, 8, 8}, 12, true, false}},
-
+    {ADMINCROWN, {LOFIOBJ3, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
 };
 
 
@@ -1429,8 +1737,11 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
 
 std::vector<long> nextXPToLevelUp{0,50,200,450,800,1250,1800,2450,3200,4050,5000,6050,7200,8450,9800,11250,12800,14450,16200,18050};
 
-std::unordered_map<wallTheme, wallData> wallThemeToWallData = {
-    {UDL, {LOFIENVIRONMENT, {glm::ivec2(0,0), glm::ivec2(0,1), glm::ivec2(0,2), glm::ivec2(0,3), glm::ivec2(0,4)}, glm::ivec2(14,0)}}
+std::unordered_map<wallTheme, wallData> wallThemeToWallData = { // {textureEnum, {wall, ceiling}, alpha}
+    {UDL, {LOFIENVIRONMENT, {glm::ivec2(0,0), glm::ivec2(0,4)}, glm::ivec2(4,4)}},
+    {NEXUS, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
+    {VAULT, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
+    {CHICKENLAIR, {LOFIENVIRONMENT, {glm::ivec2(0,1), glm::ivec2(4,1)}, glm::ivec2(4,4)}}
 };
 
 std::unordered_map<classes, std::array<int, 8>> maxStats = {
@@ -1453,6 +1764,26 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {SKELETON4, {0}}
 };
 
+/*  bool isShooting; 
+    unsigned short repeatFrequency; // ms per shot 
+    unsigned short duration; // ms until death of projectile
+    unsigned short damage; 
+    unsigned short projectileSpeed;
+    bool piercing;
+    unsigned char shots; // dont use odd number of shots with 360, 720, etc
+    float arcgap; 
+
+    textureEnums spriteassetId; // sprite info for projectile
+    unsigned char spritewidth;
+    unsigned char spriteheight;
+    SDL_Rect spritesrcRect;
+    unsigned char spritezIndex;
+    bool spriteisFixed; // fixed sprites stay in same spot on screen 
+    bool spritediagonalSprite;
+
+    unsigned short boxwidth; // box info for projectile
+    unsigned short boxheight;
+    glm::vec2 boxoffset; */
 
 // GIVEN A MONSTER SPRITE, RETURNS PROJECTILE EMITTER COMPONENT
 std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
@@ -1462,7 +1793,20 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {SKELETON3, {false, 1000, 1000, 20, 750, false, 3, 8, LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,false, true, 10,10,{14,14}}},
     {SKELETON4, {false, 150, 500, 25, 500, false, 1, 0, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
     {REDKNIGHT0, {false, 300, 200, 50, 500, false, 1, 0, LOFIOBJ,8,8,{8*1,8*9,8,8},3,false,false, 32,32,{4,4}}},
-    {SHATTERSBOMB, {false, 0,250,15,750,false,24,360,LOFIOBJ4,8,8,{8*1, 8*12,8,8},3,false,true,10,10,{14,14}}}
+    {SHATTERSBOMB, {false, 0,250,15,750,false,24,360,LOFIOBJ4,8,8,{8*1, 8*12,8,8},3,false,true,10,10,{14,14}}},
+
+    {TINYWHITECHICKEN, {false, 500,400,8,450,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}}},
+    {TINYREDCHICKEN, {false, 500,450,8,500,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}}},
+    {COCKATRICE, {false, 500,400,15,650,false,3,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}}},
+    {WHITECHICKEN, {false, 500,400,12,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {ROOSTER, {false, 500,1000,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
+    {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
+    {BOSSCHICKEN, {false, 500,500,25,500,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
+    {ROBOTURKEY, {false, 1000,500,15,500,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,8,8,{0,10}}},
+    {ORANGETURKEY, {false, 500,500,12,500,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {CYANTURKEY, {false, 500,500,12,500,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     //spriteEnum                             //boxCollEnum, PEC sprite comp
 };
 
@@ -1477,11 +1821,26 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SKELETON3, {200,1,1,5,0,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
     {SKELETON4, {250,1,1,15,35,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //king
     {REDKNIGHT0, {1000,1,1,30,20,1,30,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
-    {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}}
+    {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}},
+
+    {TINYWHITECHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {TINYREDCHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {COCKATRICE, {200,0,0,5,20,0,0,0,SNAKESHIT,SNAKESDEATH}},
+    {ROOSTER, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {BIGROOSTER, {300,0,0,6,17,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {BIGTURKEY, {300,0,0,7,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {BOSSCHICKEN, {4000,0,0,15,30,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {ROBOTURKEY, {600,0,0,10,12,0,0,0,DEMONSHIT,DEMONSDEATH}},
+    {ORANGETURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {YELLOWTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
 };
 
 // GIVEN BOXCOLLIDER ENUM RETURNS ASSOCIATED BOXCOLLIDER DATA
 // copy and paste to spriteEnumToPEC
+/*    unsigned short width;
+    unsigned short height;
+    glm::vec2 offset;*/
 std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {STANDARD, {38,18,{6,30}}},
     {MAGIC, {12,12,{0,8}}},
@@ -1490,7 +1849,9 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {ARROW, {8,8,{16,16}}},
     {CIRCLEMAGIC, {32,32,{4,4}}},
     {SHATTERSBOMBBOX, {32,12,{8,36}}},
-    {LOOTBAG, {8*5,8*5,{0,0}}}
+    {LOOTBAG, {8*5,8*5,{0,0}}},
+    {WIDE, {38*2,18,{6*2,30}}},
+    {BIG, {38*2,18*2,{6*2,30*2}}},
 
 };
 
@@ -1527,6 +1888,20 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {CYANLOOTBAG, {LOFIOBJ4,8,8,{8*2,8*9,8,8},4,false,false}},
     {BLUELOOTBAG, {LOFIOBJ4,8,8,{8*3,8*9,8,8},4,false,false}},
     {WHITELOOTBAG, {LOFIOBJ4,8,8,{8*4,8*9,8,8},4,false,false}},
+    {VAULTCHEST, {LOFIOBJ2,8,8,{8*14,8*0,8,8},4,false,false}},
+
+    {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
+    {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},
+    {COCKATRICE,{LOFICHAR, 16,8, {8*12,8*15,16,8}, 4, false, false}},
+    {WHITECHICKEN,{CHARS8X8ENCOUNTERS, 8,8, {0,8*30,8,8}, 4, false, false}},
+    {ROOSTER,{CHARS8X8BEACH, 8,8, {0,8*8,8,8}, 4, false, false}},
+    {BIGROOSTER,{CHARS16X16ENCOUNTERS, 16,16, {0,16*2,8,8}, 4, false, false}},
+    {BIGTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*120,8,8}, 4, false, false}},
+    {BOSSCHICKEN,{CHARS16X16ENCOUNTERS, 16,16, {0,16*22,8,8}, 4, false, false}},
+    {ROBOTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*125,8,8}, 4, false, false}},
+    {ORANGETURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
+    {YELLOWTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
+    {CYANTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -1543,10 +1918,25 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {SKELETON4, STANDARD},
     {REDKNIGHT0, STANDARD},
     {REDCIRCLEMAGIC, CIRCLEMAGIC},
-    {SHATTERSBOMB, SHATTERSBOMBBOX}
+    {SHATTERSBOMB, SHATTERSBOMBBOX},
+    {TINYWHITECHICKEN, STANDARD},
+    {TINYREDCHICKEN, STANDARD},
+    {COCKATRICE, WIDE},
+    {WHITECHICKEN, STANDARD},
+    {ROOSTER, STANDARD},
+    {BIGROOSTER, BIG},
+    {BIGTURKEY, BIG},
+    {BOSSCHICKEN, BIG},
+    {ROBOTURKEY, BIG},
+    {ORANGETURKEY, STANDARD},
+    {YELLOWTURKEY, STANDARD},
+    {CYANTURKEY, STANDARD},
+
 };
 
-
+/*    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
+    unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
+    unsigned short maxDistance; */
 std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     // not great, but 0 indicates unused variable or one that is derived later from somewhere else
     {SKELETON0, {400, 0, 100}},
@@ -1554,7 +1944,19 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {SKELETON2, {400, 0, 100}},
     {SKELETON3, {0, 0, 0}},
     {SKELETON4, {400, 0, 100}},
-    {REDKNIGHT0, {150, 0, 50}}
+    {REDKNIGHT0, {150, 0, 50}},
+    {TINYWHITECHICKEN, {400,0,100}},
+    {TINYREDCHICKEN, {400,0,100}},
+    {COCKATRICE, {400,0,100}},
+    {WHITECHICKEN, {400,0,50}},
+    {ROOSTER, {600,0,100}},
+    {BIGROOSTER, {400,0,100}},
+    {BIGTURKEY, {400,0,100}},
+    {BOSSCHICKEN, {750,0,5}},
+    {ROBOTURKEY, {500,0,100}},
+    {ORANGETURKEY, {400,0,50}},
+    {YELLOWTURKEY, {400,0,100}},
+    {CYANTURKEY, {400,0,100}},
 };
 
 
@@ -1569,5 +1971,17 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {SKELETON2, {3,0,0}},
     {SKELETON3, {3,0,0}},
     {SKELETON4, {3,0,0}},
-    {SHATTERSBOMB, {1,4,0}} // old duration was 3500 ms for the bomb
+    {SHATTERSBOMB, {1,4,0}}, // old duration was 3500 ms for the bomb
+    {TINYWHITECHICKEN, {3,0,0}},
+    {TINYREDCHICKEN, {3,0,0}},
+    {COCKATRICE, {3,0,0}},
+    {WHITECHICKEN, {3,0,0}},
+    {ROOSTER, {3,0,0}},
+    {BIGROOSTER, {3,0,0}},
+    {BIGTURKEY, {3,0,0}},
+    {BOSSCHICKEN, {3,0,0}},
+    {ROBOTURKEY, {3,0,0}},
+    {ORANGETURKEY, {3,0,0}},
+    {YELLOWTURKEY, {3,0,0}},
+    {CYANTURKEY, {3,0,0}},
 };
