@@ -138,7 +138,7 @@ void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::uni
             hptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxhp)-static_cast<int>(pbs.hp)) + ")");
         }
         mptext.text  = std::to_string(static_cast<int>(hpmp.activemp)) + "/" + std::to_string(hpmp.maxmp);
-        if(hpmp.maxhp > pbs.mp){
+        if(hpmp.maxmp > pbs.mp){
             mptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxmp)-static_cast<int>(pbs.mp)) + ")");
         }
         if(pbs.level < 20){

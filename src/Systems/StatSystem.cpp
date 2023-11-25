@@ -280,5 +280,9 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
         speed += newItemStats.speed;
         offensestats.activeattack += newItemStats.attack;
         offensestats.activedexterity += newItemStats.dexterity;
-    }   
+    }
+    auto& projectileRepeatFrequency = event.player.GetComponent<ProjectileEmitterComponent>().repeatFrequency;
+    auto& frameSpeedRate = event.player.GetComponent<AnimationComponent>().frameSpeedRate;
+    projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000
+    frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; //dex to shorts per second * 2
 }

@@ -121,7 +121,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         COCKATRICE,
         {
             {
-                {15, {T2SWORD, T2BOW, T2WAND}},
+                {19, {T2SWORD, T2BOW, T2WAND}},
                 {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
                 {11, {T2TOME, T2HELM, T2QUIVER}},
                 {16, {HPPOT}}
@@ -132,7 +132,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         WHITECHICKEN,
         {
             {
-                {15, {T1SWORD, T1BOW, T1WAND}},
+                {19, {T1SWORD, T1BOW, T1WAND}},
                 {11, {T1TOME, T1HELM, T1QUIVER}},
                 {16, {HPPOT}}
             }
@@ -155,7 +155,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {15, {T3SWORD, T3BOW, T3WAND}},
                 {12, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {15, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
+                {19, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
                 {18, {HPPOT}}
             }
         }
@@ -189,10 +189,10 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ROBOTURKEY,
         {
             {
-                {15, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
-                {5, {HPPOT}},
-                {15, {T2SWORD, T2BOW, T2WAND}},
-                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {20, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
+                {10, {HPPOT}},
+                {18, {T2SWORD, T2BOW, T2WAND}},
+                {19, {T1TOME, T1HELM, T1QUIVER}},
             }
         }
     },
@@ -200,7 +200,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ORANGETURKEY,
         {
             {
-                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {19, {T1TOME, T1HELM, T1QUIVER}},
                 {16, {HPPOT}},
                 {17, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}}
             }
@@ -211,7 +211,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T1SWORD, T1BOW, T1WAND}},
-                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
+                {19, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
                 {16, {MPPOT}}
             }
         }
@@ -221,9 +221,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T1SWORD, T1BOW, T1WAND}},
-                {15, {T1TOME, T1HELM, T1QUIVER}},
+                {17, {T1TOME, T1HELM, T1QUIVER}},
                 {16, {HPPOT, MPPOT}},
-                {5, {T2TOME, T2HELM, T2QUIVER}},
+                {12, {T2TOME, T2HELM, T2QUIVER}},
             }
         }
     },
@@ -349,7 +349,7 @@ std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
 
 };
 
-std::unordered_map<wallTheme, glm::vec2> wallThemeToFloor = {
+std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = {
     {NEXUS, {3,4}},
     {UDL, {5,0}},
     {VAULT, {3,4}},
@@ -1738,7 +1738,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
 std::vector<long> nextXPToLevelUp{0,50,200,450,800,1250,1800,2450,3200,4050,5000,6050,7200,8450,9800,11250,12800,14450,16200,18050};
 
 std::unordered_map<wallTheme, wallData> wallThemeToWallData = { // {textureEnum, {wall, ceiling}, alpha}
-    {UDL, {LOFIENVIRONMENT, {glm::ivec2(0,0), glm::ivec2(0,4)}, glm::ivec2(4,4)}},
+    {UDL, {LOFIENVIRONMENT, {glm::ivec2(0,0), glm::ivec2(4,0)}, glm::ivec2(4,4)}},
     {NEXUS, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
     {VAULT, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
     {CHICKENLAIR, {LOFIENVIRONMENT, {glm::ivec2(0,1), glm::ivec2(4,1)}, glm::ivec2(4,4)}}
@@ -1750,6 +1750,9 @@ std::unordered_map<classes, std::array<int, 8>> maxStats = {
     {WARRIOR, {770,252,75,25,50,50,75,50}}
 };
 
+
+// animated shooting data is the num of pixels the sprite goes "out of its own bounds"
+// ex: horizontal sword animation makes an 8x8 sprite more than 8x8 
 std::unordered_map<classes, AnimatedShootingData> classToAnimatedShootingData = {
     {WARRIOR, {4}},
     {ARCHER, {0}},
@@ -1761,7 +1764,16 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {SKELETON1, {4}},
     {SKELETON2, {4}},
     {SKELETON3, {0}},
-    {SKELETON4, {0}}
+    {SKELETON4, {0}},
+    {WHITECHICKEN, {0}},
+    {ROOSTER, {0}},
+    {BIGROOSTER, {0}},
+    {BIGTURKEY, {0}},
+    {BOSSCHICKEN, {0}},
+    {ROBOTURKEY, {0}},
+    {ORANGETURKEY, {0}},
+    {YELLOWTURKEY, {0}},
+    {CYANTURKEY, {0}},
 };
 
 /*  bool isShooting; 
@@ -1799,14 +1811,14 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {TINYREDCHICKEN, {false, 500,450,8,500,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}}},
     {COCKATRICE, {false, 500,400,15,650,false,3,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}}},
     {WHITECHICKEN, {false, 500,400,12,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
-    {ROOSTER, {false, 500,1000,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
-    {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
-    {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
-    {BOSSCHICKEN, {false, 500,500,25,500,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,8,8,{0,10}}},
-    {ROBOTURKEY, {false, 1000,500,15,500,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,8,8,{0,10}}},
-    {ORANGETURKEY, {false, 500,500,12,500,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {ROOSTER, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {BOSSCHICKEN, {false, 500,750,25,600,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {ROBOTURKEY, {false, 1000,500,15,500,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {ORANGETURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
-    {CYANTURKEY, {false, 500,500,12,500,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     //spriteEnum                             //boxCollEnum, PEC sprite comp
 };
 
@@ -1824,15 +1836,16 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}},
 
     {TINYWHITECHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
-    {TINYREDCHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
-    {COCKATRICE, {200,0,0,5,20,0,0,0,SNAKESHIT,SNAKESDEATH}},
+    {TINYREDCHICKEN, {80,0,0,3,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {WHITECHICKEN, {120,0,0,6,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {COCKATRICE, {200,0,0,5,20,0,0,0,GREATERPITSNAKESHIT,GREATERPITSNAKESDEATH}},
     {ROOSTER, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {BIGROOSTER, {300,0,0,6,17,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {BIGTURKEY, {300,0,0,7,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
-    {BOSSCHICKEN, {4000,0,0,15,30,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {BOSSCHICKEN, {4000,0,0,18,30,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {ROBOTURKEY, {600,0,0,10,12,0,0,0,DEMONSHIT,DEMONSDEATH}},
-    {ORANGETURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
-    {YELLOWTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {ORANGETURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {YELLOWTURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
 };
 
@@ -1851,7 +1864,7 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {SHATTERSBOMBBOX, {32,12,{8,36}}},
     {LOOTBAG, {8*5,8*5,{0,0}}},
     {WIDE, {38*2,18,{6*2,30}}},
-    {BIG, {38*2,18*2,{6*2,30*2}}},
+    {BIG, {38*2,18*2+12,{6*2,30*2-12}}},
 
 };
 
@@ -1893,15 +1906,15 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
     {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},
     {COCKATRICE,{LOFICHAR, 16,8, {8*12,8*15,16,8}, 4, false, false}},
-    {WHITECHICKEN,{CHARS8X8ENCOUNTERS, 8,8, {0,8*30,8,8}, 4, false, false}},
-    {ROOSTER,{CHARS8X8BEACH, 8,8, {0,8*8,8,8}, 4, false, false}},
-    {BIGROOSTER,{CHARS16X16ENCOUNTERS, 16,16, {0,16*2,8,8}, 4, false, false}},
-    {BIGTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*120,8,8}, 4, false, false}},
-    {BOSSCHICKEN,{CHARS16X16ENCOUNTERS, 16,16, {0,16*22,8,8}, 4, false, false}},
-    {ROBOTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*125,8,8}, 4, false, false}},
-    {ORANGETURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
-    {YELLOWTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
-    {CYANTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*80,8,8}, 4, false, false}},
+    {WHITECHICKEN,{CHARS8X8ENCOUNTERS, 8,8, {0,8*29,8,8}, 4, false, false}},
+    {ROOSTER,{CHARS8X8BEACH, 8,8, {0,8*9,8,8}, 4, false, false}},
+    {BIGROOSTER,{CHARS16X16ENCOUNTERS, 16,16, {0,16*2,16,16}, 4, false, false}},
+    {BIGTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*125,16,16}, 4, false, false}},
+    {BOSSCHICKEN,{CHARS16X16ENCOUNTERS, 16,16, {0,16*22,16,16}, 4, false, false}},
+    {ROBOTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*135,16,16}, 4, false, false}},
+    {ORANGETURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*120,8,8}, 4, false, false}},
+    {YELLOWTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*121,8,8}, 4, false, false}},
+    {CYANTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*122,8,8}, 4, false, false}},
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -1947,16 +1960,16 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {REDKNIGHT0, {150, 0, 50}},
     {TINYWHITECHICKEN, {400,0,100}},
     {TINYREDCHICKEN, {400,0,100}},
-    {COCKATRICE, {400,0,100}},
+    {COCKATRICE, {600,0,100}},
     {WHITECHICKEN, {400,0,50}},
     {ROOSTER, {600,0,100}},
-    {BIGROOSTER, {400,0,100}},
-    {BIGTURKEY, {400,0,100}},
+    {BIGROOSTER, {600,0,100}},
+    {BIGTURKEY, {600,0,100}},
     {BOSSCHICKEN, {750,0,5}},
     {ROBOTURKEY, {500,0,100}},
-    {ORANGETURKEY, {400,0,50}},
-    {YELLOWTURKEY, {400,0,100}},
-    {CYANTURKEY, {400,0,100}},
+    {ORANGETURKEY, {600,0,50}},
+    {YELLOWTURKEY, {600,0,100}},
+    {CYANTURKEY, {600,0,100}},
 };
 
 

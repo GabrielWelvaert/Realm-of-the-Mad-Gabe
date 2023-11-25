@@ -37,7 +37,7 @@ struct BaseStatData{
     unsigned char wisdom;
 
     inline bool itemProvidesNoStats(){
-        return hp == mp == attack == defense == speed == dexterity == vitality == wisdom == 0;
+        return hp == 0 && mp == 0 && attack == 0 && defense == 0 && speed == 0 && dexterity == 0 && vitality == 0 && wisdom == 0;
     }
 };
 
@@ -178,7 +178,7 @@ extern std::unordered_map<wallTheme, glm::vec2> wallThemeToSpawnPoint;
 extern std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMonsterSpawns;
 extern std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData;
 extern std::unordered_map<std::string, textureEnums> PortalTitleToTexture; 
-extern std::unordered_map<wallTheme, glm::vec2> wallThemeToFloor;
+extern std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor;
 extern std::unordered_map<sprites, std::string> spriteToName;
 extern std::vector<std::vector<int>> nexusMap;
 extern std::vector<std::vector<int>> vaultMap;
