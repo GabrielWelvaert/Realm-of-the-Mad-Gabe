@@ -12,6 +12,7 @@
 #include "../Utils/room.h"
 #include "../Utils/CharacterManager.h"
 #include "../Utils/deadPlayer.h"
+#include <string>
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;

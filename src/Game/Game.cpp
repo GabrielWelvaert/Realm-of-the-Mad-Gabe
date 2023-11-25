@@ -166,7 +166,7 @@ SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
 int invetoryNumber;
-static int chicken = 0;
+static int chicken = 3;
 std::vector<sprites> chickens = { TINYWHITECHICKEN, TINYREDCHICKEN, COCKATRICE, WHITECHICKEN, ROOSTER, BIGROOSTER, BIGTURKEY, BOSSCHICKEN, ROBOTURKEY, ORANGETURKEY, YELLOWTURKEY, CYANTURKEY };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
@@ -251,19 +251,17 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
-                            int x,y;
-                            std::cout << std::endl;
-                            std::cin >> x; 
-                            std::cout << std::endl;
-                            std::cin >> y;
-                            auto& pos = player.GetComponent<TransformComponent>().position;
-                            pos.x = x;
-                            pos.y = y;
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            factory->spawnMonster(registry, spawnpoint, chickens[chicken]);
+                            chicken++;
+                            if(chicken > chickens.size()-1){
+                                chicken = 0;
+                            }
                         } break;
                         case SDLK_MINUS:{
-                            player.GetComponent<SpeedStatComponent>().activespeed = 20;
-                            player.GetComponent<BaseStatComponent>().speed = 20;
-
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
                         } break;
                         default:
                             break;
@@ -353,10 +351,10 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
     std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
     while(!success){
         wallData wallData = wallThemeToWallData.at(wallTheme);
-        int wall = stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
-        int alpha = stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
-        int ceiling = stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
-        int floor = stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
+        int wall = std::stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
+        int alpha = std::stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
+        int ceiling = std::stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
+        int floor = std::stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
         int numRoomsCreated = 0;
         int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
         std::vector<room> rooms; // can be indexed by id
@@ -887,7 +885,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 170; // hard coded value equal to highest item enum
+    const int totalNumItems = 171; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
@@ -1127,6 +1125,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, CHARS8X8BEACH, "./assets/images/chars8x8rBeach.png");
     assetStore->AddTexture(renderer, CHARS8X8ENCOUNTERS, "./assets/images/chars8x8rEncounters.png");
     assetStore->AddTexture(renderer, CHARS16X16ENCOUNTERS, "./assets/images/chars16x16rEncounters.png");
+    assetStore->AddTexture(renderer, LOFIOBJ3, "./assets/images/lofiObj3.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");

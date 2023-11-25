@@ -90,7 +90,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                 event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
                 event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
                 event.dp.murderer = projectileComponent.spriteOfParent;
-                event.characterManager->KillCharacter(event.activeCharacterID);
+                // event.characterManager->KillCharacter(event.activeCharacterID);
                 event.registry->killAllEntities();
                 event.assetStore->PlaySound(DEATH);
                 event.Setup(false, true, NEXUS);
@@ -137,7 +137,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
             event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
             event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
             event.dp.murderer = projectileComponent.spriteOfParent;
-            event.characterManager->KillCharacter(event.activeCharacterID);
+            // event.characterManager->KillCharacter(event.activeCharacterID);
             event.registry->killAllEntities();
             event.assetStore->PlaySound(DEATH);
             event.Setup(false, true, NEXUS);
