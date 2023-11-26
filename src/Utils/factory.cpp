@@ -50,12 +50,18 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 }
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId){
-    const auto& room = dungeonRooms[0];
-    glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
-    spawnMonster(registry, spawnPos, BOSSCHICKEN);
-    // todo switch-case for spawning boss
-    dungeonRooms.erase(dungeonRooms.begin()); // dont spawn monster in spawn room
     for(const auto& room: dungeonRooms){
+        if(room.id == 0){
+            continue;
+        } else if(room.id == bossRoomId){ // spawn boss in boss room
+            glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
+            switch(dungeonType){
+                case CHICKENLAIR:{
+                    spawnMonster(registry, spawnPos, BOSSCHICKEN);
+                } break; 
+            }
+            continue;
+        }
         int minX = room.x + 2; // these values are in tiles
         int minY = room.y + 2;
         int maxX = room.x + room.w - 2;
@@ -71,7 +77,6 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
                 spawnMonster(registry, spawnPos, enemySpawn.monster);
             }
         }
-        // todo: if room.id == boss room spawn da boss :100:
     }
     registry->Update();
 

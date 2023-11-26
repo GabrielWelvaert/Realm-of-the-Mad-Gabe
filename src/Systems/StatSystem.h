@@ -37,9 +37,9 @@ class StatSystem: public System{
 
         std::unordered_map<classes, std::array<std::array<char, 2>, 8>> levelUpRanges = {
             // HP, MP, ATTACK, def, SPEED, DEXTERITY, VITALITY, WISDOM 
-            {ARCHER, {{{20,30},{2,8},{1,2},{0,0},{0,2},{0,2},{0,1},{0,2}}}},
+            {ARCHER, {{{20,30},{2,8},{1,2},{0,0},{1,2},{0,2},{0,1},{0,2}}}},
             {PRIEST, {{{20,30},{5,15},{0,2},{0,0},{1,2},{0,2},{0,1},{1,2}}}},
-            {WARRIOR, {{{20,30},{2,8},{1,2},{0,0},{0,2},{0,2},{1,2},{0,2}}}},
+            {WARRIOR, {{{20,30},{2,8},{1,2},{0,0},{1,2},{0,2},{1,2},{0,2}}}},
         };
 
         inline int getMaxStat(classes c, stats s){

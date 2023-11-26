@@ -22,10 +22,12 @@
 #include "../Events/QuiverUseEvent.h"
 #include "../Events/HelmUseEvent.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Components/PlayerItemsComponent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
 It can be understood as a system that prepares certain player components for their updates (or events) based off user-input
+like an AI system but for the player 
 */
 
 class KeyboardMovementSystem: public System {

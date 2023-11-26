@@ -281,8 +281,14 @@ std::string CharacterManager::CreateNewCharacterFile(classes className){
     return std::to_string(time);
 }
 
+void CharacterManager::KillCharacter(const std::string& activeCharacterID){
+    std::string filePath = (std::filesystem::path(characterFolderPath) / activeCharacterID).replace_extension(".txt").string();
+    std::filesystem::remove(filePath);
+}
+
 void CharacterManager::SaveCharacter(const std::string& activeCharacterID, Entity player){ // not for making a new character; this is for saving progress on an EXISITNG character!
     std::string filePath = (std::filesystem::path(characterFolderPath) / activeCharacterID).replace_extension(".txt").string();
+    if(!std::filesystem::exists(filePath)){return;} // file deleted; indicative of player death so dont save!
     std::ofstream characterFile(filePath, std::ofstream::trunc);
     const auto& stats = player.GetComponent<BaseStatComponent>();
     const auto& equipment = player.GetComponent<PlayerItemsComponent>().equipment;

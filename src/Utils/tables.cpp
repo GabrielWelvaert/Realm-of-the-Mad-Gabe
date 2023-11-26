@@ -18,6 +18,7 @@ std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMo
         {{.5, ROOSTER}, {.5, CYANTURKEY}, {.5, WHITECHICKEN}, {.25, TINYREDCHICKEN}},
         {{1, COCKATRICE}, {.3, TINYREDCHICKEN}},
         {{.6, WHITECHICKEN}, {.5, ROOSTER}},
+        {{.5, BIGTURKEY}, {.5, BIGROOSTER}},
         
     }},
     {UDL,
@@ -34,7 +35,7 @@ std::unordered_map<wallTheme, glm::vec2> wallThemeToSpawnPoint = {
 };
 
 std::vector<glm::vec2> vaultSpawns = {
-    {600,500}, {750,500}, {900,500}
+    {600,550}, {750,550}, {900,550}
 };
 
 std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData = {
@@ -134,7 +135,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {19, {T1SWORD, T1BOW, T1WAND}},
                 {11, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT}}
+                {16, {HPPOT}},
+                {15, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
             }
         }
     },
@@ -143,9 +145,10 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T1SWORD, T1BOW, T1WAND}},
-                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
+                {4, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
                 {15, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT}}
+                {16, {HPPOT}},
+                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
             }
         }
     },
@@ -156,7 +159,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {15, {T3SWORD, T3BOW, T3WAND}},
                 {12, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
                 {19, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
-                {18, {HPPOT}}
+                {18, {HPPOT}},
+                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
             }
         }
     },
@@ -165,9 +169,11 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {15, {T3SWORD, T3BOW, T3WAND}},
-                {12, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
+                {4, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
                 {15, {T2TOME, T2HELM, T2QUIVER}},
-                {18, {HPPOT, MPPOT}}
+                {14, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
+                {18, {HPPOT, MPPOT}},
+                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
             }
         }
     },
@@ -175,7 +181,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BOSSCHICKEN,
         {
             {
-                {100, {SPDPOT, MPPOT}},
+                {100, {SPDPOT, DEXPOT}},
                 {50, {CABERNET, FIREWATER}},
                 {18, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
                 {16, {T4SWORD, T4WAND, T4BOW}},
@@ -621,7 +627,7 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {BOSSCHICKEN,CHICKENBOSSAI},
     {ROBOTURKEY,ASC},
     {ORANGETURKEY,ASC},
-    {YELLOWTURKEY,SC},
+    {YELLOWTURKEY,AS},
     {CYANTURKEY,ASC},
 };
 
@@ -1682,7 +1688,6 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {ADMINCROWN, {LOFIOBJ3, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
 };
 
-
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T0SWORD, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
     {T1SWORD,{350,60,105,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
@@ -1814,8 +1819,8 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {ROOSTER, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
     {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
     {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
-    {BOSSCHICKEN, {false, 500,750,25,600,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
-    {ROBOTURKEY, {false, 1000,500,15,500,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {BOSSCHICKEN, {false, 500,750,25,500,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {ROBOTURKEY, {false, 1000,666,15,600,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,10,10,{14,14}}},
     {ORANGETURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
@@ -1838,7 +1843,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {TINYWHITECHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {TINYREDCHICKEN, {80,0,0,3,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {WHITECHICKEN, {120,0,0,6,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
-    {COCKATRICE, {200,0,0,5,20,0,0,0,GREATERPITSNAKESHIT,GREATERPITSNAKESDEATH}},
+    {COCKATRICE, {280,0,0,5,20,0,0,0,GREATERPITSNAKESHIT,GREATERPITSNAKESDEATH}},
     {ROOSTER, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {BIGROOSTER, {300,0,0,6,17,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {BIGTURKEY, {300,0,0,7,15,0,0,0,CHICKENHIT,CHICKENDEATH}},

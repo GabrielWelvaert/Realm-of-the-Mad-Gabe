@@ -39,7 +39,7 @@ class Game{
         std::vector<room> dungeonRooms;
         int bossRoomId;
         bool test = false; 
-        deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE};
+        deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
 
     public:
         Game();

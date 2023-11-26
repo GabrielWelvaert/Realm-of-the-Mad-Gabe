@@ -93,7 +93,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
             bool bIsProjectile = (Bgroup == PROJECTILE);
             auto& bTransform = b.GetComponent<TransformComponent>();
             auto& bCollider = b.GetComponent<BoxColliderComponent>();
-            if(!CheckAABBCollision( // if b projectile, increase a hitbox and vice-versa BUT THIS WONT WORK FOR WALLS MAN
+            if(!CheckAABBCollision( // if b projectile, increase a hitbox and vice-versa
                 aTransform.position.x + aCollider.offset[0],
                 aTransform.position.y + aCollider.offset[1] - (bIsProjectile *  30),
                 aCollider.width,
@@ -130,7 +130,10 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         case PROJECTILE:{
                             if(b.GetComponent<ProjectileComponent>().parentGroupEnumInt == 0){ // 0 = monster shot this projectile
                                 eventBus->EmitEvent<ProjectileDamageEvent>(b,a, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile 
-                                if(deadPlayer.level > 0){return;}
+                                if(deadPlayer.level > 0){ // player died, we just ran Setup, so we must exit this update (entities vector is outdated)
+                                    deadPlayer.level = -1;
+                                    return;
+                                } 
                             }
                         } break;
                         case WALLBOX:{
@@ -156,7 +159,10 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         case PLAYER:{
                             if(a.GetComponent<ProjectileComponent>().parentGroupEnumInt == 0){ // 0 = monster shot this projectile
                                 eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile
-                                if(deadPlayer.level > 0){return;} 
+                                if(deadPlayer.level > 0){ // player died, we just ran Setup, so we must exit this update (entities vector is outdated)
+                                    deadPlayer.level = -1;
+                                    return;
+                                } 
                             }
                         } break;
                         case MONSTER:{
@@ -166,7 +172,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case WALLBOX:{
                             const auto& projectileBirthTime = a.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 100){ // projectile immune from wall collision for first 100ms
+                            if(SDL_GetTicks() >= projectileBirthTime + 50){ // projectile immune from wall collision for first Xms
                                 a.Kill();
                             }
                         } break;
@@ -180,7 +186,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case PROJECTILE:{
                             const auto& projectileBirthTime = b.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 100){ // projectile immune from wall collision for first 100ms
+                            if(SDL_GetTicks() >= projectileBirthTime + 50){ // projectile immune from wall collision for first Xms
                                 b.Kill();
                             }
                         } break;

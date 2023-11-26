@@ -9,10 +9,11 @@ struct deadPlayer{
     classes className;
     int level;
     sprites murderer;
+    int xp;
 
     inline deadPlayer() = default;
-    inline deadPlayer(classes className, int level, sprites murderer):
-        className(className), level(level), murderer(murderer) {}
+    inline deadPlayer(classes className, int level, sprites murderer, int xp):
+        className(className), level(level), murderer(murderer), xp(xp) {}
 };
 
 #endif

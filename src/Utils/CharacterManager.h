@@ -45,6 +45,7 @@ class CharacterManager {
         void SaveCharacter(const std::string& activeCharacterID, Entity player);
         std::vector<std::string> GetAllCharacterValuesAtLineNumber(int linenumber);
         std::vector<int> GetLineValuesFromCharacterFile(const std::string& fileName, int linenumber);
+        void KillCharacter(const std::string& filename);
 
         // methods for vault management
         int GetFileCountInVaultDirectory();

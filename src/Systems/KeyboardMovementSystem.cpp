@@ -13,6 +13,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     const auto& pec = player.GetComponent<ProjectileEmitterComponent>();
     auto& ac = player.GetComponent<AbilityComponent>(); 
+    const auto& holdingItem = player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
 
     int move = moves[keysPressed];
 
@@ -158,8 +159,8 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     } else {
         const auto& activespeed = player.GetComponent<SpeedStatComponent>().activespeed;
         auto& asc = player.GetComponent<AnimatedShootingComponent>();
-        if(activespeed < 10){
-            animation.frameSpeedRate = 1;
+        if(activespeed <= 20){
+            animation.frameSpeedRate = 2;
         } else {
             animation.frameSpeedRate = activespeed/10;    
         }

@@ -46,7 +46,8 @@ void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore
         if(!textlabel.isFixed){
             const auto& victimSprite = registry->GetComponent<SpriteComponent>(textlabel.parentId);
             const auto& parentPosition = registry->GetComponent<TransformComponent>(textlabel.parentId).position;
-            position.x = parentPosition.x + (static_cast<int>(victimSprite.height) * 6 /2 - textlabel.textwidth/2);
+            position.x = parentPosition.x + (static_cast<int>(victimSprite.width) * 6 /2 - textlabel.textwidth/2);
+            if(position.x - camera.x >= 750){continue;} // dont render if its under the HUD
             if(textlabel.spawnframe){
                 position.y = parentPosition.y - textlabel.textheight - 4;
                 textlabel.spawnframe = false;

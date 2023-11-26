@@ -252,11 +252,7 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_0:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            factory->spawnMonster(registry, spawnpoint, chickens[chicken]);
-                            chicken++;
-                            if(chicken > chickens.size()-1){
-                                chicken = 0;
-                            }
+                            factory->spawnMonster(registry, spawnpoint, BOSSCHICKEN);
                         } break;
                         case SDLK_MINUS:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
@@ -300,7 +296,9 @@ void Game::ProcessInput(){
     // if(keysPressed[4]){std::cout << mouseX << ", " << mouseY << std::endl;}
     if(keysPressed[4]){
         if(mouseX <= 750){
-            player.GetComponent<ProjectileEmitterComponent>().isShooting = true;
+            if(!player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame){
+                player.GetComponent<ProjectileEmitterComponent>().isShooting = true;    
+            }
         } else if(mouseX >= 970 && mouseY <= 280 && mouseY >= 250 && mouseX <= 990){ // clicked nexus button
             if(currentArea != NEXUS){
                 assetStore->PlaySound(BUTTON);
@@ -1830,10 +1828,21 @@ std::vector<Entity> Game::loadDeathMenu(){ // main menu where all you can do is 
     tm* timeInfo = localtime(&currentTime);
     char formattedDate[9]; // "DD/MM/YY\0"
     strftime(formattedDate, sizeof(formattedDate), "%m/%d/%y", timeInfo);
-    std::string secondText = "Killed on " + static_cast<std::string>(formattedDate) + " by a " + spriteToName.at(deadPlayer.murderer);
+    std::string murderer = spriteToName.at(deadPlayer.murderer);
+    const char& fl = murderer[0];
+    std::string aOrAn;
+    bool murdererIsVowel = (fl == 'O' || fl == 'A' || fl == 'E' || fl == 'I' || fl == 'U');
+    murdererIsVowel ? aOrAn = "an" : aOrAn = "a";
+    std::string secondText = "Killed on " + static_cast<std::string>(formattedDate) + " by " + aOrAn + " " + murderer;
     TTF_SizeText(assetStore->GetFont("damagefont2"), secondText.c_str(), &w, &h);
     mg.AddComponent<TextLabelComponent>(secondText, "damagefont2", white, true, 1, 0, 0);
     mg.AddComponent<TransformComponent>(glm::vec2(500 - w / 2,450));
+
+    Entity mg2 = registry->CreateEntity();
+    std::string mg2text = "Heroically earned " + std::to_string(deadPlayer.xp) + "XP before death";
+    TTF_SizeText(assetStore->GetFont("damagefont2"), mg2text.c_str(), &w, &h);
+    mg2.AddComponent<TextLabelComponent>(mg2text, "damagefont2", white, true, 1, 0, 0);
+    mg2.AddComponent<TransformComponent>(glm::vec2(500 - w / 2, 500));
     
     Entity bar = registry->CreateEntity();
     srcRect = {0,0,1000,75};
@@ -1846,7 +1855,7 @@ std::vector<Entity> Game::loadDeathMenu(){ // main menu where all you can do is 
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
     registry->Update();
-    return {playerIcon, rot, mg, bar, play};
+    return {playerIcon, rot, mg, bar, play, mg2};
 }
 
 std::vector<Entity> Game::loadMenuTwo(int numcharacters){
@@ -1960,7 +1969,6 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
     std::string selectedCharacterID = "";
 
     if(deadPlayer.level > 0){ // player has died
-        //todo load death screen shit
         menuonedisposables = loadDeathMenu();
         keysPressed.reset();
     } else{
