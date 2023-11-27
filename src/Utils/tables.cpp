@@ -104,8 +104,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {20, {HPPOT, MPPOT}},
-                {5, {T0ATTRING, T0WISRING, T0DEFRING, T0DEXRING, T0VITRING, T0HPRING, T0MPRING}},
-                {4, {T1SWORD, T1WAND, T1BOW}},
+                {8, {T0ATTRING, T0WISRING, T0DEFRING, T0DEXRING, T0VITRING, T0HPRING, T0MPRING}},
+                {7, {T1SWORD, T1WAND, T1BOW}},
             }
         }
     },
@@ -114,7 +114,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {20, {HPPOT, MPPOT}},
-                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {7, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
             }
         }
     },
@@ -183,11 +183,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {100, {SPDPOT, DEXPOT}},
                 {50, {CABERNET, FIREWATER}},
-                {18, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
+                {18, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
                 {16, {T4SWORD, T4WAND, T4BOW}},
                 {15, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
                 {17, {T2TOME, T2HELM, T2QUIVER}},
-                {5, {HPPOT}}
+                {5, {HPPOT, MPPOT}},
+                {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
             }
         }
     },
@@ -230,6 +231,71 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {17, {T1TOME, T1HELM, T1QUIVER}},
                 {16, {HPPOT, MPPOT}},
                 {12, {T2TOME, T2HELM, T2QUIVER}},
+            }
+        }
+    },
+    {
+        ARCMAGE,
+        {
+            {
+                {100, {LIFEPOT}},
+                {90, {DEFPOT, ATTPOT, WISPOT, VITPOT, MANAPOT}},
+            }
+        }
+    },
+    {
+        HELLHOUND,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        IMP0,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        IMP1,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        IMP2,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        IMP3,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        WHITEDEMON,
+        {
+            {
+                {9, {HPPOT}},
+            }
+        }
+    },
+    {
+        SKELETON5,
+        {
+            {
+                {9, {HPPOT}},
             }
         }
     },
@@ -325,6 +391,13 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {ORANGETURKEY, std::string("Orange Turkey")},
     {YELLOWTURKEY, std::string("Yellow Turkey")},
     {CYANTURKEY, std::string("Cyan Turkey")},
+    {ARCMAGE, std::string("Arc Mage")},
+    {HELLHOUND, std::string("HellHound")},
+    {IMP0, std::string("Imp")},
+    {IMP1, std::string("Imp Warrior")},
+    {IMP2, std::string("Imp Knight")},
+    {IMP3, std::string("Imp Mage")},
+    {WHITEDEMON, std::string("White Demon")},
 
 };
 
@@ -440,9 +513,6 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6HELM, {6500,85}},
     {T7HELM, {7000,90}},
     {T8HELM, {7500,95}},
-
-
-    
 };
 
 std::unordered_map<items, helmData> itemEnumToHelmData = {
@@ -629,6 +699,14 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {ORANGETURKEY,ASC},
     {YELLOWTURKEY,AS},
     {CYANTURKEY,ASC},
+    {ARCMAGE, ASC},
+    {HELLHOUND,ASC},
+    {IMP0,ASC},
+    {IMP1,ASC},
+    {IMP2,ASC},
+    {IMP3,AS},
+    {WHITEDEMON,ASC},
+    {SKELETON5, AS},
 };
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -1770,6 +1848,7 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {SKELETON2, {4}},
     {SKELETON3, {0}},
     {SKELETON4, {0}},
+    {SKELETON5, {0}},
     {WHITECHICKEN, {0}},
     {ROOSTER, {0}},
     {BIGROOSTER, {0}},
@@ -1779,6 +1858,13 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {ORANGETURKEY, {0}},
     {YELLOWTURKEY, {0}},
     {CYANTURKEY, {0}},
+    {ARCMAGE, {2}},
+    {HELLHOUND, {0}},
+    {IMP0, {1}},
+    {IMP1, {0}},
+    {IMP2, {3}},
+    {IMP3, {0}},
+    {WHITEDEMON, {0}},
 };
 
 /*  bool isShooting; 
@@ -1825,6 +1911,16 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}}},
     //spriteEnum                             //boxCollEnum, PEC sprite comp
+
+    {ARCMAGE, {false, 500,750,15,600,false,5,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+
+    {HELLHOUND, {false, 500,750,15,600,false,3,18, LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false,10,10,{14,14}}},
+    {IMP0, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {IMP1, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}}},
+    {IMP2, {false, 500,750,15,600,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}}},
+    {IMP3, {false, 500,750,15,600,false,3,30, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}}},
+    {WHITEDEMON, {false, 500,750,15,600,false,5,40, LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false,10,10,{14,14}}},
+    {SKELETON5, {false, 1000,750,15,500,false,18,360, LOFIOBJ, 8, 8, {10*8, 8*11, 8, 8}, 3,false, true,10,10,{14,14}}},
 };
 
 
@@ -1832,11 +1928,11 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
 std::unordered_map<sprites, statData> spriteEnumToStatData = {
                 // currently, loadmonster() doesn't give rigidybodycomp if spd is set to 0
                 //hp,mp,att,def,spd,dex,vit,wis
-    {SKELETON0, {100,1,1,5,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON1, {150,1,1,10,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON2, {200,1,1,15,20,1,20,1,SKELETONSHIT,SKELETONSDEATH}},
-    {SKELETON3, {200,1,1,5,0,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
-    {SKELETON4, {250,1,1,15,35,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //king
+    {SKELETON0, {400,1,1,5,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
+    {SKELETON1, {450,1,1,10,20,1,10,1,SKELETONSHIT,SKELETONSDEATH}},
+    {SKELETON2, {450,1,1,15,20,1,20,1,SKELETONSHIT,SKELETONSDEATH}},
+    {SKELETON3, {350,1,1,5,0,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
+    {SKELETON4, {500,1,1,15,35,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //king
     {REDKNIGHT0, {1000,1,1,30,20,1,30,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
     {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}},
 
@@ -1852,6 +1948,15 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {ORANGETURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {YELLOWTURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
+            //hp,mp,att,def,spd,dex,vit,wis
+    {ARCMAGE,{15000,0,0,25,40,0,40,0,GHOSTSHIT,DJINNDEATH}},
+    {HELLHOUND,{850,0,0,10,60,0,40,0,ABYSSBRUTESHIT,ABYSSBRUTESDEATH}},
+    {IMP0,{500,0,0,12,20,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
+    {IMP1,{600,0,0,15,24,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
+    {IMP2,{600,0,0,15,22,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
+    {IMP3,{500,0,0,12,20,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
+    {SKELETON5,{800,0,0,10,10,0,40,0,SKELETONSHIT,SKELETONSDEATH}},
+    {WHITEDEMON,{800,0,0,12,25,0,40,0,SKELETONSHIT,SKELETONSDEATH}},
 };
 
 // GIVEN BOXCOLLIDER ENUM RETURNS ASSOCIATED BOXCOLLIDER DATA
@@ -1870,6 +1975,7 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {LOOTBAG, {8*5,8*5,{0,0}}},
     {WIDE, {38*2,18,{6*2,30}}},
     {BIG, {38*2,18*2+12,{6*2,30*2-12}}},
+    {STAR, {10,10,{14,14}}},
 
 };
 
@@ -1907,6 +2013,9 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {BLUELOOTBAG, {LOFIOBJ4,8,8,{8*3,8*9,8,8},4,false,false}},
     {WHITELOOTBAG, {LOFIOBJ4,8,8,{8*4,8*9,8,8},4,false,false}},
     {VAULTCHEST, {LOFIOBJ2,8,8,{8*14,8*0,8,8},4,false,false}},
+    {REDSTAR, {LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false}}, // use bolt bc?
+    {WHITESTAR, {LOFIOBJ,8,8,{8*6,8*6,8,8},4,false,false}},
+    {BLUESTAR, {LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false}},
 
     {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
     {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},
@@ -1920,6 +2029,15 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {ORANGETURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*120,8,8}, 4, false, false}},
     {YELLOWTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*121,8,8}, 4, false, false}},
     {CYANTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*122,8,8}, 4, false, false}},
+
+    {ARCMAGE,{CHARS16X16ENCOUNTERS, 16,16, {0,16*111,16,16}, 4, false, false}},
+    {HELLHOUND,{CHARS16X16ENCOUNTERS, 16,16, {0,16*21,16,16}, 4, false, false}},
+    {IMP0,{CHAR8X8RHERO1, 8,8, {0,8*17,8,8}, 4, false, false}},
+    {IMP1,{CHAR8X8RHERO1, 8,8, {0,8*18,8,8}, 4, false, false}},
+    {IMP2,{CHAR8X8RHERO1, 8,8, {0,8*19,8,8}, 4, false, false}},
+    {IMP3,{CHAR8X8RHERO1, 8,8, {0,8*20,8,8}, 4, false, false}},
+    {SKELETON5,{CHAR8X8RHERO1, 8,8, {0,8*6,8,8}, 4, false, false}},
+    {WHITEDEMON,{CHARS16X16MOUNTAINS1, 16,16, {0,0,16,16}, 4, false, false}},
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -1949,6 +2067,14 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {ORANGETURKEY, STANDARD},
     {YELLOWTURKEY, STANDARD},
     {CYANTURKEY, STANDARD},
+    {ARCMAGE,BIG},
+    {HELLHOUND,BIG},
+    {IMP0,STANDARD},
+    {IMP1,STANDARD},
+    {IMP2,STANDARD},
+    {IMP3,STANDARD},
+    {WHITEDEMON,BIG},
+    {SKELETON5,STANDARD}
 
 };
 
@@ -1975,6 +2101,15 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {ORANGETURKEY, {600,0,50}},
     {YELLOWTURKEY, {600,0,100}},
     {CYANTURKEY, {600,0,100}},
+    {SKELETON5, {750,0,1}},
+    {WHITEDEMON, {500, 0, 100}},
+    {ARCMAGE, {750, 0, 5}},
+    {HELLHOUND,{600,0,50}},
+    {IMP0,{600,0,50}},
+    {IMP1,{600,0,50}},
+    {IMP2,{600,0,50}},
+    {IMP3,{600,0,50}},
+
 };
 
 
@@ -1989,6 +2124,7 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {SKELETON2, {3,0,0}},
     {SKELETON3, {3,0,0}},
     {SKELETON4, {3,0,0}},
+    {SKELETON5, {3,0,0}},
     {SHATTERSBOMB, {1,4,0}}, // old duration was 3500 ms for the bomb
     {TINYWHITECHICKEN, {3,0,0}},
     {TINYREDCHICKEN, {3,0,0}},
@@ -2002,4 +2138,11 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {ORANGETURKEY, {3,0,0}},
     {YELLOWTURKEY, {3,0,0}},
     {CYANTURKEY, {3,0,0}},
+    {ARCMAGE, {3,0,0}},
+    {HELLHOUND, {3,0,0}},
+    {IMP0, {3,0,0}},
+    {IMP1, {3,0,0}},
+    {IMP2, {3,0,0}},
+    {IMP3, {3,0,0}},
+    {WHITEDEMON, {3,0,0}},
 };

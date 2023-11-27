@@ -166,8 +166,8 @@ SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
 int invetoryNumber;
-static int chicken = 3;
-std::vector<sprites> chickens = { TINYWHITECHICKEN, TINYREDCHICKEN, COCKATRICE, WHITECHICKEN, ROOSTER, BIGROOSTER, BIGTURKEY, BOSSCHICKEN, ROBOTURKEY, ORANGETURKEY, YELLOWTURKEY, CYANTURKEY };
+static int chicken = 0;
+std::vector<sprites> monsters = { ARCMAGE, HELLHOUND, IMP0, IMP1, IMP2, IMP3, WHITEDEMON, SKELETON5 };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
@@ -252,7 +252,9 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_0:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            factory->spawnMonster(registry, spawnpoint, BOSSCHICKEN);
+                            if(chicken > monsters.size()-1){chicken = 0;}
+                            factory->spawnMonster(registry, spawnpoint, monsters[chicken]);
+                            chicken++;
                         } break;
                         case SDLK_MINUS:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
@@ -383,11 +385,12 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
 
         // step 2: generate all children rooms
         while(numRoomsCreated < numRooms){
+            bool lastRoom = (numRoomsCreated == numRooms - 1);
             roomSizeTiles = RNG.randomFromRange(9,15);
 
             // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
             int IdOfParentRoom;
-            if(numRoomsCreated == numRooms - 1){ // last room, make it boss room (furthest from genesis)
+            if(lastRoom){ // last room, make it boss room (furthest from genesis)
                 if(!BFSCompleted){ // BFS so we know which rooms are furthest from genesis room
                     std::unordered_set<int> visited = {0};
                     std::queue<int> queue;
@@ -407,7 +410,7 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
                 } 
                 if(bossRoomGenerationAttempts == 10){ // if boss room generation fails with furthest room 10 times, try next furthest room!
                     bossRoomGenerationAttempts = 0;
-                    roomsIdsInOrderOfDepth.pop_back();
+                    roomsIdsInOrderOfDepth.pop_back();   
                 }
                 bossRoomGenerationAttempts++;
                 IdOfParentRoom = roomsIdsInOrderOfDepth.back();
@@ -459,6 +462,9 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
 
             // 2.5) save or delete the room
             if(validRoom){
+                if(lastRoom){
+                    roomsIdsInOrderOfDepth.push_back(room.id);
+                }
                 numRoomsCreated++;
             } else {
                 continue; // invalid room; restart step 2 to try again!
@@ -599,7 +605,7 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
                 if(glm::ivec2(x,y+1) == endPos){ 
                     map[y-1][x] = ceiling;
                     map[y][x] = ceiling;
-                    break;
+                    break; // success
                 }
                 map[y-1][x] = ceiling; 
                 if(below == floor){
@@ -1124,6 +1130,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, CHARS8X8ENCOUNTERS, "./assets/images/chars8x8rEncounters.png");
     assetStore->AddTexture(renderer, CHARS16X16ENCOUNTERS, "./assets/images/chars16x16rEncounters.png");
     assetStore->AddTexture(renderer, LOFIOBJ3, "./assets/images/lofiObj3.png");
+    assetStore->AddTexture(renderer, CHARS16X16MOUNTAINS1, "./assets/images/chars16x16dMountains1.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");

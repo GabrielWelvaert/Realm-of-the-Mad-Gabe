@@ -172,7 +172,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case WALLBOX:{
                             const auto& projectileBirthTime = a.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 50){ // projectile immune from wall collision for first Xms
+                            if(SDL_GetTicks() >= projectileBirthTime + 75){ // projectile immune from wall collision for first Xms
                                 a.Kill();
                             }
                         } break;
@@ -186,7 +186,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case PROJECTILE:{
                             const auto& projectileBirthTime = b.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 50){ // projectile immune from wall collision for first Xms
+                            if(SDL_GetTicks() >= projectileBirthTime + 75){ // projectile immune from wall collision for first Xms
                                 b.Kill();
                             }
                         } break;

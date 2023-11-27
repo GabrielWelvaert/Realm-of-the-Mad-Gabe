@@ -237,7 +237,8 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     SHATTERSBOMBBOX,
     LOOTBAG,
     WIDE,
-    BIG
+    BIG,
+    STAR
 };
 
 // like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
@@ -286,7 +287,21 @@ enum sprites{
     ORANGETURKEY,
     YELLOWTURKEY,
     CYANTURKEY,
-    NONESPRITE
+    NONESPRITE,
+    ARCMAGE,
+    HELLHOUND,
+    IMP0,
+    IMP1,
+    IMP2,
+    IMP3,
+    WHITEDEMON,
+    SKELETON5,
+    REDSTAR,
+    BLUESTAR,
+    WHITESTAR,
+    PURPLESTAR,
+    GREENSTAR,
+    YELLOWSTAR,
 };
 
 enum soundEnums{
@@ -791,7 +806,8 @@ enum textureEnums{
     CHARS8X8ENCOUNTERS,
     CHARS16X16ENCOUNTERS,
     ADMINCROWNICON,
-    LOFIOBJ3
+    LOFIOBJ3,
+    CHARS16X16MOUNTAINS1
 };
 
 #endif

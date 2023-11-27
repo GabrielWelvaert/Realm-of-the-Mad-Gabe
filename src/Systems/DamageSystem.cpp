@@ -38,7 +38,6 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
         soundEnums playerHitSounds[6] = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
         int noise = RNG.randomFromRange(0,5);
         hitSoundId = playerHitSounds[noise];
-        //TODO if jugg exists: armored calculation lol
     } else {
         hitSoundId = victimHPMPComponent.hitsound;
         deathSoundId = victimHPMPComponent.deathsound;
@@ -46,6 +45,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
 
     /*
     Just want to go on record and say the following code has duplicated logic. dont ask me why I did it this way. 
+    This system was coded early on in the project before I was proficient in developing good systems
     */
 
     // piercing logic, inflict damage, play hit noise
