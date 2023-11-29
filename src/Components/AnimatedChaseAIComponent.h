@@ -13,11 +13,10 @@ struct AnimatedChaseAIComponent{
     inline AnimatedChaseAIComponent() = default;
 
     inline AnimatedChaseAIComponent(sprites se, Xoshiro256& RNG){
-        auto data = spritesToaiChaseData.at(se);
+        const auto& data = spritesToaiChaseData.at(se);
         this->maxDistance = RNG.randomSmediumModification(data.maxDistance);
-        auto pec = spriteEnumToPEC.at(se);
+        const auto& pec = spriteEnumToPEC.at(se);
         this->engageRange = (pec.projectileSpeed * pec.duration / 1000);
-        // std::cout << (pec.projectileSpeed * pec.duration / 1000) << std::endl;
         data.detectRange < engageRange ? this->detectRange = engageRange : this->detectRange = data.detectRange;
     }
 

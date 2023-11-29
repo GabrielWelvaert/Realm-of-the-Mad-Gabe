@@ -43,6 +43,9 @@ struct ProjectileEmitterComponent{
     //sprites 
     sprites spriteOfParent;
 
+    //does it pierce
+    bool ignoresDefense = false;
+
     inline ProjectileEmitterComponent() = default;
 
     inline ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
@@ -78,7 +81,7 @@ struct ProjectileEmitterComponent{
 
     // used by monsters
     inline ProjectileEmitterComponent(sprites spriteEnum, Entity self){
-        auto pecdata = spriteEnumToPEC.at(spriteEnum);
+        const auto& pecdata = spriteEnumToPEC.at(spriteEnum);
         this->parent = self;
         this->duration = pecdata.duration; 
         this->damage = pecdata.damage;
@@ -99,6 +102,10 @@ struct ProjectileEmitterComponent{
         this->boxheight = pecdata.boxheight;
         this->boxoffset = pecdata.boxoffset;
         this->spriteOfParent = spriteEnum;
+        this->ignoresDefense = pecdata.ignoresDefense;
+        this->inflictsStatusEffect = pecdata.inflictsStatusEffect;
+        this->statusEffect = pecdata.statusEffect;
+        this->durationMS = pecdata.durationMS;
     }
 
     // used for player. updates will occur when equipping items 

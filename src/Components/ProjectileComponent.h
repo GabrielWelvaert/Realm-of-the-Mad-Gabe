@@ -3,6 +3,8 @@
 
 #include "../../libs/SDL2/SDL.h"
 #include <unordered_set>
+#include "../Utils/enums.h"
+#include "../ECS/ECS.h"
 
 
 struct ProjectileComponent {
@@ -16,12 +18,24 @@ struct ProjectileComponent {
     bool inflictsStatusEffect = false;
     statuses statsusEffect = QUIET;
     unsigned short SEdurationMS = 0;
-
     sprites spriteOfParent;
+    
+    bool ignoresDefense = false;
 
     inline ProjectileComponent() = default;
 
-    inline ProjectileComponent(int damage, int duration, bool piercing, Entity parent, unsigned char parentGroupEnumInt, sprites spriteOfParent, bool inflictsStatusEffect = false,  statuses statsusEffect = QUIET, unsigned short SEdurationMS = 0): 
+    inline ProjectileComponent(
+        int damage, 
+        int duration, 
+        bool piercing, 
+        Entity parent, 
+        unsigned char parentGroupEnumInt, 
+        sprites spriteOfParent, 
+        bool inflictsStatusEffect = false,  
+        statuses statsusEffect = QUIET, 
+        unsigned short SEdurationMS = 0, 
+        bool ignoresDefense = false): 
+
         damage(damage), 
         duration(duration), 
         piercing(piercing), 
@@ -31,7 +45,8 @@ struct ProjectileComponent {
         parentGroupEnumInt(parentGroupEnumInt),
         inflictsStatusEffect(inflictsStatusEffect),
         statsusEffect(statsusEffect),
-        SEdurationMS(SEdurationMS)
+        SEdurationMS(SEdurationMS),
+        ignoresDefense(ignoresDefense)
         {} 
 };
 

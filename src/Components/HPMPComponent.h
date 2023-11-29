@@ -7,7 +7,7 @@
 // #include "../Utils/factory.h"
 
 struct HPMPComponent{
-    float activehp; // if < 0 you die 
+    double activehp; // if < 0 you die 
     float activemp;
     unsigned short maxhp; //modified by rings and shit
     unsigned short maxmp;
@@ -21,7 +21,7 @@ struct HPMPComponent{
         : activehp(0), activemp(0), maxhp(0), maxmp(0), activewisdom(0), activevitality(0), activedefense(0), hitsound(DEFAULTHIT), deathsound(DEFAULTDEATH) {
     }
 
-    inline HPMPComponent(float activehp, float activemp, unsigned short maxhp, unsigned short maxmp, unsigned char activewisdom, unsigned char activevitality, unsigned char activedefense, soundEnums hitsound, soundEnums deathsound)
+    inline HPMPComponent(double activehp, float activemp, unsigned short maxhp, unsigned short maxmp, unsigned char activewisdom, unsigned char activevitality, unsigned char activedefense, soundEnums hitsound, soundEnums deathsound)
         : activehp(activehp), activemp(activemp), maxhp(maxhp), maxmp(maxmp), activewisdom(activewisdom), activevitality(activevitality), activedefense(activedefense), hitsound(hitsound), deathsound(deathsound) {
     }
 
