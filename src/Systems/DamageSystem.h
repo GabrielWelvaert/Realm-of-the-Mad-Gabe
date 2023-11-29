@@ -40,6 +40,8 @@ class DamageSystem: public System{
 
         std::unordered_map<unsigned int, std::unordered_set<unsigned int>> projectileVictimsAsCIDs; //projectile victim creationIDs
 
+        soundEnums playerHitSounds[6] = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
+
         inline void displayDamgeText(ProjectileDamageEvent& event, const glm::vec2& victimPosition, const int& dmg){
             Entity dmgText = event.registry->CreateEntity();
             // std::cout << "victimposition in displayerdamagetext func " << victimPosition.x << ", " << victimPosition.y << std::endl;
@@ -77,7 +79,7 @@ class DamageSystem: public System{
 
         void onProjectileCollision(ProjectileDamageEvent& event);
 
-        void Update(float deltaTime, Entity player);
+        void Update(double deltaTime, Entity player);
 
 };
 

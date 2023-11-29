@@ -15,7 +15,7 @@ PassiveAISystem::PassiveAISystem(){
     RequireComponent<PassiveAIComponent>();
 }
 
-void PassiveAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){return;}
+void PassiveAISystem::Update(const glm::vec2& playerPos){return;}
 
 ChaseAISystem::ChaseAISystem(){
     RequireComponent<ChaseAIComponent>();
@@ -24,7 +24,7 @@ ChaseAISystem::ChaseAISystem(){
     RequireComponent<TransformComponent>();
 }
 
-void ChaseAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
+void ChaseAISystem::Update(const glm::vec2& playerPos){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
@@ -71,7 +71,7 @@ NeutralAISystem::NeutralAISystem(){
     RequireComponent<ProjectileEmitterComponent>();
 }
 
-void NeutralAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
+void NeutralAISystem::Update(const glm::vec2& playerPos){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
@@ -98,7 +98,7 @@ TrapAISystem::TrapAISystem(){
     RequireComponent<TransformComponent>();
 }
 
-void TrapAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
+void TrapAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
@@ -132,7 +132,7 @@ AnimatedChaseAISystem::AnimatedChaseAISystem(){
     RequireComponent<StatusEffectComponent>();
 }
 
-void AnimatedChaseAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
+void AnimatedChaseAISystem::Update(const glm::vec2& playerPos){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
@@ -206,7 +206,7 @@ AnimatedNeutralAISystem::AnimatedNeutralAISystem(){
     RequireComponent<AnimationComponent>();
 }
 
-void AnimatedNeutralAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore){
+void AnimatedNeutralAISystem::Update(const glm::vec2& playerPos){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
@@ -244,7 +244,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<RidigBodyComponent>();
 }
 
-void BossAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory){
+void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
@@ -319,7 +319,135 @@ void BossAISystem::Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& asse
                     // chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                 }
             } break;
+            case ARCMAGEBOSSAI:{
+
+            } break;
+            case GORDONBOSSAI:{
+
+            } break;
         }
         playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+    }
+}
+
+AnimatedPounceAISystem::AnimatedPounceAISystem(){
+    RequireComponent<AnimatedPounceAIComponent>();
+    RequireComponent<ProjectileEmitterComponent>();
+    RequireComponent<AnimatedShootingComponent>();
+    RequireComponent<AnimationComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<SpeedStatComponent>();
+}
+
+void AnimatedPounceAISystem::Update(const glm::vec2& playerPos){
+    for(auto& entity: GetSystemEntities()){
+        const auto& position = entity.GetComponent<TransformComponent>().position;
+        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
+        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
+        auto& aidata = entity.GetComponent<AnimatedPounceAIComponent>();
+        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+        auto& ac = entity.GetComponent<AnimationComponent>();
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
+        if(distanceToPlayer <= aidata.detectRange){ 
+            if(distanceToPlayer <= aidata.engageRange){ // pounce if possible!
+                auto time = SDL_GetTicks();
+                if(!aidata.pouncing){
+                    if(time > aidata.lastPounceTime + aidata.pounceCooldown){ // not pouncing & pouncing cooldown expired
+                        aidata.pouncing = true;
+                        aidata.lastPounceTime = time;
+                    } 
+                    if(distanceToPlayer < 50){ 
+                        velocity.x = velocity.y = 0;
+                        if(pec.isShooting){
+                            if(pec.lastEmissionTime >= aidata.lastPounceTime + pec.repeatFrequency - pec.repeatFrequency / 2){ // shot completed
+                                asc.animatedShooting = pec.isShooting = false;
+                            }
+                            // ac.xmin = 4;
+                            // ac.numFrames = 2; 
+                            // ac.currentFrame = 1;
+                        } else {
+                            // velocity.x = velocity.y = 0;
+                            ac.xmin = 0;
+                            ac.numFrames = 1;
+                        }
+                    } else {
+                        speed = aidata.speeds[0];
+                        if(pec.isShooting){
+                            if(pec.lastEmissionTime >= aidata.lastPounceTime + pec.repeatFrequency - pec.repeatFrequency / 2){ // shot completed
+                                asc.animatedShooting = pec.isShooting = false;
+                            }
+                            // ac.xmin = 4;
+                            // ac.numFrames = 2; 
+                            // ac.currentFrame = 1;
+                        } else {
+                            ac.xmin = 0;
+                            entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 1 : ac.numFrames = 2;
+                        }
+                        chasePlayer(position, playerPos, velocity); 
+
+                    }
+                } else {
+                    if(time >= aidata.lastPounceTime + 1000){ // end pounce: time elapsed  (walk)
+                        speed = aidata.speeds[0];
+                        asc.animatedShooting = pec.isShooting = true;
+                        // ac.xmin = 4;
+                        // ac.numFrames = 2; 
+                        // ac.currentFrame = 1;
+                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        chasePlayer(position, playerPos, velocity);
+                        aidata.pouncing = false;
+                        aidata.lastPounceTime = time;
+                    } else if (distanceToPlayer < 50){ // end pounce: target reached (stand)
+                        asc.animatedShooting = pec.isShooting = true;
+                        // ac.xmin = 4;
+                        // ac.numFrames = 2; 
+                        // ac.currentFrame = 1;
+                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        velocity.x = velocity.y = 0;
+                        aidata.pouncing = false; 
+                        aidata.lastPounceTime = time;
+                    } else { //continue pounce
+                        asc.animatedShooting = false;
+                        pec.isShooting = false;
+                        ac.xmin = 0;
+                        entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 1 : ac.numFrames = 2;
+                        // aidata.lastPounceTime = time;
+                        speed = aidata.speeds[2];
+                        chasePlayer(position, playerPos, velocity);    
+                    }
+                }
+                playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+            } else { // chase at regular speed. dont shoot or pounce
+                speed = aidata.speeds[1];
+                if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
+                    flip = SDL_FLIP_HORIZONTAL;
+                } else { // facing right
+                    flip = SDL_FLIP_NONE;
+                }
+                asc.animatedShooting = false;
+                pec.isShooting = false;
+                ac.xmin = 0;
+                if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+                    ac.numFrames = 2;   
+                } else {
+                    ac.numFrames = 1;
+                }
+            }
+        } else { // out of range; do nothing
+            asc.animatedShooting = false;
+            pec.isShooting = false;
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            velocity.x = 0;
+            velocity.y = 0;                            
+        }
     }
 }

@@ -167,7 +167,8 @@ unsigned int startTime;
 const unsigned int MSToReadInput = 1;
 int invetoryNumber;
 static int chicken = 0;
-std::vector<sprites> monsters = { ARCMAGE, HELLHOUND, IMP0, IMP1, IMP2, IMP3, WHITEDEMON, SKELETON5 };
+// std::vector<sprites> monsters = { ARCMAGE, HELLHOUND, IMP0, IMP1, IMP2, IMP3, WHITEDEMON, SKELETON5 };
+std::vector<sprites> monsters = { BAT0 };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
@@ -245,15 +246,16 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, MPPOT, lootbag);
                             factory->createItemInBag(registry, MPPOT, lootbag);
                             factory->createItemInBag(registry, MPPOT, lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                         } break;
                         case SDLK_0:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             if(chicken > monsters.size()-1){chicken = 0;}
                             factory->spawnMonster(registry, spawnpoint, monsters[chicken]);
+                            // factory->spawnMonster(registry, spawnpoint, WHITEDEMON);
                             chicken++;
                         } break;
                         case SDLK_MINUS:{
@@ -312,6 +314,8 @@ void Game::ProcessInput(){
             characterManager->SaveCharacter(activeCharacterID, player);
             const auto& area = player.GetComponent<PlayerItemsComponent>().areaOfViewedPortal;
             keysPressed[4] = false;
+            auto& velocity = player.GetComponent<RidigBodyComponent>().velocity;
+            velocity = {0.0,0.0};
             switch(area){
                 case CHANGENAME:{ // player wants to change name 
                     eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
@@ -328,6 +332,7 @@ void Game::ProcessInput(){
                     Setup(false, false, area);
                 } break;
             }
+            deltaTime = 0.0;
         }
     } else {
         player.GetComponent<ProjectileEmitterComponent>().isShooting = false;
@@ -364,7 +369,7 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
         std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
         int bossRoomGenerationAttempts = 0;
         mapSizeTiles = 750; 
-        numRooms = RNG.randomFromRange(15,30);
+        numRooms = RNG.randomFromRange(20,35);
         roomsIdsInOrderOfDepth.reserve(numRooms);
         w = h = RNG.randomFromRange(10,15);
         x = mapSizeTiles / 2;
@@ -672,7 +677,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             while(map.size() == 0 || map[0].size() > 341 || map.size() > 341){
                 map = GenerateMap(wallTheme);    
             }
-            // map = GenerateMap(wallTheme);  
         }break;
     }
     std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
@@ -761,6 +765,10 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 if(wallTheme == CHICKENLAIR && currentCoord.x == 1 && currentCoord.y ==6 ){ // random floor tile 
                     srcRect.x = RNG.randomFromRange(1,5) * tileSize;
                     // srcRect.y = 6 * tileSize;
+                } else if(wallTheme == UDL  && currentCoord.x == 5 && currentCoord.y == 0){
+                    if(RNG.randomFromRange(0,25) == 20){
+                        srcRect.x += 1 * tileSize;
+                    }
                 }
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
@@ -1573,7 +1581,7 @@ void Game::LoadGui(){
     SDL_RenderClear(renderer);
 
     /*Portal UI Components*/
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character"};
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1731,6 +1739,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<PortalSystem>();
     registry->AddSystem<DisplayNameSystem>();
     registry->AddSystem<BossAISystem>();
+    registry->AddSystem<AnimatedPounceAISystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2164,8 +2173,8 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(650, 1575), CHANGENAME);
             factory->spawnPortal(registry, glm::vec2(750, 1675), VAULT);
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
-            factory->spawnPortal(registry, glm::vec2(750,600), CHICKENLAIR); //todo dungeon 2
-            factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
+            factory->spawnPortal(registry, glm::vec2(750,600), UDL); //todo dungeon 2
+            // factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
             // 750, 600
         } break;
         default:{
@@ -2220,19 +2229,19 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
 void Game::Update(){
     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
     millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
-    // if(deltaTime > 30){return;}
     registry->Update();
 
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
-    registry->GetSystem<PassiveAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<ChaseAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<NeutralAISystem>().Update(playerpos, assetStore);
+    // registry->GetSystem<PassiveAISystem>().Update(playerpos);
+    registry->GetSystem<ChaseAISystem>().Update(playerpos);
+    registry->GetSystem<NeutralAISystem>().Update(playerpos);
     registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
     registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory);
-    registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos, assetStore);
+    registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
+    registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
+    registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);

@@ -40,6 +40,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/BossAIComponent.h"
 #include "../Utils/room.h"
+#include "../Components/AnimatedPounceAIComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 

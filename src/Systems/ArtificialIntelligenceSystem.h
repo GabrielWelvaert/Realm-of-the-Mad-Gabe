@@ -34,7 +34,7 @@ class PassiveAISystem: public System{
         
         PassiveAISystem();
 
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos);
 };
 
 // chases and shooots
@@ -43,7 +43,7 @@ class ChaseAISystem: public System{
 
         ChaseAISystem();
 
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos);
 };
 
 // shoots, does not chase
@@ -51,7 +51,7 @@ class NeutralAISystem: public System{
     public:
 
         NeutralAISystem();
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos);
 };
 
 class TrapAISystem: public System{
@@ -59,7 +59,7 @@ class TrapAISystem: public System{
 
         TrapAISystem();
 
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore);
 };
 
 // chases and shooots (animated)
@@ -68,7 +68,7 @@ class AnimatedChaseAISystem: public System{
 
         AnimatedChaseAISystem();
 
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos);
 };
 
 // shoots, does not chase (animated)
@@ -77,7 +77,7 @@ class AnimatedNeutralAISystem: public System{
 
         AnimatedNeutralAISystem();
 
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const glm::vec2& playerPos);
 };
 
 class BossAISystem: public System{
@@ -86,7 +86,12 @@ class BossAISystem: public System{
 
     public:
         BossAISystem();
-        void Update(glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
+        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
 };
 
+class AnimatedPounceAISystem: public System{
+    public:
+        AnimatedPounceAISystem();
+        void Update(const glm::vec2& playerPos);
+};
 #endif 

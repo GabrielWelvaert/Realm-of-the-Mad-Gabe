@@ -14,8 +14,14 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     const auto& pec = player.GetComponent<ProjectileEmitterComponent>();
     auto& ac = player.GetComponent<AbilityComponent>(); 
     const auto& holdingItem = player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
-
-    int move = moves[keysPressed];
+    const auto& confused = player.GetComponent<StatusEffectComponent>().effects[CONFUSED];
+    int move;
+    
+    if(confused){
+        move = confusedMoves[keysPressed];
+    } else {
+        move = moves[keysPressed];
+    }
 
     if(space){ // ability use attempt by player
         auto& ac = player.GetComponent<AbilityComponent>(); 

@@ -23,6 +23,7 @@
 #include "../Events/HelmUseEvent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Components/PlayerItemsComponent.h"
+#include "../Components/StatusEffectComponent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
@@ -88,6 +89,41 @@ class KeyboardMovementSystem: public System {
                 {std::bitset<5>(0b11100), DOWNRIGHT},
                 {std::bitset<5>(0b11101), RIGHT},
                 {std::bitset<5>(0b11110), DOWN},
+                {std::bitset<5>(0b11111), NONE}
+        };
+
+        std::unordered_map<std::bitset<5>, movements> confusedMoves = {
+                {std::bitset<5>(0b00000), NONE},
+                {std::bitset<5>(0b00001), DOWN},
+                {std::bitset<5>(0b00010), RIGHT},
+                {std::bitset<5>(0b00011), DOWNRIGHT},
+                {std::bitset<5>(0b00100), UP},
+                {std::bitset<5>(0b00101), NONE},
+                {std::bitset<5>(0b00110), UPRIGHT},
+                {std::bitset<5>(0b00111), RIGHT},
+                {std::bitset<5>(0b01000), LEFT},
+                {std::bitset<5>(0b01001), DOWNLEFT},
+                {std::bitset<5>(0b01010), NONE},
+                {std::bitset<5>(0b01011), DOWN},
+                {std::bitset<5>(0b01100), UPLEFT},
+                {std::bitset<5>(0b01101), LEFT},
+                {std::bitset<5>(0b01110), UP},
+                {std::bitset<5>(0b01111), NONE},
+                {std::bitset<5>(0b10000), NONE},
+                {std::bitset<5>(0b10001), DOWN},
+                {std::bitset<5>(0b10010), RIGHT},
+                {std::bitset<5>(0b10011), DOWNRIGHT},
+                {std::bitset<5>(0b10100), UP},
+                {std::bitset<5>(0b10101), NONE},
+                {std::bitset<5>(0b10110), UPRIGHT},
+                {std::bitset<5>(0b10111), RIGHT},
+                {std::bitset<5>(0b11000), LEFT},
+                {std::bitset<5>(0b11001), DOWNLEFT},
+                {std::bitset<5>(0b11010), NONE},
+                {std::bitset<5>(0b11011), DOWN},
+                {std::bitset<5>(0b11100), UPLEFT},
+                {std::bitset<5>(0b11101), LEFT},
+                {std::bitset<5>(0b11110), UP},
                 {std::bitset<5>(0b11111), NONE}
         };
 

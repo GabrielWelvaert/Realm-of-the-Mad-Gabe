@@ -56,6 +56,14 @@ struct spritedata { // can be used to initialize SpriteComponents.
     bool diagonalSprite;
 };
 
+struct AnimatedPounceAIdata{
+    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
+    unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
+    unsigned short shootRange; 
+    std::vector<int> speeds; 
+    int cooldown;
+};
+
 struct playerPECupdateData{
     unsigned short duration;
     unsigned short minDamage;
@@ -110,6 +118,12 @@ struct enemyPECData{ // same as PEC minus parent, lastEmissionTime, velocity
     unsigned short boxwidth; // box info for projectile
     unsigned short boxheight;
     glm::vec2 boxoffset; 
+
+    bool inflictsStatusEffect;
+    statuses statusEffect;
+    unsigned short durationMS;
+
+    bool ignoresDefense;
 };
 
 struct statData{ // used to populate HPMPComponent, OffenseStatComponent, SpeedStatComponent, ClassNameComponent for MONSTERS
@@ -216,6 +230,7 @@ extern std::unordered_map<sprites, spritedata> enumToSpriteComponent;
 extern std::unordered_map<classes, spritedata> classToSpriteData;
 extern std::unordered_map<sprites, boxColliders> spriteToBC;
 extern std::unordered_map<sprites, aiChaseData> spritesToaiChaseData;
+extern std::unordered_map<sprites, AnimatedPounceAIdata> spritesToPounceData;
 extern std::unordered_map<sprites, trapaidata> spritetotrap;
 extern std::unordered_map<sprites, animationData> spriteToAnimationData;
 

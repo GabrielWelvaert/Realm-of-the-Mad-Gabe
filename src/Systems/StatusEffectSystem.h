@@ -39,6 +39,12 @@ class StatusEffectSystem: public System{
                 case PARALYZE:{
                     text = "PARALYZED";
                 }break;
+                case BLEEDING:{
+                    text = "BLEEDING";
+                } break;
+                case CONFUSED:{
+                    text = "CONFUSED";
+                } break;
                 default:{
                     return;
                 }break;

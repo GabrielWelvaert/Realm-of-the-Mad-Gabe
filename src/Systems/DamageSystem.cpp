@@ -3,6 +3,7 @@
 DamageSystem::DamageSystem(){
     RequireComponent<BoxColliderComponent>();
     RequireComponent<HPMPComponent>();
+    RequireComponent<StatusEffectComponent>();
 }
 
 void DamageSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
@@ -13,47 +14,45 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
     auto& victimHPMPComponent = event.victim.GetComponent<HPMPComponent>();
     const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
-    soundEnums hitSoundId;
-    soundEnums deathSoundId;
+    soundEnums hitSoundId,deathSoundId;
     
     if(projectileComponent.damage == -1){return;} // flag 
 
     // defense calculation
-    unsigned short realdamage;
-    if(projectileComponent.damage >= victimHPMPComponent.activedefense){
-        realdamage = projectileComponent.damage - victimHPMPComponent.activedefense;
-    } else {
-        realdamage = 0; // set to 0 instead of overflowing in cases where dmg < def 
-    }
-
-    // in rotmg, minimum damage reduction from defense is 90%
-    if(realdamage < projectileComponent.damage * .1){
-        realdamage = projectileComponent.damage * .1;
-        if(realdamage < 1){
-            realdamage = 1;
+    unsigned short realdamage = projectileComponent.damage;
+    if(!projectileComponent.ignoresDefense){
+        if(projectileComponent.damage >= victimHPMPComponent.activedefense){
+            realdamage = projectileComponent.damage - victimHPMPComponent.activedefense;
+        } else {
+            realdamage = 0; // set to 0 instead of overflowing in cases where dmg < def 
+        }
+        // in rotmg, minimum damage reduction from defense is 90%
+        if(realdamage < projectileComponent.damage * .1){
+            realdamage = projectileComponent.damage * .1;
+            if(realdamage < 1){
+                realdamage = 1;
+            }
         }
     }
 
     if(event.victim.BelongsToGroup(PLAYER)){
-        soundEnums playerHitSounds[6] = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
-        int noise = RNG.randomFromRange(0,5);
-        hitSoundId = playerHitSounds[noise];
+        hitSoundId = playerHitSounds[RNG.randomFromRange(0,5)];
     } else {
         hitSoundId = victimHPMPComponent.hitsound;
         deathSoundId = victimHPMPComponent.deathsound;
     }
 
     /*
-    Just want to go on record and say the following code has duplicated logic. dont ask me why I did it this way. 
-    This system was coded early on in the project before I was proficient in developing good systems
+    Just want to go on record and say the following code has duplicated logic.
+    This code was developed alongside changing requirements. Thats my excuse, I guess. I could clean it up, but it wouldn't really improve performance at all.
     */
 
     // piercing logic, inflict damage, play hit noise
     if(projectileComponent.piercing){
         if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) == projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
             victimHPMPComponent.activehp -= realdamage;
-            if(projectileComponent.statsusEffect){
-                if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
+            if(projectileComponent.inflictsStatusEffect){
+                if(/*event.victim.HasComponent<StatusEffectComponent>() && */ !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){ // all dudes should have SEC
                     event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
                 }
             }
@@ -101,8 +100,8 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
 
     } else { // projectile doesnt pierce; destroy projectile
         victimHPMPComponent.activehp -= realdamage;
-        if(projectileComponent.statsusEffect){
-            if(event.victim.HasComponent<StatusEffectComponent>() && !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
+        if(projectileComponent.inflictsStatusEffect){
+            if(/*event.victim.HasComponent<StatusEffectComponent>() &&*/ !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
                 event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
             }
         }
@@ -153,7 +152,8 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
 
 }
 
-void DamageSystem::Update(float deltaTime, Entity player){
+
+void DamageSystem::Update(double deltaTime, Entity player){
     // wis regen mp for player
     auto& hpmp = player.GetComponent<HPMPComponent>();
     const auto& quiet = player.GetComponent<StatusEffectComponent>().effects[QUIET];
@@ -164,7 +164,7 @@ void DamageSystem::Update(float deltaTime, Entity player){
         }
     } 
 
-    // vit regen hp for everyone
+    // vit regen hp & bleeding damage for everyone
     for(auto entity: GetSystemEntities()){
         auto& stats = entity.GetComponent<HPMPComponent>();
         auto& activehp = stats.activehp;
@@ -177,6 +177,5 @@ void DamageSystem::Update(float deltaTime, Entity player){
                 activehp = maxhp;
             }
         }
-        
     }
 }

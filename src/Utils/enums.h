@@ -185,7 +185,10 @@ enum enemyCategory{
     AS, // animated shoot
     SC, // shoot chase 
     T, // trap
-    CHICKENBOSSAI
+    CHICKENBOSSAI,
+    ARCMAGEBOSSAI,
+    GORDONBOSSAI,
+    POUNCE,
 };
 
 enum wallTheme{ //wall themes are used as primary keys for areas/dungeons 
@@ -197,7 +200,8 @@ enum wallTheme{ //wall themes are used as primary keys for areas/dungeons
     VAULT,
     CHICKENLAIR,
     CHANGENAME, // DONT SPAWN AREAS WITH THIS PLEASE! ITS JUST FOR CHANGE NAME 
-    CHANGECHAR
+    CHANGECHAR,
+    GORDONSLAIRWALLTHEME
 };
 
 enum itemPositions{
@@ -302,6 +306,8 @@ enum sprites{
     PURPLESTAR,
     GREENSTAR,
     YELLOWSTAR,
+    MOUSE0,
+    BAT0
 };
 
 enum soundEnums{
@@ -596,7 +602,9 @@ enum statuses{
     SLOWED,
     PARALYZE,
     SPEEDY,
-    BERSERK
+    BERSERK,
+    CONFUSED,
+    BLEEDING
 };
 
 enum textureEnums{
@@ -807,7 +815,9 @@ enum textureEnums{
     CHARS16X16ENCOUNTERS,
     ADMINCROWNICON,
     LOFIOBJ3,
-    CHARS16X16MOUNTAINS1
+    CHARS16X16MOUNTAINS1,
+    CASTLEPORTAL,
+    GORDONSCHAMBERPORTAL,
 };
 
 #endif

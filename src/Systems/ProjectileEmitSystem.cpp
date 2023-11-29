@@ -49,7 +49,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                 auto projSpawnY = transform.position.y + ((parentSprite.height * transform.scale.y) / 2) - PEC.spriteheight * projectilescale / 2; 
                 auto projectilePosition = glm::vec2(projSpawnX, projSpawnY); 
                 unsigned long damage;
-                unsigned char parentGroupEnumInt;
+                unsigned char parentGroupEnumInt; // early on, I didn't fully understand how enums work
 
                 // get origin data
                 float realgap;
@@ -81,7 +81,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                     projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                     projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees); //init pos is same as emitter 
                     PEC.lastEmissionTime = SDL_GetTicks(); // we just shot so record that in lastEmissionTime
-                    projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent);
+                    projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                     projectile.Group(PROJECTILE);
                     if(shots == 1){ // only one shot just shoot and origin and exit
                         if(IsPlayer){
@@ -102,7 +102,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees + realgap*i); //init pos is same as emitter 
-                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt,PEC.spriteOfParent);
+                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                         projectile.Group(PROJECTILE);
                         
                         // next below origin
@@ -113,7 +113,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees + realgap*-i); //init pos is same as emitter 
-                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt,PEC.spriteOfParent);
+                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                         projectile.Group(PROJECTILE);
                     }
 
@@ -129,7 +129,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), (rotationDegrees + realgap/2) + realgap*i*first); //init pos is same as emitter 
-                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt,PEC.spriteOfParent);
+                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                         projectile.Group(PROJECTILE);
 
                         projectile = registry->CreateEntity();
@@ -139,7 +139,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), (rotationDegrees - realgap/2) + realgap*-i*first); //init pos is same as emitter 
-                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt,PEC.spriteOfParent);
+                        projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                         projectile.Group(PROJECTILE);
                     }
 

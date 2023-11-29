@@ -27,9 +27,9 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             displayStatusEffectText(event.registry, statusEnum, entity);
         }break;
         case SLOWED:{
-            if(!entity.HasComponent<SpeedStatComponent>()){
-                return;
-            }
+            // if(!entity.HasComponent<SpeedStatComponent>()){
+            //     return;
+            // }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -46,9 +46,9 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             displayStatusEffectText(event.registry, statusEnum, entity);                 
         }break;
         case SPEEDY:{
-            if(!entity.HasComponent<SpeedStatComponent>()){
-                return;
-            }
+            // if(!entity.HasComponent<SpeedStatComponent>()){
+            //     return;
+            // }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -72,6 +72,12 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
                 frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
             }
         }break;
+        case CONFUSED:{
+            displayStatusEffectText(event.registry, statusEnum, entity); 
+        }break;
+        case BLEEDING:{
+            displayStatusEffectText(event.registry, statusEnum, entity); 
+        }break;
     }
     if(entity.BelongsToGroup(PLAYER)){
         event.eventbus->EmitEvent<UpdateDisplayStatEvent>(entity);    
@@ -81,17 +87,16 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
 void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus){ // revert changes if necessary, called from this system's Update()
     auto& sec = recipient.GetComponent<StatusEffectComponent>();
     switch(statusEnum){
-        case 0:{// QUIET
-            // quiet doesn't need anything to be reset; wisdom is not set to 0 but wisdom recovery is blocked in DamageSystem::Update()
+        case 0: // QUIET
+        case 2: // PARALYZE
+        case 5: // CONFUSED
+        case 6:{// BLEEDING
+            // these dont modify stats; nothing to reset
             return; 
-
         }break;
         case 1:{// SLOWED 
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
             activespeed += sec.modifications[SLOWED];
-        }break;
-        case 2:{// PARALYZE
-            //movement system watches the respective bit for this; nothing to change
         }break;
         case 3:{ //SPEEDY
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
@@ -107,7 +112,7 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
                 projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); 
                 frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
             }
-        }
+        } 
         
     }
     if(recipient.BelongsToGroup(PLAYER)){
@@ -121,10 +126,20 @@ void StatusEffectSystem::Update(std::unique_ptr<EventBus>& eventbus){
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         if(!sec.effects.none()){ // if bitset is not off 
             for(int i = 0; i <= 7; i++){
-                if(sec.effects[i] && currentTime >= sec.endTimes[i]){ // if status effect is on and expired, turn off
-                    sec.effects[i] = false;
-                    onStatusDisable(entity, i, eventbus);
+                if(sec.effects[i]){
+                    if(i == BLEEDING && currentTime >= sec.lastBleedTime + 250){ // bleeding logic done here for cache-friendliness
+                        auto& activehp = entity.GetComponent<HPMPComponent>().activehp;
+                        if(activehp >= 5.0){ // player cannot die from bleeding
+                            activehp -= 5.0;    
+                        }
+                        sec.lastBleedTime = currentTime;
+                    }
+                    if(currentTime >= sec.endTimes[i]){ // status effect expired; revert changes if necessary
+                        sec.effects[i] = false;
+                        onStatusDisable(entity, i, eventbus);
+                    }
                 }
+
             }    
         }
     }
