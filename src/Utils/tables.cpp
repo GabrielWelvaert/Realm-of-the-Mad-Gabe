@@ -208,8 +208,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {16, {T4SWORD, T4WAND, T4BOW}},
                 {15, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
                 {20, {T2TOME, T2HELM, T2QUIVER}},
-                {5, {HPPOT, MPPOT}},
                 {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
+                {2, {CHICKENTOME}},
             }
         }
     },
@@ -586,6 +586,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6HELM, {6500,85}},
     {T7HELM, {7000,90}},
     {T8HELM, {7500,95}},
+    {CHICKENTOME, {500, 112}}
 };
 
 std::unordered_map<items, helmData> itemEnumToHelmData = {
@@ -610,6 +611,7 @@ std::unordered_map<items, tomeData> itemEnumToTomeData = {
     {T6TOME, {300}},
     {T7TOME, {325}},
     {T8TOME, {350}},
+    {CHICKENTOME, {212}},
 };
 
 std::unordered_map<items, quiverData> itemEnumToQuiverData = {
@@ -631,6 +633,7 @@ std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats
 };
 //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 std::unordered_map<items, BaseStatData> itemEnumToStatData = {
+    {CHICKENTOME, {0,0,0,5,5,0,0,0}},
     {ADMINCROWN, {64000,64000,50,50,50,50,200,200}},
     {T0ATTRING, {0,0,3,0,0,0,0,0}},
     {T1ATTRING, {0,0,5,0,0,0,0,0}},
@@ -956,7 +959,8 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {MANAPOT, MANAPOTICON},
     {CABERNET, CABERNETICON},
     {FIREWATER, FIREWATERICON},
-    {ADMINCROWN, ADMINCROWNICON}
+    {ADMINCROWN, ADMINCROWNICON},
+    {CHICKENTOME, CHICKENTOMEICON}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -1131,10 +1135,12 @@ std::unordered_map<items, const char *> itemToName = {
     {MANAPOT, "Potion of Mana"},
     {CABERNET, "Cabernet"},
     {FIREWATER, "Fire Water"},
-    {ADMINCROWN, "Admin Crown"}
+    {ADMINCROWN, "Admin Crown"},
+    {CHICKENTOME, "Poultry Codex"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
+    {CHICKENTOME, "This revered culinary scripture holds the closely guarded secrets of crafting perfect fried chicken, cherished by food enthusiasts and chicken connoisseurs alike."},
     {ADMINCROWN, "Super regal!"},
     {T0SWORD, "A steel short sword"},
     {T1SWORD, "A broad-bladed steel sword"},
@@ -1484,11 +1490,13 @@ std::unordered_map<items, groups> itemToGroup = {
     {MANAPOT, MANAPOTGROUP},
     {CABERNET, CABERNETGROUP},
     {FIREWATER, FIREWATERGROUP},
-    {ADMINCROWN, RING}
+    {ADMINCROWN, RING},
+    {CHICKENTOME, TOME},
     
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
+    {CHICKENTOME, WHITELOOTBAG},
     {ADMINCROWN, BROWNLOOTBAG},
     {T0SWORD, BROWNLOOTBAG},
     {T1SWORD, BROWNLOOTBAG},
@@ -1839,6 +1847,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {CABERNET, {LOFIOBJ2, 8, 8 ,{8*15, 8*2, 8, 8}, 12, true, false}},
     {FIREWATER, {LOFIOBJ2, 8, 8 ,{8*11, 8*2, 8, 8}, 12, true, false}},
     {ADMINCROWN, {LOFIOBJ3, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
+    {CHICKENTOME, {LOFIOBJ2, 8, 8 ,{8*4, 8*11, 8, 8}, 12, true, false}},
 };
 
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {

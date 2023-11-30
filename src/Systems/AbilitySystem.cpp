@@ -22,6 +22,12 @@ void AbilitySystem::onTomeUse(TomeUseEvent& event){
     } else {
         displayHealText(event.registry, event.player.GetComponent<TransformComponent>().position, tome.hp, event.player);
     }
+    switch(tome.tomeEnum){
+        case CHICKENTOME:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, 5000);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 1200);
+        } break;
+    }
 }
 
 void AbilitySystem::onQuiverUse(QuiverUseEvent& event){
@@ -76,6 +82,7 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
         }
         case PRIEST: {
             auto& tome = player.GetComponent<TomeComponent>();
+            tome.tomeEnum = event.itemEnum;
             tome.hp = itemEnumToTomeData.at(event.itemEnum).hp;
             break;
         }

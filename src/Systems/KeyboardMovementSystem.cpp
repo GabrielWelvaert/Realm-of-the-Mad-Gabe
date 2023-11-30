@@ -38,10 +38,20 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                 switch(classname){ 
                     case PRIEST:{
                         auto& HPMP = player.GetComponent<HPMPComponent>();
-                        if(HPMP.activehp < HPMP.maxhp){
-                            activemp -= ac.mpRequired;
-                            ac.timeLastUsed = time;
-                            eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore);
+                        const auto& tomeType = player.GetComponent<TomeComponent>().tomeEnum;
+                        switch(tomeType){
+                            case CHICKENTOME:{
+                                activemp -= ac.mpRequired;
+                                ac.timeLastUsed = time;
+                                eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus);
+                            } break;
+                            default:{
+                                if(HPMP.activehp < HPMP.maxhp){
+                                    activemp -= ac.mpRequired;
+                                    ac.timeLastUsed = time;
+                                    eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus);
+                                }
+                            } break;
                         }
                         break;}
                     case WARRIOR:{
@@ -58,7 +68,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
             }
         }
     } else {
-        ac.blockNoManaSound = false;
+        ac.blockNoManaSound = false; // player wont be warned about insufficient mana again until they release space bar
     }
 
     // update stuff based off direction of travel

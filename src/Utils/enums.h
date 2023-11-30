@@ -174,6 +174,7 @@ enum items{
     CABERNET,
     FIREWATER,
     ADMINCROWN,
+    CHICKENTOME,
 };
 
 enum cardinalDirection{
@@ -825,6 +826,7 @@ enum textureEnums{
     HORIZONTALROOMBLOCKWALLS,
     HORIZONTALROOMBLOCKCEILINGS,
     VERTICALROOMBLOCKCEILINGS,
+    CHICKENTOMEICON
 };
 
 #endif

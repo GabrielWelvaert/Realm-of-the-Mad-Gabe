@@ -11,8 +11,9 @@ class TomeUseEvent: public Event {
         Entity player;
         std::unique_ptr<Registry>& registry;
         std::unique_ptr<AssetStore>& assetstore;
-        inline TomeUseEvent(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore): 
-            player(player), registry(registry), assetstore(assetstore) {}
+        std::unique_ptr<EventBus>& eventbus;
+        inline TomeUseEvent(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, std::unique_ptr<EventBus>& eventbus): 
+            player(player), registry(registry), assetstore(assetstore), eventbus(eventbus) {}
 };
 
 #endif

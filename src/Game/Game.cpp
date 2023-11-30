@@ -244,13 +244,13 @@ void Game::ProcessInput(){
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, CHICKENTOME, lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
                             // int x,y;
@@ -923,7 +923,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 171; // hard coded value equal to highest item enum
+    const int totalNumItems = 172; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
@@ -981,8 +981,14 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     auto tomeData = itemEnumToTomeData.at(itemEnum);
                     std::string onUse = "On Use: Heal self for " + std::to_string(tomeData.hp) + " HP";
+                    switch(itemEnum){ // switch/case for extra info (UTs)
+                        case CHICKENTOME:{
+                            onUse += ", Speedy for 5 seconds, Invulnerable for 1.2 seconds. ";
+                        } break;
+                    }
                     info.push_back(onUse);
                     info.push_back(cost);
+
                 } break;
                 case HELM:{ // item is a helm
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
@@ -2293,10 +2299,15 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
 }
 
 void Game::Update(){
-    deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-    millisecsPreviousFrame = SDL_GetTicks(); // every ms is a tick
-    registry->Update();
+    
+    deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;    
+    millisecsPreviousFrame = SDL_GetTicks(); 
+    if(deltaTime > .1){
+        deltaTime = 0.0;
+        keysPressed.reset();
+    } // 10 FPS conditions; indicative of system lag, screen was moved, or something
 
+    registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);

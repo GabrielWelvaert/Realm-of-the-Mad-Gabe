@@ -42,6 +42,7 @@ class Game{
         bool test = false; 
         deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         roomShut roomShut;
+        bool windowWasMoved = false;
 
     public:
         Game();

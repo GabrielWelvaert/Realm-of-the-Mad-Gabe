@@ -39,6 +39,7 @@ class AbilitySystem: public System{
         }
 
         inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
+            if(healAmount <= 0){return;}
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),

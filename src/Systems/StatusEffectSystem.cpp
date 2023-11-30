@@ -12,7 +12,8 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
     auto& entity = event.recipient;
     auto& sec = entity.GetComponent<StatusEffectComponent>();            
     const auto& statusEnum = event.statusEffectEnum;
-    if(sec.effects[statusEnum]){ // return if this status effect is already enabled
+    if(sec.effects[statusEnum]){ // if already enabled, just update duration
+        sec.endTimes[statusEnum] = SDL_GetTicks() + event.duration;
         return;
     } 
     const auto& duration = event.duration;

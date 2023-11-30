@@ -255,8 +255,11 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     if(!sec.effects.none()){
         if(sec.effects[SLOWED]){ // only debuff that modifies activestats; other's behavior is system-based
             speed.activespeed += sec.modifications[SLOWED];
+            sec.effects[SLOWED] = false;
         }
-        sec.effects.reset(); // all 0s 
+        sec.effects[PARALYZE] = false;
+        sec.effects[SLOWED] = false;
+        sec.effects[BLEEDING] = false;
     }
 
     // update PEC repeatfrequency
