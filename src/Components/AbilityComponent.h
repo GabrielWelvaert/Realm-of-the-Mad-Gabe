@@ -24,10 +24,11 @@ struct AbilityComponent{
 
 struct TomeComponent{
     int hp;
+    items tomeEnum;
 
     inline TomeComponent() = default;
 
-    inline TomeComponent(int hp): hp(hp) {} 
+    inline TomeComponent(int hp, items tomeEnum): hp(hp), tomeEnum(tomeEnum) {} 
 
 };
 
