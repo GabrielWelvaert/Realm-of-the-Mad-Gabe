@@ -260,10 +260,11 @@ void Game::ProcessInput(){
                             // player.GetComponent<TransformComponent>().position = spawnpoint;
                         } break;
                         case SDLK_MINUS:{
-                            const auto& spawnRoom = dungeonRooms[bossRoomId]; 
-                            // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-                            player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
-
+                            if(dungeonRooms.size() > 0){
+                                const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                                // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                                player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                            }
                         } break;
                         default:
                             break;
@@ -1171,6 +1172,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, CHARS16X16ENCOUNTERS, "./assets/images/chars16x16rEncounters.png");
     assetStore->AddTexture(renderer, LOFIOBJ3, "./assets/images/lofiObj3.png");
     assetStore->AddTexture(renderer, CHARS16X16MOUNTAINS1, "./assets/images/chars16x16dMountains1.png");
+    assetStore->AddTexture(renderer, LOFIINTERFACE2, "./assets/images/lofiInterface2.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -2302,14 +2304,14 @@ void Game::Update(){
     
     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;    
     millisecsPreviousFrame = SDL_GetTicks(); 
-    if(deltaTime > .1){
+    if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
         deltaTime = 0.0;
         keysPressed.reset();
-    } // 10 FPS conditions; indicative of system lag, screen was moved, or something
+    } 
 
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    registry->GetSystem<StatusEffectSystem>().Update(eventBus); // this first so player can re-buff if they want to.
+    // registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera);
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     // registry->GetSystem<PassiveAISystem>().Update(playerpos);
     registry->GetSystem<ChaseAISystem>().Update(playerpos);
@@ -2339,6 +2341,7 @@ void Game::Render(){
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
+    registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 
     registry->GetSystem<ItemIconSystem>().Update(renderer, assetStore);
     if(debug){
         registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);

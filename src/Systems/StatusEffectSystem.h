@@ -17,6 +17,8 @@
 #include "../Components/TextLabelComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../EventBus/EventBus.h"
+#include "../AssetStore/AssetStore.h"
+#include "../Components/SpriteComponent.h"
 
 /*
 This system manages status effects
@@ -53,6 +55,19 @@ class StatusEffectSystem: public System{
             statusText.AddComponent<TransformComponent>(entity.GetComponent<TransformComponent>().position);
         }
 
+        std::vector<SDL_Rect> icons = { // can be indexed w/ statuses enums
+            {0*8, 2*8, 8, 8},
+            {1*8, 0*8, 8, 8},
+            {5*8, 3*8, 8, 8},
+            {0*8, 0*8, 8, 8},
+            {2*8, 3*8, 8, 8},
+            {2*8, 0*8, 8, 8},
+            {14*8, 2*8, 8, 8},
+            {1*8, 1*8, 8, 8},
+        };
+
+        std::unordered_map<std::bitset<8>, SDL_Texture*> iconSets;
+
     public:
         StatusEffectSystem();
 
@@ -62,7 +77,7 @@ class StatusEffectSystem: public System{
 
         void onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus);
 
-        void Update(std::unique_ptr<EventBus>& eventbus);
+        void Update(SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera);
 
 };
 

@@ -57,9 +57,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
         if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) == projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
             victimHPMPComponent.activehp -= realdamage;
             if(projectileComponent.inflictsStatusEffect){
-                if(/*event.victim.HasComponent<StatusEffectComponent>() && */ !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){ // all dudes should have SEC
-                    event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
-                }
+                event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);
             }
             projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId());
             if(victimHPMPComponent.activehp >= 0){ // victim hit but not dead (player or monster)
@@ -106,9 +104,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     } else { // projectile doesnt pierce; destroy projectile
         victimHPMPComponent.activehp -= realdamage;
         if(projectileComponent.inflictsStatusEffect){
-            if(/*event.victim.HasComponent<StatusEffectComponent>() &&*/ !event.victim.GetComponent<StatusEffectComponent>().effects[projectileComponent.statsusEffect]){
-                event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);    
-            }
+            event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);
         }
         if(victimHPMPComponent.activehp >= 0){
             event.assetStore->PlaySound(hitSoundId);
