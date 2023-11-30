@@ -239,14 +239,29 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     if(offensestats.activedexterity < playerBaseStats.dexterity) offensestats.activedexterity = playerBaseStats.dexterity;
     if(speed.activespeed < playerBaseStats.speed) speed.activespeed = playerBaseStats.speed;
 
+    // if player is equipping item w/ stats, we need to reflect that increase as well
+    // def is not increased at level-up
+    // if(HPMPstats.activehp > playerBaseStats.hp) HPMPstats.activehp += hpincrease;
+    // if(HPMPstats.activemp > playerBaseStats.mp) HPMPstats.activemp += mpincrease;
+    if(HPMPstats.activewisdom > playerBaseStats.wisdom) HPMPstats.activewisdom += wisdomincrease;
+    if(HPMPstats.activevitality > playerBaseStats.vitality) HPMPstats.activevitality += vitalityincrease;
+    if(offensestats.activeattack > playerBaseStats.attack) offensestats.activeattack += attackincrease;
+    if(offensestats.activedexterity > playerBaseStats.dexterity) offensestats.activedexterity += dexterityincrease;
+    if(speed.activespeed > playerBaseStats.speed) speed.activespeed += speedincrease;
+
+    // relieve player of debuffs if they exist (doens't include things like speedy, berzerk, which are buffs, not debuffs)
+    event.eventBus->EmitEvent<UpdateDisplayStatEvent>(event.player);
+    auto& sec = event.player.GetComponent<StatusEffectComponent>();
+    if(!sec.effects.none()){
+        if(sec.effects[SLOWED]){ // only debuff that modifies activestats; other's behavior is system-based
+            speed.activespeed += sec.modifications[SLOWED];
+        }
+        sec.effects.reset(); // all 0s 
+    }
+
     // update PEC repeatfrequency
     projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000
     frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; //dex to shorts per second * 2
-
-    event.eventBus->EmitEvent<UpdateDisplayStatEvent>(event.player);
-    // todo reset debuffs because leveling-up resets debuffs... 
-
-    // std::cout << "Congratulations! You've reached level " << static_cast<int>(playerBaseStats.level) << ", with a total of " << playerBaseStats.xp << " xp" << std::endl;
 }
 
 void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){

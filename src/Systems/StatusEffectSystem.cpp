@@ -18,18 +18,16 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
     const auto& duration = event.duration;
     sec.set(statusEnum, duration);
     switch(statusEnum){
-        case QUIET:{ // monsters dont use mana
+        case QUIET:{ 
             if(entity.BelongsToGroup(PLAYER)){
-                const auto& basestats = entity.GetComponent<BaseStatComponent>();
+                // const auto& basestats = entity.GetComponent<BaseStatComponent>();
                 auto& hpmp = entity.GetComponent<HPMPComponent>();
                 hpmp.activemp = 0;
             }
+            // monsters dont use mana
             displayStatusEffectText(event.registry, statusEnum, entity);
         }break;
         case SLOWED:{
-            // if(!entity.HasComponent<SpeedStatComponent>()){
-            //     return;
-            // }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -53,10 +51,10 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
                 activespeed += basestats.speed / 2;
-                sec.modifications[SLOWED] = basestats.speed / 2;
+                sec.modifications[SPEEDY] = basestats.speed / 2;
             } else {
                 // for monsters (no base stat) you MUST save modification amount before modifying!
-                sec.modifications[SLOWED] = activespeed / 2;
+                sec.modifications[SPEEDY] = activespeed / 2;
                 activespeed += activespeed / 2;
             }
         }break;
@@ -90,7 +88,8 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
         case 0: // QUIET
         case 2: // PARALYZE
         case 5: // CONFUSED
-        case 6:{// BLEEDING
+        case 6: // BLEEDING
+        case 7:{// INVULNERABLE
             // these dont modify stats; nothing to reset
             return; 
         }break;
@@ -100,7 +99,7 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
         }break;
         case 3:{ //SPEEDY
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
-            activespeed -= sec.modifications[SLOWED];
+            activespeed -= sec.modifications[SPEEDY];
         }break;
         case 4:{ //BERSERK
             if(recipient.BelongsToGroup(PLAYER)){
@@ -122,7 +121,7 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
 
 void StatusEffectSystem::Update(std::unique_ptr<EventBus>& eventbus){
     Uint32 currentTime = SDL_GetTicks();
-    for(auto entity: GetSystemEntities()){
+    for(auto& entity: GetSystemEntities()){
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         if(!sec.effects.none()){ // if bitset is not off 
             for(int i = 0; i <= 7; i++){

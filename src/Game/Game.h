@@ -13,6 +13,7 @@
 #include "../Utils/CharacterManager.h"
 #include "../Utils/deadPlayer.h"
 #include <string>
+#include "../Utils/roomShut.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -40,6 +41,7 @@ class Game{
         int bossRoomId;
         bool test = false; 
         deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
+        roomShut roomShut;
 
     public:
         Game();

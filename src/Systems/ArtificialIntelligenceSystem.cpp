@@ -244,7 +244,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<RidigBodyComponent>();
 }
 
-void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory){
+void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut){
     for(auto& entity: GetSystemEntities()){
         const auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
@@ -255,15 +255,18 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         const auto& hp = entity.GetComponent<HPMPComponent>().activehp;
         auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
-        if(!aidata.activated){
-            float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-            if(distanceToPlayer <= aidata.detectRange){
-                aidata.activated = true; 
-            }
-            return; // boss will activate next frame
-        } 
+        auto& sec = entity.GetComponent<StatusEffectComponent>();
+        auto& sprite = entity.GetComponent<SpriteComponent>();
+        auto& hitnoise = entity.GetComponent<HPMPComponent>().hitsound;
         switch(aidata.bossType){
             case BOSSCHICKEN: { 
+                if(!aidata.activated){
+                    float distanceToPlayer = getDistanceToPlayer(position, playerPos);
+                    if(distanceToPlayer <= aidata.detectRange){
+                        aidata.activated = true; 
+                    }
+                    return; // boss will activate next frame
+                } 
                 if(pec.isShooting == false){
                     asc.animatedShooting = true;
                     pec.isShooting = true;
@@ -319,10 +322,43 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     // chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                 }
             } break;
-            case ARCMAGEBOSSAI:{
+            case ARCMAGE:{
+                float x = getDistanceToPlayer(position, playerPos);
+                if(!aidata.activated && getDistanceToPlayer(position, playerPos) <= 300){ // disable invulnerability, block exit, activate boss
+                    assetStore->PlaySound(MNOVA);
+                    aidata.activated = true;
+                    sec.effects[INVULNERABLE] = false;
+                    sprite.srcRect.y = 16*111; // moving down one to cyan sprite
+                    hitnoise = GHOSTGODHIT;
+                    Entity block = registry->CreateEntity();
+                    switch(roomToShut.directionOfHallway){ 
+                        case N:
+                        case S:{ 
+                            block.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKCEILINGS, 128, 64, 9, 0, 0, 0);
+                            block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
+                            Entity walls = registry->CreateEntity();
+                            walls.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKWALLS, 128, 64, 3, 0, 0, 0);
+                            walls.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x) * 64, (roomToShut.coordiantes.y+1) * 64), glm::vec2(8.0, 8.0));
+                            walls.AddComponent<BoxColliderComponent>(128,64);  
+                            walls.Group(WALLBOX);
+                        } break;
+                        case W:{ 
+                            block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
+                            block.AddComponent<BoxColliderComponent>(64, 64*4);
+                            block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
+                            block.Group(WALLBOX);
+                        } break;
+                        case E:{
+                            block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
+                            block.AddComponent<BoxColliderComponent>(64, 64*4);
+                            block.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x-1) * 64, (roomToShut.coordiantes.y-1) * 64), glm::vec2(8.0, 8.0));
+                            block.Group(WALLBOX);
+                        } break;
+                    }
+                }
 
             } break;
-            case GORDONBOSSAI:{
+            case GORDON:{
 
             } break;
         }

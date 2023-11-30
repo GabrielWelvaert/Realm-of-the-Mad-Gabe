@@ -33,7 +33,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 enemy.AddComponent<ItemTableComponent>(spriteEnum);
                 break;
             case T: // trap category
-                enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded!
+                enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is only trap
                 enemy.AddComponent<TrapAIComponent>(spriteEnum);
                 break;
             case CHICKENBOSSAI:
@@ -42,7 +42,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
                 enemy.AddComponent<ItemTableComponent>(spriteEnum);
                 enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
-                enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0];
+                enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
                 break;
             case POUNCE:
                 enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -50,6 +50,17 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 enemy.AddComponent<RidigBodyComponent>();
                 enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
                 enemy.AddComponent<ItemTableComponent>(spriteEnum);
+                break;
+            case ARCMAGEBOSSAI:
+                enemy.AddComponent<AnimationComponent>(spriteEnum);
+                enemy.AddComponent<RidigBodyComponent>();
+                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+                enemy.AddComponent<ItemTableComponent>(spriteEnum);
+                enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 2000, 300, 700);
+                auto& sec = enemy.GetComponent<StatusEffectComponent>();
+                sec.effects[INVULNERABLE] = true;
+                sec.endTimes[INVULNERABLE] = 0-1;
+                break;
         }
 
         return enemy;
@@ -64,7 +75,10 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
             switch(dungeonType){
                 case CHICKENLAIR:{
                     spawnMonster(registry, spawnPos, BOSSCHICKEN);
-                } break; 
+                } break;
+                case UDL:{
+                    spawnMonster(registry, spawnPos, ARCMAGE);          
+                } 
             }
             continue;
         }

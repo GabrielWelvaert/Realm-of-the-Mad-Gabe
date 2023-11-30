@@ -307,7 +307,8 @@ enum sprites{
     GREENSTAR,
     YELLOWSTAR,
     MOUSE0,
-    BAT0
+    BAT0,
+    GORDON
 };
 
 enum soundEnums{
@@ -459,6 +460,8 @@ enum soundEnums{
     UNDEADHOBBITSHIT,
     WOODENWALLSDEATH,
     WOODENWALLSHIT,
+    MNOVA,
+    VOIDHIT
 };
 
 // used to calculate spriteatlasoffset (if applicable) 
@@ -604,7 +607,8 @@ enum statuses{
     SPEEDY,
     BERSERK,
     CONFUSED,
-    BLEEDING
+    BLEEDING,
+    INVULNERABLE
 };
 
 enum textureEnums{
@@ -818,6 +822,9 @@ enum textureEnums{
     CHARS16X16MOUNTAINS1,
     CASTLEPORTAL,
     GORDONSCHAMBERPORTAL,
+    HORIZONTALROOMBLOCKWALLS,
+    HORIZONTALROOMBLOCKCEILINGS,
+    VERTICALROOMBLOCKCEILINGS,
 };
 
 #endif

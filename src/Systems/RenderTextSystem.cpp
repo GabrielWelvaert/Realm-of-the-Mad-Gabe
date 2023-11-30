@@ -13,7 +13,7 @@ void RenderTextSystem::killTextures(){
 }
 
 void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry){
-    for (auto entity: GetSystemEntities()){
+    for (auto& entity: GetSystemEntities()){
         auto& textlabel = entity.GetComponent<TextLabelComponent>();
 
         if(textlabel.invisible) {continue;}

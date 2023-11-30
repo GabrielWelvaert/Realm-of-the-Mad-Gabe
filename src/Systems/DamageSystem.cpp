@@ -14,13 +14,17 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
     auto& victimHPMPComponent = event.victim.GetComponent<HPMPComponent>();
     const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
+    const auto& invulnerable = event.victim.GetComponent<StatusEffectComponent>().effects[INVULNERABLE];
     soundEnums hitSoundId,deathSoundId;
     
     if(projectileComponent.damage == -1){return;} // flag 
 
     // defense calculation
     unsigned short realdamage = projectileComponent.damage;
-    if(!projectileComponent.ignoresDefense){
+    
+    if(invulnerable){
+        realdamage = 0; // only case where 0 damage is permitted is when entity is invulnerable
+    } else if(!projectileComponent.ignoresDefense){
         if(projectileComponent.damage >= victimHPMPComponent.activedefense){
             realdamage = projectileComponent.damage - victimHPMPComponent.activedefense;
         } else {
@@ -45,6 +49,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     /*
     Just want to go on record and say the following code has duplicated logic.
     This code was developed alongside changing requirements. Thats my excuse, I guess. I could clean it up, but it wouldn't really improve performance at all.
+    In the beginning, separating the logic by piercing didn't create as much duplicate logic, but over time, it became this... whatever
     */
 
     // piercing logic, inflict damage, play hit noise
@@ -153,26 +158,27 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
 }
 
 
+// wisom and vitality have beeen buffed exponentially; in the original game, their restoration was unnoticeable until max level
 void DamageSystem::Update(double deltaTime, Entity player){
-    // wis regen mp for player
+    // wis regen mp for player. monsters dont have mana
     auto& hpmp = player.GetComponent<HPMPComponent>();
     const auto& quiet = player.GetComponent<StatusEffectComponent>().effects[QUIET];
     if(!quiet && hpmp.activemp < hpmp.maxmp){
-        hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/1000;
+        hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/150;
         if(hpmp.activemp > hpmp.maxmp){
             hpmp.activemp = hpmp.maxmp;
         }
     } 
 
-    // vit regen hp & bleeding damage for everyone
-    for(auto entity: GetSystemEntities()){
+    // vit regen hp
+    for(auto& entity: GetSystemEntities()){
         auto& stats = entity.GetComponent<HPMPComponent>();
         auto& activehp = stats.activehp;
         const auto& maxhp = stats.maxhp;
         const auto& activevitality = stats.activevitality;
 
         if((activehp < maxhp) && (activehp > 0)){
-            activehp += ((1 + .24 * activevitality)/1000) * deltaTime;
+            activehp += ((1 + .24 * activevitality)/250) * deltaTime;
             if(activehp > maxhp){
                 activehp = maxhp;
             }

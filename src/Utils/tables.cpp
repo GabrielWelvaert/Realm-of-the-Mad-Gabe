@@ -259,15 +259,15 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ARCMAGE,
         {
             {
+                {24, {T3TOME, T3HELM, T3QUIVER}},
                 {100, {LIFEPOT}},
                 {90, {DEFPOT, ATTPOT, WISPOT, VITPOT, MANAPOT}},
-                {14, {T4ATTRING, T4WISRING, T4DEFRING, T4DEXRING, T4VITRING, T4HPRING, T4MPRING}},
-                {18, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
-                {19, {T8SWORD, T8BOW, T8WAND}},
-                {12, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
-                {13, {T9SWORD, T9BOW, T9WAND}},
-                {17, {T3TOME, T3HELM, T3QUIVER}},
-                {10, {T4TOME, T4HELM, T4QUIVER}},
+                {18, {T4TOME, T4HELM, T4QUIVER}},
+                {20, {T4ATTRING, T4WISRING, T4DEFRING, T4DEXRING, T4VITRING, T4HPRING, T4MPRING}},
+                {21, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
+                {22, {T8SWORD, T8BOW, T8WAND}},
+                {16, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
+                {23, {T9SWORD, T9BOW, T9WAND}},
             }
         }
     },
@@ -277,7 +277,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {17, {T3TOME, T3HELM, T3QUIVER}},
                 {19, {T7SWORD, T7BOW, T7WAND}},
-                {10, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
+                {10, {T3HPRING, T3MPRING, T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING}},
                 {15, {T6HEAVYARMOR, T6ROBE, T6LIGHTARMOR}},
             }
         }
@@ -770,9 +770,9 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {BOSSCHICKEN,CHICKENBOSSAI},
     {ROBOTURKEY,ASC},
     {ORANGETURKEY,ASC},
-    {YELLOWTURKEY,AS},
+    {YELLOWTURKEY,AS},  
     {CYANTURKEY,ASC},
-    {ARCMAGE, ASC},
+    {ARCMAGE, ARCMAGEBOSSAI},
     {HELLHOUND,POUNCE},
     {IMP0,ASC},
     {IMP1,ASC},
@@ -2037,7 +2037,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {YELLOWTURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
             //hp,mp,att,def,spd,dex,vit,wis
-    {ARCMAGE,{15000,0,0,25,40,0,40,0,GHOSTSHIT,DJINNDEATH}},
+    {ARCMAGE,{15000,0,0,25,40,0,40,0,VOIDHIT,DJINNDEATH}},
     {HELLHOUND,{1250,0,0,30,60,0,40,0,ABYSSBRUTESHIT,ABYSSBRUTESDEATH}},
     {IMP0,{500,0,0,12,20,0,35,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {IMP1,{600,0,0,15,24,0,30,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
@@ -2120,7 +2120,7 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {YELLOWTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*121,8,8}, 4, false, false}},
     {CYANTURKEY,{CHARS8X8ENCOUNTERS, 8,8, {0,8*122,8,8}, 4, false, false}},
 
-    {ARCMAGE,{CHARS16X16ENCOUNTERS, 16,16, {0,16*111,16,16}, 4, false, false}},
+    {ARCMAGE,{CHARS16X16ENCOUNTERS, 16,16, {0,16*110,16,16}, 4, false, false}},
     {HELLHOUND,{CHARS16X16ENCOUNTERS, 16,16, {0,16*21,16,16}, 4, false, false}},
     {IMP0,{CHAR8X8RHERO1, 8,8, {0,8*17,8,8}, 4, false, false}},
     {IMP1,{CHAR8X8RHERO1, 8,8, {0,8*18,8,8}, 4, false, false}},

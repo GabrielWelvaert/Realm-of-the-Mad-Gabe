@@ -40,6 +40,7 @@
 #include "../Utils/room.h"
 #include <queue>
 #include <ctime>
+#include "../Utils/roomShut.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -242,26 +243,27 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, MPPOT, lootbag);
-                            factory->createItemInBag(registry, MPPOT, lootbag);
-                            factory->createItemInBag(registry, MPPOT, lootbag);
-                            factory->createItemInBag(registry, MPPOT, lootbag);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
+                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,171)), lootbag);
                         } break;
                         case SDLK_0:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            if(chicken > monsters.size()-1){chicken = 0;}
-                            factory->spawnMonster(registry, spawnpoint, monsters[chicken]);
-                            // factory->spawnMonster(registry, spawnpoint, WHITEDEMON);
-                            chicken++;
+                            // int x,y;
+                            // std::cin >> x; 
+                            // std::cin >> y;
+                            // glm::vec2 spawnpoint = {x,y};
+                            // player.GetComponent<TransformComponent>().position = spawnpoint;
                         } break;
                         case SDLK_MINUS:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                            // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                            player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+
                         } break;
                         default:
                             break;
@@ -469,6 +471,7 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
             if(validRoom){
                 if(lastRoom){
                     roomsIdsInOrderOfDepth.push_back(room.id);
+                    roomShut.directionOfHallway = direction;
                 }
                 numRoomsCreated++;
             } else {
@@ -551,6 +554,29 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
         // save data for game member fields; later used to spawn enemies
         bossRoomId = roomsIdsInOrderOfDepth.back();
         dungeonRooms = rooms;
+
+        // save data in field of game to allow for closing boss room
+        const auto& lastHallway = hallways.back();
+        const auto& bossRoom = rooms[bossRoomId];
+        switch(roomShut.directionOfHallway){
+            case S:{
+                x = lastHallway.x;
+                y = bossRoom.y - 2;
+            } break;
+            case N:{
+                x = lastHallway.x;
+                y = bossRoom.y + bossRoom.h - 1;
+            } break;
+            case W:{
+                x = bossRoom.x + bossRoom.w - 1;
+                y = lastHallway.y - 1;
+            } break;
+            case E:{
+                x = bossRoom.x;
+                y = lastHallway.y;
+            } break;
+        }
+        roomShut.coordiantes = {x,y};
 
         // step 4: set player to spawn in genesis room
         const auto& spawnRoom = rooms[0];
@@ -1291,6 +1317,8 @@ void Game::PopulateAssetStore(){
     assetStore->AddSound(UNDEADHOBBITSHIT, "./assets/sounds/enemies/undead_hobbits_hit.wav");
     assetStore->AddSound(WOODENWALLSDEATH, "./assets/sounds/enemies/wooden_walls_death.wav");
     assetStore->AddSound(WOODENWALLSHIT, "./assets/sounds/enemies/wooden_walls_hit.wav");
+    assetStore->AddSound(MNOVA, "./assets/sounds/events/Magic_nova.wav");
+    assetStore->AddSound(VOIDHIT, "./assets/sounds/events/Wand_of_dark_magic.wav");
 
     assetStore->AddFont("damagefont", "./assets/fonts/myriadprosemibold.ttf", 32);
     assetStore->AddFont("namefont","./assets/fonts/myriadprosemibold.ttf", 26);
@@ -1308,6 +1336,44 @@ void Game::PopulateAssetStore(){
     assetStore->AddFont("iconDescriptionInfoFont", "./assets/fonts/myriadpro.ttf", 20);
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
+
+    // making textures for blocking entrance in castle dungeon
+    SDL_Texture * horizontalBlockWalls = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
+    SDL_Texture * horizontalBlockCeiling = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
+    SDL_Texture * verticalBlock = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 1 * 64, 4 * 64);
+    SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIENVIRONMENT);
+    SDL_SetTextureBlendMode(horizontalBlockWalls, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(horizontalBlockCeiling, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureBlendMode(verticalBlock, SDL_BLENDMODE_BLEND);
+    SDL_Rect wall = {0,0,8,8};
+    SDL_Rect ceiling = {4*8,0,8,8};
+    SDL_Rect dest;
+
+    dest = {0,0,8,8};
+    SDL_SetRenderTarget(renderer, horizontalBlockCeiling);
+    SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
+    dest = {8,0,8,8};
+    SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
+
+    assetStore->AddTexture(renderer, HORIZONTALROOMBLOCKCEILINGS, horizontalBlockCeiling);
+
+    dest = {0,0,8,8};
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_SetRenderTarget(renderer, horizontalBlockWalls);
+    SDL_RenderCopy(renderer, spriteAtlasTexture, &wall, &dest);
+    dest = {8,0,8,8};
+    SDL_RenderCopy(renderer, spriteAtlasTexture, &wall, &dest);
+
+    assetStore->AddTexture(renderer, HORIZONTALROOMBLOCKWALLS, horizontalBlockWalls);
+    
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_SetRenderTarget(renderer, verticalBlock);
+    for(int i = 0; i <= 3; i++){
+        dest = {0, 8*i, 8, 8};
+        SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
+    }
+    SDL_SetRenderTarget(renderer, nullptr);
+    assetStore->AddTexture(renderer, VERTICALROOMBLOCKCEILINGS, verticalBlock);
 }
 
 void Game::LoadGui(){
@@ -2238,7 +2304,7 @@ void Game::Update(){
     registry->GetSystem<ChaseAISystem>().Update(playerpos);
     registry->GetSystem<NeutralAISystem>().Update(playerpos);
     registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory);
+    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut);
     registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);

@@ -23,6 +23,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/BossAIComponent.h"
 #include "../Utils/factory.h"
+#include "../Utils/roomShut.h"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -86,7 +87,7 @@ class BossAISystem: public System{
 
     public:
         BossAISystem();
-        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
+        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut);
 };
 
 class AnimatedPounceAISystem: public System{
