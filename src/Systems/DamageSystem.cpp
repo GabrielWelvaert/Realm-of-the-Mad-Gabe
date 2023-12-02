@@ -4,6 +4,7 @@ DamageSystem::DamageSystem(){
     RequireComponent<BoxColliderComponent>();
     RequireComponent<HPMPComponent>();
     RequireComponent<StatusEffectComponent>();
+    RequireComponent<TransformComponent>();
 }
 
 void DamageSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
@@ -16,56 +17,62 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
     const auto& invulnerable = event.victim.GetComponent<StatusEffectComponent>().effects[INVULNERABLE];
     soundEnums hitSoundId,deathSoundId;
+    groups groupOfVictim = event.registry->IdToGroup(event.victim.GetId());
+    unsigned short realdamage = projectileComponent.damage; // local copy of damage
     
-    if(projectileComponent.damage == -1){return;} // flag 
+    // first, check if this projectile collision needs to be processed and set flags if needed
+    if(projectileComponent.damage == -1){return;} // flag
+    if(projectileComponent.piercing){
+        if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) != projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
+            return; // if this piercing projectile has already hit this target, return
+        } else{
+            projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId()); // record this target being victim of this piercing projectile for further reference
+        }
+    } else {
+        projectileComponent.damage = -1; // this non-piercing projectile will still exist until end of frame (next registry update); mark it as -1 damage so it may not hit anyone else
+        event.projectile.Kill();
+    } 
 
-    // defense calculation
-    unsigned short realdamage = projectileComponent.damage;
-    
+    // defense & damage calculation
     if(invulnerable){
         realdamage = 0; // only case where 0 damage is permitted is when entity is invulnerable
-    } else if(!projectileComponent.ignoresDefense){
-        if(projectileComponent.damage >= victimHPMPComponent.activedefense){
-            realdamage = projectileComponent.damage - victimHPMPComponent.activedefense;
+    } else if(!projectileComponent.ignoresDefense){ // armor piercing shots skip this logic to do flat damage
+        unsigned short projectileBaseDamage = realdamage;
+        if(projectileBaseDamage >= victimHPMPComponent.activedefense){
+            realdamage = projectileBaseDamage - victimHPMPComponent.activedefense;
         } else {
             realdamage = 0; // set to 0 instead of overflowing in cases where dmg < def 
         }
-        // in rotmg, minimum damage reduction from defense is 90%
-        if(realdamage < projectileComponent.damage * .1){
-            realdamage = projectileComponent.damage * .1;
+        // in rotmg, unless invulnerable, maximum damage reuction is 90%
+        if(realdamage < projectileBaseDamage * .1){
+            realdamage = projectileBaseDamage * .1;
             if(realdamage < 1){
                 realdamage = 1;
             }
         }
     }
 
-    if(event.victim.BelongsToGroup(PLAYER)){
+    // noise logic
+    if(groupOfVictim == PLAYER){
         hitSoundId = playerHitSounds[RNG.randomFromRange(0,5)];
-    } else {
+    } else { // monster is victim
         hitSoundId = victimHPMPComponent.hitsound;
         deathSoundId = victimHPMPComponent.deathsound;
     }
 
-    /*
-    Just want to go on record and say the following code has duplicated logic.
-    This code was developed alongside changing requirements. Thats my excuse, I guess. I could clean it up, but it wouldn't really improve performance at all.
-    In the beginning, separating the logic by piercing didn't create as much duplicate logic, but over time, it became this... whatever
-    */
-
-    // piercing logic, inflict damage, play hit noise
-    if(projectileComponent.piercing){
-        if(projectileVictimsAsCIDs[event.projectile.GetCreationId()].find(event.victim.GetCreationId()) == projectileVictimsAsCIDs[event.projectile.GetCreationId()].end()){
-            victimHPMPComponent.activehp -= realdamage;
-            if(projectileComponent.inflictsStatusEffect){
-                event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);
-            }
-            projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId());
-            if(victimHPMPComponent.activehp >= 0){ // victim hit but not dead (player or monster)
-                event.assetStore->PlaySound(hitSoundId);
-                if(realdamage > 0){
-                        displayDamgeText(event,victimPosition,realdamage);
-                }
-            } else if(event.victim.BelongsToGroup(MONSTER)){ // victim is monster, and has < 0 hp; thus inflicter is player
+    // projectile damage, xp, death 
+    victimHPMPComponent.activehp -= realdamage;
+    if(projectileComponent.inflictsStatusEffect){ // invulnerablility does not grant immunity to status effects, that'd be intangibility
+        event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);
+    }
+    if(victimHPMPComponent.activehp >= 0){ // victim hit but not dead (player or monster)
+        event.assetStore->PlaySound(hitSoundId);
+        if(realdamage > 0){
+            displayDamgeText(event,victimPosition,realdamage);
+        }
+    } else { // hp has gone below 0
+        switch(groupOfVictim){
+            case MONSTER:{ // death of a monster 
                 event.victim.Kill(); 
                 event.assetStore->PlaySound(deathSoundId);  
                 const auto& projectileParent = projectileComponent.parent;
@@ -74,7 +81,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                 if(xp > 0){ 
                     playerBaseStats.xp += xp;  
                     displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
-                    if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){
+                    if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){ // player level up
                         while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
                             event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
                         }
@@ -88,7 +95,8 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                         itc.hasAlreadySpawnedBag = true;
                     }
                 }
-            } else if(event.victim.BelongsToGroup(PLAYER)){ // player dead
+            } break;
+            case PLAYER:{ // death of player 
                 event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
                 event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
                 event.dp.xp = event.victim.GetComponent<BaseStatComponent>().xp;
@@ -98,59 +106,9 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                 event.assetStore->PlaySound(DEATH);
                 event.Setup(false, true, NEXUS);
                 return;
-            }
-        } 
-
-    } else { // projectile doesnt pierce; destroy projectile
-        victimHPMPComponent.activehp -= realdamage;
-        if(projectileComponent.inflictsStatusEffect){
-            event.eventBus->EmitEvent<StatusEffectEvent>(event.victim, projectileComponent.statsusEffect, event.eventBus, event.registry, projectileComponent.SEdurationMS);
+            } break;
         }
-        if(victimHPMPComponent.activehp >= 0){
-            event.assetStore->PlaySound(hitSoundId);
-            if(realdamage > 0){
-                displayDamgeText(event,victimPosition,realdamage);
-            }
-        } else if(event.victim.BelongsToGroup(MONSTER)){ // victim is monster, and has < 0 hp; thus inflicter is player
-            event.victim.Kill(); 
-            event.assetStore->PlaySound(deathSoundId);  
-            const auto& projectileParent = projectileComponent.parent;
-            auto& playerBaseStats = projectileParent.GetComponent<BaseStatComponent>();
-            int xp = victimHPMPComponent.maxhp / 10;
-            if(xp > 0){ 
-                playerBaseStats.xp += xp;  
-                displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
-                if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){
-                    while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
-                        event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
-                    }
-                    event.assetStore->PlaySound(LEVELUP);
-                }
-            }
-            if(event.victim.HasComponent<ItemTableComponent>()){
-                auto& itc = event.victim.GetComponent<ItemTableComponent>();
-                if(!itc.hasAlreadySpawnedBag){
-                    event.factory->createLootAtDeath(event.victim, event.registry, event.assetStore);        
-                    itc.hasAlreadySpawnedBag = true;
-                }
-            }
-        } else if(event.victim.BelongsToGroup(PLAYER)){ // player dead
-            event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
-            event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
-            event.dp.xp = event.victim.GetComponent<BaseStatComponent>().xp;
-            event.dp.murderer = projectileComponent.spriteOfParent;
-            event.characterManager->KillCharacter(event.activeCharacterID);
-            event.registry->killAllEntities();
-            event.assetStore->PlaySound(DEATH);
-            event.Setup(false, true, NEXUS);
-            return;
-        } 
-
-        projectileComponent.damage = -1; // pixel-perfect AABB will collide with all entities in-place; use -1 as flag to break next collision for this projectile
-        event.projectile.Kill();
-        
     }
-
 }
 
 
@@ -169,9 +127,10 @@ void DamageSystem::Update(double deltaTime, Entity player){
     // vit regen hp
     for(auto& entity: GetSystemEntities()){
         auto& stats = entity.GetComponent<HPMPComponent>();
+        const auto& activevitality = stats.activevitality;
+        if(activevitality == 0){continue;}
         auto& activehp = stats.activehp;
         const auto& maxhp = stats.maxhp;
-        const auto& activevitality = stats.activevitality;
 
         if((activehp < maxhp) && (activehp > 0)){
             activehp += ((1 + .24 * activevitality)/250) * deltaTime;

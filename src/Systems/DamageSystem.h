@@ -44,11 +44,13 @@ class DamageSystem: public System{
 
         inline void displayDamgeText(ProjectileDamageEvent& event, const glm::vec2& victimPosition, const int& dmg){
             Entity dmgText = event.registry->CreateEntity();
+            // SDL_Color color;
+            // event.projectile.GetComponent<ProjectileComponent>().ignoresDefense ? color = armorPiercePurple : color = damagered;
             // std::cout << "victimposition in displayerdamagetext func " << victimPosition.x << ", " << victimPosition.y << std::endl;
             dmgText.AddComponent<TextLabelComponent>(
                 "-" + std::to_string(dmg),
                 "damagefont",
-                damagered,
+                event.projectile.GetComponent<ProjectileComponent>().ignoresDefense ? armorPiercePurple : damagered,
                 false,
                 350,
                 event.victim.GetId(),

@@ -262,12 +262,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {24, {T3TOME, T3HELM, T3QUIVER}},
                 {100, {LIFEPOT}},
                 {90, {DEFPOT, ATTPOT, WISPOT, VITPOT, MANAPOT}},
-                {18, {T4TOME, T4HELM, T4QUIVER}},
+                {20, {T4TOME, T4HELM, T4QUIVER}},
                 {20, {T4ATTRING, T4WISRING, T4DEFRING, T4DEXRING, T4VITRING, T4HPRING, T4MPRING}},
-                {21, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
-                {22, {T8SWORD, T8BOW, T8WAND}},
-                {16, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
-                {23, {T9SWORD, T9BOW, T9WAND}},
+                {24, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
+                {27, {T8SWORD, T8BOW, T8WAND}},
+                {22, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
+                {29, {T9SWORD, T9BOW, T9WAND}},
             }
         }
     },
@@ -2007,7 +2007,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
     //spriteEnum                             //boxCollEnum, PEC sprite comp
 
-    {ARCMAGE, {false, 500,750,15,600,false,5,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
+    {ARCMAGE, {false, 1000,5000,40,400,false,5,95, LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false}},
 
     {HELLHOUND, {false, 500,750,25,600,false,3,24, LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false,10,10,{14,14}, true, BLEEDING, 3000, false}},
     {IMP0, {false, 500,750,20,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
@@ -2046,7 +2046,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {YELLOWTURKEY, {150,0,0,10,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
             //hp,mp,att,def,spd,dex,vit,wis
-    {ARCMAGE,{15000,0,0,25,40,0,40,0,VOIDHIT,DJINNDEATH}},
+    {ARCMAGE,{15000,0,0,25,55,0,0,0,VOIDHIT,DJINNDEATH}},
     {HELLHOUND,{1250,0,0,30,60,0,40,0,ABYSSBRUTESHIT,ABYSSBRUTESDEATH}},
     {IMP0,{500,0,0,12,20,0,35,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {IMP1,{600,0,0,15,24,0,30,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
@@ -2115,6 +2115,7 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {REDSTAR, {LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false}}, // use bolt bc?
     {WHITESTAR, {LOFIOBJ,8,8,{8*6,8*6,8,8},4,false,false}},
     {BLUESTAR, {LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false}},
+    {REDFIREBALL, {LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false}},
 
     {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
     {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},

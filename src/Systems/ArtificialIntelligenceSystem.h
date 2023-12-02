@@ -22,6 +22,7 @@
 #include "../Components/HPMPComponent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Components/BossAIComponent.h"
+#include "../Components/ProjectileComponent.h"
 #include "../Utils/factory.h"
 #include "../Utils/roomShut.h"
 
@@ -85,9 +86,32 @@ class BossAISystem: public System{
     private:
         Xoshiro256 RNG;
 
+        inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
+            float angleRadians = std::atan2(destY - originY, destX - originX);   
+            float angleDegrees = angleRadians * (180.0 / M_PI);
+            emitterVelocity.x = projectileSpeed * std::cos(angleRadians);
+            emitterVelocity.y = projectileSpeed * std::sin(angleRadians);
+            return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
+        }
+
+        inline void arcMageConfuseShots(Entity boss, glm::vec2& spawnpoint, std::unique_ptr<Registry>& registry, std::vector<glm::vec2>& phaseOnePositions){
+            glm::vec2 originVelocity;
+            for(const auto& pos: phaseOnePositions){
+                float rotationDegrees = getRotationFromCoordiante(512, spawnpoint.x, spawnpoint.y, pos.x, pos.y, originVelocity, false);
+                Entity projectile = registry->CreateEntity();
+                projectile.AddComponent<RidigBodyComponent>(originVelocity);
+                SDL_Rect rect = {8*3,8*6,8,8};
+                projectile.AddComponent<SpriteComponent>(LOFIOBJ,8,8,rect,4,false,false);
+                projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2(14,14));
+                projectile.AddComponent<TransformComponent>(glm::vec2(spawnpoint.x+32, spawnpoint.y+32), glm::vec2(5.0,5.0), rotationDegrees);
+                projectile.AddComponent<ProjectileComponent>(15, 5000, false, boss, 0, ARCMAGE, true, CONFUSED, 5000, true);
+                projectile.Group(PROJECTILE);
+            }
+        }
+
     public:
         BossAISystem();
-        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut);
+        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera);
 };
 
 class AnimatedPounceAISystem: public System{

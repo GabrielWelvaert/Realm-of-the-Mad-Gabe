@@ -13,5 +13,6 @@ static const SDL_Color statgreen = {65,113,45};
 static const SDL_Color maxstatcolor = {208,201,60};
 static const SDL_Color mpcolor = {95,133,228};
 static const SDL_Color titleRed = {234,80,75};
+static const SDL_Color armorPiercePurple = {142,47,205};
 
 #endif

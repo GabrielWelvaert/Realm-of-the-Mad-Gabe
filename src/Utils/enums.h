@@ -309,7 +309,9 @@ enum sprites{
     YELLOWSTAR,
     MOUSE0,
     BAT0,
-    GORDON
+    GORDON,
+    REDFIREBALL
+
 };
 
 enum soundEnums{

@@ -244,9 +244,9 @@ BossAISystem::BossAISystem(){
     RequireComponent<RidigBodyComponent>();
 }
 
-void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut){
+void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera){
     for(auto& entity: GetSystemEntities()){
-        const auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
@@ -258,10 +258,10 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         auto& sprite = entity.GetComponent<SpriteComponent>();
         auto& hitnoise = entity.GetComponent<HPMPComponent>().hitsound;
+        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         switch(aidata.bossType){
             case BOSSCHICKEN: { 
                 if(!aidata.activated){
-                    float distanceToPlayer = getDistanceToPlayer(position, playerPos);
                     if(distanceToPlayer <= aidata.detectRange){
                         aidata.activated = true; 
                     }
@@ -323,38 +323,112 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                 }
             } break;
             case ARCMAGE:{
-                float x = getDistanceToPlayer(position, playerPos);
-                if(!aidata.activated && getDistanceToPlayer(position, playerPos) <= 300){ // disable invulnerability, block exit, activate boss
-                    assetStore->PlaySound(MNOVA);
-                    aidata.activated = true;
-                    sec.effects[INVULNERABLE] = false;
-                    sprite.srcRect.y = 16*111; // moving down one to cyan sprite
-                    hitnoise = GHOSTGODHIT;
-                    Entity block = registry->CreateEntity();
-                    switch(roomToShut.directionOfHallway){ 
-                        case N:
-                        case S:{ 
-                            block.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKCEILINGS, 128, 64, 9, 0, 0, 0);
-                            block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
-                            Entity walls = registry->CreateEntity();
-                            walls.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKWALLS, 128, 64, 3, 0, 0, 0);
-                            walls.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x) * 64, (roomToShut.coordiantes.y+1) * 64), glm::vec2(8.0, 8.0));
-                            walls.AddComponent<BoxColliderComponent>(128,64);  
-                            walls.Group(WALLBOX);
-                        } break;
-                        case W:{ 
-                            block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
-                            block.AddComponent<BoxColliderComponent>(64, 64*4);
-                            block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
-                            block.Group(WALLBOX);
-                        } break;
-                        case E:{
-                            block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
-                            block.AddComponent<BoxColliderComponent>(64, 64*4);
-                            block.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x-1) * 64, (roomToShut.coordiantes.y-1) * 64), glm::vec2(8.0, 8.0));
-                            block.Group(WALLBOX);
-                        } break;
+                if(!aidata.activated){ 
+                    if(distanceToPlayer <= 300){ // activate arcmage
+                        aidata.timer0 = SDL_GetTicks();
+                        assetStore->PlaySound(MNOVA);
+                        aidata.activated = aidata.flag0 = true;
+                        sec.effects[INVULNERABLE] = false;
+                        sprite.srcRect.y = 16*111; // moving down one to cyan sprite
+                        hitnoise = GHOSTGODHIT;
+                        Entity block = registry->CreateEntity();
+                        switch(roomToShut.directionOfHallway){ 
+                            case N:
+                            case S:{ 
+                                block.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKCEILINGS, 128, 64, 9, 0, 0, 0);
+                                block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
+                                Entity walls = registry->CreateEntity();
+                                walls.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKWALLS, 128, 64, 3, 0, 0, 0);
+                                walls.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x) * 64, (roomToShut.coordiantes.y+1) * 64), glm::vec2(8.0, 8.0));
+                                walls.AddComponent<BoxColliderComponent>(128,64);  
+                                walls.Group(WALLBOX);
+                            } break;
+                            case W:{ 
+                                block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
+                                block.AddComponent<BoxColliderComponent>(64, 64*4);
+                                block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
+                                block.Group(WALLBOX);
+                            } break;
+                            case E:{
+                                block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
+                                block.AddComponent<BoxColliderComponent>(64, 64*4);
+                                block.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x-1) * 64, (roomToShut.coordiantes.y-1) * 64), glm::vec2(8.0, 8.0));
+                                block.Group(WALLBOX);
+                            } break;
+                        }
+                        asc.animatedShooting = true;
+                        pec.isShooting = true;
+                        ac.xmin = 4;
+                        ac.numFrames = 2; 
+                        ac.currentFrame = 1;
+                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        pec.lastEmissionTime += pec.repeatFrequency / 2;
                     }
+                } else { // boss is activated. phases
+                    Uint32 time = SDL_GetTicks();
+                    if(hp > aidata.secondPhase){ // first phase
+                        if(time >= aidata.timer0 + 10000 && time - pec.lastEmissionTime > pec.repeatFrequency){ // shoot circle of stars every 10 seconds
+                            aidata.timer0 = time;
+                            arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                        }
+
+                    } else if (hp < aidata.survival) { // survival phase
+                        velocity = {0,0};
+
+                    } else { // second phase; fire wall, spawn monsters, move between edges
+                        // change between wall edges every 10s. stay at center, vulnerable, for 5s. when at walls, spawn mobs
+                        if(aidata.flag0){ // flag0 used in phase 2 to indicate first frame of phase 2 
+                            aidata.flag0 = false;
+                            RNG.randomFromRange(0,1) == 0 ? aidata.phaseTwoIndex = 0 : aidata.phaseTwoIndex = 2;
+                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                        }
+
+                        int timeAtSpot = 10000;
+                        velocity = {0,0}; // modified in cases where chasePlayer called
+                        if((aidata.positionflag == aidata.phaseTwoPositions[0] && (std::abs(position.x - aidata.phaseTwoPositions[0].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[0].y) <= 3) 
+                        || (aidata.positionflag == aidata.phaseTwoPositions[2] && (std::abs(position.x - aidata.phaseTwoPositions[2].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[2].y) <= 3)){ 
+                        // successfully arrived at either edge 
+                            if(!aidata.flag1){
+                                aidata.flag1 = true; // flag1 used to indicate successfully arriving at destination    
+                                aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
+                                sec.effects[INVULNERABLE] = true;
+                                sprite.srcRect.y = 16*110;
+                                hitnoise = VOIDHIT;
+                                pec.shots = 12;
+                                pec.arcgap = 180;
+                            }
+                        } else if(aidata.positionflag == aidata.phaseTwoPositions[1] && (std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3){
+                        //successfully arrived at center
+                            timeAtSpot = 5000;
+                            if(!aidata.flag1){
+                                aidata.flag1 = true; // flag1 used to indicate successfully arriving at destination    
+                                aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
+                            }
+                            if(time >= aidata.timer0 + 4500 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            }
+                        } else if(!aidata.flag1){
+                        // not arrived anywhere; keep moving to current destination
+                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                        }
+
+                        // destination successfully reached and time spent there elapsed; time to move to new destination 
+                        if(aidata.flag1 && time >= aidata.timer0 + timeAtSpot){ 
+                            aidata.flag1 = false;
+                            aidata.phaseTwoIndex++;
+                            if(aidata.phaseTwoIndex > 3){aidata.phaseTwoIndex = 0;}
+                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                            sprite.srcRect.y = 16*111; 
+                            hitnoise = GHOSTGODHIT;
+                            sec.effects[INVULNERABLE] = false;
+                            pec.shots = 5;
+                            pec.arcgap = 95;
+                        }
+                        
+                    }
+
                 }
 
             } break;

@@ -89,21 +89,19 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
 
             // at this point, if one is a projectile, other one guaranteed to be an actionable entity (monster/player)
             // thus, there is no need to verify other entity is a player or monster
-            // bool aIsProjectile = (Agroup == PROJECTILE);
-            // bool bIsProjectile = (Bgroup == PROJECTILE);
-            bool aIsProjectileOrPortal = (Agroup == PROJECTILE || Agroup == PORTAL);
-            bool bIsProjectileOrPortal = (Bgroup == PROJECTILE || Bgroup == PORTAL);
+            bool aIsProjectile = (Agroup == PROJECTILE);
+            bool bIsProjectile = (Bgroup == PROJECTILE);
             auto& bTransform = b.GetComponent<TransformComponent>();
             auto& bCollider = b.GetComponent<BoxColliderComponent>();
             if(!CheckAABBCollision( // if b projectile, increase a hitbox and vice-versa
                 aTransform.position.x + aCollider.offset[0],
-                aTransform.position.y + aCollider.offset[1] - (bIsProjectileOrPortal *  30),
+                aTransform.position.y + aCollider.offset[1] - (bIsProjectile *  30),
                 aCollider.width,
-                aCollider.height + (bIsProjectileOrPortal * 30),
+                aCollider.height + (bIsProjectile * 30),
                 bTransform.position.x + bCollider.offset[0],
-                bTransform.position.y + bCollider.offset[1] - (aIsProjectileOrPortal * 30),
+                bTransform.position.y + bCollider.offset[1] - (aIsProjectile * 30),
                 bCollider.width,
-                bCollider.height + (aIsProjectileOrPortal * 30))){
+                bCollider.height + (aIsProjectile * 30))){
                     continue; // if no collision, continue
             }
 

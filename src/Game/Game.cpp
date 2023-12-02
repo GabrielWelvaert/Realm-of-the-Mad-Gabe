@@ -422,7 +422,11 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
                 }
                 bossRoomGenerationAttempts++;
                 IdOfParentRoom = roomsIdsInOrderOfDepth.back();
-                w = 15;
+                if(wallTheme == UDL){
+                    w = 22;
+                } else {
+                    w = 15;
+                }
                 h = 15;
                 distance = RNG.randomFromRange(8,12);
             } else { // not last room, use any room as parent room
@@ -584,7 +588,8 @@ std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
         playerSpawn = glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
 
         // step 5: draw rooms to the map
-        map.resize(valueOfMaxY - valueOfMinY + 5, std::vector<int>(valueOfMaxX - valueOfMinX + 5, alpha));
+        const int extratiles = 10; // used to be 5
+        map.resize(valueOfMaxY - valueOfMinY + extratiles, std::vector<int>(valueOfMaxX - valueOfMinX + extratiles, alpha));
         for(const auto& room: rooms){ //adding rooms to the map
             for(int y = room.y; y < room.y + room.h - 1; y++){
                 for(int x = room.x; x < room.x + room.w - 1; x++){
@@ -2317,7 +2322,7 @@ void Game::Update(){
     registry->GetSystem<ChaseAISystem>().Update(playerpos);
     registry->GetSystem<NeutralAISystem>().Update(playerpos);
     registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut);
+    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut, camera);
     registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);

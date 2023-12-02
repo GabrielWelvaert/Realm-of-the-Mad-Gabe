@@ -56,10 +56,13 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 enemy.AddComponent<RidigBodyComponent>();
                 enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
                 enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 2000, 300, 700);
+                enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 10000, 2000, 750);
                 auto& sec = enemy.GetComponent<StatusEffectComponent>();
                 sec.effects[INVULNERABLE] = true;
                 sec.endTimes[INVULNERABLE] = 0-1;
+                auto& ac = enemy.GetComponent<AnimationComponent>();
+                ac.xmin = 0;
+                ac.numFrames = 1;
                 break;
         }
 
