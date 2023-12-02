@@ -15,8 +15,10 @@ struct BossAIComponent{
     int detectRange; // boss actives if player is this many pixels away'
     bool activated = false; 
     bool flag0 = false; // flag for whatever
+    bool flag1 = false;
     Uint32 timer0 = 0; // timer that can be used for whatever
     Uint32 timer1 = 0;
+    glm::vec2 positionflag;
 
     // optional. used to give boss static movement patterns
     std::vector<glm::vec2> phaseOnePositions;
@@ -46,8 +48,24 @@ struct BossAIComponent{
                     phaseTwoPositions.push_back({spawnPoint.x, spawnPoint.y});
 
                     // phase 3 it chases player
-                }
-            }
+                } break;
+                case ARCMAGE:{
+                    // one vector should hold movement positions 
+                    // one vector should hold spawn locations for fire wall
+                    for(int i = 0; i < 12; i++) { // phaseOnePositions holds aiming positions for secondary projectile
+                        float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(12);
+                        float x = spawnPoint.x + 150 * std::cos(angle);
+                        float y = spawnPoint.y + 150 * std::sin(angle);
+                        phaseOnePositions.push_back({x,y});
+                    }
+
+                    phaseTwoPositions.push_back({spawnPoint.x - 640, spawnPoint.y});
+                    phaseTwoPositions.push_back({spawnPoint.x, spawnPoint.y});
+                    phaseTwoPositions.push_back({spawnPoint.x + 580, spawnPoint.y});
+                    phaseTwoPositions.push_back({spawnPoint.x, spawnPoint.y});
+
+                } break;
+            } 
         }
 
 
