@@ -10,6 +10,30 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<StatusEffectEvent>(this, &StatusEffectSystem::onStatusEnable);
 }
 
+void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
+    SDL_Texture* texture;
+    SDL_Rect dstRect;
+    SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
+	for(unsigned int i = 1; i < (1 << 8); i++){ // incrementation of bitset starting at 00000001
+        std::bitset<8> bits(i);
+        int numIconsToRender = bits.count();
+        int iconDimension = 16;
+        int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
+        texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(renderer, texture);
+        int iconsRendered = 0;
+        for(int i = 0; i <= 7; i++){
+            if(bits[i]){
+                dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
+                SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
+                iconsRendered++;
+            }
+        }
+        iconSets.push_back(texture);
+	}
+}
+
 void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify stats if necessary, save modified value for reversal later
     auto& entity = event.recipient;
     auto& sec = entity.GetComponent<StatusEffectComponent>();            
@@ -122,6 +146,12 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
     }
 }
 
+void StatusEffectSystem::killIconSetTextures(){
+    for(auto& x: iconSets){
+        SDL_DestroyTexture(x);
+    }
+}
+
 void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera){
     Uint32 currentTime = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){
@@ -144,37 +174,16 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
             }    
 
             if(!sec.effects.none()){ // if all statuses are now disabled, dont attempt to render icons
+                SDL_Rect dstRect;
                 int numIconsToRender = sec.effects.count();
                 int iconDimension = 16;
                 int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
-                // render icon here
-                SDL_Texture* texture;
-                SDL_Rect dstRect;
-                if(iconSets.find(sec.effects) == iconSets.end()){ // novel icon set; must construct it
-                    texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
-                    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-                    SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
-                    SDL_SetRenderTarget(renderer, texture);
-                    int iconsRendered = 0;
-                    for(int i = 0; i <= 7; i++){
-                        if(sec.effects[i]){
-                            dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
-                            SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
-                            iconsRendered++;
-                        }
-                    }
-                    iconSets.emplace(sec.effects, texture);
-                    SDL_SetRenderTarget(renderer, nullptr); // nullptr means render to window surface
-                } else { // get existing texture
-                    texture = iconSets.at(sec.effects);
-                }
-
                 const auto& parentSprite = entity.GetComponent<SpriteComponent>();
                 const auto& parentPosition = entity.GetComponent<TransformComponent>().position;
                 int xpos = static_cast<int>(parentPosition.x + (static_cast<int>(parentSprite.width) * 6 / 2) - width/2 - camera.x);
                 if(xpos + width < 750){
                     dstRect = {xpos,static_cast<int>(parentPosition.y - iconDimension - 2 - camera.y),width,iconDimension};
-                    SDL_RenderCopy(renderer, texture, NULL, &dstRect);
+                    SDL_RenderCopy(renderer, iconSets[sec.effects.to_ulong()], NULL, &dstRect);
                 }
             }
         }

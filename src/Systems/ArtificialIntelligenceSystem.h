@@ -25,6 +25,7 @@
 #include "../Components/ProjectileComponent.h"
 #include "../Utils/factory.h"
 #include "../Utils/roomShut.h"
+#include "../Utils/room.h"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -86,6 +87,8 @@ class BossAISystem: public System{
     private:
         Xoshiro256 RNG;
 
+        const int tileScale = 64;
+
         inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
             float angleRadians = std::atan2(destY - originY, destX - originX);   
             float angleDegrees = angleRadians * (180.0 / M_PI);
@@ -109,9 +112,44 @@ class BossAISystem: public System{
             }
         }
 
+        inline void arcMageWallShots(Entity boss, std::unique_ptr<Registry>& registry, const room& br){
+            glm::vec2 originVelocity;
+            int leftHole = RNG.randomFromRange(0,13);
+            int rightHole = RNG.randomFromRange(0,13);
+            for(int i = 0; i < 15; i++){
+                int ypos = (br.y + i) * tileScale + 8;
+                for(int j = 0; j < 2; j++){
+                    if( (leftHole == i && j == 0) || (rightHole == i && j == 1) ){
+                        continue; // dont emit this shot to create hole where player can walk
+                    }
+                    int xpos = (br.x * tileScale) + ((br.w - 2) * tileScale * j); 
+                    float rotationDegrees = getRotationFromCoordiante(128, xpos, ypos , xpos + (1*tileScale - (j * (tileScale*2))) , ypos, originVelocity, false);
+                    Entity projectile = registry->CreateEntity();
+                    projectile.AddComponent<RidigBodyComponent>(originVelocity);
+                    SDL_Rect rect = {8*1,8*22,8,8};
+                    projectile.AddComponent<SpriteComponent>(LOFIOBJ3,8,8,rect,4,false,false);
+                    projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2(4,4));
+                    projectile.AddComponent<TransformComponent>(glm::vec2(xpos , ypos), glm::vec2(5.0,5.0), rotationDegrees);
+                    projectile.AddComponent<ProjectileComponent>(40, 20000, false, boss, 0, ARCMAGE, false, QUIET, 0, false);
+                    projectile.Group(PROJECTILE);
+                }
+            }
+        }
+
+        inline void arcMageSpawnMinions(std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& br){
+            int numToSpawn = RNG.randomFromRange(3,5);
+            sprites monster;
+            for(int i = 0; i <= numToSpawn; i++){
+                float xpos = (RNG.randomFromRange(br.x + 6,  br.x + br.w - 6) * 64);
+                float ypos = (RNG.randomFromRange(br.y + 3,  br.y + br.h - 3) * 64);    
+                i % 2 == 0 ? monster = SHATTERSBOMB : monster = BAT0;
+                factory->spawnMonster(registry, {xpos,ypos}, monster);
+            }
+        }
+
     public:
         BossAISystem();
-        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera);
+        void Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom);
 };
 
 class AnimatedPounceAISystem: public System{

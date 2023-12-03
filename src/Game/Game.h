@@ -39,10 +39,10 @@ class Game{
         std::string activeCharacterID = "-1"; // ID for saving character; -1 means not selected, 0 means dead character
         std::vector<room> dungeonRooms;
         int bossRoomId;
-        bool test = false; 
+        room bossRoom;
+        bool successfulMapGen = false; 
         deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         roomShut roomShut;
-        bool windowWasMoved = false;
 
     public:
         Game();
@@ -58,7 +58,6 @@ class Game{
         void PopulateAssetStore();
         void LoadPlayer();
         void LoadGui();
-        void LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum);
         void LoadTileMap(const wallTheme& wallTheme);
         void PopulateRegistry();
         void PopulatePlayerInventoryAndEquipment();
@@ -67,7 +66,7 @@ class Game{
         void Background();
         void PopulateItemIconsInAssetStore();
         void SpawnAreaEntities(wallTheme area);
-        std::vector<std::vector<int>> GenerateMap(const wallTheme& wallTheme);
+        bool GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map);
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();

@@ -41,6 +41,7 @@
 #include <queue>
 #include <ctime>
 #include "../Utils/roomShut.h"
+#include "../Systems/VaultItemKillSystem.h"
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -59,7 +60,6 @@ Game::Game(){
 }
 
 Game::~Game(){
-    // std::cout << "game destructor called" << std::endl;
 }
 
 //initialize SDL stuff 
@@ -108,6 +108,7 @@ void Game::Initialize(){
     // while iconsmall is identical to an empty portrait, re-roll a tile from portrait atlas
     while (memcmp(empty1->pixels, iconsmall->pixels, empty1->w * empty1->h * empty1->format->BytesPerPixel) == 0){
         portraitRect = {8*disx(gen),8*disy(gen),8,8}; //x,y,w,h
+        SDL_FreeSurface(iconsmall);
         iconsmall = SDL_CreateRGBSurface(0, portraitRect.w, portraitRect.h, 32, 0, 0, 0, 0);
         SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL); 
     }
@@ -354,344 +355,333 @@ struct Vec2Hash { // used in LoadTileMap algorithm
     }
 };
 
-std::vector<std::vector<int>> Game::GenerateMap(const wallTheme& wallTheme){
-    bool success = false;
-    std::vector<std::vector<int>> map; // 2d vector of integers used as actual map
-    while(!success){
-        wallData wallData = wallThemeToWallData.at(wallTheme);
-        int wall = std::stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
-        int alpha = std::stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
-        int ceiling = std::stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
-        int floor = std::stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
-        int numRoomsCreated = 0;
-        int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
-        std::vector<room> rooms; // can be indexed by id
-        std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find loops and furthest room
-        std::vector<SDL_Rect> hallways;
-        bool BFSCompleted = false;
-        std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
-        int bossRoomGenerationAttempts = 0;
-        mapSizeTiles = 750; 
-        numRooms = RNG.randomFromRange(20,35);
-        roomsIdsInOrderOfDepth.reserve(numRooms);
-        w = h = RNG.randomFromRange(10,15);
-        x = mapSizeTiles / 2;
-        y = mapSizeTiles / 2;
-        room genesisRoom(numRoomsCreated, -1, x, y, w, h);
-        rooms.push_back(genesisRoom);
-        numRoomsCreated++;
+bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
+    wallData wallData = wallThemeToWallData.at(wallTheme);
+    int wall = std::stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
+    int alpha = std::stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
+    int ceiling = std::stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
+    int floor = std::stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
+    int numRoomsCreated = 0;
+    int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
+    std::vector<room> rooms; // can be indexed by id
+    std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find loops and furthest room
+    std::vector<SDL_Rect> hallways;
+    bool BFSCompleted = false;
+    std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
+    int bossRoomGenerationAttempts = 0;
+    mapSizeTiles = 750; 
+    numRooms = RNG.randomFromRange(20,35);
+    roomsIdsInOrderOfDepth.reserve(numRooms);
+    w = h = RNG.randomFromRange(10,15);
+    x = mapSizeTiles / 2;
+    y = mapSizeTiles / 2;
+    room genesisRoom(numRoomsCreated, -1, x, y, w, h);
+    rooms.push_back(genesisRoom);
+    numRoomsCreated++;
 
-        int idOfMaxX = 0; // room that has farthest x + w position
-        int idOfMinX = 0; // room that has smallest x position
-        int idOfMaxY = 0; // room that has farthetst y + h position
-        int idOfMinY = 0; // rooom that has smallest y position 
+    int idOfMaxX = 0; // room that has farthest x + w position
+    int idOfMinX = 0; // room that has smallest x position
+    int idOfMaxY = 0; // room that has farthetst y + h position
+    int idOfMinY = 0; // rooom that has smallest y position 
 
-        int valueOfMaxX = genesisRoom.x + genesisRoom.w;
-        int valueOfMinX = genesisRoom.x;
-        int valueOfMaxY = genesisRoom.y + genesisRoom.h;
-        int valueOfMinY = genesisRoom.y;
+    int valueOfMaxX = genesisRoom.x + genesisRoom.w;
+    int valueOfMinX = genesisRoom.x;
+    int valueOfMaxY = genesisRoom.y + genesisRoom.h;
+    int valueOfMinY = genesisRoom.y;
 
-        // step 2: generate all children rooms
-        while(numRoomsCreated < numRooms){
-            bool lastRoom = (numRoomsCreated == numRooms - 1);
-            roomSizeTiles = RNG.randomFromRange(9,15);
+    // step 2: generate all children rooms
+    while(numRoomsCreated < numRooms){
+        bool lastRoom = (numRoomsCreated == numRooms - 1);
+        roomSizeTiles = RNG.randomFromRange(9,15);
 
-            // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
-            int IdOfParentRoom;
-            if(lastRoom){ // last room, make it boss room (furthest from genesis)
-                if(!BFSCompleted){ // BFS so we know which rooms are furthest from genesis room
-                    std::unordered_set<int> visited = {0};
-                    std::queue<int> queue;
-                    queue.push(0); // starting node is genesis room which has id 0  
-                    while(!queue.empty()){
-                        int currentRoomId = queue.front();
-                        queue.pop();
-                        roomsIdsInOrderOfDepth.push_back(currentRoomId);
-                        for(int adjacent: graph.at(currentRoomId)){
-                            if(visited.find(adjacent) == visited.end()){
-                                visited.insert(adjacent);
-                                queue.push(adjacent);
-                            }
+        // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
+        int IdOfParentRoom;
+        if(lastRoom){ // last room, make it boss room (furthest from genesis)
+            if(!BFSCompleted){ // BFS so we know which rooms are furthest from genesis room
+                std::unordered_set<int> visited = {0};
+                std::queue<int> queue;
+                queue.push(0); // starting node is genesis room which has id 0  
+                while(!queue.empty()){
+                    int currentRoomId = queue.front();
+                    queue.pop();
+                    roomsIdsInOrderOfDepth.push_back(currentRoomId);
+                    for(int adjacent: graph.at(currentRoomId)){
+                        if(visited.find(adjacent) == visited.end()){
+                            visited.insert(adjacent);
+                            queue.push(adjacent);
                         }
                     }
-                    BFSCompleted = true;
-                } 
-                if(bossRoomGenerationAttempts == 10){ // if boss room generation fails with furthest room 10 times, try next furthest room!
-                    bossRoomGenerationAttempts = 0;
-                    roomsIdsInOrderOfDepth.pop_back();   
                 }
-                bossRoomGenerationAttempts++;
-                IdOfParentRoom = roomsIdsInOrderOfDepth.back();
-                if(wallTheme == UDL){
-                    w = 22;
-                } else {
-                    w = 15;
-                }
-                h = 15;
-                distance = RNG.randomFromRange(8,12);
-            } else { // not last room, use any room as parent room
-                IdOfParentRoom = RNG.randomFromRange(0, rooms.size()-1);
-                w = RNG.randomSmallModification(roomSizeTiles);
-                h = RNG.randomSmallModification(roomSizeTiles);
-                distance = RNG.randomFromRange(6,12);    
-            }
-            const auto& pr = rooms[IdOfParentRoom]; // pr = parent room
-            cardinalDirection direction = static_cast<cardinalDirection>(RNG.randomFromRange(0,3));
-
-            // 2.3) make the room as an offshoot of parent in cardnial direction; acquire x and y positions
-            switch(direction){
-                case N:{ 
-                    x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
-                    y = RNG.randomFromRange(pr.y - distance - h, pr.y - h - 4);
-                } break;
-                case S:{ 
-                    x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
-                    y = RNG.randomFromRange(pr.y + pr.h + 4, pr.y + pr.h + distance);
-                } break;
-                case E:{
-                    x = RNG.randomFromRange(pr.x + pr.w + 4, pr.x + pr.w + distance);
-                    y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
-                } break;
-                case W:{ 
-                    x = RNG.randomFromRange(pr.x - distance - w, pr.x - w - 4);
-                    y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
-                } break;
-            }
-            room room(numRoomsCreated, pr.id, x,y,w,h);
-
-            // 2.4) delete room if colliding with another room or if out-of-bounds
-            bool validRoom = true;
-            for(const auto& b: rooms){
-                // if(b.id == room.id){continue;}
-                if(room.x < b.x + b.w + 4 && room.x + room.w > b.x - 4 && room.y < b.y + b.h + 4 && room.y + room.h > b.y - 4){
-                    validRoom = false;
-                    break;
-                }
-            }
-            if(validRoom && !(room.x <= 0 + mapSizeTiles && room.x + room.w >= 0 && room.y <= 0 + mapSizeTiles && room.y + room.h >= 0)){
-                validRoom = false;
+                BFSCompleted = true;
             } 
-
-            // 2.5) save or delete the room
-            if(validRoom){
-                if(lastRoom){
-                    roomsIdsInOrderOfDepth.push_back(room.id);
-                    roomShut.directionOfHallway = direction;
-                }
-                numRoomsCreated++;
+            if(bossRoomGenerationAttempts >= 20){ // if boss room generation fails 20 times due to lack of space, declare failure and re-generate
+                return false; 
+            }
+            bossRoomGenerationAttempts++;
+            IdOfParentRoom = roomsIdsInOrderOfDepth.back();
+            if(wallTheme == UDL){
+                w = 22;
             } else {
-                continue; // invalid room; restart step 2 to try again!
+                w = 15;
             }
-
-            // check if this room is new border room for all 4 directions
-            if(room.x + room.w > valueOfMaxX){ // furthest east room
-                valueOfMaxX = room.x + room.w;
-                idOfMaxX = room.id;
-            }
-            if(room.x < valueOfMinX){ // furthest west room
-                valueOfMinX = room.x;
-                idOfMinX = room.id;
-            }
-            if(room.y + room.h > valueOfMaxY){ // furthest south room
-                valueOfMaxY = room.y + room.h;
-                idOfMaxY = room.y + room.h;
-            }
-            if(room.y < valueOfMinY){ // furthest north room
-                valueOfMinY = room.y;
-                idOfMinY = room.id;
-            }
-
-            // 2.6) add a hallway to connect child room to parent room
-            int x,y,w,h;
-            int xmax,xmin,ymin,ymax;
-            SDL_Rect hallway;
-            switch(direction){
-                case N:{
-                    h = distance;
-                    y = room.y + room.h;
-                    xmin = std::max(pr.x, room.x);
-                    xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
-                    x = RNG.randomFromRange(xmin, xmax);
-                    hallway = {x,y-1,3,h+3};
-                } break;
-                case S:{
-                    h = distance;
-                    y = pr.y + pr.h;
-                    xmin = std::max(pr.x, room.x);
-                    xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
-                    x = RNG.randomFromRange(xmin, xmax);
-                    hallway = {x,y-1,3,h+3};
-                } break;
-                case E:{
-                    w = distance;
-                    x = pr.x + pr.w;
-                    ymin = std::max(room.y, pr.y);
-                    ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
-                    y = RNG.randomFromRange(ymin,ymax);
-                    hallway = {x-1,y,w+3,3};
-                } break;
-                case W:{
-                    w = distance;
-                    x = room.x + room.w;
-                    ymin = std::max(room.y, pr.y);
-                    ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
-                    y = RNG.randomFromRange(ymin,ymax);
-                    hallway = {x-1,y,w+3,3};
-                } break;
-            }
-            hallways.push_back(hallway);
-            graph[pr.id].emplace(room.id);
-            graph[room.id].emplace(pr.id);
-            rooms.push_back(room);
-
-        } // end of while loop to make rooms
-
-        // step 3: remove all empty rows and columns; size the map accordingly
-        for(auto& room: rooms){ // sliding rooms over to so we dont have empty W columns or N rows 
-            room.x -= valueOfMinX - 3;  // -3 makes small border for later padding 
-            room.y -= valueOfMinY - 3;
+            h = 15;
+            distance = RNG.randomFromRange(8,12);
+        } else { // not last room, use any room as parent room
+            IdOfParentRoom = RNG.randomFromRange(0, rooms.size()-1);
+            w = RNG.randomSmallModification(roomSizeTiles);
+            h = RNG.randomSmallModification(roomSizeTiles);
+            distance = RNG.randomFromRange(6,12);    
         }
-        for(auto& hallway: hallways){ // sliding hallways over to so we dont have empty W columns or N rows
-            hallway.x -= valueOfMinX - 3;
-            hallway.y -= valueOfMinY - 3;
-        }
+        const auto& pr = rooms[IdOfParentRoom]; // pr = parent room
+        cardinalDirection direction = static_cast<cardinalDirection>(RNG.randomFromRange(0,3));
 
-        // save data for game member fields; later used to spawn enemies
-        bossRoomId = roomsIdsInOrderOfDepth.back();
-        dungeonRooms = rooms;
-
-        // save data in field of game to allow for closing boss room
-        const auto& lastHallway = hallways.back();
-        const auto& bossRoom = rooms[bossRoomId];
-        switch(roomShut.directionOfHallway){
-            case S:{
-                x = lastHallway.x;
-                y = bossRoom.y - 2;
+        // 2.3) make the room as an offshoot of parent in cardnial direction; acquire x and y positions
+        switch(direction){
+            case N:{ 
+                x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
+                y = RNG.randomFromRange(pr.y - distance - h, pr.y - h - 4);
             } break;
-            case N:{
-                x = lastHallway.x;
-                y = bossRoom.y + bossRoom.h - 1;
-            } break;
-            case W:{
-                x = bossRoom.x + bossRoom.w - 1;
-                y = lastHallway.y - 1;
+            case S:{ 
+                x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
+                y = RNG.randomFromRange(pr.y + pr.h + 4, pr.y + pr.h + distance);
             } break;
             case E:{
-                x = bossRoom.x;
-                y = lastHallway.y;
+                x = RNG.randomFromRange(pr.x + pr.w + 4, pr.x + pr.w + distance);
+                y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
+            } break;
+            case W:{ 
+                x = RNG.randomFromRange(pr.x - distance - w, pr.x - w - 4);
+                y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
             } break;
         }
-        roomShut.coordiantes = {x,y};
+        room room(numRoomsCreated, pr.id, x,y,w,h);
 
-        // step 4: set player to spawn in genesis room
-        const auto& spawnRoom = rooms[0];
-        playerSpawn = glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-
-        // step 5: draw rooms to the map
-        const int extratiles = 10; // used to be 5
-        map.resize(valueOfMaxY - valueOfMinY + extratiles, std::vector<int>(valueOfMaxX - valueOfMinX + extratiles, alpha));
-        for(const auto& room: rooms){ //adding rooms to the map
-            for(int y = room.y; y < room.y + room.h - 1; y++){
-                for(int x = room.x; x < room.x + room.w - 1; x++){
-                    map[y][x] = floor;
-                }
-            }
-        }
-        for(const auto& hallway: hallways){ //adding hallways to the map
-            for(int y = hallway.y; y < hallway.y + hallway.h - 1; y++){
-                for(int x = hallway.x; x < hallway.x + hallway.w - 1; x++){
-                    map[y][x] = floor;
-                }
-            }
-        }
-
-        // step 6: add walls and ceilings around perimeter of map
-        glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
-        glm::ivec2 mapItr = endPos; 
-        bool wallFail = false;
-        while(true){
-            x = mapItr.x;
-            y = mapItr.y;
-            int right = map[y][x+1];
-            int left = map[y][x-1];
-            int above = map[y-1][x];
-            int below = map[y+1][x];
-            int bottomleft = map[y+1][x-1];
-            int toptopright = map[y-2][x+1];
-            if(below == alpha && (right == floor || right == wall)){ // south traversal: floor on right && ceiling above
-                map[y][x] = ceiling;
-                mapItr.y ++;
-            } else if(right == alpha && (above == floor || above == ceiling)){ // east traversal: alpha on right 
-                map[y][x] = ceiling;
-                if(below != ceiling){
-                    map[y+1][x] = wall; 
-                }
-                mapItr.x ++;
-            } else if(above == alpha && (left == floor || (left == ceiling && below == alpha))){ // north traversal: alpha above and on right
-                if((right == wall && left == floor && toptopright == alpha)
-                || ((left == floor) && below == floor && right == ceiling)){
-                    map[y][x] = wall;
-                } else {
-                    map[y][x] = ceiling;
-                }
-                if(left == ceiling && below == alpha && right == alpha){
-                    map[y+1][x] = wall; 
-                }
-                mapItr.y --;
-            } else if(left == alpha ){ // west traversal
-                if(glm::ivec2(x,y+1) == endPos){ 
-                    map[y-1][x] = ceiling;
-                    map[y][x] = ceiling;
-                    break; // success
-                }
-                map[y-1][x] = ceiling; 
-                if(below == floor){
-                    map[y][x] = wall;
-                } else if(below == ceiling || below == wall){
-                    map[y][x] = ceiling;
-                } 
-                if(bottomleft == alpha){
-                    map[y-1][x-1] = ceiling;
-                }
-                mapItr.x --;
-            } else {
-                wallFail = true;
+        // 2.4) delete room if colliding with another room or if out-of-bounds
+        bool validRoom = true;
+        for(const auto& b: rooms){
+            // if(b.id == room.id){continue;}
+            if(room.x < b.x + b.w + 4 && room.x + room.w > b.x - 4 && room.y < b.y + b.h + 4 && room.y + room.h > b.y - 4){
+                validRoom = false;
                 break;
             }
+        }
+        if(validRoom && !(room.x <= 0 + mapSizeTiles && room.x + room.w >= 0 && room.y <= 0 + mapSizeTiles && room.y + room.h >= 0)){
+            validRoom = false;
         } 
-        if(!wallFail){
-            success = true;    
+
+        // 2.5) save or delete the room
+        if(validRoom){
+            if(lastRoom){
+                roomsIdsInOrderOfDepth.push_back(room.id);
+                roomShut.directionOfHallway = direction;
+            }
+            numRoomsCreated++;
+        } else {
+            continue; // invalid room; restart step 2 to try again!
         }
 
-        // visual debugging (prints all rooms as rectangles on screen): 
-        // SDL_RenderClear(renderer);
-        // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-        // SDL_Rect roomRect = {0,0,1000,750};
-        // SDL_RenderFillRect(renderer, &roomRect);
-        // for(const auto& c: hallways){
-        //     SDL_SetRenderDrawColor(renderer, 50,255,255, 255);
-        //     SDL_RenderFillRect(renderer, &c);
-        // }
-        // for(const auto& c: rooms){
-        //     SDL_Rect roomRect = {c.x, c.y, c.w, c.h};
-        //     if(c.id == rooms.back().id){
-        //         SDL_SetRenderDrawColor(renderer, 50,125,0, 125);
-        //     } else if(c.id == 0){
-        //         SDL_SetRenderDrawColor(renderer, 50,125,125, 0);
-        //     } else {
-        //         SDL_SetRenderDrawColor(renderer, 50,255,255, 255);    
-        //     }
-        //     SDL_RenderFillRect(renderer, &roomRect);
-        // }
-        // SDL_RenderPresent(renderer);
+        // check if this room is new border room for all 4 directions
+        if(room.x + room.w > valueOfMaxX){ // furthest east room
+            valueOfMaxX = room.x + room.w;
+            idOfMaxX = room.id;
+        }
+        if(room.x < valueOfMinX){ // furthest west room
+            valueOfMinX = room.x;
+            idOfMinX = room.id;
+        }
+        if(room.y + room.h > valueOfMaxY){ // furthest south room
+            valueOfMaxY = room.y + room.h;
+            idOfMaxY = room.y + room.h;
+        }
+        if(room.y < valueOfMinY){ // furthest north room
+            valueOfMinY = room.y;
+            idOfMinY = room.id;
+        }
 
+        // 2.6) add a hallway to connect child room to parent room
+        int x,y,w,h;
+        int xmax,xmin,ymin,ymax;
+        SDL_Rect hallway;
+        switch(direction){
+            case N:{
+                h = distance;
+                y = room.y + room.h;
+                xmin = std::max(pr.x, room.x);
+                xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
+                x = RNG.randomFromRange(xmin, xmax);
+                hallway = {x,y-1,3,h+3};
+            } break;
+            case S:{
+                h = distance;
+                y = pr.y + pr.h;
+                xmin = std::max(pr.x, room.x);
+                xmax = std::min(pr.x + pr.w - 3, room.x + room.w - 3);
+                x = RNG.randomFromRange(xmin, xmax);
+                hallway = {x,y-1,3,h+3};
+            } break;
+            case E:{
+                w = distance;
+                x = pr.x + pr.w;
+                ymin = std::max(room.y, pr.y);
+                ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
+                y = RNG.randomFromRange(ymin,ymax);
+                hallway = {x-1,y,w+3,3};
+            } break;
+            case W:{
+                w = distance;
+                x = room.x + room.w;
+                ymin = std::max(room.y, pr.y);
+                ymax = std::min(room.y + room.h - 3, pr.y + pr.h - 3);
+                y = RNG.randomFromRange(ymin,ymax);
+                hallway = {x-1,y,w+3,3};
+            } break;
+        }
+        hallways.push_back(hallway);
+        graph[pr.id].emplace(room.id);
+        graph[room.id].emplace(pr.id);
+        rooms.push_back(room);
+
+    } // end of while loop to make rooms
+
+    // step 3: remove all empty rows and columns; size the map accordingly
+    for(auto& room: rooms){ // sliding rooms over to so we dont have empty W columns or N rows 
+        room.x -= valueOfMinX - 3;  // -3 makes small border for later padding 
+        room.y -= valueOfMinY - 3;
     }
-    return map;
+    for(auto& hallway: hallways){ // sliding hallways over to so we dont have empty W columns or N rows
+        hallway.x -= valueOfMinX - 3;
+        hallway.y -= valueOfMinY - 3;
+    }
+
+    // save data for game member fields; later used to spawn enemies
+    bossRoomId = roomsIdsInOrderOfDepth.back();
+    dungeonRooms = rooms;
+    bossRoom = rooms[bossRoomId];
+
+    // save data in field of game to allow for closing boss room
+    const auto& lastHallway = hallways.back();
+    const auto& BR = rooms[bossRoomId];
+    switch(roomShut.directionOfHallway){
+        case S:{
+            x = lastHallway.x;
+            y = BR.y - 2;
+        } break;
+        case N:{
+            x = lastHallway.x;
+            y = BR.y + BR.h - 1;
+        } break;
+        case W:{
+            x = BR.x + BR.w - 1;
+            y = lastHallway.y - 1;
+        } break;
+        case E:{
+            x = BR.x;
+            y = lastHallway.y;
+        } break;
+    }
+    roomShut.coordiantes = {x,y};
+
+    // step 4: set player to spawn in genesis room
+    const auto& spawnRoom = rooms[0];
+    playerSpawn = glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+
+    // step 5: draw rooms to the map
+    const int extratiles = 10; // used to be 5
+    map.resize(valueOfMaxY - valueOfMinY + extratiles, std::vector<int>(valueOfMaxX - valueOfMinX + extratiles, alpha));
+    for(const auto& room: rooms){ //adding rooms to the map
+        for(int y = room.y; y < room.y + room.h - 1; y++){
+            for(int x = room.x; x < room.x + room.w - 1; x++){
+                map[y][x] = floor;
+            }
+        }
+    }
+    for(const auto& hallway: hallways){ //adding hallways to the map
+        for(int y = hallway.y; y < hallway.y + hallway.h - 1; y++){
+            for(int x = hallway.x; x < hallway.x + hallway.w - 1; x++){
+                map[y][x] = floor;
+            }
+        }
+    }
+
+    // step 6: add walls and ceilings around perimeter of map
+    glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
+    glm::ivec2 mapItr = endPos; 
+    while(true){
+        x = mapItr.x;
+        y = mapItr.y;
+        int right = map[y][x+1];
+        int left = map[y][x-1];
+        int above = map[y-1][x];
+        int below = map[y+1][x];
+        int bottomleft = map[y+1][x-1];
+        int toptopright = map[y-2][x+1];
+        if(below == alpha && (right == floor || right == wall)){ // south traversal: floor on right && ceiling above
+            map[y][x] = ceiling;
+            mapItr.y ++;
+        } else if(right == alpha && (above == floor || above == ceiling)){ // east traversal: alpha on right 
+            map[y][x] = ceiling;
+            if(below != ceiling){
+                map[y+1][x] = wall; 
+            }
+            mapItr.x ++;
+        } else if(above == alpha && (left == floor || (left == ceiling && below == alpha))){ // north traversal: alpha above and on right
+            if((right == wall && left == floor && toptopright == alpha)
+            || ((left == floor) && below == floor && right == ceiling)){
+                map[y][x] = wall;
+            } else {
+                map[y][x] = ceiling;
+            }
+            if(left == ceiling && below == alpha && right == alpha){
+                map[y+1][x] = wall; 
+            }
+            mapItr.y --;
+        } else if(left == alpha ){ // west traversal
+            if(glm::ivec2(x,y+1) == endPos){ 
+                map[y-1][x] = ceiling;
+                map[y][x] = ceiling;
+                break; // success
+            }
+            map[y-1][x] = ceiling; 
+            if(below == floor){
+                map[y][x] = wall;
+            } else if(below == ceiling || below == wall){
+                map[y][x] = ceiling;
+            } 
+            if(bottomleft == alpha){
+                map[y-1][x-1] = ceiling;
+            }
+            mapItr.x --;
+        } else {
+            return false;
+        }
+    } 
+
+    // visual debugging (prints all rooms as rectangles on screen): 
+    // SDL_RenderClear(renderer);
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    // SDL_Rect roomRect = {0,0,1000,750};
+    // SDL_RenderFillRect(renderer, &roomRect);
+    // for(const auto& c: hallways){
+    //     SDL_SetRenderDrawColor(renderer, 50,255,255, 255);
+    //     SDL_RenderFillRect(renderer, &c);
+    // }
+    // for(const auto& c: rooms){
+    //     SDL_Rect roomRect = {c.x, c.y, c.w, c.h};
+    //     if(c.id == rooms.back().id){
+    //         SDL_SetRenderDrawColor(renderer, 50,125,0, 125);
+    //     } else if(c.id == 0){
+    //         SDL_SetRenderDrawColor(renderer, 50,125,125, 0);
+    //     } else {
+    //         SDL_SetRenderDrawColor(renderer, 50,255,255, 255);    
+    //     }
+    //     SDL_RenderFillRect(renderer, &roomRect);
+    // }
+    // SDL_RenderPresent(renderer);
+    return true;
 }
 
 /*
 LoadTileMap version 2.
-Params: 1) wallTheme enum 2) path to .map file
 creates three big textures for floor, ceiling, and wall tiles 
 also makes the boxCollider entities for the walls (as separate entities!) 
 only works with lofiEnvironment.png for now. doesn't add boxColliders to trees and rocks.
@@ -706,8 +696,11 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             map = vaultMap;
         }break;
         default:{
-            while(map.size() == 0 || map[0].size() > 341 || map.size() > 341){
-                map = GenerateMap(wallTheme);    
+            while(!successfulMapGen || (map.size() == 0 || map[0].size() > 341 || map.size() > 341)){
+                for(auto& m: map){m.clear();}
+                map.clear();
+                dungeonRooms.clear();
+                successfulMapGen = GenerateMap(wallTheme, map);
             }
         }break;
     }
@@ -828,10 +821,6 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
     assetStore->AddTexture(renderer, BIGCEILING, bigCeilingTexture);
     assetStore->AddTexture(renderer, BIGFLOOR, bigFloorTexture);
     int textureWidth, textureHeight;
-    // if(wallTheme != NEXUS && wallTheme != VAULT){
-    //     SDL_QueryTexture(assetStore->GetTexture(BIGFLOOR), NULL, NULL, &textureWidth, &textureHeight);
-    //     std::cout << "big floor has dimensions " << textureWidth << ", " << textureHeight << std::endl;    
-    // }
     bigWallEntity.AddComponent<SpriteComponent>(BIGWALL, mapWidth, mapheight, 3, 0,0,0);
     bigCeilingEntity.AddComponent<SpriteComponent>(BIGCEILING, mapWidth, mapheight, 9, 0,0,0);
     bigFloorEntity.AddComponent<SpriteComponent>(BIGFLOOR, mapWidth, mapheight, 0, 0,0,0);
@@ -1123,6 +1112,7 @@ void Game::PopulateItemIconsInAssetStore(){
             ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
             int w,h; 
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
+            SDL_DestroyTexture(ttfTextureFromSurface);
             ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface); // turning surface into renderable texture
             dstRect = {divider, divider + imageDimension + divider + h * i, w, h}; // dstRect as render destination in the texture
             SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
@@ -1135,6 +1125,7 @@ void Game::PopulateItemIconsInAssetStore(){
             ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
             int w,h; 
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
+            SDL_DestroyTexture(ttfTextureFromSurface);
             ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface); // turning surface into renderable texture
             dstRect = {divider, infoStartingYPos + h * i, w, h}; // dstRect as render destination in the texture
             SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
@@ -1387,35 +1378,244 @@ void Game::PopulateAssetStore(){
     }
     SDL_SetRenderTarget(renderer, nullptr);
     assetStore->AddTexture(renderer, VERTICALROOMBLOCKCEILINGS, verticalBlock);
+
+
+    /*Portal UI Components*/
+    SDL_Surface* ttfSurface;
+    SDL_Texture* ttfTextureFromSurface;
+    SDL_Rect dstRect, srcRect;
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber"};
+    for(const auto& title: portalTitles){
+        SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
+        SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(renderer, portalTexture);
+        int w,h;
+        
+        // 1) rendering name to texture
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), title.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
+        dstRect = {static_cast<int>(125 - (.5 * w)), 15, w, h};
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+
+        // 2) rendering button to texture
+        std::string buttonText;
+        title == "Change Name" || title == "Change Character" ? buttonText = "Click" : buttonText = "Enter";
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
+
+        // button background 
+        dstRect = {static_cast<int>(125 - (150 * .5)), 60, 150, 50};
+        srcRect = {0,0,150,50};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(PORTALBUTTONBACKGROUND), &srcRect, &dstRect);
+
+        // button text
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
+        TTF_SizeText(assetStore->GetFont("namefont"), buttonText.c_str(), &w, &h);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        dstRect = {static_cast<int>(125 - (w * .5)), static_cast<int>(60 + 25 - (h * .5)), w, h};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
+
+        assetStore->AddTexture(renderer, PortalTitleToTexture.at(title), portalTexture);
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_RenderClear(renderer);
+        SDL_FreeSurface(ttfSurface);
+    }
+
+    // background texture
+    int width = 1024*10;
+    int height = 768*10;
+    SDL_Texture * menubgtexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height); 
+    SDL_SetTextureBlendMode(menubgtexture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, menubgtexture);
+    srcRect = {8*8,4*8,8,8};
+    dstRect = {0,0,8,8};
+    std::vector<SDL_Rect> decorations = { // uses LOFIENVIRONMENT
+        {8*9,4*8,8,8},
+        {8*10,4*8,8,8},
+        {8*11,4*8,8,8},
+        {8*12,4*8,8,8},
+        {8*13,4*8,8,8},
+        {8*14,4*8,8,8},
+        {8*15,4*8,8,8},
+        {8*9,5*8,8,8},
+        {8*12,6*8,8,8},
+        {8*13,6*8,8,8},
+        {8*14,6*8,8,8},
+        {8*15,6*8,8,8},  
+    };
+
+    for(int i = 0; i <= width/64; i++){
+        for(int j =0; j <= height/64; j++){
+            dstRect = {8*i, 8*j, 8,8};
+            SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &srcRect, &dstRect);    
+            if(RNG.randomFromRange(0,12) <= 1){
+                SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &decorations[RNG.randomFromRange(0,decorations.size()-1)], &dstRect);
+            }
+        }
+    }
+    SDL_Rect rect = {0, 0, 1024*10, 768*10};
+    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 100);
+    SDL_RenderFillRect(renderer, &rect);
+    assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture); // this texture is now managed by assetStore and will deleted at assetStore destruction
+
+    // HUDs
+    std::vector<textureEnums> statichuds = {STATICHUDARCHER, STATICHUDPRIEST, STATICHUDWARRIOR};
+    std::vector<int> staticchudoffsets = {1,3,4};
+    SDL_Texture * staticHUD = nullptr;
+    int invSlotDimension = static_cast<int>(44 * 1.25);
+    for(int i = 0; i <= 2; i++){
+        staticHUD = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
+        SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(renderer, staticHUD);
+        SDL_Rect srcRect = {0,0,250,750};
+        SDL_Rect dstRect = {0,0,250,750};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(GUIBACKGROUND), &srcRect, &dstRect); // HUD background (grey rectangle)
+        
+        srcRect = {0,staticchudoffsets[i]*24,8,8};
+        dstRect = {15, 255, static_cast<int>(8*3.5), static_cast<int>(8*3.5)};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(PLAYERS), &srcRect, &dstRect); // player icon
+
+        srcRect = {6*16,0,16,16};
+        dstRect = {220, 257, static_cast<int>(16*1.3),static_cast<int>(16*1.3)};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIINTERFACEBIG), &srcRect, &dstRect); // nexus button
+
+        SDL_SetRenderDrawColor(renderer,84,84,84,255); // backgrounds for stat bars
+        SDL_Rect xpBarBackground = {15, 291, 225, 20};
+        SDL_RenderFillRect(renderer, &xpBarBackground);
+        SDL_Rect hpBarBackground = {15, 319, 225, 20};
+        SDL_RenderFillRect(renderer, &hpBarBackground);
+        SDL_Rect mpBarBackground = {15, 347, 225, 20};
+        SDL_RenderFillRect(renderer, &mpBarBackground);
+
+        int width; 
+        int height;
+        SDL_Surface* ttfSurface;
+        SDL_Texture* ttfTextureFromSurface;
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "ATT -", grey);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {32,380, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEF -", grey);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {150,380, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "SPD -", grey);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {30,400, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEX -", grey);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {150,400, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "VIT -", grey);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {36,420, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+
+        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "WIS -", grey);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
+        SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
+        dstRect = {150,420, width, height};
+        SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
+        SDL_DestroyTexture(ttfTextureFromSurface);
+
+        srcRect = {44*9, 0, 44, 44};
+
+        dstRect = {15, 450, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // weapon slot bg
+        dstRect = {(765+44+12+1)-750, 450, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ability slot bg
+        dstRect = {(765+44*2+12*2+1)-750, 450, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // armor slot bg
+        dstRect = {(765+44*3+12*3+1)-750, 450, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ring slot bg
+
+        dstRect = {(765)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot one bg
+        dstRect = {(765+44*1+12*1+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot two bg
+        dstRect = {(765+44*2+12*2+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot three bg
+        dstRect = {(765+44*3+12*3+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot four bg
+        dstRect = {(765)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot five bg
+        dstRect = {(765+44*1+12*1+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot six bg
+        dstRect = {(765+44*2+12*2+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot seven bg
+        dstRect = {(765+44*3+12*3+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
+        SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot eight bg
+
+        assetStore->AddTexture(renderer, statichuds[i], staticHUD);
+        SDL_SetRenderTarget(renderer, nullptr);
+        SDL_RenderClear(renderer);
+        SDL_FreeSurface(ttfSurface);
+    }
+    /* bag/vault slots are their own texture */
+    srcRect = {44*9, 0, 44, 44};
+    SDL_Texture * bagslots = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
+    SDL_SetTextureBlendMode(bagslots, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, bagslots);
+    dstRect = {765-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot one bg
+    dstRect = {822-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot two bg
+    dstRect = {878-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot three bg
+    dstRect = {934-750, 631, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot four bg
+    dstRect = {765-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot five bg
+    dstRect = {822-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot six bg
+    dstRect = {878-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot seven bg
+    dstRect = {934-750, 688, invSlotDimension, invSlotDimension};
+    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot eight bg
+    assetStore->AddTexture(renderer, BAGSLOTS, bagslots); //QED
+    SDL_SetRenderTarget(renderer, nullptr);
+    SDL_RenderClear(renderer);
 }
 
 void Game::LoadGui(){
     auto& className = player.GetComponent<ClassNameComponent>().classname;
     equipmentIconIds.clear();
 
-    SDL_Texture * staticHUD =  SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
-    SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(renderer, staticHUD);
-    
-    SDL_Rect srcRect = {0,0,250,750};
-    SDL_Rect dstRect = {0,0,250,750};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(GUIBACKGROUND), &srcRect, &dstRect); // HUD background (grey rectangle)
-    
-    srcRect = {0,className*24,8,8};
-    dstRect = {15, 255, static_cast<int>(8*3.5), static_cast<int>(8*3.5)};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(PLAYERS), &srcRect, &dstRect); // player icon
+    textureEnums texture;
+    switch(className){
+        case ARCHER:{
+            texture = STATICHUDARCHER;
+        } break;
+        case WARRIOR:{
+            texture = STATICHUDWARRIOR;
+        } break;
+        case PRIEST:{
+            texture = STATICHUDPRIEST;
+        } break;
+    }
 
-    srcRect = {6*16,0,16,16};
-    dstRect = {220, 257, static_cast<int>(16*1.3),static_cast<int>(16*1.3)};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIINTERFACEBIG), &srcRect, &dstRect); // nexus button
-
-    SDL_SetRenderDrawColor(renderer,84,84,84,255); // backgrounds for stat bars
-    SDL_Rect xpBarBackground = {15, 291, 225, 20};
-    SDL_RenderFillRect(renderer, &xpBarBackground);
-    SDL_Rect hpBarBackground = {15, 319, 225, 20};
-    SDL_RenderFillRect(renderer, &hpBarBackground);
-    SDL_Rect mpBarBackground = {15, 347, 225, 20};
-    SDL_RenderFillRect(renderer, &mpBarBackground);
+    Entity statichud = registry->CreateEntity();
+    statichud.AddComponent<SpriteComponent>(texture, 250, 750, 10, 0, 0 , true);
+    statichud.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
 
     Entity tempMiniMap = registry->CreateEntity();
     tempMiniMap.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
@@ -1514,47 +1714,6 @@ void Game::LoadGui(){
     xpText.AddComponent<DisplayStatComponent>(LVL);
     // std::cout << "xpText text has id " << xpText.GetId() << " in LoadGui()" << std::endl;
 
-    int width; 
-    int height;
-    SDL_Surface* ttfSurface;
-    SDL_Texture* ttfTextureFromSurface;
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "ATT -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {32,380, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEF -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {150,380, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "SPD -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {30,400, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEX -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {150,400, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "VIT -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {36,420, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
-    ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "WIS -", grey);
-    ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-    SDL_QueryTexture(ttfTextureFromSurface, NULL, NULL, &width, &height);
-    dstRect = {150,420, width, height};
-    SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
-
     Entity weaponSlot = registry->CreateEntity();
     weaponSlot.AddComponent<TransformComponent>(glm::vec2(765+5, 450+5), glm::vec2(1.25,1.25)); 
     if(classname == WARRIOR){
@@ -1593,133 +1752,18 @@ void Game::LoadGui(){
     ringSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 0+4, true);
     equipmentIconIds.push_back(ringSlot.GetId());
 
-    int invSlotDimension = static_cast<int>(44 * 1.25);
-    srcRect = {44*9, 0, 44, 44};
-
-    dstRect = {15, 450, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // weapon slot bg
-    dstRect = {(765+44+12+1)-750, 450, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ability slot bg
-    dstRect = {(765+44*2+12*2+1)-750, 450, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // armor slot bg
-    dstRect = {(765+44*3+12*3+1)-750, 450, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // ring slot bg
-
-    dstRect = {(765)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot one bg
-    dstRect = {(765+44*1+12*1+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot two bg
-    dstRect = {(765+44*2+12*2+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot three bg
-    dstRect = {(765+44*3+12*3+1)-750, 450+44+12+1, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot four bg
-    dstRect = {(765)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot five bg
-    dstRect = {(765+44*1+12*1+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot six bg
-    dstRect = {(765+44*2+12*2+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot seven bg
-    dstRect = {(765+44*3+12*3+1)-750, 450+((44+12+1)*2), invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // slot eight bg
-
     //todo make inventory icons (numbers 1-8) & push back to the vector 
 
-    assetStore->AddTexture(renderer, STATICHUD, staticHUD);
-    Entity statichud = registry->CreateEntity();
-    statichud.AddComponent<SpriteComponent>(STATICHUD, 250, 750, 10, 0, 0 , true);
-    statichud.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
-    SDL_SetRenderTarget(renderer, nullptr);
-    SDL_RenderClear(renderer);
-
-    /* inventory slots are their own texture */
-    SDL_Texture * bagslots = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
-    SDL_SetTextureBlendMode(bagslots, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(renderer, bagslots);
-    dstRect = {765-750, 631, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot one bg
-    dstRect = {822-750, 631, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot two bg
-    dstRect = {878-750, 631, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot three bg
-    dstRect = {934-750, 631, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot four bg
-    dstRect = {765-750, 688, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot five bg
-    dstRect = {822-750, 688, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot six bg
-    dstRect = {878-750, 688, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot seven bg
-    dstRect = {934-750, 688, invSlotDimension, invSlotDimension};
-    SDL_RenderCopy(renderer, assetStore->GetTexture(INVENTORYICONS), &srcRect, &dstRect); // bag slot eight bg
-    assetStore->AddTexture(renderer, BAGSLOTS, bagslots);
     Entity bagSlots = registry->CreateEntity();
     bagSlots.AddComponent<SpriteComponent>(BAGSLOTS, 250, 750, 9, 0, 0, true);
     bagSlots.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
     bagSlots.AddComponent<InteractUIComponent>(0);
-    SDL_SetRenderTarget(renderer, nullptr);
-    SDL_RenderClear(renderer);
-
-    /*Portal UI Components*/
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber"};
-    for(const auto& title: portalTitles){
-        SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
-        SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderTarget(renderer, portalTexture);
-        int w,h;
-        
-        // 1) rendering name to texture
-        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), title.c_str(), white);
-        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
-        dstRect = {static_cast<int>(125 - (.5 * w)), 15, w, h};
-        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
-
-        // 2) rendering button to texture
-        std::string buttonText;
-        title == "Change Name" || title == "Change Character" ? buttonText = "Click" : buttonText = "Enter";
-        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
-        TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
-
-        // button background 
-        dstRect = {static_cast<int>(125 - (150 * .5)), 60, 150, 50};
-        srcRect = {0,0,150,50};
-        SDL_RenderCopy(renderer, assetStore->GetTexture(PORTALBUTTONBACKGROUND), &srcRect, &dstRect);
-
-        // button text
-        ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
-        TTF_SizeText(assetStore->GetFont("namefont"), buttonText.c_str(), &w, &h);
-        ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-        dstRect = {static_cast<int>(125 - (w * .5)), static_cast<int>(60 + 25 - (h * .5)), w, h};
-        SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
-
-        // change name instructions 
-        if(title == "Change Name"){
-            std::string instructions = "(Max 10. Type & press enter when done)";
-            ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), instructions.c_str(), white);
-            TTF_SizeText(assetStore->GetFont("namefont"), instructions.c_str(), &w, &h);
-            ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
-            dstRect = {static_cast<int>(125 - (w * .5)), 736, w, h};
-            SDL_RenderCopy(renderer, ttfTextureFromSurface, nullptr, &dstRect);
-        }
-
-        assetStore->AddTexture(renderer, PortalTitleToTexture.at(title), portalTexture);
-        SDL_SetRenderTarget(renderer, nullptr);
-        SDL_RenderClear(renderer);
-    }
 
     // This entity has its sprite component updated to reflect what portal is being collided with!
     Entity portal = registry->CreateEntity();
     portal.AddComponent<SpriteComponent>(NEXUSPORTAL, 250, 250, 9, 0, 0, true);
     portal.AddComponent<TransformComponent>(glm::vec2(750,625), glm::vec2(1.0,1.0));
     portal.AddComponent<InteractUIComponent>(1);
-
-    SDL_SetRenderTarget(renderer, nullptr);
-    SDL_RenderClear(renderer);
-    SDL_FreeSurface(ttfSurface);
-}
-
-void Game::LoadEnemy(glm::vec2 spawnpoint, sprites spriteEnum){
-factory->spawnMonster(registry, spawnpoint, spriteEnum);
 }
 
 void Game::LoadPlayer(){
@@ -1762,10 +1806,6 @@ void Game::LoadPlayer(){
             break;
         }
     }
-    // TEMPORARY MODIFICATIONS FOR DEVELOPMENT
-
-    // player.GetComponent<SpeedStatComponent>().activespeed = 255;
-    // player.GetComponent<BaseStatComponent>().speed = 50;
 }
 
 void Game::PopulatePlayerInventoryAndEquipment(){
@@ -1819,6 +1859,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<DisplayNameSystem>();
     registry->AddSystem<BossAISystem>();
     registry->AddSystem<AnimatedPounceAISystem>();
+    registry->AddSystem<VaultItemSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -1829,44 +1870,8 @@ void Game::PopulateRegistry(){
 void Game::LoadLevel(int level){}
 
 void Game::Background(){
-    int width = 1024*10;
-    int height = 768*10;
-    SDL_Texture * menubgtexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height); 
-    SDL_SetTextureBlendMode(menubgtexture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(renderer, menubgtexture);
-    SDL_Rect srcRect = {8*8,4*8,8,8};
-    SDL_Rect dstRect = {0,0,8,8};
-    std::vector<SDL_Rect> decorations = { // uses LOFIENVIRONMENT
-        {8*9,4*8,8,8},
-        {8*10,4*8,8,8},
-        {8*11,4*8,8,8},
-        {8*12,4*8,8,8},
-        {8*13,4*8,8,8},
-        {8*14,4*8,8,8},
-        {8*15,4*8,8,8},
-        {8*9,5*8,8,8},
-        {8*12,6*8,8,8},
-        {8*13,6*8,8,8},
-        {8*14,6*8,8,8},
-        {8*15,6*8,8,8},  
-    };
-
-    for(int i = 0; i <= width/64; i++){
-        for(int j =0; j <= height/64; j++){
-            dstRect = {8*i, 8*j, 8,8};
-            SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &srcRect, &dstRect);    
-            if(RNG.randomFromRange(0,12) <= 1){
-                SDL_RenderCopy(renderer, assetStore->GetTexture(LOFIENVIRONMENT), &decorations[RNG.randomFromRange(0,decorations.size()-1)], &dstRect);
-            }
-        }
-    }
-    SDL_Rect rect = {0, 0, 1024*10, 768*10};
-    SDL_SetRenderDrawColor(renderer, 100, 100, 100, 100);
-    SDL_RenderFillRect(renderer, &rect);
     Entity menubg = registry->CreateEntity();
     menubg.AddComponent<TransformComponent>(glm::vec2(0.0,0.0), glm::vec2(8.0,8.0));
-    assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture);
     menubg.AddComponent<SpriteComponent>(MAINMENUBG, 1024, 768, 1, 0,0,0);
     registry->Update();
 }
@@ -2263,7 +2268,7 @@ void Game::SpawnAreaEntities(wallTheme area){
     }
 }
 
-void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts 
+void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
@@ -2273,13 +2278,13 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
         PopulateAssetStore();
         PopulateRegistry();
         PopulateEventBus();
-        PopulateItemIconsInAssetStore();        
+        PopulateItemIconsInAssetStore();
+        registry->GetSystem<StatusEffectSystem>().GenerateStatusIcons(renderer, assetStore);        
     }
     if(mainmenus){
         Background();
         MainMenus();        
     }
-    // SpawnAreaEntities(area);
     registry->Update();
     LoadPlayer();
     LoadGui(); // LoadGui requires player to be loaded first; it uses player's classnameComponent
@@ -2322,7 +2327,7 @@ void Game::Update(){
     registry->GetSystem<ChaseAISystem>().Update(playerpos);
     registry->GetSystem<NeutralAISystem>().Update(playerpos);
     registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut, camera);
+    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut, camera, bossRoom);
     registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
     registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);
@@ -2359,6 +2364,7 @@ void Game::Destory(){ // destroy... or destory
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     registry->GetSystem<RenderTextSystem>().killTextures();
+    registry->GetSystem<StatusEffectSystem>().killIconSetTextures();
     Mix_CloseAudio();
     Mix_Quit();
     SDL_Quit();

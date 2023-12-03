@@ -28,6 +28,7 @@
 #include "../Utils/factory.h"
 #include "../Events/WeaponEquipEvent.h"
 #include "../Events/KillItemIconEvent.h"
+#include "../Components/ItemComponent.h"
 
 /*
 This system is responsible for allowing the player to move items between loot bags, their inventory, and their equipment slots

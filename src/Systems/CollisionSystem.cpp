@@ -87,10 +87,10 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                 } break;
             }
 
-            // at this point, if one is a projectile, other one guaranteed to be an actionable entity (monster/player)
-            // thus, there is no need to verify other entity is a player or monster
-            bool aIsProjectile = (Agroup == PROJECTILE);
-            bool bIsProjectile = (Bgroup == PROJECTILE);
+            // at this point, if one is a projectile, other one guaranteed to be an actionable entity (monster/player/wall)
+            // thus, there is no need to verify other entity is a player or monster or wall. it must be.
+            bool aIsProjectile = (Agroup == PROJECTILE && Bgroup != WALLBOX);
+            bool bIsProjectile = (Bgroup == PROJECTILE && Agroup != WALLBOX);
             auto& bTransform = b.GetComponent<TransformComponent>();
             auto& bCollider = b.GetComponent<BoxColliderComponent>();
             if(!CheckAABBCollision( // if b projectile, increase a hitbox and vice-versa

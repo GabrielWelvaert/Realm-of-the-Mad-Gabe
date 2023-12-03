@@ -360,7 +360,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BAT0,
         {
             {
-                {30, {MPPOT, HPPOT}},
+                {27, {HPPOT}},
+                {15, {MPPOT}},
+                {5, {CABERNET}},
             }
         }
     },

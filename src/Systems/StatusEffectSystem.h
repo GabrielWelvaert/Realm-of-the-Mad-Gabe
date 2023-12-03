@@ -66,7 +66,7 @@ class StatusEffectSystem: public System{
             {1*8, 1*8, 8, 8},
         };
 
-        std::unordered_map<std::bitset<8>, SDL_Texture*> iconSets;
+        std::vector<SDL_Texture*> iconSets = {nullptr};
 
     public:
         StatusEffectSystem();
@@ -78,6 +78,10 @@ class StatusEffectSystem: public System{
         void onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus);
 
         void Update(SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera);
+
+        void GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore);
+
+        void killIconSetTextures();
 
 };
 

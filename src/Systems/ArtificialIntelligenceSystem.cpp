@@ -244,7 +244,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<RidigBodyComponent>();
 }
 
-void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera){
+void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom){
     for(auto& entity: GetSystemEntities()){
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
@@ -373,15 +373,73 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         }
 
                     } else if (hp < aidata.survival) { // survival phase
-                        velocity = {0,0};
 
-                    } else { // second phase; fire wall, spawn monsters, move between edges
-                        // change between wall edges every 10s. stay at center, vulnerable, for 5s. when at walls, spawn mobs
+                        if(!aidata.flag0){ // flag 0 indicates if arcMage has reached center of room
+                            if(!(std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3 && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3)){
+                                chasePlayer(position, aidata.phaseTwoPositions[1], velocity);
+                                if(!aidata.flag3){
+                                    assetStore->PlaySound(MNOVA);
+                                    sec.effects[INVULNERABLE] = true;
+                                    sprite.srcRect.y = 16*110;
+                                    hitnoise = VOIDHIT;
+                                    aidata.timer1 = pec.shots = asc.animatedShooting = pec.isShooting = 0;
+                                    ac.xmin = 1;
+                                    !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                                    position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+                                    ac.frameSpeedRate = 4;
+                                    aidata.flag3 = true;
+                                }
+                            } else {
+                                aidata.flag0 = aidata.flag1 = aidata.flag2 = true;
+                                velocity = {0,0};    
+                            }
+                            continue; // dont really start survival phase until arrived at center of room
+                        }
+
+                        // standing at middle of room. survival phase 
+                        if(aidata.flag1){ // flag 1 used to indicate first frame of survival phase at center of room
+                            if(aidata.flag3){ // arcMage did run without shooting animation, re-enable shooting
+                                ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
+                                asc.animatedShooting = true;
+                                pec.isShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2; 
+                                ac.currentFrame = 1;
+                                pec.lastEmissionTime = 0;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                            }
+                            aidata.flag1 = false;         
+                            pec.shots = 12;
+                            pec.arcgap = 360;
+                            aidata.timer0 = 0;
+                        }
+
+                        // every 5 seconds spawn, swap vulnerability, emit confuse stars
+                        if(time >= aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            aidata.timer0 = time;
+                            assetStore->PlaySound(MNOVA);
+                            arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            arcMageSpawnMinions(registry, factory, bossRoom);
+                            if(sec.effects[INVULNERABLE]){
+                                sec.effects[INVULNERABLE] = false;
+                                sprite.srcRect.y = 16*111;
+                                hitnoise = GHOSTGODHIT;
+                            } else {
+                                sec.effects[INVULNERABLE] = true;
+                                sprite.srcRect.y = 16*110;
+                                hitnoise = VOIDHIT;
+                            }
+                        }
+
+
+                    } else { // second phase
                         if(aidata.flag0){ // flag0 used in phase 2 to indicate first frame of phase 2 
                             aidata.flag0 = false;
                             RNG.randomFromRange(0,1) == 0 ? aidata.phaseTwoIndex = 0 : aidata.phaseTwoIndex = 2;
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                             aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                            // positionflag used to keep track of where arcMage is attempting to go
                         }
 
                         int timeAtSpot = 10000;
@@ -389,37 +447,47 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         if((aidata.positionflag == aidata.phaseTwoPositions[0] && (std::abs(position.x - aidata.phaseTwoPositions[0].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[0].y) <= 3) 
                         || (aidata.positionflag == aidata.phaseTwoPositions[2] && (std::abs(position.x - aidata.phaseTwoPositions[2].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[2].y) <= 3)){ 
                         // successfully arrived at either edge 
-                            if(!aidata.flag1){
-                                aidata.flag1 = true; // flag1 used to indicate successfully arriving at destination    
-                                aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
+                            if(!aidata.flag1){ // first frame of edge arrival 
+                                aidata.flag1 = true; // flag1 used in second phase to indicate successfully arriving at destination    
+                                aidata.timer0 = time; // time0 used in second phase to track time since successfully arriving at destination
                                 sec.effects[INVULNERABLE] = true;
                                 sprite.srcRect.y = 16*110;
                                 hitnoise = VOIDHIT;
                                 pec.shots = 12;
                                 pec.arcgap = 180;
+
+                                // emit wall shots, spawn some dudes 
+                                arcMageWallShots(entity, registry, bossRoom);
+                                arcMageSpawnMinions(registry, factory, bossRoom);
+                                assetStore->PlaySound(MNOVA);
+                                
                             }
                         } else if(aidata.positionflag == aidata.phaseTwoPositions[1] && (std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3){
                         //successfully arrived at center
                             timeAtSpot = 5000;
                             if(!aidata.flag1){
-                                aidata.flag1 = true; // flag1 used to indicate successfully arriving at destination    
+                                aidata.flag1 = true; // flag1 used in second phase to indicate successfully arriving at destination    
                                 aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
                             }
-                            if(time >= aidata.timer0 + 4500 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            if(!aidata.flag2 && time - pec.lastEmissionTime > pec.repeatFrequency){
                                 arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                                aidata.flag2 = true; // flags2 used in second phase to shoot confuse stars when at center of room
                             }
-                        } else if(!aidata.flag1){
+                        } else if(!aidata.flag1){ // flag1 used in second phase to indicate successfully arriving at destination   
                         // not arrived anywhere; keep moving to current destination
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                         }
 
                         // destination successfully reached and time spent there elapsed; time to move to new destination 
                         if(aidata.flag1 && time >= aidata.timer0 + timeAtSpot){ 
-                            aidata.flag1 = false;
+                            aidata.flag2 = aidata.flag1 = false;
                             aidata.phaseTwoIndex++;
                             if(aidata.phaseTwoIndex > 3){aidata.phaseTwoIndex = 0;}
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                             aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                            if(aidata.phaseTwoIndex == 1 || aidata.phaseTwoIndex == 3){ // leaving wall
+                                assetStore->PlaySound(MNOVA);
+                            }
                             sprite.srcRect.y = 16*111; 
                             hitnoise = GHOSTGODHIT;
                             sec.effects[INVULNERABLE] = false;
