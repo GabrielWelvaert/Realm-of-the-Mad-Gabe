@@ -9,6 +9,7 @@
 #include "../../libs/SDL2/SDL_mixer.h"
 #include <iostream>
 #include "../Utils/enums.h"
+#include <vector>
 
 class AssetStore{
     private:
@@ -30,6 +31,9 @@ class AssetStore{
         void PlaySound(const soundEnums& assetId);
         void AddMusic(const std::string& assetId, const std::string& filePath);
         void PlayMusic(const std::string& assetId);
+        void DestroyMapTextures();
+        void DestroyBackgroundTextures();
+        void DestroyGUITextures();
 
 
 };

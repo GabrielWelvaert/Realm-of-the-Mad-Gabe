@@ -1,25 +1,23 @@
 #include "AssetStore.h"
 
 AssetStore::AssetStore(){
-    // std::cout << "assetstore constructor called" << std::endl;
 }
 
 AssetStore::~AssetStore(){
     ClearAssets();
-    // std::cout << "assetstore destructor called" << std::endl;
 }
 
 void AssetStore::ClearAssets(){
-    for (auto texture: textures){
+    for(auto texture: textures){
         SDL_DestroyTexture(texture.second);
     }
-    for (auto font: fonts){
+    for(auto font: fonts){
         TTF_CloseFont(font.second);
     }
-    for (auto sound: sounds){
+    for(auto sound: sounds){
         Mix_FreeChunk(sound.second);
     }
-    for (auto song: music){
+    for(auto song: music){
         Mix_FreeMusic(song.second);
     }
     textures.clear();
@@ -32,11 +30,13 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId,
     SDL_Surface* surface = IMG_Load(filePath.c_str());
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);    
-    textures.emplace(assetId, texture);
+    textures.insert_or_assign(assetId, texture);
 }
 
 void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId, SDL_Texture * texture){
-    // textures.emplace(assetId, texture);
+    if(textures.find(assetId) != textures.end()){
+        SDL_DestroyTexture(textures.at(assetId));
+    }
     textures.insert_or_assign(assetId, texture);
 
 }
@@ -54,9 +54,6 @@ void AssetStore::AddFont(const std::string& assetId, const std::string& filePath
 }
 
 TTF_Font* AssetStore::GetFont(const std::string& assetId){
-    if(fonts.find(assetId) == fonts.end()){
-        // std::cout << assetId << " not found in assetStore's fonts. Perhaps there was a typo! " << std::endl;
-    }
     return fonts.at(assetId);
 }
 
@@ -68,9 +65,6 @@ void AssetStore::AddSound(const soundEnums& assetId, const std::string& filePath
 }
 
 void AssetStore::PlaySound(const soundEnums& assetId){
-    if(sounds.find(assetId) == sounds.end()){
-        // std::cout << assetId << " not found in assetStore's sounds. Perhaps there was a typo! " << std::endl;
-    }
     Mix_PlayChannel(-1, sounds.at(assetId), 0);
 }
 

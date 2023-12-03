@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 #include "../Utils/enums.h"
+#include "../Utils/tables.h"
 
 struct ItemComponent{
     items itemEnum;

@@ -16,6 +16,8 @@ struct BossAIComponent{
     bool activated = false; 
     bool flag0 = false; // flag for whatever
     bool flag1 = false;
+    bool flag2 = false;
+    bool flag3 = false; // should really just use a bitset at this point
     Uint32 timer0 = 0; // timer that can be used for whatever
     Uint32 timer1 = 0;
     glm::vec2 positionflag;

@@ -9,7 +9,7 @@
 struct AnimationComponent{
     long numFrames;
     unsigned char currentFrame;
-    double frameSpeedRate;
+    double frameSpeedRate; // frames per sec
     Uint32 startTime;
     unsigned char xmin;
 
