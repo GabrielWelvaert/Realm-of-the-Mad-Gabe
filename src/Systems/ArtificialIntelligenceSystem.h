@@ -130,18 +130,31 @@ class BossAISystem: public System{
                     projectile.AddComponent<SpriteComponent>(LOFIOBJ3,8,8,rect,4,false,false);
                     projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2(4,4));
                     projectile.AddComponent<TransformComponent>(glm::vec2(xpos , ypos), glm::vec2(5.0,5.0), rotationDegrees);
-                    projectile.AddComponent<ProjectileComponent>(40, 20000, false, boss, 0, ARCMAGE, false, QUIET, 0, false);
+                    projectile.AddComponent<ProjectileComponent>(55, 20000, false, boss, 0, ARCMAGE, false, QUIET, 0, false);
                     projectile.Group(PROJECTILE);
                 }
             }
         }
 
-        inline void arcMageSpawnMinions(std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& br){
-            int numToSpawn = RNG.randomFromRange(3,5);
+        inline void arcMageSpawnMinionsPhaseTwo(std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& br){
+            if(registry->getNumberOfLivingEntities() > 1000){return;}
+            int numToSpawn = RNG.randomFromRange(5,8);
             sprites monster;
             for(int i = 0; i <= numToSpawn; i++){
-                float xpos = (RNG.randomFromRange(br.x + 6,  br.x + br.w - 6) * 64);
+                float xpos = (RNG.randomFromRange(br.x + 4,  br.x + br.w - 4) * 64);
                 float ypos = (RNG.randomFromRange(br.y + 3,  br.y + br.h - 3) * 64);    
+                i % 2 == 0 ? monster = SHATTERSBOMB : monster = BAT0;
+                factory->spawnMonster(registry, {xpos,ypos}, monster);
+            }
+        }
+
+        inline void arcMageSpawnMinionsSurvival(std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& br){
+            if(registry->getNumberOfLivingEntities() > 1000){return;}
+            int numToSpawn = RNG.randomFromRange(2,5);
+            sprites monster;
+            for(int i = 0; i <= numToSpawn; i++){
+                float xpos = (RNG.randomFromRange(br.x + 1,  br.x + br.w - 1) * 64);
+                float ypos = (RNG.randomFromRange(br.y + 1,  br.y + br.h - 1) * 64);    
                 i % 2 == 0 ? monster = SHATTERSBOMB : monster = BAT0;
                 factory->spawnMonster(registry, {xpos,ypos}, monster);
             }

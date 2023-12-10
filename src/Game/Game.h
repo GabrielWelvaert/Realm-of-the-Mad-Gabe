@@ -43,6 +43,11 @@ class Game{
         bool successfulMapGen = false; 
         deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         roomShut roomShut;
+        // int mapDimension = 0;
+        int idOfMiniMapEntity;
+        int idOfMiniMapVeil;
+        int rendererMaxTextureDimension;
+        
 
     public:
         Game();
@@ -67,6 +72,7 @@ class Game{
         void PopulateItemIconsInAssetStore();
         void SpawnAreaEntities(wallTheme area);
         bool GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map);
+        void MiniMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map);
         std::vector<Entity> loadMenuOne();
         std::vector<Entity> loadMenuTwo(int numcharacters);
         std::vector<Entity> loadMenuThree();

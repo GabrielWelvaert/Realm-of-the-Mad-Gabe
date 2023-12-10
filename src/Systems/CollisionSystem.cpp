@@ -25,6 +25,8 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
             if(a==b){continue;}
             groups Agroup = registry->IdToGroup(a.GetId());
             groups Bgroup = registry->IdToGroup(b.GetId());
+            
+            // perhaps check here if b is X pixels-off screen? 
 
             // switch case for continue cases (avoids checking AABB for cases where collision doens't matter)
             switch(Agroup){

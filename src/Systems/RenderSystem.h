@@ -18,8 +18,7 @@ This system is responsible for drawing sprites on the screen. It sorts them by t
 class RenderSystem: public System {
     public:
         RenderSystem();
-
-        void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, SDL_Rect camera);
+        void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, bool renderMiniMap,int idOFMiniMap = 0);
 };
 
 #endif 

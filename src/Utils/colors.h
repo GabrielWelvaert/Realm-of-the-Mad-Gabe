@@ -14,5 +14,10 @@ static const SDL_Color maxstatcolor = {208,201,60};
 static const SDL_Color mpcolor = {95,133,228};
 static const SDL_Color titleRed = {234,80,75};
 static const SDL_Color armorPiercePurple = {142,47,205};
+static const SDL_Color miniMapGrass = {65,82,41};
+static const SDL_Color nexusFloor = {220,222,243};
+static const SDL_Color udlFloor = {83,86,81};
+static const SDL_Color chickenFloor = {202,129,51};
+static const SDL_Color miniMapPlayerBlue = {4,4,252};
 
 #endif

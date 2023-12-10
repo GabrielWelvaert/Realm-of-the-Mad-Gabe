@@ -410,17 +410,17 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                 pec.lastEmissionTime += pec.repeatFrequency / 2; 
                             }
                             aidata.flag1 = false;         
-                            pec.shots = 12;
+                            pec.shots = 24;
                             pec.arcgap = 360;
                             aidata.timer0 = 0;
                         }
 
-                        // every 5 seconds spawn, swap vulnerability, emit confuse stars
-                        if(time >= aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                        // every 3 seconds spawn, swap vulnerability, emit confuse stars
+                        if(time >= aidata.timer0 + 3000 && time - pec.lastEmissionTime > pec.repeatFrequency){
                             aidata.timer0 = time;
                             assetStore->PlaySound(MNOVA);
                             arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
-                            arcMageSpawnMinions(registry, factory, bossRoom);
+                            arcMageSpawnMinionsSurvival(registry, factory, bossRoom);
                             if(sec.effects[INVULNERABLE]){
                                 sec.effects[INVULNERABLE] = false;
                                 sprite.srcRect.y = 16*111;
@@ -458,7 +458,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
 
                                 // emit wall shots, spawn some dudes 
                                 arcMageWallShots(entity, registry, bossRoom);
-                                arcMageSpawnMinions(registry, factory, bossRoom);
+                                arcMageSpawnMinionsPhaseTwo(registry, factory, bossRoom);
                                 assetStore->PlaySound(MNOVA);
                                 
                             }

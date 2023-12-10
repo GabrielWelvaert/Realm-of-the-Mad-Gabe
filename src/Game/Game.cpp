@@ -87,6 +87,10 @@ void Game::Initialize(){
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     // renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+    SDL_RendererInfo rendererInfo;
+    SDL_GetRendererInfo(renderer, &rendererInfo);
+    rendererMaxTextureDimension = std::min(rendererInfo.max_texture_width, rendererInfo.max_texture_height);
+
     //camera stuff
     camera.x = 0;
     camera.y = 0;
@@ -127,18 +131,18 @@ void Game::Initialize(){
     SDL_FreeSurface(iconlarge);
     SDL_FreeSurface(atlas);
 
-    if(debug){
-        SDL_RendererInfo rendererInfo;
-        SDL_GetRendererInfo(renderer, &rendererInfo);
-        std::cout << "SDL_GetCurrentVideoDriver() = " << SDL_GetCurrentVideoDriver() << std::endl;
-        std::cout << "SDL_GetRendererInfo() = " << rendererInfo.name << std::endl;
+    // if(debug){
+    //     SDL_RendererInfo rendererInfo;
+    //     SDL_GetRendererInfo(renderer, &rendererInfo);
+    //     std::cout << "SDL_GetCurrentVideoDriver() = " << SDL_GetCurrentVideoDriver() << std::endl;
+    //     std::cout << "SDL_GetRendererInfo() = " << rendererInfo.name << std::endl;
 
-        int maxTextureWidth = rendererInfo.max_texture_width;
-        int maxTextureHeight = rendererInfo.max_texture_height;
+    //     int maxTextureWidth = rendererInfo.max_texture_width;
+    //     int maxTextureHeight = rendererInfo.max_texture_height;
 
-        printf("Maximum Texture Width: %d\n", maxTextureWidth);
-        printf("Maximum Texture Height: %d\n", maxTextureHeight);
-    }
+    //     printf("Maximum Texture Width: %d\n", maxTextureWidth);
+    //     printf("Maximum Texture Height: %d\n", maxTextureHeight);
+    // }
 
     isRunning = true; 
 }
@@ -168,6 +172,7 @@ SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
 int invetoryNumber;
+Uint32 timeOfLastScroll = 0;
 static int chicken = 0;
 // std::vector<sprites> monsters = { ARCMAGE, HELLHOUND, IMP0, IMP1, IMP2, IMP3, WHITEDEMON, SKELETON5 };
 std::vector<sprites> monsters = { BAT0 };
@@ -180,7 +185,22 @@ void Game::ProcessInput(){
         SDL_Event sdlEvent;
         while(SDL_PollEvent(&sdlEvent)) {
             key = sdlEvent.key.keysym.sym;
-            switch (sdlEvent.type){
+            switch(sdlEvent.type){
+                case SDL_MOUSEWHEEL:{
+                    Uint32 time = SDL_GetTicks();
+                    const auto& playpos = player.GetComponent<TransformComponent>().position;
+                    if(time > timeOfLastScroll + 500){ 
+                        auto& sprite = registry->GetComponent<SpriteComponent>(idOfMiniMapEntity);
+                        if(sdlEvent.wheel.y > 0 && sprite.srcRect.w > 60){ // scroll up (away from you); zoom in mini map
+                            sprite.srcRect.w /= 2;
+                            sprite.srcRect.h /= 2;
+                        } else if(sdlEvent.wheel.y < 0 && sprite.srcRect.w < 240) { // scroll down (towards you); zoom out 
+                            sprite.srcRect.w *= 2;
+                            sprite.srcRect.h *= 2;
+                        }
+                        timeOfLastScroll = time;    
+                    }
+                    } break;
                 case SDL_QUIT: 
                     characterManager->SaveCharacter(activeCharacterID, player);
                     characterManager->SaveVaults(registry);
@@ -254,18 +274,39 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
                         } break;
                         case SDLK_0:{
-                            // int x,y;
-                            // std::cin >> x; 
-                            // std::cin >> y;
-                            // glm::vec2 spawnpoint = {x,y};
-                            // player.GetComponent<TransformComponent>().position = spawnpoint;
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T6LIGHTARMOR, lootbag);
+                            factory->createItemInBag(registry, T6ROBE, lootbag);
+                            factory->createItemInBag(registry, T8BOW, lootbag);
+                            factory->createItemInBag(registry, T8WAND, lootbag);
+                            factory->createItemInBag(registry, T3TOME, lootbag);
+                            factory->createItemInBag(registry, T3QUIVER, lootbag);
+                            factory->createItemInBag(registry, T3DEXRING, lootbag);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            spawnpoint = {mouseX + camera.x-64, mouseY + camera.y};
+                            Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, HPPOT, lootbag2);
                         } break;
                         case SDLK_MINUS:{
                             if(dungeonRooms.size() > 0){
                                 const auto& spawnRoom = dungeonRooms[bossRoomId]; 
                                 // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
                                 player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                            } else {
+                                player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
                             }
+                        } break;
+                        case SDLK_BACKSPACE:{
+                            auto& xp = player.GetComponent<BaseStatComponent>().xp;
+                            xp += 20000;
                         } break;
                         default:
                             break;
@@ -329,7 +370,7 @@ void Game::ProcessInput(){
                     characterManager->SaveVaults(registry);
                     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
-                    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+                    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, false);
                     Setup(false, true, NEXUS);
                 } break;
                 default:{ // portal is actually a door to another area (vault, dungeon)
@@ -364,13 +405,14 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     int numRoomsCreated = 0;
     int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
     std::vector<room> rooms; // can be indexed by id
-    std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find loops and furthest room
+    std::map<int, std::unordered_set<int>> graph; // adjacency list. used to find furthest room
     std::vector<SDL_Rect> hallways;
     bool BFSCompleted = false;
     std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
     int bossRoomGenerationAttempts = 0;
     mapSizeTiles = 750; 
-    numRooms = RNG.randomFromRange(20,35);
+    numRooms = RNG.randomFromRange(25,35);
+    // numRooms = 55;
     roomsIdsInOrderOfDepth.reserve(numRooms);
     w = h = RNG.randomFromRange(10,15);
     x = mapSizeTiles / 2;
@@ -430,7 +472,8 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
             IdOfParentRoom = RNG.randomFromRange(0, rooms.size()-1);
             w = RNG.randomSmallModification(roomSizeTiles);
             h = RNG.randomSmallModification(roomSizeTiles);
-            distance = RNG.randomFromRange(6,12);    
+            // distance = RNG.randomFromRange(6,12);    
+            distance = RNG.randomFromRange(6,8);    
         }
         const auto& pr = rooms[IdOfParentRoom]; // pr = parent room
         cardinalDirection direction = static_cast<cardinalDirection>(RNG.randomFromRange(0,3));
@@ -586,7 +629,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     playerSpawn = glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
 
     // step 5: draw rooms to the map
-    const int extratiles = 10; // used to be 5
+    const int extratiles = 8; // used to be 5
     map.resize(valueOfMaxY - valueOfMinY + extratiles, std::vector<int>(valueOfMaxX - valueOfMinX + extratiles, alpha));
     for(const auto& room: rooms){ //adding rooms to the map
         for(int y = room.y; y < room.y + room.h - 1; y++){
@@ -602,6 +645,8 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
             }
         }
     }
+
+    MiniMap(wallTheme, map);
 
     // step 6: add walls and ceilings around perimeter of map
     glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
@@ -651,33 +696,12 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
                 map[y-1][x-1] = ceiling;
             }
             mapItr.x --;
-        } else {
+        } else { // if none of the above conditions are met, something unexpected happen; report failure and restart
             return false;
         }
     } 
 
-    // visual debugging (prints all rooms as rectangles on screen): 
-    // SDL_RenderClear(renderer);
-    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    // SDL_Rect roomRect = {0,0,1000,750};
-    // SDL_RenderFillRect(renderer, &roomRect);
-    // for(const auto& c: hallways){
-    //     SDL_SetRenderDrawColor(renderer, 50,255,255, 255);
-    //     SDL_RenderFillRect(renderer, &c);
-    // }
-    // for(const auto& c: rooms){
-    //     SDL_Rect roomRect = {c.x, c.y, c.w, c.h};
-    //     if(c.id == rooms.back().id){
-    //         SDL_SetRenderDrawColor(renderer, 50,125,0, 125);
-    //     } else if(c.id == 0){
-    //         SDL_SetRenderDrawColor(renderer, 50,125,125, 0);
-    //     } else {
-    //         SDL_SetRenderDrawColor(renderer, 50,255,255, 255);    
-    //     }
-    //     SDL_RenderFillRect(renderer, &roomRect);
-    // }
-    // SDL_RenderPresent(renderer);
-    return true;
+    return true; // map generated! hopefully its size will be accepted in the caller. 
 }
 
 /*
@@ -688,22 +712,32 @@ only works with lofiEnvironment.png for now. doesn't add boxColliders to trees a
 */
 void Game::LoadTileMap(const wallTheme& wallTheme){
     std::vector<std::vector<int>> map;
+    successfulMapGen = false;
     switch(wallTheme){
         case NEXUS:{
             map = nexusMap;
+            MiniMap(wallTheme, nexusMapOnlyFloors);
         }break;
         case VAULT:{
             map = vaultMap;
+            MiniMap(wallTheme, vaultMapOnlyFloors);
         }break;
         default:{
-            while(!successfulMapGen || (map.size() == 0 || map[0].size() > 341 || map.size() > 341)){
+            while(!successfulMapGen){
                 for(auto& m: map){m.clear();}
                 map.clear();
                 dungeonRooms.clear();
-                successfulMapGen = GenerateMap(wallTheme, map);
+                successfulMapGen = GenerateMap(wallTheme, map); //MiniMap called within GenerateMap for generated areas
+                if(map.size() == 0 || 
+                   std::max(map[0].size(), map.size()) * 64 >= rendererMaxTextureDimension ||
+                   std::max(map[0].size(), map.size()) > 240){
+                    // map size will be 0 if GenerateMap() did not assign a map due to failed gen
+                    successfulMapGen = false;
+                }
             }
         }break;
     }
+    // mapDimension = std::max(map[0].size(), map.size());
     std::vector<SDL_Rect> grassDecorations = {{8*9,4*8,8,8},{8*10,4*8,8,8},{8*11,4*8,8,8},{8*12,4*8,8,8},{8*13,4*8,8,8},{8*14,4*8,8,8},{8*15,4*8,8,8},{8*9,5*8,8,8},{8*12,6*8,8,8},{8*13,6*8,8,8},{8*14,6*8,8,8},{8*15,6*8,8,8}};
     SDL_Rect grass = {8*8, 8*4, 8,8}; // grass
     auto wallData = wallThemeToWallData.at(wallTheme);
@@ -1341,6 +1375,14 @@ void Game::PopulateAssetStore(){
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 
+    // mini map viel
+    SDL_Rect mv = {0,0,360,360};
+    SDL_Texture * mapveil = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
+    SDL_SetRenderTarget(renderer, mapveil);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &mv);
+    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveil);
+
     // making textures for blocking entrance in castle dungeon
     SDL_Texture * horizontalBlockWalls = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
     SDL_Texture * horizontalBlockCeiling = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
@@ -1594,9 +1636,49 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, BAGSLOTS, bagslots); //QED
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
+
+
 }
 
-void Game::LoadGui(){
+void Game::MiniMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){ // why does this take a map copy...
+    int miniMapDimension = 240;
+    int paddedDimensions = 360;
+    SDL_Texture * miniMapFloor = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, paddedDimensions, paddedDimensions);
+    SDL_Rect dstRect = {0,0,paddedDimensions,paddedDimensions}; // fill in the entire texture with bg color    
+    SDL_SetTextureBlendMode(miniMapFloor, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, miniMapFloor);
+    switch(wallTheme){
+        case VAULT:
+        case NEXUS:{
+            SDL_SetRenderDrawColor(renderer,65,82,41,255); //color=miniMapGrass
+        } break;
+        default:{ // black for areas without tiles in dungeons
+            SDL_SetRenderDrawColor(renderer, 0,0,0,255);
+        }
+    }
+    SDL_RenderFillRect(renderer, &dstRect);
+    int xpos = -1;
+    int ypos = -1;
+    for(const auto& slide: map){
+        ypos ++;
+        for(const auto& tile: slide){
+            xpos ++;
+            dstRect = {xpos + 60,ypos + 60,1,1}; // offset of +60 for padding
+            const auto& color = miniMapColors.at(tile);
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, 255);
+            SDL_RenderFillRect(renderer, &dstRect);
+        }
+        xpos = -1;
+    }
+    assetStore->AddTexture(renderer, MINIMAPFLOOR, miniMapFloor);
+    Entity tempMiniMap = registry->CreateEntity();
+    tempMiniMap.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
+    tempMiniMap.AddComponent<SpriteComponent>(MINIMAPFLOOR, 240, 240, 11, 0, 0, true); 
+    SDL_SetRenderTarget(renderer, NULL);
+    idOfMiniMapEntity = tempMiniMap.GetId();
+}
+
+void Game::LoadGui(){ 
     auto& className = player.GetComponent<ClassNameComponent>().classname;
     equipmentIconIds.clear();
 
@@ -1616,10 +1698,6 @@ void Game::LoadGui(){
     Entity statichud = registry->CreateEntity();
     statichud.AddComponent<SpriteComponent>(texture, 250, 750, 10, 0, 0 , true);
     statichud.AddComponent<TransformComponent>(glm::vec2(750,0), glm::vec2(1.0,1.0));
-
-    Entity tempMiniMap = registry->CreateEntity();
-    tempMiniMap.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
-    tempMiniMap.AddComponent<SpriteComponent>(TEMPMINIMAP, 240, 240, 11, 0, 0, true); // mini map (not static!)
 
     Entity playerName = registry->CreateEntity();
     playerName.AddComponent<TextLabelComponent>(characterManager->GetName(), "namefont", grey, true,0,0,0);
@@ -2219,7 +2297,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
         SDL_RenderClear(renderer);
-        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, false);
         registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
         millisecsPreviousFrame = SDL_GetTicks();
         if(camera.y == 5392 || camera.y == 0){
@@ -2259,12 +2337,10 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
             factory->spawnPortal(registry, glm::vec2(750,600), UDL); //todo dungeon 2
             // factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
-            // 750, 600
         } break;
         default:{
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
         } break;
-        // for dungeon, spawn monsters and stuff
     }
 }
 
@@ -2297,6 +2373,8 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
     LoadTileMap(area);
     SpawnAreaEntities(area); 
+    auto& miniMapSrcRect = registry->GetComponent<SpriteComponent>(idOfMiniMapEntity).srcRect;
+    miniMapSrcRect.w = miniMapSrcRect.h = 60; // start zoomed in 
     registry->Update(); // becuase we loaded the map
     switch(area){ // if nexus or vault, spawnpoint is static; so acquire it (otherwise, it was assigned in GenerateMap())
         case NEXUS:
@@ -2348,7 +2426,7 @@ void Game::Update(){
 void Game::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
-    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera);
+    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity);
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 

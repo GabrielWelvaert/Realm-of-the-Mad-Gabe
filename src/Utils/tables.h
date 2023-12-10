@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include "../Utils/roomSpawn.h"
+#include "../Utils/colors.h"
 
 /*
 these maps, tables, vectors are used to access data associated with an enum
@@ -185,6 +186,8 @@ struct ItemTableComponentData{
 struct helmData{
     Uint32 duration;
 };
+
+extern std::unordered_map<int, SDL_Color> miniMapColors;
 extern std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture;
 extern std::vector<std::string> defaultNames;
 extern std::vector<glm::vec2> vaultSpawns;
@@ -196,6 +199,8 @@ extern std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor;
 extern std::unordered_map<sprites, std::string> spriteToName;
 extern std::vector<std::vector<int>> nexusMap;
 extern std::vector<std::vector<int>> vaultMap;
+extern std::vector<std::vector<int>> nexusMapOnlyFloors;
+extern std::vector<std::vector<int>> vaultMapOnlyFloors;
 extern std::unordered_map<items, const char *> abillityItemToInfo;
 extern std::unordered_map<items, const char *> consumableItemToInfo;
 extern std::unordered_map<items, const char *> itemToDescription;
