@@ -155,7 +155,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {19, {T2SWORD, T2BOW, T2WAND}},
                 {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
                 {11, {T2TOME, T2HELM, T2QUIVER}},
-                {16, {HPPOT, MPPOT}}
+                {16, {HPPOT, MPPOT}},
+                {3, {SNAKESKINARMOR}}
             }
         }
     },
@@ -219,6 +220,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {20, {T2TOME, T2HELM, T2QUIVER}},
                 {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
                 {2, {CHICKENTOME}},
+                {2, {ATTACKPENDANT}},
             }
         }
     },
@@ -277,6 +279,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {27, {T8SWORD, T8BOW, T8WAND}},
                 {22, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
                 {29, {T9SWORD, T9BOW, T9WAND}},
+                {4, {ATTACKPENDANT}},
             }
         }
     },
@@ -342,7 +345,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {15, {T7HEAVYARMOR, T7ROBE, T7LIGHTARMOR}},
                 {17, {T8SWORD, T8BOW, T8WAND}},
                 {14, {T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING, T3HPRING, T3MPRING}},
-                {5, {ATTPOT}}
+                {5, {ATTPOT}},
+                {4, {ATTACKPENDANT}},
             }
         }
     },
@@ -559,6 +563,7 @@ std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData = {
     {CHICKENLAIR, {LOFIENVIRONMENT, 8, 8, {15*8,14*8,8,8}, 4, false, false}},
     {CHANGECHAR, {LOFICHAR, 8, 8, {8*10,0,8,8}, 4, false, false}},
     {CHANGENAME, {LOFICHAR, 8, 8, {8*8,0,8,8}, 4, false, false}},
+    {LOCKEDPORTALTHEME, {LOFIOBJ2, 8, 8, {8*10,8*11,8,8}, 4, false, false}},
 };
 
 std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
@@ -569,6 +574,7 @@ std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
     {std::string("Change Character"), CHANGECHARPORTAL},
     {std::string("Castle"), CASTLEPORTAL},    
     {std::string("Gordon's Chamber"), GORDONSCHAMBERPORTAL},
+    {std::string("???"), LOCKEDPORTAL},
 };
 
 std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
@@ -578,9 +584,8 @@ std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
     {CHANGECHAR, CHANGECHARPORTAL},
     {CHICKENLAIR, CHICKENLAIRPORTAL},
     {UDL, CASTLEPORTAL},
-    {GORDONSLAIRWALLTHEME, GORDONSCHAMBERPORTAL}
-    
-
+    {GORDONSLAIRWALLTHEME, GORDONSCHAMBERPORTAL},
+    {LOCKEDPORTALTHEME, LOCKEDPORTAL},  
 };
 
 std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = {
@@ -715,6 +720,7 @@ std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats
 };
 //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 std::unordered_map<items, BaseStatData> itemEnumToStatData = {
+    {SNAKESKINARMOR, {0,0,0,13,3,4,0,0}},
     {CHICKENTOME, {0,0,0,5,5,0,0,0}},
     {ADMINCROWN, {64000,64000,50,50,50,50,200,200}},
     {T0ATTRING, {0,0,3,0,0,0,0,0}},
@@ -1042,7 +1048,8 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {CABERNET, CABERNETICON},
     {FIREWATER, FIREWATERICON},
     {ADMINCROWN, ADMINCROWNICON},
-    {CHICKENTOME, CHICKENTOMEICON}
+    {CHICKENTOME, CHICKENTOMEICON},
+    {SNAKESKINARMOR, SNAKESKINICON}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -1218,10 +1225,12 @@ std::unordered_map<items, const char *> itemToName = {
     {CABERNET, "Cabernet"},
     {FIREWATER, "Fire Water"},
     {ADMINCROWN, "Admin Crown"},
-    {CHICKENTOME, "Poultry Codex"}
+    {CHICKENTOME, "Poultry Codex"},
+    {SNAKESKINARMOR, "Snakeskin Armor"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
+    {SNAKESKINARMOR, "A tight fitting garment of snake skin that is both functional and stylish"},
     {CHICKENTOME, "This revered culinary scripture holds the closely guarded secrets of crafting perfect fried chicken, cherished by food enthusiasts and chicken connoisseurs alike."},
     {ADMINCROWN, "Super regal!"},
     {T0SWORD, "A steel short sword"},
@@ -1574,10 +1583,11 @@ std::unordered_map<items, groups> itemToGroup = {
     {FIREWATER, FIREWATERGROUP},
     {ADMINCROWN, RING},
     {CHICKENTOME, TOME},
-    
+    {SNAKESKINARMOR, LIGHTARMOR}
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
+    {SNAKESKINARMOR, CYANLOOTBAG},
     {CHICKENTOME, WHITELOOTBAG},
     {ADMINCROWN, BROWNLOOTBAG},
     {T0SWORD, BROWNLOOTBAG},
@@ -1930,6 +1940,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {FIREWATER, {LOFIOBJ2, 8, 8 ,{8*11, 8*2, 8, 8}, 12, true, false}},
     {ADMINCROWN, {LOFIOBJ3, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
     {CHICKENTOME, {LOFIOBJ2, 8, 8 ,{8*4, 8*11, 8, 8}, 12, true, false}},
+    {SNAKESKINARMOR, {LOFIOBJ2, 8, 8 ,{8*0, 8*0, 8, 8}, 12, true, false}},
 };
 
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {

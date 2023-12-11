@@ -286,10 +286,10 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             spawnpoint = {mouseX + camera.x-64, mouseY + camera.y};
                             Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, T6HEAVYARMOR, lootbag2);
+                            factory->createItemInBag(registry, T7SWORD, lootbag2);
+                            factory->createItemInBag(registry, SNAKESKINARMOR, lootbag2);
+                            factory->createItemInBag(registry, T3HELM, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
@@ -952,7 +952,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 172; // hard coded value equal to highest item enum
+    const int totalNumItems = 173; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
@@ -1375,14 +1375,6 @@ void Game::PopulateAssetStore(){
     
     assetStore->AddMusic("ost", "./assets/sounds/Sorc.ogg");
 
-    // mini map viel
-    SDL_Rect mv = {0,0,360,360};
-    SDL_Texture * mapveil = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
-    SDL_SetRenderTarget(renderer, mapveil);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderFillRect(renderer, &mv);
-    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveil);
-
     // making textures for blocking entrance in castle dungeon
     SDL_Texture * horizontalBlockWalls = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
     SDL_Texture * horizontalBlockCeiling = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 2 * 64, 1 * 64);
@@ -1426,7 +1418,7 @@ void Game::PopulateAssetStore(){
     SDL_Surface* ttfSurface;
     SDL_Texture* ttfTextureFromSurface;
     SDL_Rect dstRect, srcRect;
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber"};
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber", "???"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1442,7 +1434,13 @@ void Game::PopulateAssetStore(){
 
         // 2) rendering button to texture
         std::string buttonText;
-        title == "Change Name" || title == "Change Character" ? buttonText = "Click" : buttonText = "Enter";
+        if(title == "Change Name" || title == "Change Character"){
+            buttonText = "Click";
+        } else if (title == "???"){
+            buttonText = "Locked";
+        } else {
+            buttonText = "Enter";
+        }
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
         TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
 
@@ -2336,6 +2334,11 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(750, 1675), VAULT);
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
             factory->spawnPortal(registry, glm::vec2(750,600), UDL); //todo dungeon 2
+            if(player.GetComponent<BaseStatComponent>().level < 20){
+                // spawn locked portal
+            } else {
+                // spawn gordon's lair
+            }
             // factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
         } break;
         default:{
@@ -2367,7 +2370,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     registry->Update(); // because we made gui and player
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
-    registry->GetSystem<InteractUISystem>().sort();
+    registry->GetSystem<InteractUISystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     PopulatePlayerInventoryAndEquipment();
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
@@ -2386,6 +2389,23 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     transform.position = playerSpawn;
     camera.x = transform.position.x - (camera.w/2 - 20);
     camera.y = transform.position.y - (camera.h/2 - 20);
+    // reset map veil by overriding it
+    SDL_Rect mv = {0,0,360,360};
+    SDL_Texture * mapveil = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
+    SDL_SetTextureBlendMode(mapveil, SDL_BLENDMODE_BLEND);
+    void* pixels;
+    int pitch;
+    SDL_LockTexture(mapveil, NULL, &pixels, &pitch); // streaming textures are mutable via direct pixel access; cannot fillRect on them
+    int pitch4 = pitch / 4;
+    for(int y = 0; y < 360; ++y) {
+        for(int x = 0; x < 360; ++x) {
+            ((Uint32*)pixels)[y * pitch4 + x] = 0x000000FF;
+        }
+    }
+    SDL_UnlockTexture(mapveil);
+    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveil);
+    SDL_SetRenderTarget(renderer, nullptr);
+
 }
 
 void Game::Update(){

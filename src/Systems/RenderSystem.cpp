@@ -84,7 +84,7 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
     }
 
     // icons for monsters and the player are rendered here 
-    if(renderMiniMap){
+    if(renderMiniMap){ // another example of some things, which are visible on screen, but are not entities
         glm::ivec2 MiniMapHudSpot = {755,5};
         const int entitySquare = 8; // dimension of the icon (its just a colored square)
         const int originOfRealMap = 60; // coordinate where map actually starts (inside of padded area of texture)
@@ -92,19 +92,19 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
         const auto& playerWorldPos = player.GetComponent<TransformComponent>().position;
         const int mapPixels = 240 * 64;
         const float scale = 240.0 / srcRect.w;
-        glm::vec2 mmpPlayer, mmpMonster; //mini map position
+        glm::vec2 mmpPlayer, mmpMonster; // mini map position
         glm::ivec2 renderSpotPlayer, renderSpotMonster; // literal local coordinate to render to!
-        SDL_Rect dstRectPlayer, dstRectMonster;
+        SDL_Rect dstRectPlayer, dstRectMonster; // dstRect of literal local coordinate to render to!
 
         // calculating player stuff for mini-map
-        mmpPlayer = {(playerWorldPos.x / mapPixels) * 240.0, (playerWorldPos.y / mapPixels)* 240.0}; // real position in 240x240 mini map
+        mmpPlayer = {(playerWorldPos.x / mapPixels) * 240.0, (playerWorldPos.y / mapPixels) * 240.0}; // real position in 240x240 mini map
         if(scale > 1.0){
-            srcRect.x = mmpPlayer.x + originOfRealMap - (240 / scale / 2); // add 60 to effectively make it real position in the 360x360 texture
+            srcRect.x = mmpPlayer.x + originOfRealMap - (240 / scale / 2); // add originOfRealMap to effectively make it real position in the 360x360 texture
             srcRect.y = mmpPlayer.y + originOfRealMap - (240 / scale / 2);
             renderSpotPlayer = {MiniMapHudSpot.x + 120 - (entitySquare/4), MiniMapHudSpot.y + 120 - (entitySquare/4)}; // center of mini-map display
         } else {
             renderSpotPlayer = {MiniMapHudSpot.x + mmpPlayer.x - (entitySquare/4), MiniMapHudSpot.y + mmpPlayer.y - (entitySquare/4)};
-            srcRect.x = srcRect.y = originOfRealMap; // does not follow player square
+            srcRect.x = srcRect.y = originOfRealMap; // does not follow player square; srcRect origin is start of map (60,60)
         }
         dstRectPlayer = {renderSpotPlayer.x, renderSpotPlayer.y, entitySquare, entitySquare};
 
@@ -120,28 +120,30 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
             SDL_SetRenderDrawColor(renderer,211,30,18,255);
             SDL_RenderFillRect(renderer, &dstRectMonster);   
         }
+        
+        // uncover portion of mini-map veil https://discourse.libsdl.org/t/updating-a-texture-to-have-transparent-pixels/47766/2 thanks to sjr who pointed out I was using SDL_SetTextureBlendMode incorrectly
+        SDL_Texture * veilTexture = assetStore->GetTexture(MINIMAPVEIL);
+        void* pixels;
+        int pitch;
+        glm::ivec2 ptp = {static_cast<int>(mmpPlayer.x + originOfRealMap), static_cast<int>(mmpPlayer.y + originOfRealMap)}; //player texture position
+        SDL_LockTexture(veilTexture, NULL, &pixels, &pitch);
+        Uint32* pixelData = (Uint32*)pixels;
+        int pitch4 = pitch / 4;
+        int pixelsToModify = 10;
+        for(int y = ptp.y - pixelsToModify; y < ptp.y + pixelsToModify; y++){
+            for(int x = ptp.x - pixelsToModify; x < ptp.x + pixelsToModify; x++){
+                pixelData[y * pitch4 + x] = 0x00000000; // iterating over 1d array of pixels
+            }
+        }
+        SDL_UnlockTexture(veilTexture);
 
-        //render player square last so its always visible
+        // render mini-map veil
+        SDL_Rect miniMapRect = {755,5,240,240};
+        SDL_RenderCopy(renderer, veilTexture, &srcRect, &miniMapRect); // veil uses srcRect of mini map
+
+        // render player square after monsters so its always on top
         SDL_SetRenderDrawColor(renderer,4,4,252,255);
         SDL_RenderFillRect(renderer, &dstRectPlayer);
-        
-        // uncover map veil and render it
-        // void* pixels;
-        // int pitch;
-        // SDL_Rect miniMapRect = {755,5,250,250};
-        // SDL_Texture * veilTexture = assetStore->GetTexture(MINIMAPVEIL);
-        // SDL_LockTexture(veilTexture, NULL, &pixels, &pitch);
-        // Uint32* pixelData = (Uint32*)pixels;
-        // for(int y = (playerWorldPos.y/64) - 5; y <= (playerWorldPos.y/64) + 5; ++y) {
-        //     for(int x = (playerWorldPos.x/64) - 5; x <= (playerWorldPos.x/64) + 5; ++x) {
-        //         if(x >= 0 && x < 360 && y >= 0 && y < 360) {
-        //             pixelData[y * 360 + x] &= 0x00FFFFFF; // Set alpha to 0 via bitwise AND
-        //         }
-        //     }
-        // }
-        // SDL_UnlockTexture(veilTexture);
-        // SDL_RenderCopy(renderer, veilTexture, NULL, &miniMapRect);
-        // SDL_RenderPresent(renderer);
     }
 
 }

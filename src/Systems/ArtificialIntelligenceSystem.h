@@ -150,11 +150,11 @@ class BossAISystem: public System{
 
         inline void arcMageSpawnMinionsSurvival(std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& br){
             if(registry->getNumberOfLivingEntities() > 1000){return;}
-            int numToSpawn = RNG.randomFromRange(2,5);
+            int numToSpawn = RNG.randomFromRange(3,5);
             sprites monster;
             for(int i = 0; i <= numToSpawn; i++){
-                float xpos = (RNG.randomFromRange(br.x + 1,  br.x + br.w - 1) * 64);
-                float ypos = (RNG.randomFromRange(br.y + 1,  br.y + br.h - 1) * 64);    
+                float xpos = (RNG.randomFromRange(br.x + 2,  br.x + br.w - 2) * 64);
+                float ypos = (RNG.randomFromRange(br.y + 2,  br.y + br.h - 2) * 64);    
                 i % 2 == 0 ? monster = SHATTERSBOMB : monster = BAT0;
                 factory->spawnMonster(registry, {xpos,ypos}, monster);
             }

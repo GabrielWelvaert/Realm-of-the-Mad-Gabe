@@ -175,6 +175,7 @@ enum items{
     FIREWATER,
     ADMINCROWN,
     CHICKENTOME,
+    SNAKESKINARMOR
 };
 
 enum cardinalDirection{
@@ -202,7 +203,8 @@ enum wallTheme{ //wall themes are used as primary keys for areas/dungeons
     CHICKENLAIR,
     CHANGENAME, // DONT SPAWN AREAS WITH THIS PLEASE! ITS JUST FOR CHANGE NAME 
     CHANGECHAR,
-    GORDONSLAIRWALLTHEME
+    GORDONSLAIRWALLTHEME,
+    LOCKEDPORTALTHEME
 };
 
 enum itemPositions{
@@ -834,7 +836,9 @@ enum textureEnums{
     STATICHUDPRIEST,
     STATICHUDWARRIOR,
     MINIMAPFLOOR,
-    MINIMAPVEIL
+    MINIMAPVEIL,
+    SNAKESKINICON,
+    LOCKEDPORTAL,
 };
 
 #endif
