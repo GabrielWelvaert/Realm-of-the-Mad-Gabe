@@ -2325,6 +2325,7 @@ void Game::PopulateEventBus(){
 
 
 void Game::SpawnAreaEntities(wallTheme area){
+    idOfBoss = creationIdOfBoss = -1; // will be updated if boss is spawned
     switch(area){
         case VAULT: { // create entities for vault chests
             factory->spawnVaultChests(registry, characterManager);
@@ -2343,8 +2344,10 @@ void Game::SpawnAreaEntities(wallTheme area){
                 factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME); // todo spawn gordon's lair
             }
         } break;
-        default:{
+        default:{ // all other areas assumed to have a boss
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
+            idOfBoss = factory->idOfSpawnedBoss;
+            creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
         } break;
     }
 }
@@ -2448,7 +2451,7 @@ void Game::Update(){
 void Game::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
-    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity);
+    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity, idOfBoss, creationIdOfBoss);
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 

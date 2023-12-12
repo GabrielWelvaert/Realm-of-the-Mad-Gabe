@@ -43,6 +43,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 enemy.AddComponent<ItemTableComponent>(spriteEnum);
                 enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
                 enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
+                idOfSpawnedBoss = enemy.GetId();
                 break;
             case POUNCE:
                 enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -63,6 +64,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                 auto& ac = enemy.GetComponent<AnimationComponent>();
                 ac.xmin = 0;
                 ac.numFrames = 1;
+                idOfSpawnedBoss = enemy.GetId();
                 break;
         }
 

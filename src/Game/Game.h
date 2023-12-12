@@ -47,6 +47,8 @@ class Game{
         int idOfMiniMapEntity;
         int idOfMiniMapVeil;
         int rendererMaxTextureDimension;
+        int idOfBoss = -1;
+        int creationIdOfBoss;
         
 
     public:

@@ -53,6 +53,8 @@ class Factory{
 
     public:
     
+        int idOfSpawnedBoss = -1;
+
         Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
 
         Entity creatLootBag(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);

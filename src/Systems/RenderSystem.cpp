@@ -5,7 +5,7 @@ RenderSystem::RenderSystem() {
     RequireComponent<SpriteComponent>();
 }
 
-void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, bool renderMiniMap, int idOFMiniMap){
+void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, bool renderMiniMap, int idOFMiniMap, int idOfboss, int creationIdOfBoss){
 
     //sort(begin, end, lambda function that compares two)
     auto& entities = GetSystemEntities();
@@ -121,7 +121,7 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
             SDL_RenderFillRect(renderer, &dstRectMonster);   
         }
         
-        // uncover portion of mini-map veil https://discourse.libsdl.org/t/updating-a-texture-to-have-transparent-pixels/47766/2 thanks to sjr who pointed out I was using SDL_SetTextureBlendMode incorrectly
+        // uncover portion of mini-map veil 
         SDL_Texture * veilTexture = assetStore->GetTexture(MINIMAPVEIL);
         void* pixels;
         int pitch;
@@ -140,6 +140,22 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
         // render mini-map veil
         SDL_Rect miniMapRect = {755,5,240,240};
         SDL_RenderCopy(renderer, veilTexture, &srcRect, &miniMapRect); // veil uses srcRect of mini map
+
+        // map icon for boss is displayed on top of the veil so player has indication of boss existing
+        if(idOfboss > -1 && registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){ // if we're in an area that has a boss, and its still alive...
+            const auto& position = registry->GetComponent<TransformComponent>(idOfboss).position;
+            mmpMonster = {(position.x / mapPixels) * 240.0, (position.y / mapPixels) * 240.0}; // real position in 240x240 mini map
+            if(scale > 1.0){
+                renderSpotMonster = {renderSpotPlayer.x + ((mmpMonster.x - mmpPlayer.x) * (scale)), renderSpotPlayer.y + ((mmpMonster.y - mmpPlayer.y) * (scale))};              
+            } else {
+                renderSpotMonster = {MiniMapHudSpot.x + mmpMonster.x - (entitySquare/4), MiniMapHudSpot.y + mmpMonster.y - (entitySquare/4)};
+            }
+            dstRectMonster = {renderSpotMonster.x, renderSpotMonster.y, entitySquare, entitySquare};
+            if(dstRectMonster.x > 750 && dstRectMonster.x < 990 - entitySquare && dstRectMonster.y > 5 && dstRectMonster.y < 245 - entitySquare){
+                SDL_SetRenderDrawColor(renderer,211,30,18,255);
+                SDL_RenderFillRect(renderer, &dstRectMonster);       
+            } 
+        }
 
         // render player square after monsters so its always on top
         SDL_SetRenderDrawColor(renderer,4,4,252,255);
