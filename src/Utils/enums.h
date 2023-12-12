@@ -175,7 +175,9 @@ enum items{
     FIREWATER,
     ADMINCROWN,
     CHICKENTOME,
-    SNAKESKINARMOR
+    SNAKESKINARMOR,
+    TWILIGHTGEMSTONE,
+    CHICKENSWORD,
 };
 
 enum cardinalDirection{
@@ -839,6 +841,8 @@ enum textureEnums{
     MINIMAPVEIL,
     SNAKESKINICON,
     LOCKEDPORTAL,
+    TWILIGHTGEMSTONEICON,
+    CHICKENSWORDICON
 };
 
 #endif

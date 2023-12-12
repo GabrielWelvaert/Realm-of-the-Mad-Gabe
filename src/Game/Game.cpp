@@ -288,9 +288,9 @@ void Game::ProcessInput(){
                             Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             factory->createItemInBag(registry, T6HEAVYARMOR, lootbag2);
                             factory->createItemInBag(registry, T7SWORD, lootbag2);
-                            factory->createItemInBag(registry, SNAKESKINARMOR, lootbag2);
+                            factory->createItemInBag(registry, TWILIGHTGEMSTONE, lootbag2);
                             factory->createItemInBag(registry, T3HELM, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
+                            factory->createItemInBag(registry, CHICKENSWORD, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
                             factory->createItemInBag(registry, HPPOT, lootbag2);
@@ -362,6 +362,9 @@ void Game::ProcessInput(){
             auto& velocity = player.GetComponent<RidigBodyComponent>().velocity;
             velocity = {0.0,0.0};
             switch(area){
+                case LOCKEDPORTALTHEME:{
+                    // dont do anything!
+                } break;
                 case CHANGENAME:{ // player wants to change name 
                     eventBus->EmitEvent<UpdateDisplayNameEvent>(player, registry, [this]() { Game::Render();}, characterManager, assetStore);
                 } break;
@@ -952,7 +955,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 173; // hard coded value equal to highest item enum
+    const int totalNumItems = 175; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
@@ -2335,11 +2338,10 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
             factory->spawnPortal(registry, glm::vec2(750,600), UDL); //todo dungeon 2
             if(player.GetComponent<BaseStatComponent>().level < 20){
-                // spawn locked portal
+                factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME);
             } else {
-                // spawn gordon's lair
+                factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME); // todo spawn gordon's lair
             }
-            // factory->spawnPortal(registry, glm::vec2(900,600), CHICKENLAIR); //todo dungeon 3
         } break;
         default:{
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);

@@ -213,14 +213,14 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {100, {SPDPOT, DEXPOT}},
-                {50, {CABERNET, FIREWATER}},
-                {18, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {16, {T4SWORD, T4WAND, T4BOW}},
-                {15, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
-                {20, {T2TOME, T2HELM, T2QUIVER}},
-                {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
                 {2, {CHICKENTOME}},
-                {2, {ATTACKPENDANT}},
+                {2, {CHICKENSWORD}},
+                {50, {CABERNET, FIREWATER}},
+                {20, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
+                {21, {T4SWORD, T4WAND, T4BOW}},
+                {22, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
+                {24, {T2TOME, T2HELM, T2QUIVER}},
+                {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
             }
         }
     },
@@ -271,9 +271,10 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {24, {T3TOME, T3HELM, T3QUIVER}},
+                {2, {TWILIGHTGEMSTONE}},
                 {100, {LIFEPOT}},
                 {90, {DEFPOT, ATTPOT, WISPOT, VITPOT, MANAPOT}},
-                {20, {T4TOME, T4HELM, T4QUIVER}},
+                {21, {T4TOME, T4HELM, T4QUIVER}},
                 {20, {T4ATTRING, T4WISRING, T4DEFRING, T4DEXRING, T4VITRING, T4HPRING, T4MPRING}},
                 {24, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
                 {27, {T8SWORD, T8BOW, T8WAND}},
@@ -557,10 +558,10 @@ std::unordered_map<sprites, std::string> spriteToName = {
 
 // portal images
 std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData = {
-    {UDL, {LOFIENVIRONMENT, 8, 8, {15*8,14*8,8,8}, 4, false, false}},
+    {UDL, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
     {NEXUS, {LOFIENVIRONMENT, 8, 8, {6*8, 15*8,8,8}, 4, false, false}},
     {VAULT, {LOFIENVIRONMENT, 8, 8, {7*8,15*8,8,8}, 4, false, false}},
-    {CHICKENLAIR, {LOFIENVIRONMENT, 8, 8, {15*8,14*8,8,8}, 4, false, false}},
+    {CHICKENLAIR, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
     {CHANGECHAR, {LOFICHAR, 8, 8, {8*10,0,8,8}, 4, false, false}},
     {CHANGENAME, {LOFICHAR, 8, 8, {8*8,0,8,8}, 4, false, false}},
     {LOCKEDPORTALTHEME, {LOFIOBJ2, 8, 8, {8*10,8*11,8,8}, 4, false, false}},
@@ -720,6 +721,7 @@ std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats
 };
 //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 std::unordered_map<items, BaseStatData> itemEnumToStatData = {
+    {TWILIGHTGEMSTONE, {0,110,0,6,6,0,0,0}},
     {SNAKESKINARMOR, {0,0,0,13,3,4,0,0}},
     {CHICKENTOME, {0,0,0,5,5,0,0,0}},
     {ADMINCROWN, {64000,64000,50,50,50,50,200,200}},
@@ -1049,7 +1051,9 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {FIREWATER, FIREWATERICON},
     {ADMINCROWN, ADMINCROWNICON},
     {CHICKENTOME, CHICKENTOMEICON},
-    {SNAKESKINARMOR, SNAKESKINICON}
+    {SNAKESKINARMOR, SNAKESKINICON},
+    {TWILIGHTGEMSTONE, TWILIGHTGEMSTONEICON},
+    {CHICKENSWORD, CHICKENSWORDICON},
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -1226,7 +1230,9 @@ std::unordered_map<items, const char *> itemToName = {
     {FIREWATER, "Fire Water"},
     {ADMINCROWN, "Admin Crown"},
     {CHICKENTOME, "Poultry Codex"},
-    {SNAKESKINARMOR, "Snakeskin Armor"}
+    {SNAKESKINARMOR, "Snakeskin Armor"},
+    {TWILIGHTGEMSTONE, "The Twilight Gemstone"},
+    {CHICKENSWORD, "Chicken Swing"},
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -1391,11 +1397,11 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T6HELM, "A steel and platinum helm of ancient design, worn by earthrazer generals during the great orcish war"},
     {T7HELM, "An ashen helm of regal grandeur, whose wearers have upraised the greatest legions and inspired total domination"},
     {T8HELM, "A direhelm worn by the champions of men in their steadfast conquest of realms beyond even death"},
-    {ATTACKPENDANT, "A rare rhodolite gemstone hanging from a slime-god leather necklace"},
+    {ATTACKPENDANT, "A rare rhodolite gemstone hanging from an embroidered  leather necklace"},
     {HPPOT, "A potion that instantly restores health points"},
     {MPPOT, "A potion that instantly restores magic points"},
-    {ATTPOT, "A potion that permanently increases attack power by 1"},
-    {DEFPOT, "A potion that permanently increases defense power by 1"},
+    {ATTPOT, "A potion that permanently increases attack by 1"},
+    {DEFPOT, "A potion that permanently increases defense by 1"},
     {DEXPOT, "A potion that permanently increases dexterity by 1"},
     {SPDPOT, "A potion that permanently increases speed by 1"},
     {WISPOT, "A potion that permanently increases wisdom by 1"},
@@ -1403,7 +1409,9 @@ std::unordered_map<items, const char *> itemToDescription = {
     {LIFEPOT, "A potion that permanently increases health by 5"},
     {MANAPOT, "A potion that permanently increases magic by 5"},
     {CABERNET, "A potent draught from Oryx's wine cellar which is favored amongst henchmen"},
-    {FIREWATER, "A potent draught from Oryx's wine cellar which is favored by the Mad God himself"}
+    {FIREWATER, "A potent draught from Oryx's wine cellar which is favored by the Mad God himself"},
+    {TWILIGHTGEMSTONE, "An odd stone, eminating a dark and mysterious energy"},
+    {CHICKENSWORD, "The severed and crispy wing of a giant chicken, useful as a long-ranged sword"}
 };
 
 std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
@@ -1583,7 +1591,9 @@ std::unordered_map<items, groups> itemToGroup = {
     {FIREWATER, FIREWATERGROUP},
     {ADMINCROWN, RING},
     {CHICKENTOME, TOME},
-    {SNAKESKINARMOR, LIGHTARMOR}
+    {SNAKESKINARMOR, LIGHTARMOR},
+    {TWILIGHTGEMSTONE, RING},
+    {CHICKENSWORD, SWORD},
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
@@ -1762,6 +1772,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {MANAPOT, BLUELOOTBAG},
     {CABERNET, PURPLELOOTBAG},
     {FIREWATER, PURPLELOOTBAG},
+    {TWILIGHTGEMSTONE, WHITELOOTBAG},
+    {CHICKENSWORD, WHITELOOTBAG},
 
 };
 
@@ -1941,6 +1953,8 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {ADMINCROWN, {LOFIOBJ3, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
     {CHICKENTOME, {LOFIOBJ2, 8, 8 ,{8*4, 8*11, 8, 8}, 12, true, false}},
     {SNAKESKINARMOR, {LOFIOBJ2, 8, 8 ,{8*0, 8*0, 8, 8}, 12, true, false}},
+    {TWILIGHTGEMSTONE, {LOFIOBJ3, 8, 8 ,{8*1, 8*72, 8, 8}, 12, true, false}},
+    {CHICKENSWORD, {LOFIOBJ2, 8, 8, {8*5, 8*11, 8, 8,}, 12, true, false}},
 };
 
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
@@ -1952,7 +1966,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T5SWORD,{350,90,135,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
     {T6SWORD,{350,30,210,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}}},
     {T7SWORD,{350,150,180,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T8SWORD,{350,180,255,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 8, 8, {0,10}}},
+    {T8SWORD,{350,180,255,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10,10,{14,14}}},
     {T9SWORD,{350,195,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}}},
     {T10SWORD,{350,210,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
     {T11SWORD,{350,210,270,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*11, 8, 8}, 3,true,10,10,{14,14}}},
@@ -1960,6 +1974,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T13SWORD,{350,235,290,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3, true,10,10,{14,14}}},
     {T14SWORD,{350,250,305,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10, 10, {14,14}}},
     {IMPBLADE,{350,90,135,500,false,2,40,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
+    {CHICKENSWORD,{500,90,130,640,false,1,0,LOFIOBJ2,8, 8, {8*6,8*11,8,8}, 3, true, 32,32,{4,4}}},
 
     {T0BOW, {440, 10, 40, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
     {T1BOW, {440, 15, 45, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
