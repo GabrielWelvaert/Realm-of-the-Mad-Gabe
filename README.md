@@ -4,9 +4,11 @@
 
 **Controls:**
 
-    - *WASD* - Movement
-    - *f* - Escape to nexus
-    - *space* - Special ability
+1. *WASD* - Movement
+    - test
+        - texst
+- *f* - Escape to nexus
+- *space* - Special ability
 - *1-8* - Use inventory item
 - *esc* - Main menu
 
