@@ -4,10 +4,10 @@
 
 **Controls:**
   - Keyboard:
-        - *WASD* - Movement
-        - *f* - Escape to nexus
-        - *1-8* - Use inventory item
-        - *esc* - Main menu
+      - *WASD* - Movement
+      - *f* - Escape to nexus
+      - *1-8* - Use inventory item
+      - *esc* - Main menu
   
   - Mouse:
       - *Click on world* - Shoot
