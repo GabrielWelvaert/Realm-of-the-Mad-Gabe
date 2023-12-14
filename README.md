@@ -4,7 +4,7 @@
 
 **Controls:**
   - Keyboard:
-      - *WASD* - Movement
+      - *wasd* - Movement
       - *space* - Use Ability
       - *f* - Escape to nexus
       - *1-8* - Use inventory item
