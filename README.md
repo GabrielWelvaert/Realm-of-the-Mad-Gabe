@@ -8,6 +8,7 @@
       - *f* - Escape to nexus
       - *1-8* - Use inventory item
       - *esc* - Main menu
+      - *m* - Toggle music
   
   - Mouse:
       - *Click on world* - Shoot
