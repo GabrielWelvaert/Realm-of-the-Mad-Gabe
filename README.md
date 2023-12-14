@@ -2,7 +2,7 @@
 
 **Download and play here:** TODO
 
-1. **Controls:**
+**Controls:**
   - Keyboard:
         - *WASD* - Movement
         - *f* - Escape to nexus
