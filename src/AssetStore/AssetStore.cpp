@@ -42,9 +42,9 @@ void AssetStore::AddTexture(SDL_Renderer* renderer, const textureEnums& assetId,
 }
 
 SDL_Texture* AssetStore::GetTexture(const textureEnums& assetId){
-    if(textures.find(assetId) == textures.end()){
-        std::cout << assetId << " not found in assetStore's texures. Perhaps there was a typo! " << std::endl;
-    }
+    // if(textures.find(assetId) == textures.end()){
+    //     std::cout << assetId << " not found in assetStore's texures. Perhaps there was a typo! " << std::endl;
+    // }
     return textures.at(assetId);
 }
 

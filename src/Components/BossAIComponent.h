@@ -14,12 +14,10 @@ struct BossAIComponent{
     int survival; // health where boss may enter survival phase, or do something else
     int detectRange; // boss actives if player is this many pixels away'
     bool activated = false; 
-    bool flag0 = false; // flag for whatever
-    bool flag1 = false;
-    bool flag2 = false;
-    bool flag3 = false; // should really just use a bitset at this point
+    std::bitset<8> flags;
     Uint32 timer0 = 0; // timer that can be used for whatever
     Uint32 timer1 = 0;
+    Uint32 timer2 = 0;
     glm::vec2 positionflag;
 
     // optional. used to give boss static movement patterns
@@ -29,6 +27,8 @@ struct BossAIComponent{
     int phaseTwoIndex = 0;
     std::vector<glm::vec2> phaseThreePositions;
     int phaseThreeIndex = 0;
+
+    int idKeyOne, idKeyTwo, cIdKeyOne, cIdKeyTwo;
 
     inline BossAIComponent() = default;
 
@@ -66,6 +66,21 @@ struct BossAIComponent{
                     phaseTwoPositions.push_back({spawnPoint.x + 580, spawnPoint.y});
                     phaseTwoPositions.push_back({spawnPoint.x, spawnPoint.y});
 
+                } break;
+                case GORDON:{
+                    for(int i = 0; i < 36; i++) { // inner key pathing destinations 
+                        float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(36);
+                        float x = (spawnPoint.x + 32) + 150 * std::cos(angle);
+                        float y = (spawnPoint.y + 32) + 150 * std::sin(angle);
+                        phaseOnePositions.push_back({x,y});
+                    }
+
+                    for(int i = 0; i < 36; i++) { // outer key pathing destinations
+                        float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(36);
+                        float x = (spawnPoint.x + 32) + 350 * std::cos(angle);
+                        float y = (spawnPoint.y + 32) + 350 * std::sin(angle);
+                        phaseTwoPositions.push_back({x,y});
+                    }
                 } break;
             } 
         }

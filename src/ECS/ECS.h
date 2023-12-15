@@ -88,7 +88,7 @@ class Pool: public IPool { //pool of component, where each index represents enti
         
         virtual ~Pool() = default;
         
-        void printSize() override {std::cout << size << std::endl;}
+        void printSize() override {/*std::cout << size << std::endl;*/}
 
         bool IsEmpty() const { return size==0; }
 
@@ -136,9 +136,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
             entityIdToIndex.erase(entityId);
             indexToEntityId.erase(indexOfLast);
             size--;
-            if(size > 4000000000){
-                std::cout << "overflow of some pool! " << std::endl;
-            }
+            // if(size > 4000000000){
+            //     std::cout << "overflow of some pool! " << std::endl;
+            // }
         
         }
 
@@ -151,9 +151,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         T& Get(int entityId) { 
-            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
-                std::cout << "engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
-            }
+            // if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+            //     std::cout << "engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
+            // }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }
 
@@ -264,9 +264,9 @@ class Registry {
         unsigned int getNumberOfLivingEntities() const {return numEntities - freeIds.size();};
 
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
-        void printEntitiesToBeKilled() const {for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}}
+        void printEntitiesToBeKilled() const {/*for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}*/}
         void killAllEntities();
-        void printFreeIds() const {for(const auto& x: freeIds){std::cout << x << std::endl;}}
+        void printFreeIds() const {/*for(const auto& x: freeIds){std::cout << x << std::endl;}*/}
 
 };
 
