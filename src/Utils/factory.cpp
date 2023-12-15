@@ -1,74 +1,100 @@
 #include "factory.h"
 
 Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
-        Entity enemy = registry->CreateEntity();
-        enemy.Group(MONSTER);
-        enemy.AddComponent<HPMPComponent>(spriteEnum);
-        enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-        enemy.AddComponent<SpriteComponent>(spriteEnum);
-        enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-        enemy.AddComponent<CollisionFlagComponent>();
-        enemy.AddComponent<TransformComponent>(spawnpoint);
-        enemy.AddComponent<StatusEffectComponent>();
-        enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
+    Entity enemy = registry->CreateEntity();
+    enemy.Group(MONSTER);
+    enemy.AddComponent<HPMPComponent>(spriteEnum);
+    enemy.AddComponent<SpriteComponent>(spriteEnum);
+    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
+    enemy.AddComponent<CollisionFlagComponent>();
+    enemy.AddComponent<TransformComponent>(spawnpoint);
+    enemy.AddComponent<StatusEffectComponent>();
+    enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
 
-        enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
-        switch(enemyCat){
-            case ASC: // animated shooting chase category
-                enemy.AddComponent<AnimationComponent>(spriteEnum);
-                enemy.AddComponent<AnimatedChaseAIComponent>(spriteEnum, RNG);
-                enemy.AddComponent<RidigBodyComponent>();
-                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                break;
-            case AS: // animated shooting category
-                enemy.AddComponent<AnimationComponent>(spriteEnum);
-                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-                enemy.AddComponent<AnimatedNeutralAIComponent>(spriteEnum);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                break;
-            case SC: // shooting chase category
-                enemy.AddComponent<RidigBodyComponent>();
-                enemy.AddComponent<ChaseAIComponent>(spriteEnum, RNG);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                break;
-            case T: // trap category
-                enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is only trap
-                enemy.AddComponent<TrapAIComponent>(spriteEnum);
-                break;
-            case CHICKENBOSSAI:
-                enemy.AddComponent<AnimationComponent>(spriteEnum);
-                enemy.AddComponent<RidigBodyComponent>();
-                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
-                enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
-                idOfSpawnedBoss = enemy.GetId();
-                break;
-            case POUNCE:
-                enemy.AddComponent<AnimationComponent>(spriteEnum);
-                enemy.AddComponent<AnimatedPounceAIComponent>(spriteEnum, RNG);
-                enemy.AddComponent<RidigBodyComponent>();
-                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                break;
-            case ARCMAGEBOSSAI:
-                enemy.AddComponent<AnimationComponent>(spriteEnum);
-                enemy.AddComponent<RidigBodyComponent>();
-                enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-                enemy.AddComponent<ItemTableComponent>(spriteEnum);
-                enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 20000, 3500, 750);
-                auto& sec = enemy.GetComponent<StatusEffectComponent>();
-                sec.effects[INVULNERABLE] = true;
-                sec.endTimes[INVULNERABLE] = 0-1;
-                auto& ac = enemy.GetComponent<AnimationComponent>();
-                ac.xmin = 0;
-                ac.numFrames = 1;
-                idOfSpawnedBoss = enemy.GetId();
-                break;
-        }
+    enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
+    switch(enemyCat){
+        case KEY:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+        } break;
+        case ASC:{ // animated shooting chase category
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<AnimatedChaseAIComponent>(spriteEnum, RNG);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+        } break;
+        case AS:{ // animated shooting category
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<AnimatedNeutralAIComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+        } break;
+        case SC:{ // shooting chase category
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<ChaseAIComponent>(spriteEnum, RNG);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+        } break;
+        case T:{ // trap category
+            enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is only trap
+            enemy.AddComponent<TrapAIComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+        } break;
+        case CHICKENBOSSAI:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
+            enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
+            idOfSpawnedBoss = enemy.GetId();
+        } break;
+        case POUNCE:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<AnimatedPounceAIComponent>(spriteEnum, RNG);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+        } break;
+        case ARCMAGEBOSSAI:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 20000, 3500, 750);
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            idOfSpawnedBoss = enemy.GetId();
+        } break;
+        case GORDONBOSSAI:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(GORDON, spawnpoint, 45000, 10000, 2000);
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            idOfSpawnedBoss = enemy.GetId();
+        } break;
+    }
 
-        return enemy;
+    return enemy;
 }
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId){
@@ -162,7 +188,7 @@ void Factory::spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpo
     portal.Group(PORTAL);
     portal.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
     portal.AddComponent<TransformComponent>(spawnpoint);
-    portal.AddComponent<BoxColliderComponent>(LOOTBAG); // same size, its fine
+    portal.AddComponent<BoxColliderComponent>(PORTALBOX); // same size, its fine
     portal.AddComponent<PortalComponent>(area);
     if(area == CHANGECHAR){
         portal.GetComponent<SpriteComponent>().flip = SDL_FLIP_HORIZONTAL;

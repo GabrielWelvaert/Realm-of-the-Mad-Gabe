@@ -253,7 +253,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        const auto& hp = entity.GetComponent<HPMPComponent>().activehp;
+        auto& hp = entity.GetComponent<HPMPComponent>().activehp;
         auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         auto& sprite = entity.GetComponent<SpriteComponent>();
@@ -287,10 +287,10 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     chasePlayer(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
 
                 } else if(hp < aidata.survival){ // survival phase
-                    if(!aidata.flag0){
+                    if(!aidata.flags[0]){
                         pec.shots = 8;
                         pec.arcgap = 48;
-                        aidata.flag0 = true;
+                        aidata.flags[0] = true;
                         assetStore->PlaySound(EGGSDEATH);
                         for(int i = 0; i <= 4; i++){
                             factory->spawnMonster(registry, aidata.phaseTwoPositions[i], WHITECHICKEN);
@@ -327,7 +327,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     if(distanceToPlayer <= 300){ // activate arcmage
                         aidata.timer0 = SDL_GetTicks();
                         assetStore->PlaySound(MNOVA);
-                        aidata.activated = aidata.flag0 = true;
+                        aidata.activated = aidata.flags[0] = true;
                         sec.effects[INVULNERABLE] = false;
                         sprite.srcRect.y = 16*111; // moving down one to cyan sprite
                         hitnoise = GHOSTGODHIT;
@@ -374,10 +374,10 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
 
                     } else if (hp < aidata.survival) { // survival phase
 
-                        if(!aidata.flag0){ // flag 0 indicates if arcMage has reached center of room
+                        if(!aidata.flags[0]){ // flag 0 indicates if arcMage has reached center of room
                             if(!(std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3 && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3)){
                                 chasePlayer(position, aidata.phaseTwoPositions[1], velocity);
-                                if(!aidata.flag3){
+                                if(!aidata.flags[3]){
                                     assetStore->PlaySound(MNOVA);
                                     sec.effects[INVULNERABLE] = true;
                                     sprite.srcRect.y = 16*110;
@@ -387,18 +387,18 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                     !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
                                     position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
                                     ac.frameSpeedRate = 4;
-                                    aidata.flag3 = true;
+                                    aidata.flags[3] = true;
                                 }
                             } else {
-                                aidata.flag0 = aidata.flag1 = aidata.flag2 = true;
+                                aidata.flags[0] = aidata.flags[1] = aidata.flags[2] = true;
                                 velocity = {0,0};    
                             }
                             continue; // dont really start survival phase until arrived at center of room
                         }
 
                         // standing at middle of room. survival phase 
-                        if(aidata.flag1){ // flag 1 used to indicate first frame of survival phase at center of room
-                            if(aidata.flag3){ // arcMage did run without shooting animation, re-enable shooting
+                        if(aidata.flags[1]){ // flag 1 used to indicate first frame of survival phase at center of room
+                            if(aidata.flags[3]){ // arcMage did run without shooting animation, re-enable shooting
                                 ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
                                 asc.animatedShooting = true;
                                 pec.isShooting = true;
@@ -409,7 +409,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                 ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
                                 pec.lastEmissionTime += pec.repeatFrequency / 2; 
                             }
-                            aidata.flag1 = false;         
+                            aidata.flags[1] = false;         
                             pec.shots = 24;
                             pec.arcgap = 360;
                             aidata.timer0 = 0;
@@ -434,8 +434,8 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
 
 
                     } else { // second phase
-                        if(aidata.flag0){ // flag0 used in phase 2 to indicate first frame of phase 2 
-                            aidata.flag0 = false;
+                        if(aidata.flags[0]){ // flag0 used in phase 2 to indicate first frame of phase 2 
+                            aidata.flags[0] = false;
                             RNG.randomFromRange(0,1) == 0 ? aidata.phaseTwoIndex = 0 : aidata.phaseTwoIndex = 2;
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                             aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
@@ -447,8 +447,8 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         if((aidata.positionflag == aidata.phaseTwoPositions[0] && (std::abs(position.x - aidata.phaseTwoPositions[0].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[0].y) <= 3) 
                         || (aidata.positionflag == aidata.phaseTwoPositions[2] && (std::abs(position.x - aidata.phaseTwoPositions[2].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[2].y) <= 3)){ 
                         // successfully arrived at either edge 
-                            if(!aidata.flag1){ // first frame of edge arrival 
-                                aidata.flag1 = true; // flag1 used in second phase to indicate successfully arriving at destination    
+                            if(!aidata.flags[1]){ // first frame of edge arrival 
+                                aidata.flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
                                 aidata.timer0 = time; // time0 used in second phase to track time since successfully arriving at destination
                                 sec.effects[INVULNERABLE] = true;
                                 sprite.srcRect.y = 16*110;
@@ -465,22 +465,22 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         } else if(aidata.positionflag == aidata.phaseTwoPositions[1] && (std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3){
                         //successfully arrived at center
                             timeAtSpot = 5000;
-                            if(!aidata.flag1){
-                                aidata.flag1 = true; // flag1 used in second phase to indicate successfully arriving at destination    
+                            if(!aidata.flags[1]){
+                                aidata.flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
                                 aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
                             }
-                            if(!aidata.flag2 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            if(!aidata.flags[2] && time - pec.lastEmissionTime > pec.repeatFrequency){
                                 arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
-                                aidata.flag2 = true; // flags2 used in second phase to shoot confuse stars when at center of room
+                                aidata.flags[2] = true; // flags2 used in second phase to shoot confuse stars when at center of room
                             }
-                        } else if(!aidata.flag1){ // flag1 used in second phase to indicate successfully arriving at destination   
+                        } else if(!aidata.flags[1]){ // flag1 used in second phase to indicate successfully arriving at destination   
                         // not arrived anywhere; keep moving to current destination
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                         }
 
                         // destination successfully reached and time spent there elapsed; time to move to new destination 
-                        if(aidata.flag1 && time >= aidata.timer0 + timeAtSpot){ 
-                            aidata.flag2 = aidata.flag1 = false;
+                        if(aidata.flags[1]&& time >= aidata.timer0 + timeAtSpot){ 
+                            aidata.flags[2] = aidata.flags[1] = false;
                             aidata.phaseTwoIndex++;
                             if(aidata.phaseTwoIndex > 3){aidata.phaseTwoIndex = 0;}
                             chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
@@ -501,7 +501,166 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
 
             } break;
             case GORDON:{
+                if(!aidata.activated){ // boss stands invulnerable for 2.5s
+                    if(!aidata.flags[0]){
+                        aidata.timer0 = SDL_GetTicks() + 2500;
+                        aidata.flags[0] = true;
+                    }
+                    if(SDL_GetTicks() >= aidata.timer0){
+                        sec.effects[INVULNERABLE] = aidata.flags[0] = false;
+                        aidata.activated = true;
+                        pec.isShooting = asc.animatedShooting = true;
+                        ac.xmin = 4;
+                        ac.numFrames = 2;
+                        ac.currentFrame = 1;
+                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                        aidata.timer0 = SDL_GetTicks();
+                        aidata.flags[0] = false;
+                        starShotgun(entity, registry, playerPos);
+                        // hp -= 20000;
+                    }
+                } else { // boss activated: phases
+                    auto time = SDL_GetTicks();
+                    if(hp > aidata.secondPhase){ // phase one 
+                        if(time > aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            aidata.timer0 = time;
+                            starShotgun(entity, registry, playerPos);
+                        }
 
+                    } else if(hp < aidata.survival){ // survival
+                        if(aidata.flags[0]){ // first frame of survival
+                            aidata.flags[0] = false;
+                            aidata.positionflag = playerPos;
+                            ac.xmin = 0;
+                            ac.numFrames = 3;
+                            ac.currentFrame = 1;
+                            ac.frameSpeedRate = 2000 / 500;
+                            aidata.flags[1] = true; // flag[1] = true means chasing, else shooting at center
+                            
+                        }
+
+                        if(aidata.flags[1]){ // flag[1] = chasing sequence
+                            chasePlayer(position, aidata.positionflag, velocity);
+                            if(!aidata.flags[2] && ((std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3) || entity.GetComponent<CollisionFlagComponent>().collisionFlag != NONESIDE)){
+                                aidata.flags[2] = true; // flags[2] means player reached during first part of chase
+                                gordonSurvivalShotGun(entity, registry, playerPos);
+                            }
+                            if(aidata.flags[2]){
+                                aidata.positionflag = aidata.spawnPoint;
+                                if(std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3){ // arrived at center again
+                                    Entity gs = factory->spawnMonster(registry, aidata.spawnPoint, GIGASHEEP);
+                                    registry->GetComponent<BoxColliderComponent>(gs.GetId()).offset.y -= 16;
+                                    registry->GetComponent<TransformComponent>(gs.GetId()).scale = {10,10};
+                                    aidata.timer0 = time;
+                                    aidata.flags[2] = aidata.flags[1] = false;
+                                }
+                            }
+                            // if arrived at player, set new position target to spawnPoint
+                        } else { // go to center and shoot for X seconds    
+                            if(!aidata.flags[2]){ // first frame of standign at center
+                                aidata.flags[2] = pec.isShooting = asc.animatedShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2;
+                                ac.currentFrame = 1;
+                                // ac.frameSpeedRate = 2000 / pec.repeatFrequency;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                aidata.timer0 = time;
+                            }
+                            if(time > aidata.timer0 + 10000){
+                                ac.xmin = 0;
+                                ac.numFrames = 3;
+                                ac.currentFrame = 1;
+                                aidata.flags[1] = true; // start chasing sequence
+                                pec.isShooting = aidata.flags[2] = false;
+                                aidata.positionflag = playerPos;
+                            }
+                            velocity = {0.0,0.0};
+                        }
+
+                    } else { // phase two
+                        if(!aidata.flags[0]){ // first frame of phase two: update pec.rf
+                            pec.repeatFrequency = 500;
+                            aidata.timer0 = time - pec.repeatFrequency;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            pec.isShooting = false;
+                            aidata.flags[0] = true;
+                            sec.effects[INVULNERABLE] = true;
+                            Entity key = factory->spawnMonster(registry, position, SHEEP);
+                            aidata.idKeyOne = key.GetId();
+                            aidata.cIdKeyOne = key.GetCreationId();
+                            key = factory->spawnMonster(registry, position, SHEEP);
+                            aidata.idKeyTwo = key.GetId();
+                            aidata.cIdKeyTwo = key.GetCreationId();
+                            aidata.phaseTwoIndex = 35;
+                            registry->Update();
+                            // hp -= 29000;
+                        }
+                        bool key1alive = registry->GetCreationIdFromEntityId(aidata.idKeyOne) == aidata.cIdKeyOne;
+                        bool key2alive = registry->GetCreationIdFromEntityId(aidata.idKeyTwo) == aidata.cIdKeyTwo;
+                        if(key1alive || key2alive){
+                            if(time > aidata.timer0 + 500){
+                                aidata.timer0 = time;
+                                gordonPhaseTwoShots(entity, registry, aidata.phaseThreeIndex, aidata.phaseOnePositions);
+                                // phase three index used to select origin. its overflow is controlled by reference in gordonPhaseTwoShots
+                            }
+                            if(key1alive){
+                                const auto& key1pos = registry->GetComponent<TransformComponent>(aidata.idKeyOne).position;
+                                auto& key1velocity = registry->GetComponent<RidigBodyComponent>(aidata.idKeyOne).velocity;
+                                glm::vec2 key1destination = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                                if(std::abs(key1pos.x - key1destination.x) <= 3 && std::abs(key1pos.y - key1destination.y) <= 3){ // standing at destination position; change destination
+                                    aidata.phaseOneIndex ++;
+                                    if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                                        aidata.phaseOneIndex = 0;
+                                    }    
+                                }
+                                chasePlayer(key1pos, aidata.phaseOnePositions[aidata.phaseOneIndex], key1velocity); 
+                                auto& key1flip = registry->GetComponent<SpriteComponent>(aidata.idKeyOne).flip;
+                                playerPos.x <= key1pos.x ? key1flip = SDL_FLIP_HORIZONTAL : key1flip = SDL_FLIP_NONE;
+                                aidata.timer1 = time;
+                            }
+                            if(key2alive){
+                                const auto& key2pos = registry->GetComponent<TransformComponent>(aidata.idKeyTwo).position;
+                                auto& key2velocity = registry->GetComponent<RidigBodyComponent>(aidata.idKeyTwo).velocity;
+                                glm::vec2 key2destination = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                                if(std::abs(key2pos.x - key2destination.x) <= 3 && std::abs(key2pos.y - key2destination.y) <= 3){ // standing at destination position; change destination
+                                    aidata.phaseTwoIndex --;
+                                    if(aidata.phaseTwoIndex < 0){
+                                        aidata.phaseTwoIndex = 35;
+                                    }    
+                                }
+                                chasePlayer(key2pos, aidata.phaseTwoPositions[aidata.phaseTwoIndex], key2velocity); 
+                                auto& key2flip = registry->GetComponent<SpriteComponent>(aidata.idKeyTwo).flip; 
+                                playerPos.x <= key2pos.x ? key2flip = SDL_FLIP_HORIZONTAL : key2flip = SDL_FLIP_NONE;
+                                aidata.timer1 = time;
+                            }
+                        } else { // keys are dead
+                            pec.isShooting = false;
+                            ac.currentFrame = 1;
+                            ac.numFrames = 1;
+                            ac.xmin = 2;
+                            sec.effects[INVULNERABLE] = false;
+                            if(time > aidata.timer1 + 7500){ // damage phase ended. re-spawn keys and shoot again 
+                                pec.repeatFrequency = 500; 
+                                aidata.timer0 = time - pec.repeatFrequency;
+                                ac.xmin = 4;
+                                ac.numFrames = 2;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                sec.effects[INVULNERABLE] = true;
+                                Entity key = factory->spawnMonster(registry, position, SHEEP);
+                                aidata.idKeyOne = key.GetId();
+                                aidata.cIdKeyOne = key.GetCreationId();
+                                key = factory->spawnMonster(registry, position, SHEEP);
+                                aidata.idKeyTwo = key.GetId();
+                                aidata.cIdKeyTwo = key.GetCreationId();
+                                aidata.phaseTwoIndex = 35;
+                                registry->Update();
+                            }
+                        }
+                    }
+                }
             } break;
         }
         playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;

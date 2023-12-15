@@ -120,7 +120,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
 }
 
 void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer){
-    auto entities = GetSystemEntities();
+    auto& entities = GetSystemEntities();
     if(entities.size() == 0){return;}
     if (mx > 750 && mx < 1000 && my > 295 && my < 370){ // if mouse is hovering over the stat bars
         auto& hpdisplay = entities[HP];

@@ -74,13 +74,15 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                     
                 }                                                                                                       // should target centerplayer not playerpos?
                 
+                /*repeated logic incoming. This was one of the earlier systems and its pretty messy. */
+
                 if(shots % 2 == 1){ // odd number of shots; shoot one at origin!
                     projectile = registry->CreateEntity();
                     projectile.AddComponent<RidigBodyComponent>(originVelocity);
                     projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                     projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                     projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees); //init pos is same as emitter 
-                    PEC.lastEmissionTime = SDL_GetTicks(); // we just shot so record that in lastEmissionTime
+                    // PEC.lastEmissionTime = SDL_GetTicks(); // we just shot so record that in lastEmissionTime
                     projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
                     projectile.Group(PROJECTILE);
                     if(shots == 1){ // only one shot just shoot and origin and exit

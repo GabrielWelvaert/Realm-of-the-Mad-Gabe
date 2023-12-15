@@ -261,53 +261,55 @@ void Game::ProcessInput(){
                         case SDLK_RSHIFT:{
                             shift = true;
                         } break;
-                        case SDLK_9:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            factory->createItemInBag(registry, CHICKENTOME, lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                            factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        } break;
-                        case SDLK_0:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T6LIGHTARMOR, lootbag);
-                            factory->createItemInBag(registry, T6ROBE, lootbag);
-                            factory->createItemInBag(registry, T8BOW, lootbag);
-                            factory->createItemInBag(registry, T8WAND, lootbag);
-                            factory->createItemInBag(registry, T3TOME, lootbag);
-                            factory->createItemInBag(registry, T3QUIVER, lootbag);
-                            factory->createItemInBag(registry, T3DEXRING, lootbag);
-                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            spawnpoint = {mouseX + camera.x-64, mouseY + camera.y};
-                            Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T6HEAVYARMOR, lootbag2);
-                            factory->createItemInBag(registry, T7SWORD, lootbag2);
-                            factory->createItemInBag(registry, TWILIGHTGEMSTONE, lootbag2);
-                            factory->createItemInBag(registry, T3HELM, lootbag2);
-                            factory->createItemInBag(registry, CHICKENSWORD, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                            factory->createItemInBag(registry, HPPOT, lootbag2);
-                        } break;
-                        case SDLK_MINUS:{
-                            if(dungeonRooms.size() > 0){
-                                const auto& spawnRoom = dungeonRooms[bossRoomId]; 
-                                // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-                                player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
-                            } else {
-                                player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
-                            }
-                        } break;
-                        case SDLK_BACKSPACE:{
-                            auto& xp = player.GetComponent<BaseStatComponent>().xp;
-                            xp += 20000;
-                        } break;
+                        // case SDLK_9:{
+                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                        //     factory->createItemInBag(registry, CHICKENTOME, lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        // } break;
+                        // case SDLK_0:{
+                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                        //     factory->createItemInBag(registry, T8LIGHTARMOR, lootbag);
+                        //     factory->createItemInBag(registry, T8ROBE, lootbag);
+                        //     factory->createItemInBag(registry, T9BOW, lootbag);
+                        //     factory->createItemInBag(registry, T9WAND, lootbag);
+                        //     factory->createItemInBag(registry, T4TOME, lootbag);
+                        //     factory->createItemInBag(registry, T4QUIVER, lootbag);
+                        //     factory->createItemInBag(registry, T3DEXRING, lootbag);
+                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                        //     spawnpoint = {mouseX + camera.x-64, mouseY + camera.y};
+                        //     Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                        //     factory->createItemInBag(registry, T9HEAVYARMOR, lootbag2);
+                        //     factory->createItemInBag(registry, T9SWORD, lootbag2);
+                        //     factory->createItemInBag(registry, T9BOW, lootbag2);
+                        //     factory->createItemInBag(registry, T4HELM, lootbag2);
+                        //     factory->createItemInBag(registry, CHICKENSWORD, lootbag2);
+                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
+                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
+                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
+                        // } break;
+                        // case SDLK_MINUS:{
+                        //     if(dungeonRooms.size() > 0){
+                        //         const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                        //         // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                        //         player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                        //     } else {
+                        //         player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
+                        //     }
+                        // } break;
+                        // case SDLK_BACKSPACE:{
+                        //     auto& xp = player.GetComponent<BaseStatComponent>().xp;
+                        //     xp += 20000;
+                        //     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                        //     // factory->spawnMonster(registry, playerPos, BAT0);
+                        // } break;
                         default:
                             break;
                     } 
@@ -724,6 +726,10 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
         case VAULT:{
             map = vaultMap;
             MiniMap(wallTheme, vaultMapOnlyFloors);
+        }break;
+        case GORDONSLAIRWALLTHEME:{
+            map = gordonLair;
+            MiniMap(wallTheme, gordonLairOnlyFloors);
         }break;
         default:{
             while(!successfulMapGen){
@@ -1887,7 +1893,7 @@ void Game::LoadPlayer(){
     }
 }
 
-void Game::PopulatePlayerInventoryAndEquipment(){
+void Game::PopulatePlayerInventoryAndEquipment(const wallTheme& wallTheme){
     std::vector<int> itemsToEquip = characterManager->GetLineValuesFromCharacterFile(activeCharacterID, 5);
     for(int i = 1; i < 5; i++){
         if(itemsToEquip[i-1] != -1){
@@ -1898,7 +1904,9 @@ void Game::PopulatePlayerInventoryAndEquipment(){
     for(int i = 1; i < 9; i++){
         if(inventoryItems[i-1] != -1){
             registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, static_cast<items>(inventoryItems[i-1]), i);
-        }
+        }// else if(inventoryItems[i-1] == -1 && wallTheme == GORDONSLAIRWALLTHEME){ //give player hp pots in empty inventory slots if going to gordon
+        //     registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, HPPOT, i);
+        // }
     }
     // in the case of loading the player, we will grant them fully restored hp and mp 
     player.GetComponent<HPMPComponent>().activehp = player.GetComponent<HPMPComponent>().maxhp;
@@ -2333,16 +2341,28 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(900, 700), NEXUS);
         } break;
         case NEXUS: {
+            const auto& playerLevel = player.GetComponent<BaseStatComponent>().level;
             factory->spawnPortal(registry, glm::vec2(850, 1575), CHANGECHAR);
             factory->spawnPortal(registry, glm::vec2(650, 1575), CHANGENAME);
             factory->spawnPortal(registry, glm::vec2(750, 1675), VAULT);
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
-            factory->spawnPortal(registry, glm::vec2(750,600), UDL); //todo dungeon 2
-            if(player.GetComponent<BaseStatComponent>().level < 20){
-                factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME);
+            if(playerLevel < 10){
+                factory->spawnPortal(registry, glm::vec2(750,600), LOCKEDPORTALTHEME); 
+                // factory->spawnPortal(registry, glm::vec2(750,600), UDL);  
             } else {
-                factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME); // todo spawn gordon's lair
+                factory->spawnPortal(registry, glm::vec2(750,600), UDL);     
             }
+            if(playerLevel < 20){
+                factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME);
+                // factory->spawnPortal(registry, glm::vec2(900,600), GORDONSLAIRWALLTHEME);
+            } else {
+                factory->spawnPortal(registry, glm::vec2(900,600), GORDONSLAIRWALLTHEME); // todo spawn gordon's lair
+            }
+        } break;
+        case GORDONSLAIRWALLTHEME:{
+            factory->spawnMonster(registry, glm::vec2(848,970), GORDON);
+            idOfBoss = factory->idOfSpawnedBoss;
+            creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
         } break;
         default:{ // all other areas assumed to have a boss
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
@@ -2376,7 +2396,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<InteractUISystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
-    PopulatePlayerInventoryAndEquipment();
+    PopulatePlayerInventoryAndEquipment(area);
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
     LoadTileMap(area);
@@ -2385,6 +2405,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     miniMapSrcRect.w = miniMapSrcRect.h = 60; // start zoomed in 
     registry->Update(); // becuase we loaded the map
     switch(area){ // if nexus or vault, spawnpoint is static; so acquire it (otherwise, it was assigned in GenerateMap())
+        case GORDONSLAIRWALLTHEME:
         case NEXUS:
         case VAULT:{
             playerSpawn = wallThemeToSpawnPoint.at(area);

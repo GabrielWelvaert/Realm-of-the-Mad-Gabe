@@ -186,7 +186,8 @@ struct ItemTableComponentData{
 struct helmData{
     Uint32 duration;
 };
-
+extern std::vector<std::vector<int>> gordonLairOnlyFloors;
+extern std::vector<std::vector<int>> gordonLair;
 extern std::unordered_map<int, SDL_Color> miniMapColors;
 extern std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture;
 extern std::vector<std::string> defaultNames;

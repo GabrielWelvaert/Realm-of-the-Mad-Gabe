@@ -97,6 +97,117 @@ class BossAISystem: public System{
             return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
         }
 
+        inline void projectileVelocityArcGap(const glm::vec2& originVelocity, const float& rotationDegrees, const float& deltaDegrees, glm::vec2& emitterVelocity){
+            float deltaRadians = deltaDegrees * (M_PI / 180.0);
+            emitterVelocity.x = originVelocity.x * std::cos(deltaRadians) - originVelocity.y * std::sin(deltaRadians);
+            emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
+        }
+
+
+        inline void starShotgun(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos){ // hey look! PEC::Update() in a method! 
+            std::vector<statuses> debuffs = {BLEEDING, QUIET, CONFUSED, QUIET, SLOWED}; // [1] used for armor piercing shot
+            std::vector<sprites> stars = {REDSTAR, WHITESTAR, BLUESTAR, GREENSTAR, PURPLESTAR};
+            std::vector<glm::vec2> velocities = {glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0)};
+            glm::vec2 bossCenter = {boss.GetComponent<TransformComponent>().position.x + 32, boss.GetComponent<TransformComponent>().position.y + 32};
+            float rotationDegrees = getRotationFromCoordiante(750, bossCenter.x, bossCenter.y, playerPos.x+20, playerPos.y+8, velocities[2], false);
+            constexpr int realgap = 120 / 5;
+            for(int i = 0; i < 5; i++){ 
+                int j = RNG.randomFromRange(0,4);
+                const auto& sprite = enumToSpriteComponent.at(stars[j]);
+                if(i != 2){ // do for all except shot at origin
+                    projectileVelocityArcGap(velocities[2], rotationDegrees, realgap*(i-2), velocities[i]);
+                }
+                Entity projectile = registry->CreateEntity();
+                projectile.AddComponent<RidigBodyComponent>(velocities[i]);
+                projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+                projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + realgap*i-2);
+                projectile.Group(PROJECTILE);
+                switch(stars[j]){
+                    case REDSTAR:{
+                        projectile.AddComponent<ProjectileComponent>(25, 500, false, boss, 0, GORDON, true, BLEEDING, 3000, false);         
+                    } break;
+                    case WHITESTAR:{
+                        projectile.AddComponent<ProjectileComponent>(25, 500, false, boss, 0, GORDON, false, BLEEDING, 5, true); 
+                    } break;
+                    case BLUESTAR:{
+                        projectile.AddComponent<ProjectileComponent>(25, 500, false, boss, 0, GORDON, true, CONFUSED, 3000, false);
+                    } break;
+                    case GREENSTAR:{ // QUIET
+                        projectile.AddComponent<ProjectileComponent>(25, 500, false, boss, 0, GORDON, true, QUIET, 3000, false);
+                    } break;
+                    case PURPLESTAR:{ /// SLOWED
+                        projectile.AddComponent<ProjectileComponent>(25, 500, false, boss, 0, GORDON, true, SLOWED, 3000, false);
+                    } break;
+                }
+            }
+        }
+
+        inline void gordonSurvivalShotGun(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos){
+            std::vector<glm::vec2> velocities = {glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0)};
+            glm::vec2 bossCenter = {boss.GetComponent<TransformComponent>().position.x + 32, boss.GetComponent<TransformComponent>().position.y + 32};
+            float rotationDegrees = getRotationFromCoordiante(750, bossCenter.x, bossCenter.y, playerPos.x+20, playerPos.y+8, velocities[1], false);
+            constexpr int realgap = 120 / 3;
+            const auto& sprite = enumToSpriteComponent.at(ORYXARROW);
+            for(int i = 0; i < 3; i++){
+                if(i != 1){ 
+                    projectileVelocityArcGap(velocities[1], rotationDegrees, realgap*(i-1), velocities[i]);
+                }
+                Entity projectile = registry->CreateEntity();
+                projectile.AddComponent<RidigBodyComponent>(velocities[i]);
+                projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+                projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(6.0,6.0), rotationDegrees + realgap*(i-1));
+                projectile.Group(PROJECTILE);
+                projectile.AddComponent<ProjectileComponent>(100, 500, false, boss, 0, GORDON, false, SLOWED, 3000, true);
+            }
+
+            velocities = {glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0)};
+            rotationDegrees = getRotationFromCoordiante(500, bossCenter.x, bossCenter.y, playerPos.x+20, playerPos.y+8, velocities[1], false);
+            for(int i = 0; i < 3; i++){
+                if(i != 1){
+                    projectileVelocityArcGap(velocities[1], rotationDegrees, realgap*(i-1), velocities[i]);
+                }
+                Entity projectile = registry->CreateEntity();
+                projectile.AddComponent<RidigBodyComponent>(velocities[i]);
+                projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+                projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(6.0,6.0), rotationDegrees + realgap*(i-1));
+                projectile.Group(PROJECTILE);
+                projectile.AddComponent<ProjectileComponent>(100, 500, false, boss, 0, GORDON, false, SLOWED, 3000, true);
+            }
+        }
+
+        inline void gordonPhaseTwoShots(Entity boss, std::unique_ptr<Registry>& registry, int& startIndex, const std::vector<glm::vec2>& positions){
+            int arcgap = 350;
+            int realgap = arcgap / 3;
+            glm::vec2 bossCenter = {boss.GetComponent<TransformComponent>().position.x + 32, boss.GetComponent<TransformComponent>().position.y + 32};
+            const auto& sprite = enumToSpriteComponent.at(ORYXTEAR);
+            for(int i = 0; i < 6; i++){
+                arcgap += 5;
+                int realgap = arcgap / 3;
+                std::vector<glm::vec2> velocities = {glm::vec2(0.0),glm::vec2(0.0),glm::vec2(0.0)};
+                if(startIndex > 35){
+                    startIndex = 0;
+                }
+                glm::vec2 target = positions[startIndex];
+                startIndex++;
+                float rotationDegrees = getRotationFromCoordiante(250, bossCenter.x, bossCenter.y, target.x, target.y, velocities[0], true);
+                for(int i = 0; i < 3; i++){
+                    Entity projectile = registry->CreateEntity();
+                    if(i != 0){ // do for all except shot at origin
+                        projectileVelocityArcGap(velocities[0], rotationDegrees, realgap*i, velocities[i]);
+                    }
+                    projectile.AddComponent<RidigBodyComponent>(velocities[i]);
+                    projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+                    projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                    projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + realgap*i);
+                    projectile.AddComponent<ProjectileComponent>(35, 2075, false, boss, 0, GORDON, false, SLOWED, 3000, false);
+                    projectile.Group(PROJECTILE);
+                }
+            }
+        }
+
         inline void arcMageConfuseShots(Entity boss, glm::vec2& spawnpoint, std::unique_ptr<Registry>& registry, std::vector<glm::vec2>& phaseOnePositions){
             glm::vec2 originVelocity;
             for(const auto& pos: phaseOnePositions){

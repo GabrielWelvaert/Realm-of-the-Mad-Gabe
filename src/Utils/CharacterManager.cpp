@@ -71,9 +71,9 @@ void CharacterManager::KillInvalidCharacterFiles(){
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
         if(!CharacterFileHasValidLineCount(fileName) || !ValidateCharacterFileHash(fileName)){
-            std::cout << fileName << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
-            exit(-1); 
-            // std::filesystem::remove(file.path());
+            // std::cout << fileName << " was detected as invalid and would be deleted. check the file! exiting! " << std::endl;
+            // exit(-1); 
+            std::filesystem::remove(file.path());
         }
     }
 }

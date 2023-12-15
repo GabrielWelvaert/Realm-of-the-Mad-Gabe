@@ -67,7 +67,7 @@ class Game{
         void LoadGui();
         void LoadTileMap(const wallTheme& wallTheme);
         void PopulateRegistry();
-        void PopulatePlayerInventoryAndEquipment();
+        void PopulatePlayerInventoryAndEquipment(const wallTheme& wallTheme);
         void PopulateEventBus();
         void MainMenus();
         void Background();

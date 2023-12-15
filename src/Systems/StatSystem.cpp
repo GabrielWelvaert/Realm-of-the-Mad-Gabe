@@ -229,8 +229,18 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     HPMPstats.maxhp += hpincrease;
     HPMPstats.maxmp += mpincrease;
 
-    // restore active stats if they're below base (above base like berserk will be managed by buffSystem, still...)
-    if(HPMPstats.activedefense < playerBaseStats.defense) HPMPstats.activedefense = playerBaseStats.defense;
+    auto& sec = event.player.GetComponent<StatusEffectComponent>();
+    if(!sec.effects.none()){
+        if(sec.effects[SLOWED]){ // only debuff that modifies activestats; other's behavior is system-based
+            speed.activespeed += sec.modifications[SLOWED];
+            sec.effects[SLOWED] = false;
+        }
+        sec.effects[PARALYZE] = false;
+        sec.effects[QUIET] = false;
+        sec.effects[BLEEDING] = false;
+    }
+
+    // active stats need to match base stat (not visible to user, but in back-end it works like this)
     if(HPMPstats.activehp < HPMPstats.maxhp) HPMPstats.activehp = HPMPstats.maxhp;
     if(HPMPstats.activemp < HPMPstats.maxmp) HPMPstats.activemp = HPMPstats.maxmp;
     if(HPMPstats.activewisdom < playerBaseStats.wisdom) HPMPstats.activewisdom = playerBaseStats.wisdom;
@@ -249,18 +259,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     if(offensestats.activedexterity > playerBaseStats.dexterity) offensestats.activedexterity += dexterityincrease;
     if(speed.activespeed > playerBaseStats.speed) speed.activespeed += speedincrease;
 
-    // relieve player of debuffs if they exist (doens't include things like speedy, berzerk, which are buffs, not debuffs)
     event.eventBus->EmitEvent<UpdateDisplayStatEvent>(event.player);
-    auto& sec = event.player.GetComponent<StatusEffectComponent>();
-    if(!sec.effects.none()){
-        if(sec.effects[SLOWED]){ // only debuff that modifies activestats; other's behavior is system-based
-            speed.activespeed += sec.modifications[SLOWED];
-            sec.effects[SLOWED] = false;
-        }
-        sec.effects[PARALYZE] = false;
-        sec.effects[SLOWED] = false;
-        sec.effects[BLEEDING] = false;
-    }
 
     // update PEC repeatfrequency
     projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000

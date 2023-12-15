@@ -193,6 +193,7 @@ enum enemyCategory{
     ARCMAGEBOSSAI,
     GORDONBOSSAI,
     POUNCE,
+    KEY
 };
 
 enum wallTheme{ //wall themes are used as primary keys for areas/dungeons 
@@ -247,7 +248,8 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     LOOTBAG,
     WIDE,
     BIG,
-    STAR
+    STAR,
+    PORTALBOX
 };
 
 // like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
@@ -314,8 +316,11 @@ enum sprites{
     MOUSE0,
     BAT0,
     GORDON,
-    REDFIREBALL
-
+    REDFIREBALL,
+    ORYXTEAR,
+    SHEEP,
+    ORYXARROW,
+    GIGASHEEP
 };
 
 enum soundEnums{

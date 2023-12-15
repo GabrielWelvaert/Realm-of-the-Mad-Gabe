@@ -19,5 +19,6 @@ static const SDL_Color nexusFloor = {220,222,243};
 static const SDL_Color udlFloor = {83,86,81};
 static const SDL_Color chickenFloor = {202,129,51};
 static const SDL_Color miniMapPlayerBlue = {4,4,252};
+static const SDL_Color gordonLairFloor = {50,74,101};
 
 #endif
