@@ -1,5 +1,5 @@
 **Reverse-Engineering of Realm of the Mad God, made with the goal of recreating the core mechanics of the game without the use of an external game engine or game engine library.**
-![Alt text](rotmg.png)
+
 **Download and play here:** TODO
 
 **Controls:**
@@ -18,3 +18,4 @@
       - *Mouse hover item* - View item description
       - *Mouse scroll* - Mini map zoom adjustment
         
+![Alt text](rotmg.png)
