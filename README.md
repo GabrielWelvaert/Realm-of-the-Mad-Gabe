@@ -19,3 +19,6 @@
       - *Mouse scroll* - Mini map zoom adjustment
         
 ![Alt text](rotmg.png)
+<p align="center">
+  <img src="rotmg.jpg" alt="Alt text">
+</p>
