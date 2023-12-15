@@ -20,5 +20,5 @@
         
 ![Alt text](rotmg.png)
 <p align="center">
-  <img src="rotmg.jpg" alt="Alt text">
+  <img src="rotmg.png" alt="Alt text">
 </p>
