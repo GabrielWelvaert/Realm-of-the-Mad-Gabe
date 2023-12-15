@@ -1,6 +1,6 @@
 **Reverse-Engineering of Realm of the Mad God, made with the goal of recreating the core mechanics of the game without the use of an external game engine or game engine library.**
 
-**[Download and play here]** (https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)
+**[Download and play here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
 
 **Installation Instructions:**
 1. Select appropriate OS
