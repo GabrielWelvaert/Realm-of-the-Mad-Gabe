@@ -18,7 +18,4 @@
       - *Mouse hover item* - View item description
       - *Mouse scroll* - Mini map zoom adjustment
         
-![Alt text](rotmg.png)
-<p align="center">
-  <img src="rotmg.png" alt="Alt text">
-</p>
+![](rotmg.png)
