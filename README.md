@@ -5,7 +5,7 @@
 **Installation Instructions:**
 1. Select appropriate OS
 2. Download ENTIRE contents of a given OS folder
-3. Place downloaded contents in a new folder of your choice, and run rotmg.exe
+3. Extract/Unzip downloaded contents in a new folder of your choice, and run rotmg.exe
 
 **Controls:**
   - Keyboard:
