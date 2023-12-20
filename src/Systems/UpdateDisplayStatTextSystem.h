@@ -39,6 +39,8 @@ class UpdateDisplayStatTextSystem: public System{
         // event update for att,def,spd,dex,vit,wis and display string
         void onDisplayStatUpdate(UpdateDisplayStatEvent& event);
 
+        void checkMaxHPMP(Entity player);
+
         // system update each frame if mousepos > 750 for xp, hp, mp display string
         void Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer);
 

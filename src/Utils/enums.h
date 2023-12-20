@@ -178,6 +178,9 @@ enum items{
     SNAKESKINARMOR,
     TWILIGHTGEMSTONE,
     CHICKENSWORD,
+    ARCTOME,
+    ARCROBE,
+    ARCWAND
 };
 
 enum cardinalDirection{
@@ -847,7 +850,10 @@ enum textureEnums{
     SNAKESKINICON,
     LOCKEDPORTAL,
     TWILIGHTGEMSTONEICON,
-    CHICKENSWORDICON
+    CHICKENSWORDICON,
+    ARCWANDICON,
+    ARCTOMEICON,
+    ARCROBEICON,
 };
 
 #endif

@@ -27,6 +27,26 @@ void AbilitySystem::onTomeUse(TomeUseEvent& event){
             event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, 5000);
             event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 1200);
         } break;
+        case ARCTOME:{
+            const auto& player = event.player;
+            const auto& playerpos = player.GetComponent<TransformComponent>().position;
+            glm::vec2 originVelocity;
+            float rotationDegrees = getRotationFromCoordiante(
+                1024, 
+                playerpos.x, 
+                playerpos.y, 
+                event.mx + event.camera.x-24, 
+                event.my + event.camera.y-36,
+                originVelocity,
+                false);
+            Entity projectile = event.registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(originVelocity);
+            projectile.AddComponent<SpriteComponent>(LOFIOBJ3, 8, 8, SDL_Rect({8*1, 8*22, 8,8}), 3, false, false);
+            projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2(8,8));
+            projectile.AddComponent<TransformComponent>(glm::vec2(playerpos.x, playerpos.y+10), glm::vec2(6.0,6.0), rotationDegrees);
+            projectile.AddComponent<ProjectileComponent>(1000, 1000, true, player, 4, NONESPRITE, false, QUIET, 3000, false);
+            projectile.Group(PROJECTILE);
+        } break;
     }
 }
 

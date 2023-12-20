@@ -40,16 +40,17 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                         auto& HPMP = player.GetComponent<HPMPComponent>();
                         const auto& tomeType = player.GetComponent<TomeComponent>().tomeEnum;
                         switch(tomeType){
-                            case CHICKENTOME:{
+                            case ARCTOME:
+                            case CHICKENTOME:{ // user may use tome even at full health
                                 activemp -= ac.mpRequired;
                                 ac.timeLastUsed = time;
-                                eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus);
+                                eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus,mouseX, mouseY, camera);
                             } break;
                             default:{
                                 if(HPMP.activehp < HPMP.maxhp){
                                     activemp -= ac.mpRequired;
                                     ac.timeLastUsed = time;
-                                    eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus);
+                                    eventbus->EmitEvent<TomeUseEvent>(player, registry, assetStore, eventbus,mouseX, mouseY, camera);
                                 }
                             } break;
                         }

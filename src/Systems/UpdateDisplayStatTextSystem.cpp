@@ -119,6 +119,19 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
 
 }
 
+void UpdateDisplayStatTextSystem::checkMaxHPMP(Entity player){
+    auto& entities = GetSystemEntities();
+    if(entities.size() == 0){return;}
+    const auto& pbs = player.GetComponent<BaseStatComponent>();
+    const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+    auto& hpdisplay = entities[HP];
+    auto& mpdisplay = entities[MP];
+    auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
+    auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
+    static_cast<int>(pbs.hp) == maxStats[classname][HP] ? hptext.color = maxstatcolor : hptext.color = white;
+    static_cast<int>(pbs.mp) == maxStats[classname][MP] ? mptext.color = maxstatcolor : mptext.color = white;
+}
+
 void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer){
     auto& entities = GetSystemEntities();
     if(entities.size() == 0){return;}
@@ -153,7 +166,7 @@ void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::uni
 
         if(hptext.text != lasthp || mptext.text != lastmp || xptext.text != lastxp){
             pbs.hp == maxStats[classname][HP] ? hptext.color = maxstatcolor : hptext.color = white;
-            pbs.mp == maxStats[classname][MP] ? mptext.color = maxstatcolor : hptext.color = white;
+            pbs.mp == maxStats[classname][MP] ? mptext.color = maxstatcolor : mptext.color = white;
 
             auto font = assetStore->GetFont(mptext.assetId);
 

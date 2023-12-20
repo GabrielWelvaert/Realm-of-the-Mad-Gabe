@@ -139,7 +139,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                         playerInventory.hoveredItemId = entity.GetId();
                         playerInventory.hoverStartTime = SDL_GetTicks();
                         playerInventory.hoveringItemLastFrame = true;
-                    } else if(SDL_GetTicks() >= playerInventory.hoverStartTime + 750 && !playerInventory.displayingIcon){ // create icon entity to display information about hovered item!
+                    } else if(SDL_GetTicks() >= playerInventory.hoverStartTime + 600 && !playerInventory.displayingIcon){ // create icon entity to display information about hovered item!
                         //todo: display icon, use SDL_QueryTexture()
                         Entity itemIcon = registry->CreateEntity();
                         playerInventory.iconEntityId = itemIcon.GetId();

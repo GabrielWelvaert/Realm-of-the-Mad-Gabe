@@ -12,8 +12,11 @@ class TomeUseEvent: public Event {
         std::unique_ptr<Registry>& registry;
         std::unique_ptr<AssetStore>& assetstore;
         std::unique_ptr<EventBus>& eventbus;
-        inline TomeUseEvent(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, std::unique_ptr<EventBus>& eventbus): 
-            player(player), registry(registry), assetstore(assetstore), eventbus(eventbus) {}
+        int mx;
+        int my;
+        SDL_Rect camera;
+        inline TomeUseEvent(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, std::unique_ptr<EventBus>& eventbus, int mx, int my, SDL_Rect camera): 
+            player(player), registry(registry), assetstore(assetstore), eventbus(eventbus), mx(mx), my(my), camera(camera) {}
 };
 
 #endif

@@ -265,35 +265,25 @@ void Game::ProcessInput(){
                         //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                         //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                         //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        //     factory->createItemInBag(registry, CHICKENTOME, lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
-                        //     factory->createItemInBag(registry, static_cast<items>(RNG.randomFromRange(0,170)), lootbag);
+                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
+                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
+                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
+                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
+                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
+                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
+                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
                         // } break;
                         // case SDLK_0:{
                         //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                         //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, T8LIGHTARMOR, lootbag);
-                        //     factory->createItemInBag(registry, T8ROBE, lootbag);
-                        //     factory->createItemInBag(registry, T9BOW, lootbag);
-                        //     factory->createItemInBag(registry, T9WAND, lootbag);
+                        //     factory->createItemInBag(registry, ARCTOME, lootbag);
+                        //     factory->createItemInBag(registry, ARCWAND, lootbag);
+                        //     factory->createItemInBag(registry, ARCROBE, lootbag);
+                        //     factory->createItemInBag(registry, TWILIGHTGEMSTONE, lootbag);
                         //     factory->createItemInBag(registry, T4TOME, lootbag);
                         //     factory->createItemInBag(registry, T4QUIVER, lootbag);
                         //     factory->createItemInBag(registry, T3DEXRING, lootbag);
                         //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        //     spawnpoint = {mouseX + camera.x-64, mouseY + camera.y};
-                        //     Entity lootbag2 = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, T9HEAVYARMOR, lootbag2);
-                        //     factory->createItemInBag(registry, T9SWORD, lootbag2);
-                        //     factory->createItemInBag(registry, T9BOW, lootbag2);
-                        //     factory->createItemInBag(registry, T4HELM, lootbag2);
-                        //     factory->createItemInBag(registry, CHICKENSWORD, lootbag2);
-                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
-                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
-                        //     factory->createItemInBag(registry, HPPOT, lootbag2);
                         // } break;
                         // case SDLK_MINUS:{
                         //     if(dungeonRooms.size() > 0){
@@ -961,7 +951,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 175; // hard coded value equal to highest item enum
+    const int totalNumItems = 178; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
@@ -1023,6 +1013,9 @@ void Game::PopulateItemIconsInAssetStore(){
                         case CHICKENTOME:{
                             onUse += ", Speedy for 5 seconds, Invulnerable for 1.2 seconds. ";
                         } break;
+                        case ARCTOME:{
+                            onUse += ", emit a high-damage piercing projectile. ";
+                        } break; 
                     }
                     info.push_back(onUse);
                     info.push_back(cost);
@@ -2396,6 +2389,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<InteractUISystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<UpdateDisplayStatTextSystem>().checkMaxHPMP(player);
     PopulatePlayerInventoryAndEquipment(area);
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
