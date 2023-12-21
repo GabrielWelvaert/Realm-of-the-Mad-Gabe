@@ -238,6 +238,7 @@ void Game::ProcessInput(){
                             if(!inventoryUses[invetoryNumber]){
                                 inventoryUses[invetoryNumber] = true;  
                                 const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
+                                auto& playerIC = player.GetComponent<PlayerItemsComponent>();
                                 if(inventory.find(invetoryNumber+1) != inventory.end()){
                                     const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
                                     if(static_cast<int>(itemToGroup.at(itemEnum)) >= 17){ // magic number, start of end of group enums which contains consumable items
@@ -245,6 +246,10 @@ void Game::ProcessInput(){
                                     } else {
                                         assetStore->PlaySound(ERROR);
                                     }
+                                    if(playerIC.displayingIcon){
+                                        eventBus->EmitEvent<KillItemIconEvent>();}
+                                        playerIC.hoveringItemLastFrame = playerIC.iconEntityId = playerIC.hoveredItemId = playerIC.displayingIcon = false;
+                                        playerIC.hoverStartTime = 0 - 1;
                                 }
                             }
                         } break;

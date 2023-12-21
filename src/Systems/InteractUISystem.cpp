@@ -69,11 +69,11 @@ void InteractUISystem::displayBag(LootBagCollisionEvent& event){
         i++;
     }
     
-    if(event.status){
+    if(event.status){ // opening
         playerIC.IdOfOpenBag = event.lootbag.GetId();
         playerIC.viewingBag = true;
         lbc.opened = true;
-    } else {
+    } else { // closing
         lbc.opened = playerIC.viewingBag = false;
         // if player was displaying icon of an item residing in loot bag
         if(!event.registry->HasComponent<TransformComponent>(playerIC.hoveredItemId)){ // item hovered is from lootbag no longer viewed
