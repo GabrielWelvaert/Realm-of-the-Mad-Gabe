@@ -247,9 +247,10 @@ void Game::ProcessInput(){
                                         assetStore->PlaySound(ERROR);
                                     }
                                     if(playerIC.displayingIcon){
-                                        eventBus->EmitEvent<KillItemIconEvent>();}
+                                        eventBus->EmitEvent<KillItemIconEvent>();
                                         playerIC.hoveringItemLastFrame = playerIC.iconEntityId = playerIC.hoveredItemId = playerIC.displayingIcon = false;
                                         playerIC.hoverStartTime = 0 - 1;
+                                    }
                                 }
                             }
                         } break;
