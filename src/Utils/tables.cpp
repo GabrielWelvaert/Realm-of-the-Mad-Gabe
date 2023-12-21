@@ -1544,7 +1544,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {FIREWATER, "A potent draught from Oryx's wine cellar which is favored by the Mad God himself"},
     {TWILIGHTGEMSTONE, "An odd stone, eminating a dark and mysterious energy"},
     {CHICKENSWORD, "The severed and crispy wing of a giant chicken, useful as a long-ranged sword"},
-    {ARCWAND, "A powerful, short-range wand containing the power of the ArcMage"},
+    {ARCWAND, "A powerful, short-range piercing wand containing the power of the ArcMage"},
     {ARCTOME, "An evil tome from the Castle which grants the user healing abilities and a devastating blast"},
     {ARCROBE, "Battle-ready robes fitted from the tattered reamains of the ArcMage"},
 };
@@ -2151,7 +2151,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T12WAND, {832, 90, 135, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
     {T13WAND, {832, 100, 135, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {14*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}}},
     {T14WAND, {832, 105, 140, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {13*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {ARCWAND, {416, 115, 120, 770, false, 1, 0,LOFIOBJ3, 8,8,{8*1,8*22,8,8}, 3, false,32,32,{4,4}}}
+    {ARCWAND, {416, 120, 130, 770, true, 1, 0,LOFIOBJ3, 8,8,{8*1,8*22,8,8}, 3, false,32,32,{4,4}}}
 
 };
 
