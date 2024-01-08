@@ -26,4 +26,5 @@
 **Tips:**
   - Scroll out entirely to view boss location in a dungeon
   - If you're about to die, press *f* to save your character (caveat is you lose dungeon progress)
+    
 ![](rotmg.png)
