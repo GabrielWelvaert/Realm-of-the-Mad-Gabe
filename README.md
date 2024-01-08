@@ -24,6 +24,7 @@
       - *Mouse scroll* - Mini map zoom adjustment
 
 **Tips:**
+  - Your stats will increase as you level-up from gaining xp by slaying monsters
   - Scroll out entirely to view boss location in a dungeon
   - If you're low HP, press *f* to save your character (caveat is you lose dungeon progress)
   - 8 powerful white-bag items rarely drop from some monsters in the first 2 dungeons
