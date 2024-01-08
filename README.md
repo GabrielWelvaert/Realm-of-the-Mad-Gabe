@@ -26,7 +26,7 @@
 **Tips:**
   - Scroll out entirely to view boss location in a dungeon
   - If you're about to die, press *f* to save your character (caveat is you lose dungeon progress)
-  - There are 8 white-bag items that rarely drop from some monsters in the first 2 dungeons
+  - There are 8 powerful white-bag items that rarely drop from some monsters in the first 2 dungeons
   - You can store items in the vault to transfer them between your characters
   - You can drop items by dragging them into the world from your inventory
 
