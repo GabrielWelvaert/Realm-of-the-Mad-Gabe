@@ -73,6 +73,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     }
 
     // update stuff based off direction of travel
+    // this should be a switch-case !!!!
     if(move == UP){ // up
         rigidbody.velocity = glm::vec2(0, -1);
         animation.xmin = 1;
