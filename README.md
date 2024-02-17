@@ -30,6 +30,7 @@
   - If you're low HP in a dungeon, press *f* to save your character by escaping to nexus
   - You can drop items by dragging them into the world from your inventory
 
+**Preview Gallery:**
 <img src="rotmg1.png" width="775" height="580" />
 <img src="rotmg2.png" width="775" height="580" />
 <img src="rotmg3.png" width="775" height="580" />
