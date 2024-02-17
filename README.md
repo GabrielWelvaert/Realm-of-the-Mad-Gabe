@@ -32,8 +32,8 @@
 
 **Preview Gallery:**
 
-<img src="rotmg1.png" width="775" height="580" />
-<img src="rotmg2.png" width="775" height="580" />
-<img src="rotmg3.png" width="775" height="580" />
+<img src="rotmg1.png" width="581" height="435" />
+<img src="rotmg2.png" width="581" height="435" />
+<img src="rotmg3.png" width="581" height="435" />
 
 **Good luck! Thanks for playing**
