@@ -29,9 +29,10 @@
   - Scroll out entirely to view boss location in a dungeon
   - If you're low HP in a dungeon, press *f* to save your character by escaping to nexus
   - You can drop items by dragging them into the world from your inventory
-    
-![](rotmg1.png){: width="600px" height="400px"}
-![](rotmg2.png){: width="600px" height="400px"}
-![](rotmg3.png){: width="600px" height="400px"}
+
+<img src="rotmg1.png" width="600" height="400" />
+![](rotmg1.png)
+![](rotmg2.png)
+![](rotmg3.png)
 
 **Good luck! Thanks for playing**
