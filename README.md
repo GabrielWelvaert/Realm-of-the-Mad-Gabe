@@ -25,13 +25,10 @@
 
 **Tips:**
   - Your stats will increase as you level-up from gaining xp by slaying monsters
-  - Your characters and vault will save between sessions! 
+  - Your characters and vault will save between sessions; use the vault to move items between characters
   - Scroll out entirely to view boss location in a dungeon
-  - If you're low HP, press *f* to save your character (caveat is you lose dungeon progress)
-  - 8 powerful white-bag items rarely drop from some monsters in the first 2 dungeons
-  - You can store items in the vault to transfer them between your characters
+  - If you're low HP in a dungeon, press *f* to save your character by escaping to nexus
   - You can drop items by dragging them into the world from your inventory
-
     
 ![](rotmg1.png)
 ![](rotmg2.png)
