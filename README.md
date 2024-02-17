@@ -31,8 +31,7 @@
   - You can drop items by dragging them into the world from your inventory
 
 <img src="rotmg1.png" width="775" height="580" />
-![](rotmg1.png)
-![](rotmg2.png)
-![](rotmg3.png)
+<img src="rotmg2.png" width="775" height="580" />
+<img src="rotmg3.png" width="775" height="580" />
 
 **Good luck! Thanks for playing**
