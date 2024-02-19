@@ -1,4 +1,4 @@
-**Reverse-Engineering of Realm of the Mad God(https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), made with the goal of recreating the core mechanics of the game without the use of an external game engine or game engine library.**
+**Reverse-Engineering of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), made with the goal of recreating the core mechanics of the game without the use of an external game engine or game engine library.**
 
 **[Download and play here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
 
