@@ -59,9 +59,6 @@ Game::Game(){
     characterManager = std::make_unique<CharacterManager>();
 }
 
-Game::~Game(){
-}
-
 //initialize SDL stuff 
 void Game::Initialize(){
     SDL_Init(SDL_INIT_EVERYTHING);

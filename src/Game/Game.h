@@ -53,7 +53,6 @@ class Game{
 
     public:
         Game();
-        ~Game();
         void Initialize();
         void Run(bool populate);
         void Setup(bool populate, bool mainmenus, wallTheme area);
