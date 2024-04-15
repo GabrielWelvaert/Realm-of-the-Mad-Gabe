@@ -1,4 +1,5 @@
 #include "KeyboardMovementSystem.h"
+#define DIAGONALNERF .85f
 
 KeyboardMovementSystem::KeyboardMovementSystem(){
     RequireComponent<KeyboardControlledComponent>(); //only the player has this.
@@ -74,78 +75,78 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
 
     // update stuff based off direction of travel
     // this should be a switch-case !!!!
-    if(move == UP){ // up
-        rigidbody.velocity = glm::vec2(0, -1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 2 + classname * 24;
-        sprite.srcRect.x = sprite.height * 2;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
+    switch(move){
+        case UP:{ // up
+            rigidbody.velocity = glm::vec2(0, -1);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 2 + classname * 24;
+            sprite.srcRect.x = sprite.height * 2;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case DOWN: { // down
+            rigidbody.velocity = glm::vec2(0, 1);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 1 + classname * 24;
+            sprite.srcRect.x = sprite.height * 1;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case LEFT: { // left
+            rigidbody.velocity = glm::vec2(-1, 0);
+            animation.xmin = 0;
+            sprite.srcRect.y = sprite.height * 0 + classname * 24;
+            sprite.srcRect.x = sprite.height * 0;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_HORIZONTAL;
+        }break;
+        case RIGHT: { // right
+            animation.xmin = 0;
+            sprite.srcRect.y = sprite.height * 0 + classname * 24;
+            sprite.srcRect.x = sprite.height * 0;
+            animation.numFrames = 2;
+            rigidbody.velocity = glm::vec2(1, 0);
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case UPRIGHT:{ // up-right
+            rigidbody.velocity = glm::vec2(DIAGONALNERF, -DIAGONALNERF);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 2 + classname * 24;
+            sprite.srcRect.x = sprite.height * 2;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case UPLEFT:{ // up-left 
+            rigidbody.velocity = glm::vec2(-DIAGONALNERF, -DIAGONALNERF);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 2 + classname * 24;
+            sprite.srcRect.x = sprite.height * 2;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case DOWNRIGHT:{ // down-right
+            rigidbody.velocity = glm::vec2(DIAGONALNERF, DIAGONALNERF);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 1 + classname * 24;
+            sprite.srcRect.x = sprite.height * 1;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case DOWNLEFT:{ // down-left
+            rigidbody.velocity = glm::vec2(-DIAGONALNERF, DIAGONALNERF);
+            animation.xmin = 1;
+            sprite.srcRect.y = sprite.height * 1 + classname * 24;
+            sprite.srcRect.x = sprite.height * 1;
+            animation.numFrames = 2;
+            sprite.flip = SDL_FLIP_NONE;
+        }break;
+        case NONE:{ // none
+            animation.numFrames = 1;
+            animation.currentFrame = 1;
+            animation.xmin = 0;
+            rigidbody.velocity = glm::vec2(0);
+        }break;
     }
-    else if (move == DOWN) { // down
-        rigidbody.velocity = glm::vec2(0, 1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 1 + classname * 24;
-        sprite.srcRect.x = sprite.height * 1;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
-    }
-    else if (move == LEFT) { // left
-        rigidbody.velocity = glm::vec2(-1, 0);
-        animation.xmin = 0;
-        sprite.srcRect.y = sprite.height * 0 + classname * 24;
-        sprite.srcRect.x = sprite.height * 0;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_HORIZONTAL;
-    }
-    else if (move == RIGHT) { // right
-        animation.xmin = 0;
-        sprite.srcRect.y = sprite.height * 0 + classname * 24;
-        sprite.srcRect.x = sprite.height * 0;
-        animation.numFrames = 2;
-        rigidbody.velocity = glm::vec2(1, 0);
-        sprite.flip = SDL_FLIP_NONE;
-    }
-    else if (move == UPRIGHT){ // up-right
-        rigidbody.velocity = glm::vec2(1, -1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 2 + classname * 24;
-        sprite.srcRect.x = sprite.height * 2;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
-    }
-    else if (move == UPLEFT){ // up-left 
-        rigidbody.velocity = glm::vec2(-1, -1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 2 + classname * 24;
-        sprite.srcRect.x = sprite.height * 2;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
-    }
-    else if (move == DOWNRIGHT){ // down-right
-        rigidbody.velocity = glm::vec2(1, 1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 1 + classname * 24;
-        sprite.srcRect.x = sprite.height * 1;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
-    }
-    else if (move == DOWNLEFT){ // down-left
-        rigidbody.velocity = glm::vec2(-1, 1);
-        animation.xmin = 1;
-        sprite.srcRect.y = sprite.height * 1 + classname * 24;
-        sprite.srcRect.x = sprite.height * 1;
-        animation.numFrames = 2;
-        sprite.flip = SDL_FLIP_NONE;
-
-    }
-    else if (move == NONE){ // none
-        animation.numFrames = 1;
-        animation.currentFrame = 1;
-        animation.xmin = 0;
-        rigidbody.velocity = glm::vec2(0);
-    }
-
     // update stuff for if shooting
     if(pec.isShooting && pec.shots > 0){ //previously if keysPressed[4]
         const auto& activedexterity = player.GetComponent<OffenseStatComponent>().activedexterity;
