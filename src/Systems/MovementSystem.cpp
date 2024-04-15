@@ -73,7 +73,6 @@ void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& 
 
         if(entity.HasComponent<SpeedStatComponent>()){ // are there anymore moving entities w/ out a speedstat component...?
             const auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
-            // float speedinpixelspersecond = 2.25 * activespeed + 120; // = (0.0746667 * SPD + 3.9813333) * 35
             float speedinpixelspersecond = 2.85 * activespeed + 150;
             rigidbody.velocity.x *= speedinpixelspersecond;
             rigidbody.velocity.y *= speedinpixelspersecond;
