@@ -66,6 +66,15 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                         ac.timeLastUsed = time;
                         eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);
                         break;}
+                    case WIZARD:{
+                        assetStore->PlaySound(ERROR);
+                        break;}
+                    case KNIGHT:{
+                        assetStore->PlaySound(ERROR);
+                        break;}
+                    case ROGUE:{
+                        assetStore->PlaySound(ERROR);
+                        break;}
                 }
             }
         }

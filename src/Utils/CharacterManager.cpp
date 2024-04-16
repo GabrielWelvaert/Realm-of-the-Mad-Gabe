@@ -143,7 +143,8 @@ void CharacterManager::KillInvalidVaultFiles(){
 
 // kills youngest files in character directory until 3 remain regardless of validity
 void CharacterManager::KillExcessCharacterFiles(){
-    while(GetFileCountInCharacterDirectory() > 3){
+    const int maxNumCharacters = 6;
+    while(GetFileCountInCharacterDirectory() > maxNumCharacters){
         std::filesystem::path youngestFile;
         std::filesystem::file_time_type youngestTime = std::filesystem::file_time_type::min(); // Initialize with the minimum possible time
         for(const auto& file: std::filesystem::directory_iterator(characterFolderPath)){

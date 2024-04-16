@@ -186,6 +186,21 @@ struct ItemTableComponentData{
 struct helmData{
     Uint32 duration;
 };
+
+struct spellData{
+    int minDamage;
+    int maxDamage;
+    textureEnums texture;
+    SDL_Rect srcRect;
+};
+
+struct shieldData{
+    statuses debuff;
+    int debuffDuration;
+};
+
+extern std::unordered_map<items, shieldData> itemEnumToShieldData;
+extern std::unordered_map<items, spellData> itemEnumToSpellData;
 extern std::vector<std::vector<int>> gordonLairOnlyFloors;
 extern std::vector<std::vector<int>> gordonLair;
 extern std::unordered_map<int, SDL_Color> miniMapColors;

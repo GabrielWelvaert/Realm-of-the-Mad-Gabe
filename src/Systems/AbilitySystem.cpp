@@ -113,6 +113,28 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             player.GetComponent<AbilityComponent>().coolDownMS = duration;
             break;
         }
+        case WIZARD: {
+            auto& spell = player.GetComponent<SpellComponent>();
+            auto data = itemEnumToSpellData.at(event.itemEnum);
+            spell.minDamage = data.minDamage;
+            spell.maxDamage = data.maxDamage;
+            spell.texture = data.texture;
+            spell.srcRect = data.srcRect;
+            break;
+        }
+        case KNIGHT: {
+            auto& shield = player.GetComponent<ShieldComponent>();
+            auto data = itemEnumToShieldData.at(event.itemEnum);
+            shield.debuff = data.debuff;
+            shield.debuffDuration = data.debuffDuration;
+            break;
+        }
+        case ROGUE: {
+            auto& cloak = player.GetComponent<CloakComponent>();
+            auto data = itemEnumToHelmData.at(event.itemEnum);
+            cloak.invisibilityDuration = data.duration;
+            break;
+        }
     }
 
 }
