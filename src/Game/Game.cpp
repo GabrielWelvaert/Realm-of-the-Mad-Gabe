@@ -42,6 +42,7 @@
 #include <ctime>
 #include "../Utils/roomShut.h"
 #include "../Systems/VaultItemKillSystem.h"
+#include "../Systems/OscillatingProjectileMovementSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -210,11 +211,13 @@ void Game::ProcessInput(){
                 case SDL_KEYDOWN:
                     switch(key){
                         case SDLK_ESCAPE:{
-                            characterManager->SaveCharacter(activeCharacterID, player);
-                            characterManager->SaveVaults(registry);
-                            player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
-                            registry->killAllEntities();
-                            Setup(false, true, NEXUS);
+                            if(currentArea == NEXUS || currentArea == VAULT){
+                                characterManager->SaveCharacter(activeCharacterID, player);
+                                characterManager->SaveVaults(registry);
+                                player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                                registry->killAllEntities();
+                                Setup(false, true, NEXUS);
+                            }
                         } break;
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
@@ -266,39 +269,37 @@ void Game::ProcessInput(){
                         case SDLK_RSHIFT:{
                             shift = true;
                         } break;
-                        // case SDLK_9:{
-                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        // } break;
-                        // case SDLK_0:{
-                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, ARCTOME, lootbag);
-                        //     factory->createItemInBag(registry, ARCWAND, lootbag);
-                        //     factory->createItemInBag(registry, ARCROBE, lootbag);
-                        //     factory->createItemInBag(registry, TWILIGHTGEMSTONE, lootbag);
-                        //     factory->createItemInBag(registry, T4TOME, lootbag);
-                        //     factory->createItemInBag(registry, T4QUIVER, lootbag);
-                        //     factory->createItemInBag(registry, T3DEXRING, lootbag);
-                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        // } break;
-                        // case SDLK_MINUS:{
-                        //     if(dungeonRooms.size() > 0){
-                        //         const auto& spawnRoom = dungeonRooms[bossRoomId]; 
-                        //         // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-                        //         player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
-                        //     } else {
-                        //         player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
-                        //     }
-                        // } break;
+                        case SDLK_9:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T1STAFF, lootbag);
+                            factory->createItemInBag(registry, T2STAFF, lootbag);
+                            factory->createItemInBag(registry, T3STAFF, lootbag);
+                            factory->createItemInBag(registry, T4STAFF, lootbag);
+                            factory->createItemInBag(registry, T5STAFF, lootbag);
+                            factory->createItemInBag(registry, T6STAFF, lootbag);
+                            factory->createItemInBag(registry, T7STAFF, lootbag);
+                            factory->createItemInBag(registry, T8STAFF, lootbag);
+                        } break;
+                        case SDLK_0:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T9STAFF, lootbag);
+                            factory->createItemInBag(registry, T10STAFF, lootbag);
+                            factory->createItemInBag(registry, T11STAFF, lootbag);
+                            factory->createItemInBag(registry, T12STAFF, lootbag);
+                            factory->createItemInBag(registry, T13STAFF, lootbag);
+                            factory->createItemInBag(registry, T14STAFF, lootbag);
+                        } break;
+                        case SDLK_MINUS:{
+                            if(dungeonRooms.size() > 0){
+                                const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                                // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                                player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                            } else {
+                                player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
+                            }
+                        } break;
                         // case SDLK_BACKSPACE:{
                         //     auto& xp = player.GetComponent<BaseStatComponent>().xp;
                         //     xp += 20000;
@@ -384,17 +385,18 @@ void Game::ProcessInput(){
     }
 
 }
-struct Vec2Comparator { // used in LoadTilemap algorithm
-    bool operator()(const glm::vec2& a, const glm::vec2& b) const{
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
-    }
-};
 
-struct Vec2Hash { // used in LoadTileMap algorithm
-    std::size_t operator()(const glm::vec2& v) const {
-        return std::hash<float>{}(v.x) ^ (std::hash<float>{}(v.y) << 1);
-    }
-};
+// struct Vec2Comparator { // used in LoadTilemap algorithm
+//     bool operator()(const glm::vec2& a, const glm::vec2& b) const{
+//         return a.x < b.x || (a.x == b.x && a.y < b.y);
+//     }
+// };
+
+// struct Vec2Hash { // used in LoadTileMap algorithm
+//     std::size_t operator()(const glm::vec2& v) const {
+//         return std::hash<float>{}(v.x) ^ (std::hash<float>{}(v.y) << 1);
+//     }
+// };
 
 bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
     wallData wallData = wallThemeToWallData.at(wallTheme);
@@ -1062,6 +1064,12 @@ void Game::PopulateItemIconsInAssetStore(){
                     }
                     info.push_back(onUse + duration + " seconds");
                     info.push_back(cost);
+                    std::string cooldownSeconds = std::to_string(static_cast<float>(abilityData.cooldown)/1000);
+                    while(cooldownSeconds.back() == '0' || cooldownSeconds.back() == '.'){
+                        cooldownSeconds.pop_back();
+                    }
+                    std::string cooldown = "Cooldown: " + cooldownSeconds + " seconds";
+                    info.push_back(cooldown);
                 } break;
                 case SPELL:{
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
@@ -1073,6 +1081,18 @@ void Game::PopulateItemIconsInAssetStore(){
                     info.push_back(damage);
                     info.push_back(cost);
                 } break;
+                case SHIELD:{
+                    auto shieldData = itemEnumToShieldData.at(itemEnum);
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum);
+                    std::string onUse = "On Use: Fires a stunning arc";
+                    std::string damage = "Damage: " + std::to_string(shieldData.minDamage) + " - " + std::to_string(shieldData.maxDamage);
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    std::string shots ="Shots: " + std::to_string(shieldData.numshots);
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back(shots);
+                    info.push_back(cost);
+                } break;
             }
         }
 
@@ -1080,7 +1100,6 @@ void Game::PopulateItemIconsInAssetStore(){
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconNameFont"), name.c_str(), white);
         TTF_SizeText(assetStore->GetFont("iconNameFont"), name.c_str(), &nameWidth, &nameHeight);
         iconWidth = divider + imageDimension + divider + nameWidth + divider;
-
         int currentLineWidth;
         maxTextWidth = imageDimension + divider + nameWidth;
 
@@ -1088,7 +1107,7 @@ void Game::PopulateItemIconsInAssetStore(){
         std::vector<std::string> descriptionStrings;
         TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), description.c_str(), &descriptionWidth, &descriptionHeight); 
         float estimatedDescriptionLines = (descriptionWidth-divider*2)/iconWidth;
-        int maxCharsPerLine = description.size() / estimatedDescriptionLines;
+        int maxCharsPerLine = description.size() / estimatedDescriptionLines; // unused ?? lol
         std::string currentLine;
         for(const char& c: description){
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), currentLine.c_str(), &currentLineWidth, NULL); 
@@ -1211,6 +1230,7 @@ void Game::PopulateItemIconsInAssetStore(){
 void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFICHAR, "./assets/images/lofi_char.png"); 
     assetStore->AddTexture(renderer, PLAYERS, "./assets/images/players.png");
+    assetStore->AddTexture(renderer, INVISIBLEPLAYERS, "./assets/images/invisibleplayers.png");
     assetStore->AddTexture(renderer, LOFIOBJ, "./assets/images/lofiObj.png"); //has projectiles and stuff
     assetStore->AddTexture(renderer, LOFIPROJS, "./assets/images/lofiProjs.png"); //arrows etc
     assetStore->AddTexture(renderer, GUIBACKGROUND, "./assets/images/guibackground.png");
@@ -2018,7 +2038,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<PortalSystem>();
     registry->AddSystem<DisplayNameSystem>();
     registry->AddSystem<BossAISystem>();
-    registry->AddSystem<AnimatedPounceAISystem>();
+    registry->AddSystem<OscillatingProjectileMovementSystem>();
     registry->AddSystem<VaultItemSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
@@ -2547,19 +2567,19 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     camera.y = transform.position.y - (camera.h/2 - 20);
     // reset map veil by overriding it
     SDL_Rect mv = {0,0,360,360};
-    SDL_Texture * mapveil = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
-    SDL_SetTextureBlendMode(mapveil, SDL_BLENDMODE_BLEND);
+    mapveilptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
+    SDL_SetTextureBlendMode(mapveilptr, SDL_BLENDMODE_BLEND);
     void* pixels;
     int pitch;
-    SDL_LockTexture(mapveil, NULL, &pixels, &pitch); // streaming textures are mutable via direct pixel access; cannot fillRect on them
+    SDL_LockTexture(mapveilptr, NULL, &pixels, &pitch); // streaming textures are mutable via direct pixel access; cannot fillRect on them
     int pitch4 = pitch / 4;
     for(int y = 0; y < 360; ++y) {
         for(int x = 0; x < 360; ++x) {
             ((Uint32*)pixels)[y * pitch4 + x] = 0x000000FF;
         }
     }
-    SDL_UnlockTexture(mapveil);
-    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveil);
+    SDL_UnlockTexture(mapveilptr);
+    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore
     SDL_SetRenderTarget(renderer, nullptr);
 
 }
@@ -2575,18 +2595,18 @@ void Game::Update(){
 
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    // registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera);
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     // registry->GetSystem<PassiveAISystem>().Update(playerpos);
-    registry->GetSystem<ChaseAISystem>().Update(playerpos);
-    registry->GetSystem<NeutralAISystem>().Update(playerpos);
-    registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut, camera, bossRoom);
-    registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
-    registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
-    registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);
+    registry->GetSystem<ChaseAISystem>().Update(player);
+    registry->GetSystem<NeutralAISystem>().Update(player);
+    registry->GetSystem<TrapAISystem>().Update(player, assetStore);
+    registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom);
+    registry->GetSystem<AnimatedChaseAISystem>().Update(player);
+    registry->GetSystem<AnimatedNeutralAISystem>().Update(player);
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
-    registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
+    registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
+    registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
+    registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateRealPositions(registry);
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);

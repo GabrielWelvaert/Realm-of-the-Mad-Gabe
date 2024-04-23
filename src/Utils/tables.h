@@ -85,6 +85,10 @@ struct playerPECupdateData{
     unsigned short boxdwith;
     unsigned short boxheight;
     glm::vec2 boxoffset;
+
+    bool oscillation;
+    float amplitude;
+    float frequency;
 };
 
 struct wallData{
@@ -125,6 +129,10 @@ struct enemyPECData{ // same as PEC minus parent, lastEmissionTime, velocity
     unsigned short durationMS;
 
     bool ignoresDefense;
+
+    bool oscillation;
+    float amplitude;
+    float frequency;
 };
 
 struct statData{ // used to populate HPMPComponent, OffenseStatComponent, SpeedStatComponent, ClassNameComponent for MONSTERS
@@ -196,7 +204,10 @@ struct spellData{
 
 struct shieldData{
     statuses debuff;
+    int minDamage;
+    int maxDamage;
     int debuffDuration;
+    int numshots;
 };
 
 extern std::unordered_map<items, shieldData> itemEnumToShieldData;

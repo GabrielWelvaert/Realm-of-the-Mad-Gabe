@@ -6,6 +6,9 @@
 #include "../../libs/SDL2/SDL.h"
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/TransformComponent.h"
+#include "../Components/LinearProjectileComponent.h"
+#include <cmath>
+#include "../Components/SpriteComponent.h"
 
 // Projectiles have their own movement system because, unlike players/monsters,
 // they lack the need for collisionFlags for wall-collision resolution
@@ -16,7 +19,7 @@ class ProjectileMovementSystem: public System{
     public:
         ProjectileMovementSystem();
 
-        void Update(const double& deltaTime);
+        void Update(const double& deltaTime, std::unique_ptr<Registry>& registry);
 
 };
 

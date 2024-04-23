@@ -35,9 +35,13 @@ struct TomeComponent{
 struct ShieldComponent{
     statuses debuff;
     int debuffDuration;
+    int numshots;
+    int minDamage;
+    int maxDamage;
 
     inline ShieldComponent() = default;
-    inline ShieldComponent(statuses debuff, int debuffDuration): debuff(debuff), debuffDuration(debuffDuration) {}
+    inline ShieldComponent(statuses debuff, int debuffDuration, int numshots, int minDamage, int maxDamage): 
+        debuff(debuff), debuffDuration(debuffDuration), numshots(numshots), minDamage(minDamage), maxDamage(maxDamage) {}
 };
 
 struct SpellComponent{
@@ -45,14 +49,19 @@ struct SpellComponent{
     int maxDamage;
     textureEnums texture;
     SDL_Rect srcRect;
+
+    inline SpellComponent() = default;
+    inline SpellComponent(int minDamage, int maxDamage, textureEnums texture, SDL_Rect srcRect):
+        minDamage(minDamage), maxDamage(maxDamage), texture(texture), srcRect(srcRect) {}
 };
 
 struct CloakComponent{
     int invisibilityDuration;
+    items itemEnum;
 
     inline CloakComponent() = default;
 
-    inline CloakComponent(int invisibilityDuration): invisibilityDuration(invisibilityDuration) {}
+    inline CloakComponent(int invisibilityDuration, items itemEnum): invisibilityDuration(invisibilityDuration), itemEnum(itemEnum) {}
 };
 
 struct HelmComponent{

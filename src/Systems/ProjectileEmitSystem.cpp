@@ -30,6 +30,9 @@ void ProjectileEmitSystem::onPlayerEquippedWeapon(WeaponEquipEvent& event){
     playerPEC.boxwidth = newPECData.boxdwith;
     playerPEC.boxheight = newPECData.boxheight;
     playerPEC.boxoffset = newPECData.boxoffset;
+    playerPEC.oscillation = newPECData.oscillation;
+    playerPEC.amplitude = newPECData.amplitude;
+    playerPEC.frequency = newPECData.frequency;
 }
 
 void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect camera, int mx, int my, glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore) {
@@ -50,6 +53,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                 auto projectilePosition = glm::vec2(projSpawnX, projSpawnY); 
                 unsigned long damage;
                 unsigned char parentGroupEnumInt; // early on, I didn't fully understand how enums work
+                int numShotsEmitted = 0; // number of shots emitted this frame used in Oscillating projectile logic
 
                 // get origin data
                 float realgap;
@@ -59,7 +63,15 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                 if(IsPlayer){                                                      
                     int yDestOffset = 18; // 18 perfect for bolts
                     int xDestOffset = 0;
-                    if(PEC.spritewidth == 8){xDestOffset = 18;}
+                    switch(PEC.spritewidth){
+                        case 8:{ // probably arrows
+                            xDestOffset = 18;
+                        } break;
+                        case 5:{ // wizard bolts
+                            yDestOffset = 0;
+                            projectilePosition.x += 8;
+                        } break;
+                    }
                     rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x-xDestOffset, my+camera.y-yDestOffset, originVelocity, isDiagonal);
                     const auto& activeattack = entity.GetComponent<OffenseStatComponent>().activeattack;
                     damage = RNG.randomFromRange(PEC.minDamage, PEC.damage);
@@ -82,9 +94,14 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                     projectile.AddComponent<SpriteComponent>(PEC.spriteassetId, PEC.spritewidth, PEC.spriteheight, PEC.spritesrcRect, PEC.spritezIndex, PEC.spriteisFixed, PEC.spritediagonalSprite);
                     projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                     projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees); //init pos is same as emitter 
-                    // PEC.lastEmissionTime = SDL_GetTicks(); // we just shot so record that in lastEmissionTime
                     projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
+                    if(PEC.oscillation){
+                        projectile.AddComponent<OscillatingProjectileComponent>(PEC.amplitude, PEC.frequency, projectilePosition, false); // no phase shift if one shot 
+                    } else {
+                        projectile.AddComponent<LinearProjectileComponent>();
+                    }
                     projectile.Group(PROJECTILE);
+                    numShotsEmitted++;
                     if(shots == 1){ // only one shot just shoot and origin and exit
                         if(IsPlayer){
                             const auto& classname = entity.GetComponent<ClassNameComponent>().classname; 
@@ -95,7 +112,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                     }
                     realgap = arcgap / shots;
                     shots -= 1;
-                    for(int i = 1; i <= shots / 2; i++){ // shoot the rest of the shots in odd numshot case
+                    for(int i = 1; i <= shots / 2; i++){ // shoot the rest of the shots in odd numshot case (3,5,7, etc)
                         // next above origin
                         projectile = registry->CreateEntity();
                         projectile.AddComponent<RidigBodyComponent>();
@@ -105,7 +122,9 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees + realgap*i); //init pos is same as emitter 
                         projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
+                        projectile.AddComponent<LinearProjectileComponent>(); // OSCILLATING SHOTS MAY ONLY EXIST AS 1 OR 2 SHOTS; IT SHOULD NEVER HAPPEN HERE!
                         projectile.Group(PROJECTILE);
+                        numShotsEmitted++;
                         
                         // next below origin
                         projectile = registry->CreateEntity();
@@ -116,7 +135,9 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), rotationDegrees + realgap*-i); //init pos is same as emitter 
                         projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
+                        projectile.AddComponent<LinearProjectileComponent>(); // OSCILLATING SHOTS MAY ONLY EXIST AS 1 OR 2 SHOTS; IT SHOULD NEVER HAPPEN HERE!
                         projectile.Group(PROJECTILE);
+                        numShotsEmitted++;
                     }
 
                 } else { // even number of shots
@@ -132,7 +153,13 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), (rotationDegrees + realgap/2) + realgap*i*first); //init pos is same as emitter 
                         projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
+                        if(PEC.oscillation){
+                            projectile.AddComponent<OscillatingProjectileComponent>(PEC.amplitude, PEC.frequency, projectilePosition, false);
+                        } else {
+                            projectile.AddComponent<LinearProjectileComponent>();
+                        }
                         projectile.Group(PROJECTILE);
+                        numShotsEmitted++;
 
                         projectile = registry->CreateEntity();
                         projectile.AddComponent<RidigBodyComponent>();
@@ -142,7 +169,13 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                         projectile.AddComponent<BoxColliderComponent>(PEC.boxwidth, PEC.boxheight, PEC.boxoffset);
                         projectile.AddComponent<TransformComponent>(projectilePosition, glm::vec2(projectilescale,projectilescale), (rotationDegrees - realgap/2) + realgap*-i*first); //init pos is same as emitter 
                         projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.spriteOfParent, PEC.inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, PEC.ignoresDefense);
+                        if(PEC.oscillation){
+                            projectile.AddComponent<OscillatingProjectileComponent>(PEC.amplitude, PEC.frequency, projectilePosition, true);
+                        } else {
+                            projectile.AddComponent<LinearProjectileComponent>();
+                        }
                         projectile.Group(PROJECTILE);
+                        numShotsEmitted++;
                     }
 
                 }

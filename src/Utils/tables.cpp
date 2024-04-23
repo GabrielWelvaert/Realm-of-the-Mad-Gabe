@@ -863,28 +863,30 @@ std::unordered_map<items, tomeData> itemEnumToTomeData = {
     {ARCTOME, {150}},
 };
 
+//     int minDamage;int maxDamage;textureEnums texture;SDL_Rect srcRect;
 std::unordered_map<items, spellData> itemEnumToSpellData = {
-    {T0SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T1SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T2SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T3SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T4SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T5SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T6SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T7SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
-    {T8SPELL, {80,120,LOFIPROJS,{8*2,8*7,8,8}}},
+    {T0SPELL, {15,20,LOFIOBJ,{10*8, 8*9, 8, 8}}},
+    {T1SPELL, {30,40,LOFIOBJ,{10*8, 8*10, 8, 8}}},
+    {T2SPELL, {40,65,LOFIOBJ,{10*8, 8*11, 8, 8}}},
+    {T3SPELL, {50,90,LOFIOBJ,{10*8, 8*12, 8, 8}}},
+    {T4SPELL, {60,115,LOFIOBJ2,{8*1,8*7,8,8}}},
+    {T5SPELL, {70,140,LOFIOBJ5B,{8*13,8*9,8,8}}},
+    {T6SPELL, {80,165,LOFIOBJ2,{2*8, 8*7, 8, 8}}},
+    {T7SPELL, {95,185,LOFIOBJ,{10*8, 8*9, 8, 8}}},
+    {T8SPELL, {110,205,LOFIOBJ2,{8*1,8*7,8,8}}},
 };
 
+//     statuses debuff; mindamange, maxdamagem, debuffDuration;  numshots
 std::unordered_map<items, shieldData> itemEnumToShieldData = {
-    {T0SHIELD, {SLOWED,1}}, // todo make stun debuff!
-    {T1SHIELD, {SLOWED,1}},
-    {T2SHIELD, {SLOWED,1}},
-    {T3SHIELD, {SLOWED,1}},
-    {T4SHIELD, {SLOWED,1}},
-    {T5SHIELD, {SLOWED,1}},
-    {T6SHIELD, {SLOWED,1}},
-    {T7SHIELD, {SLOWED,1}},
-    {T8SHIELD, {SLOWED,1}},
+    {T0SHIELD, {STUNNED,55,90,3000,1}}, // todo make stun debuff!
+    {T1SHIELD, {STUNNED,100,140,3000,2}}, // min, max, duration, numshots
+    {T2SHIELD, {STUNNED,150,190,3000,3}},
+    {T3SHIELD, {STUNNED,190,240,3000,3}},
+    {T4SHIELD, {STUNNED,230,280,3000,4}},
+    {T5SHIELD, {STUNNED,270,330,3000,4}},
+    {T6SHIELD, {STUNNED,300,360,3000,5}},
+    {T7SHIELD, {STUNNED,340,400,3000,5}},
+    {T8SHIELD, {STUNNED,360,420,3000,6}},
 };
 
 std::unordered_map<items, quiverData> itemEnumToQuiverData = {
@@ -914,7 +916,7 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {CHICKENTOME, {0,0,0,5,5,0,0,0}},
     {ARCTOME, {0,0,3,0,0,3,0,0}},
     {ARCROBE, {0,35,4,13,0,4,0,0}},
-    {ADMINCROWN, {64000,64000,50,50,50,50,200,200}},
+    {ADMINCROWN, {64000,64000,50,50,150,50,200,200}},
     {T0ATTRING, {0,0,3,0,0,0,0,0}},
     {T1ATTRING, {0,0,5,0,0,0,0,0}},
     {T2ATTRING, {0,0,6,0,0,0,0,0}},
@@ -1037,6 +1039,12 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T6SHIELD, {0,0,0,12,0,0,2,2}},
     {T7SHIELD, {0,0,0,14,0,0,4,4}},
     {T8SHIELD, {0,0,0,16,0,0,8,8}},
+    {T0SPELL, {0,0,0,0,0,0,0,0}},
+    {T1SPELL, {0,0,0,0,0,0,0,0}},
+    {T2SPELL, {0,0,0,0,0,0,0,0}},
+    {T3SPELL, {0,0,0,0,0,0,0,0}},
+    {T4SPELL, {0,0,0,0,0,0,0,0}},
+    {T5SPELL, {0,0,0,0,0,0,0,0}},
     {T6SPELL, {0,0,0,0,0,0,2,2}},
     {T7SPELL, {0,0,0,0,0,0,4,4}},
     {T8SPELL, {0,0,0,0,0,0,8,8}},
@@ -1079,7 +1087,7 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {YELLOWTURKEY,AS},  
     {CYANTURKEY,ASC},
     {ARCMAGE, ARCMAGEBOSSAI},
-    {HELLHOUND,POUNCE},
+    {HELLHOUND,ASC},
     {IMP0,ASC},
     {IMP1,ASC},
     {IMP2,ASC},
@@ -2534,88 +2542,88 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
 };
 
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
-    {T0SWORD, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T1SWORD,{350,60,105,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T2SWORD,{350,75,105,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T3SWORD,{350,75,120,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T4SWORD,{350,75,135,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T5SWORD,{350,90,135,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
-    {T6SWORD,{350,30,210,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}}},
-    {T7SWORD,{350,150,180,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T8SWORD,{350,180,255,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10,10,{14,14}}},
-    {T9SWORD,{350,195,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}}},
-    {T10SWORD,{350,210,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
-    {T11SWORD,{350,210,270,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*11, 8, 8}, 3,true,10,10,{14,14}}},
-    {T12SWORD,{350,220,275,640,false,1,0,LOFIOBJ2, 8, 8, {2*8, 8*7, 8, 8}, 3,true,10,10,{14,14}}},
-    {T13SWORD,{350,235,290,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3, true,10,10,{14,14}}},
-    {T14SWORD,{350,250,305,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10, 10, {14,14}}},
-    {IMPBLADE,{350,90,135,500,false,2,40,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}}},
-    {CHICKENSWORD,{500,90,130,640,false,1,0,LOFIOBJ2,8, 8, {8*6,8*11,8,8}, 3, true, 32,32,{4,4}}},
+    {T0SWORD, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T1SWORD,{350,60,105,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T2SWORD,{350,75,105,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T3SWORD,{350,75,120,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T4SWORD,{350,75,135,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T5SWORD,{350,90,135,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T6SWORD,{350,30,210,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T7SWORD,{350,150,180,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T8SWORD,{350,180,255,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10,10,{14,14}, false, 0, 0}},
+    {T9SWORD,{350,195,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T10SWORD,{350,210,255,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T11SWORD,{350,210,270,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*11, 8, 8}, 3,true,10,10,{14,14}, false, 0, 0}},
+    {T12SWORD,{350,220,275,640,false,1,0,LOFIOBJ2, 8, 8, {2*8, 8*7, 8, 8}, 3,true,10,10,{14,14}, false, 0, 0}},
+    {T13SWORD,{350,235,290,640,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T14SWORD,{350,250,305,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10, 10, {14,14}, false, 0, 0}},
+    {IMPBLADE,{350,90,135,500,false,2,40,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {CHICKENSWORD,{500,90,130,640,false,1,0,LOFIOBJ2,8, 8, {8*6,8*11,8,8}, 3, true, 32,32,{4,4}, false, 0, 0}},
 
-    {T0BOW, {440, 10, 40, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T1BOW, {440, 15, 45, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T2BOW, {469, 20, 50, 1024, true,1,0, LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}}},
-    {T3BOW, {440, 25, 55, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T4BOW, {440, 35, 65, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T5BOW, {440, 45, 65, 1024, true,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T6BOW, {440, 30, 50, 1024, true,2,12,LOFIPROJS, 8,8, {8*3, 8*7, 8, 8},3,true,8,8,{16,16}}},
-    {T7BOW, {469, 50, 70, 1024, true,1,0,LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}}},
-    {T8BOW, {440, 40, 60, 1024, true,3,24,LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T9BOW, {440, 40, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T10BOW, {440, 45, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T11BOW, {440, 45, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T12BOW, {440, 50, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}}},
-    {T13BOW, {440, 55, 75, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
-    {T14BOW, {440, 60, 80, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*14, 8*11, 8, 8}, 3,true,8,8,{16,16}}},
+    {T0BOW, {440, 10, 40, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T1BOW, {440, 15, 45, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T2BOW, {469, 20, 50, 1024, true,1,0, LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}, false, 0, 0}},
+    {T3BOW, {440, 25, 55, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T4BOW, {440, 35, 65, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T5BOW, {440, 45, 65, 1024, true,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T6BOW, {440, 30, 50, 1024, true,2,12,LOFIPROJS, 8,8, {8*3, 8*7, 8, 8},3,true,8,8,{16,16}, false, 0, 0}},
+    {T7BOW, {469, 50, 70, 1024, true,1,0,LOFIOBJ, 3,7, {8*10+3,8*5+1,3,7},3,false,8,8,{0,10}, false, 0, 0}},
+    {T8BOW, {440, 40, 60, 1024, true,3,24,LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T9BOW, {440, 40, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T10BOW, {440, 45, 65, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T11BOW, {440, 45, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T12BOW, {440, 50, 70, 1024, true,3,24,LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T13BOW, {440, 55, 75, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*13, 8*11, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
+    {T14BOW, {440, 60, 80, 1024, true,3,24,LOFIOBJ5B, 8, 8, {8*14, 8*11, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
 
-    {T0WAND, {832, 20, 40, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T1WAND, {832, 30, 50, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T2WAND, {832, 35, 55, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T3WAND, {832, 40, 60, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T4WAND, {832, 50, 70, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T5WAND, {832, 60, 80, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T6WAND, {832, 70, 90, 770, false, 1, 0,LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,true,10,10,{14,14}}},
-    {T7WAND, {832, 80, 100, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T8WAND, {832, 80, 120, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false,10,10,{14,14}}},
-    {T9WAND, {832, 85, 125, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T10WAND, {832, 85, 130, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T11WAND, {832, 90, 130, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false,10,10,{14,14}}},
-    {T12WAND, {832, 90, 135, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}}},
-    {T13WAND, {832, 100, 135, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {14*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {T14WAND, {832, 105, 140, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {13*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}}},
-    {ARCWAND, {416, 120, 130, 770, true, 1, 0,LOFIOBJ3, 8,8,{8*1,8*22,8,8}, 3, false,32,32,{4,4}}},
+    {T0WAND, {832, 20, 40, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T1WAND, {832, 30, 50, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T2WAND, {832, 35, 55, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T3WAND, {832, 40, 60, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T4WAND, {832, 50, 70, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T5WAND, {832, 60, 80, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T6WAND, {832, 70, 90, 770, false, 1, 0,LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,true,10,10,{14,14}, false, 0, 0}},
+    {T7WAND, {832, 80, 100, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T8WAND, {832, 80, 120, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false,10,10,{14,14}, false, 0, 0}},
+    {T9WAND, {832, 85, 125, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T10WAND, {832, 85, 130, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T11WAND, {832, 90, 130, 770, false, 1, 0,LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false,10,10,{14,14}, false, 0, 0}},
+    {T12WAND, {832, 90, 135, 770, false, 1, 0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T13WAND, {832, 100, 135, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {14*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T14WAND, {832, 105, 140, 770, false, 1, 0,LOFIOBJ5B, 3, 6, {13*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {ARCWAND, {416, 120, 130, 770, true, 1, 0,LOFIOBJ3, 8,8,{8*1,8*22,8,8}, 3, false,32,32,{4,4}, false, 0, 0}},
 
-    {T0DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T1DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T2DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T3DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T4DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T5DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T6DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T7DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T8DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T9DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T10DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T11DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T12DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T13DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T14DAGGER, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-
-    {T0STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T1STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T2STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T3STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T4STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T5STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T6STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T7STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T8STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T9STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T10STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T11STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T12STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T13STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
-    {T14STAFF, {350,45,90,640,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}}},
+    {T0DAGGER, {400,25,75,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T1DAGGER, {400,25,80,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T2DAGGER, {400,30,85,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T3DAGGER, {400,40,90,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T4DAGGER, {400,45,100,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T5DAGGER, {400,50,110,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T6DAGGER, {400,60,125,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T7DAGGER, {400,70,140,896,false,1,0,LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false,8,8,{0,10}, false, 0, 0}},
+    {T8DAGGER, {400,85,155,896,false,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T9DAGGER, {400,95,165,896,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
+    {T10DAGGER, {400,100,175,896,false,1,0,LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,true,10,10,{14,14}, false, 0, 0}},
+    {T11DAGGER, {400,105,190,896,false,1,0,LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T12DAGGER, {400,115,200,896,false,1,0,LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3,false,12,12,{0,8}, false, 0, 0}},
+    {T13DAGGER, {400,125,220,896,false,1,0,LOFIOBJ5B, 3, 6, {13*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    {T14DAGGER, {400,140,235,896,false,1,0,LOFIOBJ2, 3, 6, {5*8+3, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
+    
+    {T0STAFF, {475,10,25,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white missile  oscillation, amp, freq
+    {T1STAFF, {475,10,30,1152,false,2,0,LOFIOBJ2, 5,5, {8*10+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // red missile
+    {T2STAFF, {475,15,35,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white missile
+    {T3STAFF, {475,20,40,1152,false,2,0,LOFIOBJ, 5,5, {13*8+2, 13*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // green missile
+    {T4STAFF, {475,25,45,1152,false,2,0,LOFIOBJ2, 5,5, {11*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // yellow missile
+    {T5STAFF, {475,35,55,1152,false,2,0,LOFIOBJ2, 5,5, {8*10+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // red missile
+    {T6STAFF, {475,40,70,1152,false,2,0,LOFIOBJ2, 5,5, {8*11+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // purple
+    {T7STAFF, {475,45,85,1152,false,2,0,LOFIOBJ2, 5,5, {8*10+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // red 
+    {T8STAFF, {475,50,90,1152,false,2,0,LOFIOBJ, 5,5, {8*5+2, 8*14+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // blue 
+    {T9STAFF, {475,50,95,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white
+    {T10STAFF, {475,55,95,1152,false,2,0,LOFIOBJ2, 5,5, {8*11+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // purple
+    {T11STAFF, {475,55,100,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // aqua
+    {T12STAFF, {475,60,100,1152,false,2,0,LOFIOBJ2, 5,5, {8*10+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // red 
+    {T13STAFF, {475,65,110,1152,false,2,0,LOFIOBJ2, 5,5, {4*8+2, 8*7+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // orange
+    {T14STAFF, {475,75,115,1152,false,2,0,LOFIOBJ, 5,5, {8*5+2, 8*14+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // blue 
 
 };
 
@@ -2708,47 +2716,51 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     unsigned short durationMS;
 
     bool ignoresDefense;
+
+    bool oscillation;
+    float amplitude;
+    float frequency;
 */
 
 // GIVEN A MONSTER SPRITE, RETURNS PROJECTILE EMITTER COMPONENT
 std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
-    {SKELETON0, {false, 500, 400, 5, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false}},
-    {SKELETON1, {false, 1000, 400, 10, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false}},
-    {SKELETON2, {false, 1000, 400, 15, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false}},
-    {SKELETON3, {false, 1000, 1000, 20, 750, false, 3, 8, LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,false, true, 10,10,{14,14}, false, QUIET, 0, false}},
-    {SKELETON4, {false, 150, 500, 25, 500, false, 1, 0, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {REDKNIGHT0, {false, 300, 200, 50, 500, false, 1, 0, LOFIOBJ,8,8,{8*1,8*9,8,8},3,false,false, 32,32,{4,4}, false, QUIET, 0, false}},
-    {SHATTERSBOMB, {false, 0,250,25,750,false,24,360,LOFIOBJ4,8,8,{8*1, 8*12,8,8},3,false,true,10,10,{14,14}, false, QUIET, 0, false}},
+    {SKELETON0, {false, 500, 400, 5, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {SKELETON1, {false, 1000, 400, 10, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {SKELETON2, {false, 1000, 400, 15, 500, false, 1, 0, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {SKELETON3, {false, 1000, 1000, 20, 750, false, 3, 8, LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,false, true, 10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {SKELETON4, {false, 150, 500, 25, 500, false, 1, 0, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {REDKNIGHT0, {false, 300, 200, 50, 500, false, 1, 0, LOFIOBJ,8,8,{8*1,8*9,8,8},3,false,false, 32,32,{4,4}, false, QUIET, 0, false, false, 0 ,0}},
+    {SHATTERSBOMB, {false, 0,250,25,750,false,24,360,LOFIOBJ4,8,8,{8*1, 8*12,8,8},3,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
 
-    {TINYWHITECHICKEN, {false, 500,400,8,450,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}, false, QUIET, 0, false}},
-    {TINYREDCHICKEN, {false, 500,450,8,500,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}, false, QUIET, 0, false}},
-    {COCKATRICE, {false, 500,400,15,650,false,3,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}, false, QUIET, 0, false}},
-    {WHITECHICKEN, {false, 500,400,12,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {ROOSTER, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {BOSSCHICKEN, {false, 500,750,25,500,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {ROBOTURKEY, {false, 1000,666,15,600,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {ORANGETURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
+    {TINYWHITECHICKEN, {false, 500,400,8,450,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {TINYREDCHICKEN, {false, 500,450,8,500,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false,8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {COCKATRICE, {false, 500,400,15,650,false,3,24, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {WHITECHICKEN, {false, 500,400,12,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {ROOSTER, {false, 500,750,15,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {BIGROOSTER, {false, 500,450,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {BIGTURKEY, {false, 500,500,20,500,false,2,12, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {BOSSCHICKEN, {false, 500,750,25,500,false,3,24, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {ROBOTURKEY, {false, 1000,666,15,600,false,3,18, LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {ORANGETURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {YELLOWTURKEY, {false, 500,1000,12,650,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {CYANTURKEY, {false, 500,750,12,600,false,1,0, LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
     //spriteEnum                             //boxCollEnum, PEC sprite comp
 
-    {ARCMAGE, {false, 1000,5000,55,500,false,5,95, LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false}},
+    {ARCMAGE, {false, 1000,5000,55,500,false,5,95, LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false, false, 0 ,0}},
 
-    {HELLHOUND, {false, 500,750,25,600,false,3,24, LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false,10,10,{14,14}, true, BLEEDING, 3000, false}},
-    {IMP0, {false, 500,750,20,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {IMP1, {false, 500,750,22,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false}},
-    {IMP2, {false, 500,750,24,600,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false}},
-    {IMP3, {false, 500,750,15,600,false,3,30, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false}},
-    {WHITEDEMON, {false, 500,750,45,600,false,5,60, LOFIOBJ,8,8,{8*6,8*6,8,8},4,false,false,10,10,{14,14}, false, QUIET, 0, true}},
-    {SKELETON5, {false, 1000,750,15,600,false,36,360, LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false,10,10,{14,14}, true, CONFUSED, 5000, false}},
-    {MOUSE0, {false, 1000,666,5,600,false,1,1, LOFIOBJ,8,8,{8*0,8*7,8,8},4,false,false,10,10,{14,14}, true, QUIET, 5000, false}},
-    {BAT0, {false, 1000,666,15,600,false,1,1, LOFIOBJ,8,8,{8*3,8*7,8,8},4,false,false,10,10,{14,14}, true, SLOWED, 5000, false}},
-    {SHEEP, {0, 250,0,0,0,0,0,0, LOFIOBJ,0,0,{0*0,0*0,0,0},0,0,0,0,0,{0,0}, 0, SLOWED, 0, 0}},
-    {GIGASHEEP, {false, 500,666,35,500,false,3,36, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}, false, SLOWED, 5000, false}},
+    {HELLHOUND, {false, 500,750,15,600,false,3,24, LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false,10,10,{14,14}, true, BLEEDING, 3000, false, false, 0 ,0}},
+    {IMP0, {false, 500,750,20,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {IMP1, {false, 500,750,22,600,false,1,1, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {IMP2, {false, 500,750,24,600,false,1,1, LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false, 8,8,{0,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {IMP3, {false, 500,750,15,600,false,3,30, LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {WHITEDEMON, {false, 500,750,45,600,false,5,60, LOFIOBJ,8,8,{8*6,8*6,8,8},4,false,false,10,10,{14,14}, false, QUIET, 0, true, false, 0 ,0}},
+    {SKELETON5, {false, 1000,750,15,600,false,36,360, LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false,10,10,{14,14}, true, CONFUSED, 2000, false, false, 0 ,0}},
+    {MOUSE0, {false, 1000,666,5,600,false,1,1, LOFIOBJ,8,8,{8*0,8*7,8,8},4,false,false,10,10,{14,14}, true, QUIET, 5000, false, false, 0 ,0}},
+    {BAT0, {false, 1000,666,15,600,false,1,1, LOFIOBJ,8,8,{8*3,8*7,8,8},4,false,false,10,10,{14,14}, true, SLOWED, 5000, false, false, 0 ,0}},
+    {SHEEP, {0, 250,0,0,0,0,0,0, LOFIOBJ,0,0,{0*0,0*0,0,0},0,0,0,0,0,{0,0}, 0, SLOWED, 0, 0, false, 0 ,0}},
+    {GIGASHEEP, {false, 500,666,35,500,false,3,36, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}, false, SLOWED, 5000, false, false, 0 ,0}},
 
-    {GORDON, {false, 1000,5000,70,500,false,17,360, LOFIOBJ2,8,8,{8*0,8*4,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false}},
+    {GORDON, {false, 1000,5000,70,500,false,17,360, LOFIOBJ2,8,8,{8*0,8*4,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false, false, 0 ,0}},
 };
 
 
@@ -2778,7 +2790,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {CYANTURKEY, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
             //hp,mp,att,def,spd,dex,vit,wis
     {ARCMAGE,{25000,0,0,25,55,0,0,0,VOIDHIT,DJINNDEATH}},
-    {HELLHOUND,{1250,0,0,30,60,0,40,0,ABYSSBRUTESHIT,ABYSSBRUTESDEATH}},
+    {HELLHOUND,{800,0,0,20,30,0,40,0,ABYSSBRUTESHIT,ABYSSBRUTESDEATH}},
     {IMP0,{500,0,0,12,20,0,35,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {IMP1,{600,0,0,15,24,0,30,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {IMP2,{600,0,0,15,22,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
@@ -2959,7 +2971,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {SKELETON5, {750,0,1}},
     {WHITEDEMON, {500, 0, 120}},
     {ARCMAGE, {750, 0, 5}},
-    {HELLHOUND,{600,400,50}}, //POUNCE AI
+    {HELLHOUND,{600,400,50}}, 
     {IMP0,{600,0,95}},
     {IMP1,{600,0,120}},
     {IMP2,{600,0,80}},
@@ -2967,7 +2979,8 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {MOUSE0,{600,0,150}},
     {BAT0,{600,0,150}},
     {GORDON, {750,0,5}},
-    {GIGASHEEP, {1000,0,120}}
+    {GIGASHEEP, {1000,0,120}},
+    {HELLHOUND, {500,0,120}},
 
 };
 /*    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)

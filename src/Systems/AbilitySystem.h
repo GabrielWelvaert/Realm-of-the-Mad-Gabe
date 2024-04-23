@@ -9,6 +9,9 @@
 #include "../Utils/tables.h"
 #include "../Events/TomeUseEvent.h"
 #include "../Events/QuiverUseEvent.h"
+#include "../Events/SpellUseEvent.h"
+#include "../Events/CloakUseEvent.h"
+#include "../Events/ShieldUseEvent.h"
 #include "../Utils/Xoshiro256.h"
 #include "../Events/HelmUseEvent.h"
 #include "../Events/StatusEffectEvent.h"
@@ -20,6 +23,8 @@
 #include "../Components/SpriteComponent.h"
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/ProjectileComponent.h"
+#include "../Components/LinearProjectileComponent.h"
+#include "../Components/OscillatingProjectileComponent.h"
 
 /*
 This system is responsible for being the event handler for equipping abilities and using them!
@@ -29,6 +34,8 @@ class AbilitySystem: public System{
     private:
 
         Xoshiro256 RNG;
+
+        std::vector<float> spellAngles = std::vector<float>(20);
 
         inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
             float angleRadians = std::atan2(destY - originY, destX - originX);   
@@ -52,6 +59,13 @@ class AbilitySystem: public System{
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
         }
+        
+        // derives velocity for arc-gap-difference projectiles given the origin projectile velocity
+        inline void projectileVelocityArcGap(const glm::vec2& originVelocity, const float& rotationDegrees, const float& deltaDegrees, glm::vec2& emitterVelocity){
+            float deltaRadians = deltaDegrees * (M_PI / 180.0);
+            emitterVelocity.x = originVelocity.x * std::cos(deltaRadians) - originVelocity.y * std::sin(deltaRadians);
+            emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
+        }
 
 
     public:
@@ -65,6 +79,10 @@ class AbilitySystem: public System{
         void onHelmUse(HelmUseEvent& event);
 
         void onAbilityEquip(EquipAbilityEvent& event);
+        void onSpellUse(SpellUseEvent& event);
+        void onCloakUse(CloakUseEvent& event);
+        void onShieldUse(ShieldUseEvent& event);
+        
 
 
 };

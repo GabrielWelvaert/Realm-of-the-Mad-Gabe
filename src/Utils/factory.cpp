@@ -5,6 +5,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     enemy.Group(MONSTER);
     enemy.AddComponent<HPMPComponent>(spriteEnum);
     enemy.AddComponent<SpriteComponent>(spriteEnum);
+    enemy.GetComponent<SpriteComponent>().flip = flips[RNG.randomFromRange(0,1)]; // monsters spawns facing random direction
     enemy.AddComponent<BoxColliderComponent>(spriteEnum);
     enemy.AddComponent<CollisionFlagComponent>();
     enemy.AddComponent<TransformComponent>(spawnpoint);
@@ -120,11 +121,16 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         const auto& possibleRoomSpawns = wallThemeToMonsterSpawns.at(dungeonType); // the table that had possible room spawns; ex tiny red and white chickens together
         const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)];
         int roomQuantifier = (room.w + room.h) / 4; // ex 10x10 room will spawn 10 monsters per spawn type in selectedRoomSpawns
+        std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;
         for(const auto& enemySpawn: selectedRoomSpawns){
             int numToSpawn = enemySpawn.modifier * roomQuantifier;
             for(int i = 0; i <= numToSpawn; i++){
                 // multiply spawnPos by 64 to convert from tile location to pixel location
-                glm::vec2 spawnPos = {RNG.randomFromRange(minX, maxX) * 64, RNG.randomFromRange(minY, maxY) * 64};
+                glm::vec2 spawnPos;
+                do {
+                    spawnPos = {RNG.randomFromRange(minX, maxX) * 64, RNG.randomFromRange(minY, maxY) * 64};
+                } while (usedSpawnPoints.find(spawnPos) != usedSpawnPoints.end());
+                usedSpawnPoints.insert(spawnPos);
                 spawnMonster(registry, spawnPos, enemySpawn.monster);
             }
         }

@@ -168,7 +168,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                             }
                         } break;
                         case MONSTER:{
-                            if(a.GetComponent<ProjectileComponent>().parentGroupEnumInt == 4){ // 4 = monster shot this projectile
+                            if(a.GetComponent<ProjectileComponent>().parentGroupEnumInt == 4){ // 4 = player shot this projectile
                                 eventBus->EmitEvent<ProjectileDamageEvent>(a,b, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager); // 1st is projectile 
                             }
                         } break;

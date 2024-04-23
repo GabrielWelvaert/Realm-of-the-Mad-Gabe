@@ -687,12 +687,17 @@ enum statuses{
     BERSERK,
     CONFUSED,
     BLEEDING,
-    INVULNERABLE
+    INVULNERABLE,
+    STUNNED,
+    INVISIBLE,
+    /* entries must be made above*/
+    TOTAL_NUMBER_OF_STATUS_EFFECTS
 };
 
 enum textureEnums{
     LOFICHAR,
     PLAYERS,
+    INVISIBLEPLAYERS,
     LOFIOBJ,
     LOFIPROJS,
     GUIBACKGROUND,

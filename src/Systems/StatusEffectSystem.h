@@ -47,6 +47,9 @@ class StatusEffectSystem: public System{
                 case CONFUSED:{
                     text = "CONFUSED";
                 } break;
+                case STUNNED:{
+                    text = "STUNNED";
+                } break;
                 default:{
                     return;
                 }break;
@@ -56,14 +59,16 @@ class StatusEffectSystem: public System{
         }
 
         std::vector<SDL_Rect> icons = { // can be indexed w/ statuses enums
-            {0*8, 2*8, 8, 8},
-            {1*8, 0*8, 8, 8},
-            {5*8, 3*8, 8, 8},
-            {0*8, 0*8, 8, 8},
-            {2*8, 3*8, 8, 8},
-            {2*8, 0*8, 8, 8},
-            {14*8, 2*8, 8, 8},
-            {1*8, 1*8, 8, 8},
+            {0*8, 2*8, 8, 8}, // quiet
+            {1*8, 0*8, 8, 8}, // slowed
+            {5*8, 3*8, 8, 8}, // paralyze 
+            {0*8, 0*8, 8, 8}, // speedy 
+            {2*8, 3*8, 8, 8}, // berserk
+            {2*8, 0*8, 8, 8}, // confused
+            {14*8, 2*8, 8, 8}, // bleeding
+            {1*8, 1*8, 8, 8}, // invulnerable 
+            {13*8, 2*8, 8, 8}, // stunned
+            {2*8, 1*8, 8, 8}, // invisible
         };
 
         std::vector<SDL_Texture*> iconSets = {nullptr};
@@ -75,7 +80,7 @@ class StatusEffectSystem: public System{
 
         void onStatusEnable(StatusEffectEvent& event);
 
-        void onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus);
+        void onStatusDisable(Entity& recipient, statuses status, std::unique_ptr<EventBus>& eventbus);
 
         void Update(SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera);
 

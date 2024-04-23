@@ -41,6 +41,10 @@
 #include "../Components/BossAIComponent.h"
 #include "../Utils/room.h"
 #include "../Components/AnimatedPounceAIComponent.h"
+#include <unordered_set>
+#include "../Utils/vechash.h"
+#include "../Components/OscillatingProjectileComponent.h"
+#include "../Components/LinearProjectileComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -50,6 +54,7 @@ lootbags, monsters, items, portals
 class Factory{
     private:
         Xoshiro256 RNG;
+        std::vector<SDL_RendererFlip> flips = {SDL_FLIP_HORIZONTAL, SDL_FLIP_NONE};
 
     public:
     
