@@ -42,6 +42,9 @@
 #include <ctime>
 #include "../Utils/roomShut.h"
 #include "../Systems/VaultItemKillSystem.h"
+#include "../Systems/OscillatingProjectileMovementSystem.h"
+
+#define SCROLLDELAYMS 100
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -186,7 +189,7 @@ void Game::ProcessInput(){
                 case SDL_MOUSEWHEEL:{
                     Uint32 time = SDL_GetTicks();
                     const auto& playpos = player.GetComponent<TransformComponent>().position;
-                    if(time > timeOfLastScroll + 500){ 
+                    if(time > timeOfLastScroll + SCROLLDELAYMS){ 
                         auto& sprite = registry->GetComponent<SpriteComponent>(idOfMiniMapEntity);
                         if(sdlEvent.wheel.y > 0 && sprite.srcRect.w > 60){ // scroll up (away from you); zoom in mini map
                             sprite.srcRect.w /= 2;
@@ -208,11 +211,13 @@ void Game::ProcessInput(){
                 case SDL_KEYDOWN:
                     switch(key){
                         case SDLK_ESCAPE:{
-                            characterManager->SaveCharacter(activeCharacterID, player);
-                            characterManager->SaveVaults(registry);
-                            player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
-                            registry->killAllEntities();
-                            Setup(false, true, NEXUS);
+                            if(currentArea == NEXUS || currentArea == VAULT){
+                                characterManager->SaveCharacter(activeCharacterID, player);
+                                characterManager->SaveVaults(registry);
+                                player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                                registry->killAllEntities();
+                                Setup(false, true, NEXUS);
+                            }
                         } break;
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
@@ -238,7 +243,7 @@ void Game::ProcessInput(){
                                 auto& playerIC = player.GetComponent<PlayerItemsComponent>();
                                 if(inventory.find(invetoryNumber+1) != inventory.end()){
                                     const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
-                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= 17){ // magic number, start of end of group enums which contains consumable items
+                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= static_cast<int>(HPPOTGROUP)){ // magic number, start of end of group enums which contains consumable items
                                         eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
                                     } else {
                                         assetStore->PlaySound(ERROR);
@@ -264,39 +269,37 @@ void Game::ProcessInput(){
                         case SDLK_RSHIFT:{
                             shift = true;
                         } break;
-                        // case SDLK_9:{
-                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, SPDPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        //     factory->createItemInBag(registry, DEXPOT, lootbag);
-                        // } break;
-                        // case SDLK_0:{
-                        //     glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                        //     Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                        //     factory->createItemInBag(registry, ARCTOME, lootbag);
-                        //     factory->createItemInBag(registry, ARCWAND, lootbag);
-                        //     factory->createItemInBag(registry, ARCROBE, lootbag);
-                        //     factory->createItemInBag(registry, TWILIGHTGEMSTONE, lootbag);
-                        //     factory->createItemInBag(registry, T4TOME, lootbag);
-                        //     factory->createItemInBag(registry, T4QUIVER, lootbag);
-                        //     factory->createItemInBag(registry, T3DEXRING, lootbag);
-                        //     factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                        // } break;
-                        // case SDLK_MINUS:{
-                        //     if(dungeonRooms.size() > 0){
-                        //         const auto& spawnRoom = dungeonRooms[bossRoomId]; 
-                        //         // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-                        //         player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
-                        //     } else {
-                        //         player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
-                        //     }
-                        // } break;
+                        case SDLK_9:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T1STAFF, lootbag);
+                            factory->createItemInBag(registry, T2STAFF, lootbag);
+                            factory->createItemInBag(registry, T3STAFF, lootbag);
+                            factory->createItemInBag(registry, T4STAFF, lootbag);
+                            factory->createItemInBag(registry, T5STAFF, lootbag);
+                            factory->createItemInBag(registry, T6STAFF, lootbag);
+                            factory->createItemInBag(registry, T7STAFF, lootbag);
+                            factory->createItemInBag(registry, T8STAFF, lootbag);
+                        } break;
+                        case SDLK_0:{
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, T9STAFF, lootbag);
+                            factory->createItemInBag(registry, T10STAFF, lootbag);
+                            factory->createItemInBag(registry, T11STAFF, lootbag);
+                            factory->createItemInBag(registry, T12STAFF, lootbag);
+                            factory->createItemInBag(registry, T13STAFF, lootbag);
+                            factory->createItemInBag(registry, T14STAFF, lootbag);
+                        } break;
+                        case SDLK_MINUS:{
+                            if(dungeonRooms.size() > 0){
+                                const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                                // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                                player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                            } else {
+                                player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
+                            }
+                        } break;
                         // case SDLK_BACKSPACE:{
                         //     auto& xp = player.GetComponent<BaseStatComponent>().xp;
                         //     xp += 20000;
@@ -382,17 +385,18 @@ void Game::ProcessInput(){
     }
 
 }
-struct Vec2Comparator { // used in LoadTilemap algorithm
-    bool operator()(const glm::vec2& a, const glm::vec2& b) const{
-        return a.x < b.x || (a.x == b.x && a.y < b.y);
-    }
-};
 
-struct Vec2Hash { // used in LoadTileMap algorithm
-    std::size_t operator()(const glm::vec2& v) const {
-        return std::hash<float>{}(v.x) ^ (std::hash<float>{}(v.y) << 1);
-    }
-};
+// struct Vec2Comparator { // used in LoadTilemap algorithm
+//     bool operator()(const glm::vec2& a, const glm::vec2& b) const{
+//         return a.x < b.x || (a.x == b.x && a.y < b.y);
+//     }
+// };
+
+// struct Vec2Hash { // used in LoadTileMap algorithm
+//     std::size_t operator()(const glm::vec2& v) const {
+//         return std::hash<float>{}(v.x) ^ (std::hash<float>{}(v.y) << 1);
+//     }
+// };
 
 bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
     wallData wallData = wallThemeToWallData.at(wallTheme);
@@ -954,20 +958,19 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
 }
 
 void Game::PopulateItemIconsInAssetStore(){
-    const int totalNumItems = 178; // hard coded value equal to highest item enum
     SDL_Surface * ttfSurface;
     SDL_Texture * ttfTextureFromSurface;
     SDL_Texture * itemIconTexture;
     std::vector<std::string> statNames = {"HP", "MP", "Attack", "Defense", "Speed", "Dexterity", "Vitality", "Wisdom"};
     int iconWidth, iconHeight, nameWidth, nameHeight, descriptionWidth, descriptionHeight, infoWidth, infoHeight, maxTextWidth;
-    for(int i = 0; i <= totalNumItems; i++){
+    for(int i = 0; i < TOTAL_NUMBER_OF_ITEMS; i++){
         items itemEnum = static_cast<items>(i);
         const int divider = 10; // pixels between elements and border
         const int imageDimension = 40; // image of item in top-left of icon
         std::string name = itemToName.at(itemEnum);
         std::string description = itemToDescription.at(itemEnum);
         std::vector<std::string> info; // keep pushing back new info lines as needed!
-        if(static_cast<int>(itemToGroup.at(itemEnum)) >= 16){ // magic number, start of end of group enums which contains consumable items
+        if(static_cast<int>(itemToGroup.at(itemEnum)) >= static_cast<int>(HPPOTGROUP)){ // magic number, start of end of group enums which contains consumable items
             std::string onConsumption = "On Consumption: ";
             onConsumption.append(consumableItemToInfo.at(itemEnum));
             info.push_back(onConsumption);
@@ -985,6 +988,8 @@ void Game::PopulateItemIconsInAssetStore(){
                 info.push_back(onEquip);
             }  
             switch(itemToGroup.at(itemEnum)){
+                case STAFF:
+                case DAGGER:
                 case SWORD:
                 case BOW:
                 case WAND:{ // item is a weapon
@@ -1042,10 +1047,50 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string onUse = "On Use: Shoots a ";
                     onUse.append(abillityItemToInfo.at(itemEnum));
                     onUse.append(" arrow");
-                    std::string damage = "Damage " + std::to_string(quiverData.minDamage) + " - " + std::to_string(quiverData.maxDamage);
+                    std::string damage = "Damage: " + std::to_string(quiverData.minDamage) + " - " + std::to_string(quiverData.maxDamage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     info.push_back(onUse);
                     info.push_back(damage);
+                    info.push_back(cost);
+                } break;
+                case CLOAK:{
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum); 
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    auto helmData = itemEnumToHelmData.at(itemEnum); // cloaks are in helm table
+                    std::string onUse = "On Use: Invisible for ";
+                    std::string duration = std::to_string(static_cast<float>(helmData.duration)/1000);
+                    while(duration.back() == '0' || duration.back() == '.'){
+                        duration.pop_back();
+                    }
+                    info.push_back(onUse + duration + " seconds");
+                    info.push_back(cost);
+                    std::string cooldownSeconds = std::to_string(static_cast<float>(abilityData.cooldown)/1000);
+                    while(cooldownSeconds.back() == '0' || cooldownSeconds.back() == '.'){
+                        cooldownSeconds.pop_back();
+                    }
+                    std::string cooldown = "Cooldown: " + cooldownSeconds + " seconds";
+                    info.push_back(cooldown);
+                } break;
+                case SPELL:{
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum); 
+                    auto spelldata = itemEnumToSpellData.at(itemEnum);
+                    std::string onUse = "On Use: Emits a damaging spell at target ";
+                    std::string damage = "Damage: " + std::to_string(spelldata.minDamage) + " - " + std::to_string(spelldata.maxDamage);
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back(cost);
+                } break;
+                case SHIELD:{
+                    auto shieldData = itemEnumToShieldData.at(itemEnum);
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum);
+                    std::string onUse = "On Use: Fires a stunning arc";
+                    std::string damage = "Damage: " + std::to_string(shieldData.minDamage) + " - " + std::to_string(shieldData.maxDamage);
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    std::string shots ="Shots: " + std::to_string(shieldData.numshots);
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back(shots);
                     info.push_back(cost);
                 } break;
             }
@@ -1055,7 +1100,6 @@ void Game::PopulateItemIconsInAssetStore(){
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconNameFont"), name.c_str(), white);
         TTF_SizeText(assetStore->GetFont("iconNameFont"), name.c_str(), &nameWidth, &nameHeight);
         iconWidth = divider + imageDimension + divider + nameWidth + divider;
-
         int currentLineWidth;
         maxTextWidth = imageDimension + divider + nameWidth;
 
@@ -1063,7 +1107,7 @@ void Game::PopulateItemIconsInAssetStore(){
         std::vector<std::string> descriptionStrings;
         TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), description.c_str(), &descriptionWidth, &descriptionHeight); 
         float estimatedDescriptionLines = (descriptionWidth-divider*2)/iconWidth;
-        int maxCharsPerLine = description.size() / estimatedDescriptionLines;
+        int maxCharsPerLine = description.size() / estimatedDescriptionLines; // unused ?? lol
         std::string currentLine;
         for(const char& c: description){
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), currentLine.c_str(), &currentLineWidth, NULL); 
@@ -1186,6 +1230,7 @@ void Game::PopulateItemIconsInAssetStore(){
 void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFICHAR, "./assets/images/lofi_char.png"); 
     assetStore->AddTexture(renderer, PLAYERS, "./assets/images/players.png");
+    assetStore->AddTexture(renderer, INVISIBLEPLAYERS, "./assets/images/invisibleplayers.png");
     assetStore->AddTexture(renderer, LOFIOBJ, "./assets/images/lofiObj.png"); //has projectiles and stuff
     assetStore->AddTexture(renderer, LOFIPROJS, "./assets/images/lofiProjs.png"); //arrows etc
     assetStore->AddTexture(renderer, GUIBACKGROUND, "./assets/images/guibackground.png");
@@ -1507,11 +1552,11 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture); // this texture is now managed by assetStore and will deleted at assetStore destruction
 
     // HUDs
-    std::vector<textureEnums> statichuds = {STATICHUDARCHER, STATICHUDPRIEST, STATICHUDWARRIOR};
-    std::vector<int> staticchudoffsets = {1,3,4};
+    std::vector<textureEnums> statichuds = {STATICHUDARCHER, STATICHUDPRIEST, STATICHUDWARRIOR, STATICHUDWIZARD, STATICHUDKNIGHT, STATICHUDROGUE};
+    std::vector<int> staticchudoffsets = {1,3,4,2,5,0};
     SDL_Texture * staticHUD = nullptr;
     int invSlotDimension = static_cast<int>(44 * 1.25);
-    for(int i = 0; i <= 2; i++){
+    for(int i = 0; i <= 5; i++){
         staticHUD = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
         SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, staticHUD);
@@ -1696,6 +1741,16 @@ void Game::LoadGui(){
         case PRIEST:{
             texture = STATICHUDPRIEST;
         } break;
+        case WIZARD:{
+            texture = STATICHUDWIZARD;
+        } break;
+        case KNIGHT:{
+            texture = STATICHUDKNIGHT;
+        } break;
+        case ROGUE:{
+            texture = STATICHUDROGUE;
+        } break;
+        
     }
 
     Entity statichud = registry->CreateEntity();
@@ -1797,34 +1852,66 @@ void Game::LoadGui(){
 
     Entity weaponSlot = registry->CreateEntity();
     weaponSlot.AddComponent<TransformComponent>(glm::vec2(765+5, 450+5), glm::vec2(1.25,1.25)); 
-    if(classname == WARRIOR){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*6+4, 0+4, true);
-    } else if (classname == PRIEST){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 0+4, true);
-    } else if (classname == ARCHER){
-        weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 0+4, true);
+    switch(classname){
+        case KNIGHT:
+        case WARRIOR:{
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*6+4, 0+4, true);
+        } break;
+        case ARCHER:{
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 0+4, true);
+        } break;
+        case ROGUE:{
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 44*1+4, true); // TODO
+        } break;
+        case WIZARD:{
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 44*1+4, true); // TODO
+        } break;
+        case PRIEST:{
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 0+4, true);
+        } break;
     }
     equipmentIconIds.push_back(weaponSlot.GetId());
 
     Entity abilitySlot = registry->CreateEntity();
     abilitySlot.AddComponent<TransformComponent>(glm::vec2(765+44+12+1 +5, 450+5), glm::vec2(1.25,1.25));
-    if(classname == WARRIOR){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 0+4, true);
-    } else if (classname == ARCHER){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 44*1+4, true);
-    } else if (classname == PRIEST){
-        abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*7+4, 0+4, true);
+        switch(className){
+        case ARCHER:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 44*1+4, true);
+        } break;
+        case WARRIOR:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*0+4, 0+4, true);
+        } break;
+        case PRIEST:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*7+4, 0+4, true);
+        } break;
+        case WIZARD:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 44*1+4, true); // TODO
+        } break;
+        case KNIGHT:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*5+4, 44*1+4, true); // TODO
+        } break;
+        case ROGUE:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 44*1+4, true); // TODO
+        } break;
+        
     }
     equipmentIconIds.push_back(abilitySlot.GetId());
 
     Entity armorSlot = registry->CreateEntity();
     armorSlot.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1 +5, 450+5), glm::vec2(1.25,1.25));
-    if(classname == WARRIOR){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 0+4, true);
-    } else if (classname == ARCHER){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 0+4, true);
-    } else if (classname == PRIEST){
-        armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS,44-8, 44-8, 11, 44*5+4, 0+4, true);
+    switch(classname){
+        case KNIGHT:
+        case WARRIOR:{
+            armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 0+4, true);
+        } break;
+        case ARCHER:
+        case ROGUE:{
+            armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 0+4, true);
+        } break;
+        case WIZARD:
+        case PRIEST:{
+            armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS,44-8, 44-8, 11, 44*5+4, 0+4, true);
+        } break;
     }
     equipmentIconIds.push_back(armorSlot.GetId());
 
@@ -1886,6 +1973,18 @@ void Game::LoadPlayer(){
             player.AddComponent<HelmComponent>();
             break;
         }
+        case KNIGHT: {
+            player.AddComponent<ShieldComponent>();
+            break;
+        } 
+        case ROGUE: {
+            player.AddComponent<CloakComponent>();
+            break;
+        }
+        case WIZARD: {
+            player.AddComponent<SpellComponent>();
+            break;
+        }
     }
 }
 
@@ -1900,9 +1999,7 @@ void Game::PopulatePlayerInventoryAndEquipment(const wallTheme& wallTheme){
     for(int i = 1; i < 9; i++){
         if(inventoryItems[i-1] != -1){
             registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, static_cast<items>(inventoryItems[i-1]), i);
-        }// else if(inventoryItems[i-1] == -1 && wallTheme == GORDONSLAIRWALLTHEME){ //give player hp pots in empty inventory slots if going to gordon
-        //     registry->GetSystem<ItemMovementSystem>().ForcePlayerPopulateInventory(registry, player, HPPOT, i);
-        // }
+        }
     }
     // in the case of loading the player, we will grant them fully restored hp and mp 
     player.GetComponent<HPMPComponent>().activehp = player.GetComponent<HPMPComponent>().maxhp;
@@ -1941,7 +2038,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<PortalSystem>();
     registry->AddSystem<DisplayNameSystem>();
     registry->AddSystem<BossAISystem>();
-    registry->AddSystem<AnimatedPounceAISystem>();
+    registry->AddSystem<OscillatingProjectileMovementSystem>();
     registry->AddSystem<VaultItemSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
@@ -2078,7 +2175,7 @@ std::vector<Entity> Game::loadMenuTwo(int numcharacters){
         disposables.push_back(icon);
         ypos += 25;
     }
-    if(numcharacters < 3){
+    if(numcharacters < 6){
         int iconx = RNG.randomFromRange(0,15);
         int icony = RNG.randomFromRange(0,14);
         Entity makeCharacter = registry->CreateEntity();
@@ -2106,24 +2203,33 @@ std::vector<Entity> Game::loadMenuThree(){
     SDL_Rect rect = {50,20,10,10};
     SDL_Rect playerRect = {0, 0, 8, 8};
     int xpos = 100;
-    std::vector<classes> classesVector = {ARCHER, PRIEST, WARRIOR};
-    for(int i = 0; i < 3; i++){
+    int ypos = 100 + 50;
+    int buttonIconYpos = 180 + 50;
+    int classtextypos = 140 + 50;
+    std::vector<classes> classesVector = {ARCHER, PRIEST, WARRIOR, WIZARD, KNIGHT, ROGUE};
+    for(int i = 0; i < 6; i++){
         Entity buttonbg = registry->CreateEntity();
         buttonbg.AddComponent<SpriteComponent>(PLAYBAR, 200, 200, rect, 10, true, false);
-        buttonbg.AddComponent<TransformComponent>(glm::vec2(xpos,200), glm::vec2(1.0,1.0));    
+        buttonbg.AddComponent<TransformComponent>(glm::vec2(xpos,ypos), glm::vec2(1.0,1.0));    
         Entity buttonClassName = registry->CreateEntity();
         buttonClassName.AddComponent<TextLabelComponent>(classesToString.at(classesVector[i]), "damagefont", white, true, 1, 0, 0);
         auto& textlabel = buttonClassName.GetComponent<TextLabelComponent>();
         TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
-        buttonClassName.AddComponent<TransformComponent>(glm::vec2( (xpos + 100) - (textlabel.textwidth/2), 240));
+        buttonClassName.AddComponent<TransformComponent>(glm::vec2( (xpos + 100) - (textlabel.textwidth/2), classtextypos));
         Entity buttonIcon = registry->CreateEntity();
         playerRect.y = classesVector[i] * 24 + 8;
         buttonIcon.AddComponent<SpriteComponent>(PLAYERS, 64, 64, playerRect, 11, true, false);
-        buttonIcon.AddComponent<TransformComponent>(glm::vec2((xpos + 100) - (64/2), 280), glm::vec2(1.0,1.0));
+        buttonIcon.AddComponent<TransformComponent>(glm::vec2((xpos + 100) - (64/2), buttonIconYpos), glm::vec2(1.0,1.0));
         xpos += 300;
         disposables.push_back(buttonIcon);
         disposables.push_back(buttonbg);
         disposables.push_back(buttonClassName);
+        if(i == 2){ // new row of buttons
+            xpos = 100;
+            ypos += 250;
+            classtextypos += 250;
+            buttonIconYpos += 250;
+        }
     }
     registry->Update();
     return disposables;
@@ -2268,26 +2374,73 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 400 && mouseY < 475 && numcharacters >= 3){ // clicked lower button and it exists
+                            if(numcharacters == 3){// three existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[3];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 500 && mouseY < 575 && numcharacters >= 4){ // clicked lower button and it exists
+                            if(numcharacters == 4){// 4 existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[4];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 600 && mouseY < 675 && numcharacters >= 5){ // clicked lower button and it exists
+                            if(numcharacters == 5){// 4 existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[5];
+                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
                         }
                     }
                 } else if(mainmenuthree){ // third main menu (optional): select class for new character
-                    if(mouseX > 100 && mouseX < 900 && mouseY > 200 && mouseY < 400){
-                        if(mouseX <= 300){ // first button; archer
-                            selectedCharacterID = characterManager->CreateNewCharacterFile(ARCHER);
+                    if(mouseX >= 100 && mouseX <= 900 && mouseY >= 150 && mouseY <= 600){ // clicked some button probably
+
+                        if(mouseY <= 350){ // top 3 buttons
+                            if(mouseX >= 100 && mouseX <= 300){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(ARCHER);
+                                proceed = true;
+                            } else if(mouseX >= 400 && mouseX <= 600){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(PRIEST);
+                                proceed = true;
+                            } else if(mouseX >= 700 && mouseX <= 900){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(WARRIOR);
+                                proceed = true;
+                            }
+                        } else if(mouseY >= 400){ // bottom 3 buttons
+                            if(mouseX >= 100 && mouseX <= 300){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(WIZARD);
+                                proceed = true;
+                            } else if(mouseX >= 400 && mouseX <= 600){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(KNIGHT);
+                                proceed = true;
+                            } else if(mouseX >= 700 && mouseX <= 900){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(ROGUE);
+                                proceed = true;
+                            }
+                        }
+
+                        if(proceed){
                             killMenuThree = true;
-                            proceed = true;
-                            assetStore->PlaySound(BUTTON);
-                        } else if(mouseX >= 400 && mouseX <= 600){ // second button; priest
-                            selectedCharacterID = characterManager->CreateNewCharacterFile(PRIEST);
-                            killMenuThree = true;
-                            proceed = true;
-                            assetStore->PlaySound(BUTTON);
-                        } else if(mouseX >= 700){ // third button; warrior 
-                            selectedCharacterID = characterManager->CreateNewCharacterFile(WARRIOR);
-                            killMenuThree = true;
-                            proceed = true;
                             assetStore->PlaySound(BUTTON);
                         }
+
                     }
                 }
             }
@@ -2414,19 +2567,19 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     camera.y = transform.position.y - (camera.h/2 - 20);
     // reset map veil by overriding it
     SDL_Rect mv = {0,0,360,360};
-    SDL_Texture * mapveil = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
-    SDL_SetTextureBlendMode(mapveil, SDL_BLENDMODE_BLEND);
+    mapveilptr = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, 360, 360); // streaming texture
+    SDL_SetTextureBlendMode(mapveilptr, SDL_BLENDMODE_BLEND);
     void* pixels;
     int pitch;
-    SDL_LockTexture(mapveil, NULL, &pixels, &pitch); // streaming textures are mutable via direct pixel access; cannot fillRect on them
+    SDL_LockTexture(mapveilptr, NULL, &pixels, &pitch); // streaming textures are mutable via direct pixel access; cannot fillRect on them
     int pitch4 = pitch / 4;
     for(int y = 0; y < 360; ++y) {
         for(int x = 0; x < 360; ++x) {
             ((Uint32*)pixels)[y * pitch4 + x] = 0x000000FF;
         }
     }
-    SDL_UnlockTexture(mapveil);
-    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveil);
+    SDL_UnlockTexture(mapveilptr);
+    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore
     SDL_SetRenderTarget(renderer, nullptr);
 
 }
@@ -2442,18 +2595,18 @@ void Game::Update(){
 
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    // registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera);
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
     // registry->GetSystem<PassiveAISystem>().Update(playerpos);
-    registry->GetSystem<ChaseAISystem>().Update(playerpos);
-    registry->GetSystem<NeutralAISystem>().Update(playerpos);
-    registry->GetSystem<TrapAISystem>().Update(playerpos, assetStore);
-    registry->GetSystem<BossAISystem>().Update(playerpos, assetStore, registry, factory, roomShut, camera, bossRoom);
-    registry->GetSystem<AnimatedChaseAISystem>().Update(playerpos);
-    registry->GetSystem<AnimatedNeutralAISystem>().Update(playerpos);
-    registry->GetSystem<AnimatedPounceAISystem>().Update(playerpos);
+    registry->GetSystem<ChaseAISystem>().Update(player);
+    registry->GetSystem<NeutralAISystem>().Update(player);
+    registry->GetSystem<TrapAISystem>().Update(player, assetStore);
+    registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom);
+    registry->GetSystem<AnimatedChaseAISystem>().Update(player);
+    registry->GetSystem<AnimatedNeutralAISystem>().Update(player);
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
-    registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime);
+    registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
+    registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
+    registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateRealPositions(registry);
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);

@@ -14,6 +14,7 @@
 #include "../Utils/deadPlayer.h"
 #include <string>
 #include "../Utils/roomShut.h"
+#include "../Utils/vechash.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -49,6 +50,7 @@ class Game{
         int rendererMaxTextureDimension;
         int idOfBoss = -1;
         int creationIdOfBoss;
+        SDL_Texture * mapveilptr = nullptr;
         
 
     public:

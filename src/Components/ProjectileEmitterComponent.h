@@ -46,6 +46,12 @@ struct ProjectileEmitterComponent{
     //does it pierce
     bool ignoresDefense = false;
 
+    // does it oscillate
+    bool oscillation;
+    float amplitude;
+    float frequency; // not repeat frequency. oscillation stuff.
+    float additionalOffset;
+
     inline ProjectileEmitterComponent() = default;
 
     inline ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
@@ -70,14 +76,14 @@ struct ProjectileEmitterComponent{
         boxheight(boxheight),
         boxoffset(boxoffset){}
 
-    inline ProjectileEmitterComponent(int repeatFrequency, int duration, Entity parent, int damage, int lastEmissionTime, bool isShooting){
-        this->repeatFrequency = repeatFrequency; // old default of 100
-        this->duration = duration; // old default of 50000
-        this->parent = parent;
-        this->damage = damage;
-        this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
-        this->isShooting = false;
-    }
+    // inline ProjectileEmitterComponent(int repeatFrequency, int duration, Entity parent, int damage, int lastEmissionTime, bool isShooting){
+    //     this->repeatFrequency = repeatFrequency; // old default of 100
+    //     this->duration = duration; // old default of 50000
+    //     this->parent = parent;
+    //     this->damage = damage;
+    //     this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
+    //     this->isShooting = false;
+    // }
 
     // used by monsters
     inline ProjectileEmitterComponent(sprites spriteEnum, Entity self){
@@ -106,27 +112,30 @@ struct ProjectileEmitterComponent{
         this->inflictsStatusEffect = pecdata.inflictsStatusEffect;
         this->statusEffect = pecdata.statusEffect;
         this->durationMS = pecdata.durationMS;
+        this->oscillation = pecdata.oscillation;
+        this->frequency = pecdata.frequency;
+        this->amplitude = pecdata.amplitude;
     }
 
     // used for player. updates will occur when equipping items 
-    inline ProjectileEmitterComponent(Entity parent, boxColliderData bcdata, spritedata sdata){ //used for player, later equipping items will manually update PEC enums 
-        this->repeatFrequency = 250; // old default of 100
-        this->duration = 500; // old default of 50000
-        this->parent = parent;
-        this->damage = 1;
-        this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
-        this->spriteassetId = sdata.assetId;
-        this->spritewidth = sdata.width;
-        this->spriteheight = sdata.height;
-        this->spritesrcRect = sdata.srcRect;
-        this->spritezIndex = sdata.zIndex;
-        this->spriteisFixed = sdata.isFixed;
-        this->spritediagonalSprite = sdata.diagonalSprite;
-        this->boxwidth = bcdata.width;
-        this->boxheight = bcdata.height;
-        this->boxoffset = bcdata.offset;
-        this->isShooting = false;
-    }
+    // inline ProjectileEmitterComponent(Entity parent, boxColliderData bcdata, spritedata sdata){ //used for player, later equipping items will manually update PEC enums 
+    //     this->repeatFrequency = 250; // old default of 100
+    //     this->duration = 500; // old default of 50000
+    //     this->parent = parent;
+    //     this->damage = 1;
+    //     this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
+    //     this->spriteassetId = sdata.assetId;
+    //     this->spritewidth = sdata.width;
+    //     this->spriteheight = sdata.height;
+    //     this->spritesrcRect = sdata.srcRect;
+    //     this->spritezIndex = sdata.zIndex;
+    //     this->spriteisFixed = sdata.isFixed;
+    //     this->spritediagonalSprite = sdata.diagonalSprite;
+    //     this->boxwidth = bcdata.width;
+    //     this->boxheight = bcdata.height;
+    //     this->boxoffset = bcdata.offset;
+    //     this->isShooting = false;
+    // }
 
 
 };

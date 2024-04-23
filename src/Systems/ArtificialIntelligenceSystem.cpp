@@ -1,10 +1,11 @@
 #include "ArtificialIntelligenceSystem.h"
 
-inline float chasePlayer(const glm::vec2& origin, const glm::vec2& dest, glm::vec2& monsterVelocity){
+// call this to path to a position
+inline float chasePosition(const glm::vec2& origin, const glm::vec2& dest, glm::vec2& monsterVelocity){
     float angleRadians = std::atan2(dest.y - origin.y, dest.x - origin.x);   
     monsterVelocity.x = std::cos(angleRadians);
     monsterVelocity.y = std::sin(angleRadians); // x and y will be multiplied by speed in movementSystem
-    return monsterVelocity.x;
+    return monsterVelocity.x; // this is returned simply to determine direction facing for sprites
 }
 
 inline float getDistanceToPlayer(const glm::vec2& origin, const glm::vec2& destination) {
@@ -15,7 +16,7 @@ PassiveAISystem::PassiveAISystem(){
     RequireComponent<PassiveAIComponent>();
 }
 
-void PassiveAISystem::Update(const glm::vec2& playerPos){return;}
+void PassiveAISystem::Update(const Entity& player){return;}
 
 ChaseAISystem::ChaseAISystem(){
     RequireComponent<ChaseAIComponent>();
@@ -24,8 +25,11 @@ ChaseAISystem::ChaseAISystem(){
     RequireComponent<TransformComponent>();
 }
 
-void ChaseAISystem::Update(const glm::vec2& playerPos){
+void ChaseAISystem::Update(const Entity& player){
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -33,23 +37,32 @@ void ChaseAISystem::Update(const glm::vec2& playerPos){
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
+
+        if(playerInvisible){
+            pec.isShooting = false;
+            velocity = {0.0,0.0};
+            continue;
+        }
+
         if(distanceToPlayer <= aidata.detectRange){
             if(distanceToPlayer <= aidata.engageRange){
                 if(distanceToPlayer <= aidata.maxDistance){ // shoot dont chase 
                     velocity.x = 0;
                     velocity.y = 0;
                 } else { // shoot, chase 
-                    if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
+                    if(chasePosition(position, playerPos, velocity) < 0){ // facing left
                         flip = SDL_FLIP_HORIZONTAL;
                     } else { // facing right
                         flip = SDL_FLIP_NONE;
-                    }  
-                    if(pec.isShooting == false){
+                    }
+                    if(stunned){
+                        pec.isShooting = false;
+                    } else if(pec.isShooting == false){
                         pec.isShooting = true;
                     } 
                 }
             } else { // chase, dont shoot 
-                if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
+                if(chasePosition(position, playerPos, velocity) < 0){ // facing left
                     flip = SDL_FLIP_HORIZONTAL;
                 } else { // facing right
                     flip = SDL_FLIP_NONE;
@@ -71,14 +84,27 @@ NeutralAISystem::NeutralAISystem(){
     RequireComponent<ProjectileEmitterComponent>();
 }
 
-void NeutralAISystem::Update(const glm::vec2& playerPos){
+void NeutralAISystem::Update(const Entity& player){ // remember, no animation for these guys!
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<NeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
+
+        if(playerInvisible || stunned){
+            pec.isShooting = false;
+            if(stunned){
+                playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+            }
+            continue;
+        }
+
+
         if(distanceToPlayer <= aidata.engageRange){ // shoot, stand 
             pec.isShooting = true;
             playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
@@ -98,14 +124,19 @@ TrapAISystem::TrapAISystem(){
     RequireComponent<TransformComponent>();
 }
 
-void TrapAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore){
+void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore){
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         auto& aidata = entity.GetComponent<TrapAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
-        if(distanceToPlayer <= aidata.engageRange && !aidata.igntied){ // ignite the bomb!
+
+        
+        if(distanceToPlayer <= aidata.engageRange && !aidata.igntied && !playerInvisible && !stunned){ // ignite the bomb!
             aidata.igntied = true;
             ac.startTime = SDL_GetTicks();
             ac.numFrames = aidata.iginitionFrame + 1; // extra frame so it explodes when sprite dissapears
@@ -132,8 +163,11 @@ AnimatedChaseAISystem::AnimatedChaseAISystem(){
     RequireComponent<StatusEffectComponent>();
 }
 
-void AnimatedChaseAISystem::Update(const glm::vec2& playerPos){
+void AnimatedChaseAISystem::Update(const Entity& player){
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -143,12 +177,31 @@ void AnimatedChaseAISystem::Update(const glm::vec2& playerPos){
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
+
+        if(playerInvisible){
+            asc.animatedShooting = false;
+            pec.isShooting = false;
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            velocity = {0.0,0.0};
+            continue;
+        } else if(stunned){
+            asc.animatedShooting = false;
+            pec.isShooting = false;
+            ac.xmin = 0; // enemy will walk unless they're in shoot, dont chase 
+            if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+                ac.numFrames = 2;   
+            } else {
+                ac.numFrames = 1;
+            }
+        }
+
         if(distanceToPlayer <= aidata.detectRange){
             if(distanceToPlayer <= aidata.engageRange){
                 if(distanceToPlayer <= aidata.maxDistance){ // shoot, dont chase
                     velocity.x = 0;
                     velocity.y = 0;
-                    if(pec.isShooting == false){ // this is a case where enemy spawns right infront of player which is perhaps never going to occur
+                    if(pec.isShooting == false && !stunned){ // this is a case where enemy spawns right infront of player which is perhaps never going to occur
                         asc.animatedShooting = true;
                         pec.isShooting = true;
                         ac.xmin = 4;
@@ -156,14 +209,17 @@ void AnimatedChaseAISystem::Update(const glm::vec2& playerPos){
                         ac.currentFrame = 1;
                         ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
                         pec.lastEmissionTime += pec.repeatFrequency / 2;
-                    } 
+                    } else if(stunned){ // enemy is stunned and close enough to stop walking animation
+                        ac.xmin = 0;
+                        ac.numFrames = 1;
+                    }
                 } else { // shoot, chase
-                    if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
+                    if(chasePosition(position, playerPos, velocity) < 0){ // facing left
                         flip = SDL_FLIP_HORIZONTAL;
                     } else { // facing right
                         flip = SDL_FLIP_NONE;
                     }  
-                    if(pec.isShooting == false){
+                    if(pec.isShooting == false && !stunned){
                         asc.animatedShooting = true;
                         pec.isShooting = true;
                         ac.xmin = 4;
@@ -174,7 +230,7 @@ void AnimatedChaseAISystem::Update(const glm::vec2& playerPos){
                     } 
                 }
             } else { // chase, dont shoot
-                if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
+                if(chasePosition(position, playerPos, velocity) < 0){ // facing left
                     flip = SDL_FLIP_HORIZONTAL;
                 } else { // facing right
                     flip = SDL_FLIP_NONE;
@@ -206,8 +262,11 @@ AnimatedNeutralAISystem::AnimatedNeutralAISystem(){
     RequireComponent<AnimationComponent>();
 }
 
-void AnimatedNeutralAISystem::Update(const glm::vec2& playerPos){
+void AnimatedNeutralAISystem::Update(const Entity& player){
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
@@ -216,7 +275,18 @@ void AnimatedNeutralAISystem::Update(const glm::vec2& playerPos){
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        if(distanceToPlayer <= aidata.engageRange){ // shoot, stand 
+
+        if(playerInvisible || stunned){
+            pec.isShooting = false;
+            asc.animatedShooting = false;
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            if(playerInvisible){
+                continue;    
+            }
+        }
+
+        if(distanceToPlayer <= aidata.engageRange && !stunned){ // shoot, stand 
             pec.isShooting = true;
             asc.animatedShooting = true;
             ac.xmin = 4;
@@ -244,8 +314,15 @@ BossAISystem::BossAISystem(){
     RequireComponent<RidigBodyComponent>();
 }
 
-void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom){
+void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom){
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
+
+    // this system should have a state-machine approach to updating the animation and PEC (it does not but know now its a good idea)
+    // i.e. update state such as WALKING, SHOOTING, STANDING rather than manually setting PEC, ASC, AC etc
+    
     for(auto& entity: GetSystemEntities()){
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
@@ -267,7 +344,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     }
                     return; // boss will activate next frame
                 } 
-                if(pec.isShooting == false){
+                if(!pec.isShooting && !playerInvisible && !stunned){ // re-enable shooting for any phase
                     asc.animatedShooting = true;
                     pec.isShooting = true;
                     ac.xmin = 4;
@@ -276,7 +353,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
                     pec.lastEmissionTime += pec.repeatFrequency / 2;
                 }
-                if(hp > aidata.secondPhase){ // first phase
+                if(hp > aidata.secondPhase){ // first phase, run around in a circle
                     glm::vec2 currentDestPos = aidata.phaseOnePositions[aidata.phaseOneIndex];
                     if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; change destination
                         aidata.phaseOneIndex ++;
@@ -284,9 +361,15 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             aidata.phaseOneIndex = 0;
                         }    
                     } 
-                    chasePlayer(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
+                    chasePosition(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
+                    if(playerInvisible || stunned){ // if invisible or stunned, switch to walking animation
+                        asc.animatedShooting = false;
+                        pec.isShooting = false;
+                        ac.xmin = 0;
+                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                    }
 
-                } else if(hp < aidata.survival){ // survival phase
+                } else if(hp < aidata.survival){ // survival phase, chase player
                     if(!aidata.flags[0]){
                         pec.shots = 8;
                         pec.arcgap = 48;
@@ -296,13 +379,28 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             factory->spawnMonster(registry, aidata.phaseTwoPositions[i], WHITECHICKEN);
                         }
                     }
-                    if(std::abs(position.x - playerPos.x) <= 3 && std::abs(position.y - playerPos.y) <= 3){
-                        velocity.x = velocity.y = 0.0;
-                    } else {
-                        chasePlayer(position, playerPos, velocity);    
+
+                    if(stunned){
+                        asc.animatedShooting = false;
+                        pec.isShooting = false;
+                        ac.xmin = 0;
+                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                    } 
+                    if(playerInvisible){
+                        asc.animatedShooting = false;
+                        pec.isShooting = false;
+                        ac.xmin = 0;
+                        ac.numFrames = 1;
+                        velocity = {0.0,0.0};    
+                    } else if(!playerInvisible){
+                        if(std::abs(position.x - playerPos.x) <= 3 && std::abs(position.y - playerPos.y) <= 3){
+                            velocity.x = velocity.y = 0.0;
+                        } else {
+                            chasePosition(position, playerPos, velocity);    
+                        }
                     }
 
-                } else { // second phase 
+                } else { // second phase, chase corners
                     speed = 50;
                     pec.shots = 5;
                     Uint32 time = SDL_GetTicks();
@@ -314,12 +412,18 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         }
                         aidata.timer0 = time;
                     } 
+                    if(playerInvisible || stunned){
+                        asc.animatedShooting = false;
+                        pec.isShooting = false;
+                        ac.xmin = 0;
+                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                    } 
                     if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; dont move
                         velocity.x = velocity.y = 0.0;
                     } else{
-                        chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);    
+                        chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);    
                     }
-                    // chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+
                 }
             } break;
             case ARCMAGE:{
@@ -368,15 +472,32 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                     Uint32 time = SDL_GetTicks();
                     if(hp > aidata.secondPhase){ // first phase
                         if(time >= aidata.timer0 + 10000 && time - pec.lastEmissionTime > pec.repeatFrequency){ // shoot circle of stars every 10 seconds
+                            if(!playerInvisible && !stunned){ // state = STAND-DONT-SHOOT
+                                aidata.timer0 = time;
+                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            }
+                        }
+                        if(playerInvisible || stunned){ // state = STAND-DONT-SHOOT
                             aidata.timer0 = time;
-                            arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            asc.animatedShooting = false;
+                            pec.isShooting = false;
+                            ac.xmin = 0;
+                            ac.numFrames = 1;
+                        } else if(!pec.isShooting){
+                            asc.animatedShooting = true;
+                            pec.isShooting = true;
+                            ac.xmin = 4;
+                            ac.numFrames = 2; 
+                            ac.currentFrame = 1;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            pec.lastEmissionTime += pec.repeatFrequency / 2;
                         }
 
                     } else if (hp < aidata.survival) { // survival phase
 
                         if(!aidata.flags[0]){ // flag 0 indicates if arcMage has reached center of room
                             if(!(std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3 && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3)){
-                                chasePlayer(position, aidata.phaseTwoPositions[1], velocity);
+                                chasePosition(position, aidata.phaseTwoPositions[1], velocity);
                                 if(!aidata.flags[3]){
                                     assetStore->PlaySound(MNOVA);
                                     sec.effects[INVULNERABLE] = true;
@@ -419,7 +540,10 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         if(time >= aidata.timer0 + 3000 && time - pec.lastEmissionTime > pec.repeatFrequency){
                             aidata.timer0 = time;
                             assetStore->PlaySound(MNOVA);
-                            arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            if(!playerInvisible && !stunned){
+                                aidata.timer0 = time;
+                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                            }
                             arcMageSpawnMinionsSurvival(registry, factory, bossRoom);
                             if(sec.effects[INVULNERABLE]){
                                 sec.effects[INVULNERABLE] = false;
@@ -432,14 +556,72 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             }
                         }
 
+                        if(!aidata.flags[1]){
+                            if(playerInvisible || stunned){
+                                asc.animatedShooting = false;
+                                pec.isShooting = false;
+                                ac.xmin = 0;
+                                ac.numFrames = 1;
+                            } else if(!pec.isShooting){
+                                asc.animatedShooting = true;
+                                pec.isShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2; 
+                                ac.currentFrame = 1;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                            }
+                        }
+                        if(ac.frameSpeedRate == 4){ // if arcmage didnt recover from shoot-walk!
+                            ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
+                            asc.animatedShooting = true;
+                            pec.isShooting = true;
+                            ac.xmin = 4;
+                            ac.numFrames = 2; 
+                            ac.currentFrame = 1;
+                            pec.lastEmissionTime = 0;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                        }
+
+
 
                     } else { // second phase
                         if(aidata.flags[0]){ // flag0 used in phase 2 to indicate first frame of phase 2 
                             aidata.flags[0] = false;
                             RNG.randomFromRange(0,1) == 0 ? aidata.phaseTwoIndex = 0 : aidata.phaseTwoIndex = 2;
-                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                             aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
                             // positionflag used to keep track of where arcMage is attempting to go
+                        }
+
+                        if(playerInvisible || stunned){
+                            asc.animatedShooting = false;
+                            pec.isShooting = false;
+                            ac.xmin = 0;
+                            ac.numFrames = 1;
+                        } else if(!pec.isShooting){
+
+                            if(aidata.flags[4]){
+                                aidata.flags[4] = false;
+                                ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
+                                asc.animatedShooting = true;
+                                pec.isShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2; 
+                                ac.currentFrame = 1;
+                                pec.lastEmissionTime = 0;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                            } else {
+                                asc.animatedShooting = true;
+                                pec.isShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2; 
+                                ac.currentFrame = 1;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                            }
                         }
 
                         int timeAtSpot = 10000;
@@ -455,7 +637,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                 hitnoise = VOIDHIT;
                                 pec.shots = 12;
                                 pec.arcgap = 180;
-
+                                position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
                                 // emit wall shots, spawn some dudes 
                                 arcMageWallShots(entity, registry, bossRoom);
                                 arcMageSpawnMinionsPhaseTwo(registry, factory, bossRoom);
@@ -470,12 +652,25 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                 aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
                             }
                             if(!aidata.flags[2] && time - pec.lastEmissionTime > pec.repeatFrequency){
-                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
-                                aidata.flags[2] = true; // flags2 used in second phase to shoot confuse stars when at center of room
+                                if(!playerInvisible && !stunned){
+                                    arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                                    aidata.flags[2] = true; // flags2 used in second phase to shoot confuse stars when at center of room
+                                }
                             }
                         } else if(!aidata.flags[1]){ // flag1 used in second phase to indicate successfully arriving at destination   
                         // not arrived anywhere; keep moving to current destination
-                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+
+                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            if(playerInvisible || stunned){
+                                /**/
+                                asc.animatedShooting = 0;
+                                ac.xmin = 1;
+                                ac.frameSpeedRate = 4;
+                                ac.numFrames = 2;
+                                aidata.flags[4] = true;
+                                /**/
+                                velocity.x < 0.0 ? sprite.flip = SDL_FLIP_HORIZONTAL : sprite.flip = SDL_FLIP_NONE; 
+                            }
                         }
 
                         // destination successfully reached and time spent there elapsed; time to move to new destination 
@@ -483,7 +678,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             aidata.flags[2] = aidata.flags[1] = false;
                             aidata.phaseTwoIndex++;
                             if(aidata.phaseTwoIndex > 3){aidata.phaseTwoIndex = 0;}
-                            chasePlayer(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
                             aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
                             if(aidata.phaseTwoIndex == 1 || aidata.phaseTwoIndex == 3){ // leaving wall
                                 assetStore->PlaySound(MNOVA);
@@ -506,7 +701,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         aidata.timer0 = SDL_GetTicks() + 2500;
                         aidata.flags[0] = true;
                     }
-                    if(SDL_GetTicks() >= aidata.timer0){
+                    if(SDL_GetTicks() >= aidata.timer0 && !playerInvisible){
                         sec.effects[INVULNERABLE] = aidata.flags[0] = false;
                         aidata.activated = true;
                         pec.isShooting = asc.animatedShooting = true;
@@ -517,15 +712,34 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                         pec.lastEmissionTime += pec.repeatFrequency / 2; 
                         aidata.timer0 = SDL_GetTicks();
                         aidata.flags[0] = false;
-                        starShotgun(entity, registry, playerPos);
+                        if(!stunned){
+                            starShotgun(entity, registry, playerPos);
+                        }
                         // hp -= 20000;
                     }
                 } else { // boss activated: phases
                     auto time = SDL_GetTicks();
                     if(hp > aidata.secondPhase){ // phase one 
                         if(time > aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
-                            aidata.timer0 = time;
-                            starShotgun(entity, registry, playerPos);
+                            if(!playerInvisible && !stunned){
+                                aidata.timer0 = time;
+                                starShotgun(entity, registry, playerPos);
+                            }
+                        }
+
+                        if(playerInvisible || stunned){
+                                asc.animatedShooting = false;
+                                pec.isShooting = false;
+                                ac.xmin = 0;
+                                ac.numFrames = 1;
+                        } else if(!pec.isShooting){
+                                asc.animatedShooting = true;
+                                pec.isShooting = true;
+                                ac.xmin = 4;
+                                ac.numFrames = 2; 
+                                ac.currentFrame = 1;
+                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                pec.lastEmissionTime += pec.repeatFrequency / 2;
                         }
 
                     } else if(hp < aidata.survival){ // survival
@@ -533,20 +747,24 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             aidata.flags[0] = false;
                             aidata.positionflag = playerPos;
                             ac.xmin = 0;
-                            ac.numFrames = 3;
+                            ac.numFrames = 3;       // walking animation data 
                             ac.currentFrame = 1;
                             ac.frameSpeedRate = 2000 / 500;
                             aidata.flags[1] = true; // flag[1] = true means chasing, else shooting at center
                             
                         }
 
-                        if(aidata.flags[1]){ // flag[1] = chasing sequence
-                            chasePlayer(position, aidata.positionflag, velocity);
+                        if(aidata.flags[1]){ // flag[1] = chasing sequence (gordon is chasing)
+                            // if chasing player, aidata.positionflag was already assigned to players position while gordon was at center of room
+
+                            chasePosition(position, aidata.positionflag, velocity); // he is chasing player here
                             if(!aidata.flags[2] && ((std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3) || entity.GetComponent<CollisionFlagComponent>().collisionFlag != NONESIDE)){
                                 aidata.flags[2] = true; // flags[2] means player reached during first part of chase
-                                gordonSurvivalShotGun(entity, registry, playerPos);
+                                if(!playerInvisible && !stunned){
+                                    gordonSurvivalShotGun(entity, registry, playerPos);
+                                }
                             }
-                            if(aidata.flags[2]){
+                            if(aidata.flags[2]){ // player reached, return to spawnPoint
                                 aidata.positionflag = aidata.spawnPoint;
                                 if(std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3){ // arrived at center again
                                     Entity gs = factory->spawnMonster(registry, aidata.spawnPoint, GIGASHEEP);
@@ -557,18 +775,37 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                 }
                             }
                             // if arrived at player, set new position target to spawnPoint
-                        } else { // go to center and shoot for X seconds    
-                            if(!aidata.flags[2]){ // first frame of standign at center
+                        } else { // go to center and shoot for X seconds (gordon is at center)
+
+                            if(playerInvisible || stunned){
+                                ac.xmin = 0;
+                                ac.numFrames = 1;
+                                pec.isShooting = asc.animatedShooting = false;
+                            } else { 
+                                if (ac.numFrames == 1){
+                                    pec.isShooting = asc.animatedShooting = true;
+                                    ac.xmin = 4;
+                                    ac.numFrames = 2;       // walking animation data 
+                                    ac.currentFrame = 1;
+                                    ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                                    pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                }
+                                if(time - pec.lastEmissionTime > pec.repeatFrequency){
+                                    starShotgun(entity, registry, playerPos, true);
+                                }
+                            }
+
+                            if(!aidata.flags[2] && !playerInvisible && !stunned){ // first frame of standign at center
                                 aidata.flags[2] = pec.isShooting = asc.animatedShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2;
-                                ac.currentFrame = 1;
+                                ac.currentFrame = 1;    // standing-shooting animation data
                                 // ac.frameSpeedRate = 2000 / pec.repeatFrequency;
                                 ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
                                 pec.lastEmissionTime += pec.repeatFrequency / 2;
                                 aidata.timer0 = time;
                             }
-                            if(time > aidata.timer0 + 10000){
+                            if(time > aidata.timer0 + 10000 && !playerInvisible){ // no need for stunned logic here
                                 ac.xmin = 0;
                                 ac.numFrames = 3;
                                 ac.currentFrame = 1;
@@ -597,10 +834,23 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                             registry->Update();
                             // hp -= 29000;
                         }
+
+                        if(playerInvisible || stunned){
+                            ac.xmin = 0;
+                            ac.numFrames = 1;
+                            ac.currentFrame = 1;
+                        } else if (ac.xmin == 0) { // restore stuff after stunned / invisible if needed
+                            ac.xmin = 4;
+                            ac.currentFrame = 1;
+                            ac.numFrames = 2;
+                            aidata.timer0 = time - pec.repeatFrequency;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        }
+
                         bool key1alive = registry->GetCreationIdFromEntityId(aidata.idKeyOne) == aidata.cIdKeyOne;
                         bool key2alive = registry->GetCreationIdFromEntityId(aidata.idKeyTwo) == aidata.cIdKeyTwo;
                         if(key1alive || key2alive){
-                            if(time > aidata.timer0 + 500){
+                            if(time > aidata.timer0 + 500 && !playerInvisible && !stunned){
                                 aidata.timer0 = time;
                                 gordonPhaseTwoShots(entity, registry, aidata.phaseThreeIndex, aidata.phaseOnePositions);
                                 // phase three index used to select origin. its overflow is controlled by reference in gordonPhaseTwoShots
@@ -615,7 +865,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                         aidata.phaseOneIndex = 0;
                                     }    
                                 }
-                                chasePlayer(key1pos, aidata.phaseOnePositions[aidata.phaseOneIndex], key1velocity); 
+                                chasePosition(key1pos, aidata.phaseOnePositions[aidata.phaseOneIndex], key1velocity); 
                                 auto& key1flip = registry->GetComponent<SpriteComponent>(aidata.idKeyOne).flip;
                                 playerPos.x <= key1pos.x ? key1flip = SDL_FLIP_HORIZONTAL : key1flip = SDL_FLIP_NONE;
                                 aidata.timer1 = time;
@@ -630,7 +880,7 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                                         aidata.phaseTwoIndex = 35;
                                     }    
                                 }
-                                chasePlayer(key2pos, aidata.phaseTwoPositions[aidata.phaseTwoIndex], key2velocity); 
+                                chasePosition(key2pos, aidata.phaseTwoPositions[aidata.phaseTwoIndex], key2velocity); 
                                 auto& key2flip = registry->GetComponent<SpriteComponent>(aidata.idKeyTwo).flip; 
                                 playerPos.x <= key2pos.x ? key2flip = SDL_FLIP_HORIZONTAL : key2flip = SDL_FLIP_NONE;
                                 aidata.timer1 = time;
@@ -663,128 +913,8 @@ void BossAISystem::Update(const glm::vec2& playerPos, std::unique_ptr<AssetStore
                 }
             } break;
         }
-        playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
-    }
-}
-
-AnimatedPounceAISystem::AnimatedPounceAISystem(){
-    RequireComponent<AnimatedPounceAIComponent>();
-    RequireComponent<ProjectileEmitterComponent>();
-    RequireComponent<AnimatedShootingComponent>();
-    RequireComponent<AnimationComponent>();
-    RequireComponent<TransformComponent>();
-    RequireComponent<RidigBodyComponent>();
-    RequireComponent<SpriteComponent>();
-    RequireComponent<StatusEffectComponent>();
-    RequireComponent<SpeedStatComponent>();
-}
-
-void AnimatedPounceAISystem::Update(const glm::vec2& playerPos){
-    for(auto& entity: GetSystemEntities()){
-        const auto& position = entity.GetComponent<TransformComponent>().position;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
-        auto& aidata = entity.GetComponent<AnimatedPounceAIComponent>();
-        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-        auto& ac = entity.GetComponent<AnimationComponent>();
-        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-        auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
-        if(distanceToPlayer <= aidata.detectRange){ 
-            if(distanceToPlayer <= aidata.engageRange){ // pounce if possible!
-                auto time = SDL_GetTicks();
-                if(!aidata.pouncing){
-                    if(time > aidata.lastPounceTime + aidata.pounceCooldown){ // not pouncing & pouncing cooldown expired
-                        aidata.pouncing = true;
-                        aidata.lastPounceTime = time;
-                    } 
-                    if(distanceToPlayer < 50){ 
-                        velocity.x = velocity.y = 0;
-                        if(pec.isShooting){
-                            if(pec.lastEmissionTime >= aidata.lastPounceTime + pec.repeatFrequency - pec.repeatFrequency / 2){ // shot completed
-                                asc.animatedShooting = pec.isShooting = false;
-                            }
-                            // ac.xmin = 4;
-                            // ac.numFrames = 2; 
-                            // ac.currentFrame = 1;
-                        } else {
-                            // velocity.x = velocity.y = 0;
-                            ac.xmin = 0;
-                            ac.numFrames = 1;
-                        }
-                    } else {
-                        speed = aidata.speeds[0];
-                        if(pec.isShooting){
-                            if(pec.lastEmissionTime >= aidata.lastPounceTime + pec.repeatFrequency - pec.repeatFrequency / 2){ // shot completed
-                                asc.animatedShooting = pec.isShooting = false;
-                            }
-                            // ac.xmin = 4;
-                            // ac.numFrames = 2; 
-                            // ac.currentFrame = 1;
-                        } else {
-                            ac.xmin = 0;
-                            entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 1 : ac.numFrames = 2;
-                        }
-                        chasePlayer(position, playerPos, velocity); 
-
-                    }
-                } else {
-                    if(time >= aidata.lastPounceTime + 1000){ // end pounce: time elapsed  (walk)
-                        speed = aidata.speeds[0];
-                        asc.animatedShooting = pec.isShooting = true;
-                        // ac.xmin = 4;
-                        // ac.numFrames = 2; 
-                        // ac.currentFrame = 1;
-                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                        pec.lastEmissionTime += pec.repeatFrequency / 2;
-                        chasePlayer(position, playerPos, velocity);
-                        aidata.pouncing = false;
-                        aidata.lastPounceTime = time;
-                    } else if (distanceToPlayer < 50){ // end pounce: target reached (stand)
-                        asc.animatedShooting = pec.isShooting = true;
-                        // ac.xmin = 4;
-                        // ac.numFrames = 2; 
-                        // ac.currentFrame = 1;
-                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                        pec.lastEmissionTime += pec.repeatFrequency / 2;
-                        velocity.x = velocity.y = 0;
-                        aidata.pouncing = false; 
-                        aidata.lastPounceTime = time;
-                    } else { //continue pounce
-                        asc.animatedShooting = false;
-                        pec.isShooting = false;
-                        ac.xmin = 0;
-                        entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 1 : ac.numFrames = 2;
-                        // aidata.lastPounceTime = time;
-                        speed = aidata.speeds[2];
-                        chasePlayer(position, playerPos, velocity);    
-                    }
-                }
-                playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
-            } else { // chase at regular speed. dont shoot or pounce
-                speed = aidata.speeds[1];
-                if(chasePlayer(position, playerPos, velocity) < 0){ // facing left
-                    flip = SDL_FLIP_HORIZONTAL;
-                } else { // facing right
-                    flip = SDL_FLIP_NONE;
-                }
-                asc.animatedShooting = false;
-                pec.isShooting = false;
-                ac.xmin = 0;
-                if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
-                    ac.numFrames = 2;   
-                } else {
-                    ac.numFrames = 1;
-                }
-            }
-        } else { // out of range; do nothing
-            asc.animatedShooting = false;
-            pec.isShooting = false;
-            ac.xmin = 0;
-            ac.numFrames = 1;
-            velocity.x = 0;
-            velocity.y = 0;                            
+        if(!playerInvisible){
+            playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
         }
     }
 }

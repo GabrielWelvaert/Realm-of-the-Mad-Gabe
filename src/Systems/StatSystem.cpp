@@ -238,6 +238,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
         sec.effects[PARALYZE] = false;
         sec.effects[QUIET] = false;
         sec.effects[BLEEDING] = false;
+        sec.effects[STUNNED] = false;
     }
 
     // active stats need to match base stat (not visible to user, but in back-end it works like this)

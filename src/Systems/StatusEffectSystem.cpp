@@ -10,12 +10,15 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<StatusEffectEvent>(this, &StatusEffectSystem::onStatusEnable);
 }
 
+// 8 status effects = 1mb
+// 10 status effects = 5mb
 void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
     SDL_Texture* texture;
     SDL_Rect dstRect;
     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
-	for(unsigned int i = 1; i < (1 << 8); i++){ // incrementation of bitset starting at 00000001
-        std::bitset<8> bits(i);
+    const int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
+	for(unsigned int i = 1; i < (1 << totalNumberStatusEffects); i++){ // incrementation of bitset starting at 00000001
+        std::bitset<totalNumberStatusEffects> bits(i);
         int numIconsToRender = bits.count();
         int iconDimension = 16;
         int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
@@ -23,15 +26,15 @@ void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, texture);
         int iconsRendered = 0;
-        for(int i = 0; i <= 7; i++){
+        for(int i = 0; i < totalNumberStatusEffects; i++){
             if(bits[i]){
                 dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
                 iconsRendered++;
             }
         }
-        iconSets.push_back(texture);
-	}
+        iconSets.push_back(texture); // private vector used by this system
+    }
 }
 
 void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify stats if necessary, save modified value for reversal later
@@ -50,6 +53,10 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
                 // const auto& basestats = entity.GetComponent<BaseStatComponent>();
                 auto& hpmp = entity.GetComponent<HPMPComponent>();
                 hpmp.activemp = 0;
+                if(sec.effects[INVISIBLE]){ // getting hit with quiet disables invisibility
+                    sec.effects[INVISIBLE] = false;
+                    onStatusDisable(entity, INVISIBLE, event.eventbus);
+                }
             }
             // monsters dont use mana
             displayStatusEffectText(event.registry, statusEnum, entity);
@@ -103,33 +110,36 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
         case BLEEDING:{
             displayStatusEffectText(event.registry, statusEnum, entity); 
         }break;
+        case STUNNED:{
+            displayStatusEffectText(event.registry, statusEnum, entity);
+            // todo ?
+        }break;
+        case INVISIBLE:{
+            if(entity.BelongsToGroup(PLAYER)){
+                entity.GetComponent<SpriteComponent>().assetId = INVISIBLEPLAYERS;
+            } else {
+                // todo monster invisibility
+            }
+        }break;
     }
     if(entity.BelongsToGroup(PLAYER)){
         event.eventbus->EmitEvent<UpdateDisplayStatEvent>(entity);    
     }
 }
 
-void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnum, std::unique_ptr<EventBus>& eventbus){ // revert changes if necessary, called from this system's Update()
+void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std::unique_ptr<EventBus>& eventbus){ // revert changes if necessary, called from this system's Update()
     auto& sec = recipient.GetComponent<StatusEffectComponent>();
-    switch(statusEnum){
-        case 0: // QUIET
-        case 2: // PARALYZE
-        case 5: // CONFUSED
-        case 6: // BLEEDING
-        case 7:{// INVULNERABLE
-            // these dont modify stats; nothing to reset
-            return; 
-        }break;
-        case 1:{// SLOWED 
+    switch(status){
+        case SLOWED:{// SLOWED 
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
             activespeed += sec.modifications[SLOWED];
         }break;
-        case 3:{ //SPEEDY
+        case SPEEDY:{ //SPEEDY
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
             activespeed -= sec.modifications[SPEEDY];
         }break;
-        case 4:{ //BERSERK
-            if(recipient.BelongsToGroup(PLAYER)){
+        case BERSERK:{ //BERSERK
+            if(recipient.BelongsToGroup(PLAYER)){ // ? 
                 const auto& basestats = recipient.GetComponent<BaseStatComponent>();
                 auto& offensestats = recipient.GetComponent<OffenseStatComponent>();
                 offensestats.activedexterity -= sec.modifications[BERSERK];
@@ -138,7 +148,16 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, const int& statusEnu
                 projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); 
                 frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
             }
-        } 
+        }break;
+        case INVISIBLE:{
+            if(recipient.BelongsToGroup(PLAYER)){
+                recipient.GetComponent<SpriteComponent>().assetId = PLAYERS;
+            } else {
+                // todo monster invisibility
+            }
+        } break;
+        default:{ // some status effects do not require anything to be reverted
+        }break;
         
     }
     if(recipient.BelongsToGroup(PLAYER)){
@@ -157,7 +176,7 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
     for(auto& entity: GetSystemEntities()){
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         if(!sec.effects.none()){ // if no statuses for this entity, continue
-            for(int i = 0; i <= 7; i++){
+            for(int i = 0; i < TOTAL_NUMBER_OF_STATUS_EFFECTS; i++){ // 
                 if(sec.effects[i]){
                     if(i == BLEEDING && currentTime >= sec.lastBleedTime + 250){ // bleeding logic done here for cache-friendliness
                         auto& activehp = entity.GetComponent<HPMPComponent>().activehp;
@@ -168,7 +187,7 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
                     }
                     if(currentTime >= sec.endTimes[i]){ // status effect expired; revert changes if necessary
                         sec.effects[i] = false;
-                        onStatusDisable(entity, i, eventbus);
+                        onStatusDisable(entity, static_cast<statuses>(i), eventbus);
                     } 
                 }
             }    

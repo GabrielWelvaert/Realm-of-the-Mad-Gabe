@@ -19,6 +19,9 @@
 #include "../Events/WeaponEquipEvent.h"
 #include "../EventBus/EventBus.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Components/OscillatingProjectileComponent.h"
+#include "../Components/LinearProjectileComponent.h"
+
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired
 It also contains the algorithm for shots with multiple projectiles
@@ -30,6 +33,7 @@ class ProjectileEmitSystem: public System{
 
         const soundEnums playerSounds[12] = {BLADESWING, ARROWSHOOT, MAGICSHOOT, MAGICSHOOT, BLADESWING, BLADESWING, BLADESWING, BLADESWING, MAGICSHOOT, ARROWSHOOT, MAGICSHOOT, BLADESWING};
         const int projectilescale = 5;
+        
         // given projectile origin and destination coordiantes and ProjectileEmitterComponent.velocity reference
         // 1) updates ProjectileEmitterComponent velocity 
         // 2) returns degrees of rotation to be added to projectile's transformComponent.rotation 
@@ -49,7 +53,6 @@ class ProjectileEmitSystem: public System{
             emitterVelocity.x = originVelocity.x * std::cos(deltaRadians) - originVelocity.y * std::sin(deltaRadians);
             emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
         }
-
 
     public:
         ProjectileEmitSystem();

@@ -4,7 +4,7 @@
 #include "../../libs/SDL2/SDL.h"
 #include "../Utils/enums.h"
 /*
-Each ability inherits from parent ability class and abilities are used via their respective events
+Ability Component has data used by all abilities. other components are unique (semantically) to each category
 */
 struct AbilityComponent{
     bool abilityEquipped;
@@ -30,6 +30,38 @@ struct TomeComponent{
 
     inline TomeComponent(int hp, items tomeEnum): hp(hp), tomeEnum(tomeEnum) {} 
 
+};
+
+struct ShieldComponent{
+    statuses debuff;
+    int debuffDuration;
+    int numshots;
+    int minDamage;
+    int maxDamage;
+
+    inline ShieldComponent() = default;
+    inline ShieldComponent(statuses debuff, int debuffDuration, int numshots, int minDamage, int maxDamage): 
+        debuff(debuff), debuffDuration(debuffDuration), numshots(numshots), minDamage(minDamage), maxDamage(maxDamage) {}
+};
+
+struct SpellComponent{
+    int minDamage;
+    int maxDamage;
+    textureEnums texture;
+    SDL_Rect srcRect;
+
+    inline SpellComponent() = default;
+    inline SpellComponent(int minDamage, int maxDamage, textureEnums texture, SDL_Rect srcRect):
+        minDamage(minDamage), maxDamage(maxDamage), texture(texture), srcRect(srcRect) {}
+};
+
+struct CloakComponent{
+    int invisibilityDuration;
+    items itemEnum;
+
+    inline CloakComponent() = default;
+
+    inline CloakComponent(int invisibilityDuration, items itemEnum): invisibilityDuration(invisibilityDuration), itemEnum(itemEnum) {}
 };
 
 struct HelmComponent{

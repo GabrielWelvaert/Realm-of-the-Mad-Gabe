@@ -66,6 +66,21 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                         ac.timeLastUsed = time;
                         eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);
                         break;}
+                    case WIZARD:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<SpellUseEvent>(player, registry,mouseX, mouseY, camera);
+                        break;}
+                    case KNIGHT:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<ShieldUseEvent>(player, registry,mouseX, mouseY, camera);
+                        break;}
+                    case ROGUE:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<CloakUseEvent>(player, eventbus, registry);
+                        break;}
                 }
             }
         }

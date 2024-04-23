@@ -12,8 +12,8 @@ void DamageSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 }
 
 void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
-    auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
     auto& victimHPMPComponent = event.victim.GetComponent<HPMPComponent>();
+    auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
     const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
     const auto& invulnerable = event.victim.GetComponent<StatusEffectComponent>().effects[INVULNERABLE];
     soundEnums hitSoundId,deathSoundId;
@@ -29,8 +29,12 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
             projectileVictimsAsCIDs[event.projectile.GetCreationId()].emplace(event.victim.GetCreationId()); // record this target being victim of this piercing projectile for further reference
         }
     } else {
+        // projectile damage stored in local copy realdamage: 
         projectileComponent.damage = -1; // this non-piercing projectile will still exist until end of frame (next registry update); mark it as -1 damage so it may not hit anyone else
         event.projectile.Kill();
+        if(victimHPMPComponent.activehp < 0 && groupOfVictim == MONSTER){ // monster already died this frame. return so we dont get duplicated xp drops but still kill projectile to stop spellbombs from being overpowered
+            return;
+        }
     } 
 
     // defense & damage calculation
@@ -52,7 +56,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
         }
     }
 
-    // noise logic
+    // noise logic and check if this monster already died this frame
     if(groupOfVictim == PLAYER){
         hitSoundId = playerHitSounds[RNG.randomFromRange(0,5)];
     } else { // monster is victim

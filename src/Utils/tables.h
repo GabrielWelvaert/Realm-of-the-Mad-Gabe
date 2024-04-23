@@ -85,6 +85,10 @@ struct playerPECupdateData{
     unsigned short boxdwith;
     unsigned short boxheight;
     glm::vec2 boxoffset;
+
+    bool oscillation;
+    float amplitude;
+    float frequency;
 };
 
 struct wallData{
@@ -125,6 +129,10 @@ struct enemyPECData{ // same as PEC minus parent, lastEmissionTime, velocity
     unsigned short durationMS;
 
     bool ignoresDefense;
+
+    bool oscillation;
+    float amplitude;
+    float frequency;
 };
 
 struct statData{ // used to populate HPMPComponent, OffenseStatComponent, SpeedStatComponent, ClassNameComponent for MONSTERS
@@ -186,6 +194,24 @@ struct ItemTableComponentData{
 struct helmData{
     Uint32 duration;
 };
+
+struct spellData{
+    int minDamage;
+    int maxDamage;
+    textureEnums texture;
+    SDL_Rect srcRect;
+};
+
+struct shieldData{
+    statuses debuff;
+    int minDamage;
+    int maxDamage;
+    int debuffDuration;
+    int numshots;
+};
+
+extern std::unordered_map<items, shieldData> itemEnumToShieldData;
+extern std::unordered_map<items, spellData> itemEnumToSpellData;
 extern std::vector<std::vector<int>> gordonLairOnlyFloors;
 extern std::vector<std::vector<int>> gordonLair;
 extern std::unordered_map<int, SDL_Color> miniMapColors;

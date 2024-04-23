@@ -21,9 +21,12 @@
 #include "../Events/TomeUseEvent.h"
 #include "../Events/QuiverUseEvent.h"
 #include "../Events/HelmUseEvent.h"
+#include "../Events/SpellUseEvent.h"
 #include "../AssetStore/AssetStore.h"
 #include "../Components/PlayerItemsComponent.h"
 #include "../Components/StatusEffectComponent.h"
+#include "../Events/CloakUseEvent.h"
+#include "../Events/ShieldUseEvent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
