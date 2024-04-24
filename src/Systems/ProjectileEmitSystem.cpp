@@ -68,8 +68,9 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, SDL_Rect 
                             xDestOffset = 18;
                         } break;
                         case 5:{ // wizard bolts
-                            yDestOffset = 0;
-                            projectilePosition.x += 8;
+                            yDestOffset = 10;
+                            xDestOffset = 8;
+                            projectilePosition.x += 6;
                         } break;
                     }
                     rotationDegrees = getRotationFromCoordiante(PEC.projectileSpeed, projectilePosition.x, projectilePosition.y, mx+camera.x-xDestOffset, my+camera.y-yDestOffset, originVelocity, isDiagonal);
