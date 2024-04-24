@@ -47,6 +47,14 @@ void ChaseAISystem::Update(const Entity& player){
         if(distanceToPlayer <= aidata.detectRange){
             if(distanceToPlayer <= aidata.engageRange){
                 if(distanceToPlayer <= aidata.maxDistance){ // shoot dont chase 
+                    if(!pec.isShooting && !stunned){
+                        pec.isShooting = true;
+                    }
+                    if(stunned){
+                        pec.isShooting = false;
+                    } else if(pec.isShooting == false){
+                        pec.isShooting = true;
+                    } 
                     velocity.x = 0;
                     velocity.y = 0;
                 } else { // shoot, chase 

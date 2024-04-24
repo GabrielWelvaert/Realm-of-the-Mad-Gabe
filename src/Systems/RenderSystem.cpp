@@ -5,7 +5,7 @@ RenderSystem::RenderSystem() {
     RequireComponent<SpriteComponent>();
 }
 
-void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, bool renderMiniMap, int idOFMiniMap, int idOfboss, int creationIdOfBoss){
+void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, bool renderMiniMap, int idOFMiniMap, int idOfboss, int creationIdOfBoss, bool renderHealthBars){
 
     //sort(begin, end, lambda function that compares two)
     auto& entities = GetSystemEntities();
@@ -143,8 +143,8 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
 
         // map icon for boss is displayed on top of the veil so player has indication of boss existing
         if(idOfboss > -1 && registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){ // if we're in an area that has a boss, and its still alive...
-            const auto& position = registry->GetComponent<TransformComponent>(idOfboss).position;
-            mmpMonster = {(position.x / mapPixels) * 240.0, (position.y / mapPixels) * 240.0}; // real position in 240x240 mini map
+            const auto& transform = registry->GetComponent<TransformComponent>(idOfboss);
+            mmpMonster = {(transform.position.x / mapPixels) * 240.0, (transform.position.y / mapPixels) * 240.0}; // real position in 240x240 mini map
             if(scale > 1.0){
                 renderSpotMonster = {renderSpotPlayer.x + ((mmpMonster.x - mmpPlayer.x) * (scale)), renderSpotPlayer.y + ((mmpMonster.y - mmpPlayer.y) * (scale))};              
             } else {
@@ -155,11 +155,88 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
                 SDL_SetRenderDrawColor(renderer,211,30,18,255);
                 SDL_RenderFillRect(renderer, &dstRectMonster);       
             } 
+
+            // render boss health bar
+            const auto& sprite = registry->GetComponent<SpriteComponent>(idOfboss);
+            if(renderHealthBars && transform.position.x - camera.x < 750){ // if some part of hp bar not under HUD
+
+                auto rightcorner = transform.position.x + sprite.width * transform.scale.x - camera.x;
+                int widthSubtraction = 0;
+                if(rightcorner > 750){
+                    widthSubtraction = rightcorner - 750;
+                }
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_Rect rect = {
+                    static_cast<int>(transform.position.x - camera.x), 
+                    static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                    static_cast<int>((sprite.width * transform.scale.x) - widthSubtraction),
+                    static_cast<int>(8)
+                };
+                SDL_RenderFillRect(renderer, &rect);
+
+                const auto& hpmp = registry->GetComponent<HPMPComponent>(idOfboss);
+                auto percentHealth = hpmp.activehp / hpmp.maxhp;
+                rightcorner = transform.position.x - camera.x + (sprite.width * transform.scale.x * percentHealth);
+                if(rightcorner > 750){
+                    widthSubtraction = rightcorner - 750;
+                } else {
+                    widthSubtraction = 0;
+                }
+                rect = {
+                    static_cast<int>(transform.position.x - camera.x), 
+                    static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                    static_cast<int>((sprite.width * transform.scale.x * percentHealth) - widthSubtraction),
+                    static_cast<int>(8)
+                };
+                SDL_SetRenderDrawColor(renderer, hpbarcolor.r, hpbarcolor.g, hpbarcolor.b, 255);
+                SDL_RenderFillRect(renderer, &rect);
+            }
+        }
+
+        if(renderHealthBars){
+            const auto& transform = player.GetComponent<TransformComponent>();
+            const auto& sprite = player.GetComponent<SpriteComponent>();
+            const auto& hpmp = player.GetComponent<HPMPComponent>();
+
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+            SDL_Rect rect = {
+                static_cast<int>(transform.position.x - camera.x), 
+                static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                static_cast<int>(sprite.width * transform.scale.x),
+                static_cast<int>(8)
+            };
+            SDL_RenderFillRect(renderer, &rect);
+
+            auto percentHealth = hpmp.activehp / hpmp.maxhp;
+            rect = {
+                static_cast<int>(transform.position.x - camera.x), 
+                static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                static_cast<int>(sprite.width * transform.scale.x * percentHealth),
+                static_cast<int>(8)
+            };
+            SDL_SetRenderDrawColor(renderer, hpbarcolor.r, hpbarcolor.g, hpbarcolor.b, 255);
+            SDL_RenderFillRect(renderer, &rect);
+
         }
 
         // render player square after monsters so its always on top
         SDL_SetRenderDrawColor(renderer,4,4,252,255);
         SDL_RenderFillRect(renderer, &dstRectPlayer);
+
+
+        // make the screen kinda red to warn player about health below 15%
+        auto& playerHPMP = player.GetComponent<HPMPComponent>();
+        auto percentHealth = playerHPMP.activehp / playerHPMP.maxhp;
+        constexpr int maxalpha = 128;
+        if(percentHealth < .15){
+            auto alpha = static_cast<int>(maxalpha-(maxalpha * (1 - exp(-5 * percentHealth)))); // alpha value decreases as health decreases
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 150,0,0,alpha);
+            SDL_Rect screen = {0,0,750,750};
+            SDL_RenderFillRect(renderer, &screen);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+
+        }
     }
 
 }

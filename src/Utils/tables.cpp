@@ -2609,7 +2609,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T13DAGGER, {400,125,220,896,false,1,0,LOFIOBJ5B, 3, 6, {13*8+2, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
     {T14DAGGER, {400,140,235,896,false,1,0,LOFIOBJ2, 3, 6, {5*8+3, 8*10+1, 3, 6}, 3, false,12,12,{0,8}, false, 0, 0}},
     
-    {T0STAFF, {475,10,25,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white missile  oscillation, amp, freq
+    {T0STAFF, {475,10,25,1152,false,1,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white missile  oscillation, amp, freq
     {T1STAFF, {475,10,30,1152,false,2,0,LOFIOBJ2, 5,5, {8*10+2, 8*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // red missile
     {T2STAFF, {475,15,35,1152,false,2,0,LOFIOBJ2, 5,5, {12*8+2, 9*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // white missile
     {T3STAFF, {475,20,40,1152,false,2,0,LOFIOBJ, 5,5, {13*8+2, 13*8+1, 5,5}, 3, true,8,8,{12,12}, true, 24, .004}}, // green missile

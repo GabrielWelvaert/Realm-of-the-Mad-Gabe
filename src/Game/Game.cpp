@@ -168,6 +168,7 @@ std::unordered_map<SDL_Keycode, int> keyindex = {
 std::bitset<8> inventoryUses; // used to enforce player can use an inventory slot ONCE per ProcessInput (as to not clog eventbus)
 bool space = false;
 bool shift = false;
+bool h = false;
 SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
@@ -256,6 +257,9 @@ void Game::ProcessInput(){
                                 }
                             }
                         } break;
+                        case SDLK_h:{
+                            h = !h;
+                        } break; 
                         case SDLK_SPACE:{
                             space = true;
                         } break;
@@ -290,6 +294,9 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, T12STAFF, lootbag);
                             factory->createItemInBag(registry, T13STAFF, lootbag);
                             factory->createItemInBag(registry, T14STAFF, lootbag);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            factory->createItemInBag(registry, T4DEFRING, lootbag);
+                            factory->createItemInBag(registry, T14LIGHTARMOR, lootbag);
                         } break;
                         case SDLK_MINUS:{
                             if(dungeonRooms.size() > 0){
@@ -300,12 +307,11 @@ void Game::ProcessInput(){
                                 player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
                             }
                         } break;
-                        // case SDLK_BACKSPACE:{
-                        //     auto& xp = player.GetComponent<BaseStatComponent>().xp;
-                        //     xp += 20000;
-                        //     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                        //     // factory->spawnMonster(registry, playerPos, BAT0);
-                        // } break;
+                        case SDLK_BACKSPACE:{
+                            player.GetComponent<HPMPComponent>().activehp = 30;
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                        } break;
                         default:
                             break;
                     } 
@@ -2622,7 +2628,7 @@ void Game::Update(){
 void Game::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
-    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity, idOfBoss, creationIdOfBoss);
+    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity, idOfBoss, creationIdOfBoss, h);
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 
