@@ -169,6 +169,7 @@ std::bitset<8> inventoryUses; // used to enforce player can use an inventory slo
 bool space = false;
 bool shift = false;
 bool h = false;
+bool t = false;
 SDL_Keycode key;
 unsigned int startTime;
 const unsigned int MSToReadInput = 1;
@@ -180,6 +181,7 @@ std::vector<sprites> monsters = { BAT0 };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
+    auto& playerIsShooting = player.GetComponent<ProjectileEmitterComponent>().isShooting;
     // DO NOT RESET KEYSPRESSED!! 
 
     while(SDL_GetTicks() - startTime < MSToReadInput){
@@ -255,6 +257,13 @@ void Game::ProcessInput(){
                                         playerIC.hoverStartTime = 0 - 1;
                                     }
                                 }
+                            }
+                        } break;
+                        case SDLK_t:{
+                            if(t){
+                                playerIsShooting = t = false;
+                            } else {
+                                playerIsShooting = t = true;
                             }
                         } break;
                         case SDLK_h:{
@@ -350,7 +359,7 @@ void Game::ProcessInput(){
     if(keysPressed[4]){
         if(mouseX <= 750){
             if(!player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame){
-                player.GetComponent<ProjectileEmitterComponent>().isShooting = true;    
+                playerIsShooting = true;    
             }
         } else if(mouseX >= 970 && mouseY <= 280 && mouseY >= 250 && mouseX <= 990){ // clicked nexus button
             if(currentArea != NEXUS){
@@ -386,8 +395,8 @@ void Game::ProcessInput(){
             }
             deltaTime = 0.0;
         }
-    } else {
-        player.GetComponent<ProjectileEmitterComponent>().isShooting = false;
+    } else if (!t){
+        playerIsShooting = false;
     }
 
 }
@@ -2528,6 +2537,7 @@ void Game::SpawnAreaEntities(wallTheme area){
 }
 
 void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts
+    t = false; // autofire button reset when changing areas
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
