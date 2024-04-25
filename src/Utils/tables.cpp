@@ -725,6 +725,7 @@ std::unordered_map<items, const char *> abillityItemToInfo = {
     {T6QUIVER, "paralyzing"},
     {T7QUIVER, "paralyzing"},
     {T8QUIVER, "paralyzing"},
+    {DOOMQUIVER, "paralyzing"},
 
 };
 
@@ -788,6 +789,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6QUIVER, {500,75}},
     {T7QUIVER, {500,80}},
     {T8QUIVER, {500,85}},
+    {DOOMQUIVER, {500,120}},
     {T0HELM, {3000,60}},
     {T1HELM, {4000,65}},
     {T2HELM, {4500,70}},
@@ -807,6 +809,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6SPELL, {500,80}},
     {T7SPELL, {500,90}},
     {T8SPELL, {500,100}},
+    {CURLYWHIRLYSPELL, {500,100}},
     {T0CLOAK, {3500,55}},
     {T1CLOAK, {4000,60}},
     {T2CLOAK, {4500,65}},
@@ -816,6 +819,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6CLOAK, {6500,85}},
     {T7CLOAK, {7000,90}},
     {T8CLOAK, {7500,100}},
+    {RETRIBUTIONCLOAK, {6500, 85}},
 
     {T0SHIELD, {500,85}},
     {T1SHIELD, {500,85}},
@@ -829,7 +833,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
 };
 
 std::unordered_map<items, helmData> itemEnumToHelmData = { // also used for cloaks!! 
-    { T0HELM, {3000} },
+    { T0HELM, {3000} }, // duration
     { T1HELM, {4000} },
     { T2HELM, {4500} },
     { T3HELM, {5000} },
@@ -847,6 +851,7 @@ std::unordered_map<items, helmData> itemEnumToHelmData = { // also used for cloa
     {T6CLOAK, {5500}},
     {T7CLOAK, {6000}},
     {T8CLOAK, {6500}},
+    {RETRIBUTIONCLOAK, {5000}},
 };
 
 std::unordered_map<items, tomeData> itemEnumToTomeData = {
@@ -874,6 +879,7 @@ std::unordered_map<items, spellData> itemEnumToSpellData = {
     {T6SPELL, {80,165,LOFIOBJ2,{2*8, 8*7, 8, 8}}},
     {T7SPELL, {95,185,LOFIOBJ,{10*8, 8*9, 8, 8}}},
     {T8SPELL, {110,205,LOFIOBJ2,{8*1,8*7,8,8}}},
+    {CURLYWHIRLYSPELL, {75,150,LOFIPROJS,{8*6,8*7,8,8}}},
 };
 
 //     statuses debuff; mindamange, maxdamagem, debuffDuration;  numshots
@@ -899,6 +905,7 @@ std::unordered_map<items, quiverData> itemEnumToQuiverData = {
     {T6QUIVER, {675,775,LOFIPROJS,{8*3, 8*7, 8, 8}, PARALYZE}}, // blue 
     {T7QUIVER, {800,900,LOFIPROJS,{8*2,8*7,8,8}, PARALYZE}}, // red 
     {T8QUIVER, {975,1100,LOFIPROJS,{8,8*7,8,8}, PARALYZE}}, // green 
+    {DOOMQUIVER,{1750,2000,LOFIPROJS,{8*9, 8*7,8,8}, PARALYZE}},
 };
 
 std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats 
@@ -1057,6 +1064,9 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T6CLOAK, {0,0,0,0,5,5,2,2}},
     {T7CLOAK, {0,0,0,0,6,6,4,4}},
     {T8CLOAK, {0,0,0,0,7,7,8,8}},
+    {RETRIBUTIONCLOAK, {30,0,5,2,2,0,0,0}},
+    {DOOMQUIVER, {15,15,5,0,0,0,0,0}},
+    {CURLYWHIRLYSPELL, {0,0,0,0,2,2,0,0}}
 
     //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 };
@@ -1290,6 +1300,7 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T6SHIELD, T6SHIELDICON},
     {T7SHIELD, T7SHIELDICON},
     {T8SHIELD, T8SHIELDICON},
+    {RETRIBUTIONCLOAK, RETRIBUTIONCLOAKICON},
     {T0CLOAK, T0CLOAKICON},
     {T1CLOAK, T1CLOAKICON},
     {T2CLOAK, T2CLOAKICON},
@@ -1338,6 +1349,9 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T12DAGGER, T12DAGGERICON},
     {T13DAGGER, T13DAGGERICON},
     {T14DAGGER, T14DAGGERICON},
+    {DOOMQUIVER, {DOOMQUIVERICON}},
+    {MITHRILSWORD, {MITHRILSWORDICON}},
+    {CURLYWHIRLYSPELL, {CURLYWHIRLYSPELLICON}}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -1474,6 +1488,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T14ROBE, "Robe of the Ancient Intellect"},
     {T0QUIVER, "Magic Quiver"},
     {T1QUIVER, "Reinforced Quiver"},
+    {DOOMQUIVER, "Quiver of Doom"},
     {T2QUIVER, "Iron Quiver"},
     {T3QUIVER, "Elvencraft Quiver"},
     {T4QUIVER, "Magesteel Quiver"},
@@ -1531,6 +1546,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T8SHIELD, "Shield of Belligerence"},
     {T0CLOAK, "Cloak of Shadows"},
     {T1CLOAK, "Cloak of Darkness"},
+    {RETRIBUTIONCLOAK, "Cloak of Retribution"},
     {T2CLOAK, "Cloak of Speed"},
     {T3CLOAK, "Cloak of the Night Thief"},
     {T4CLOAK, "Cloak of the Red Agent"},
@@ -1540,6 +1556,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T8CLOAK, "Cloak of Emptiness"},
     {T0SPELL, "Fire Spray Spell"},
     {T1SPELL, "Flame Burst Spell"},
+    {CURLYWHIRLYSPELL, "Curly Whirly Spell"},
     {T2SPELL, "Fire Nova Spell"},
     {T3SPELL, "Scorching Blast Spell"},
     {T4SPELL, "Destruction Sphere Spell"},
@@ -1577,6 +1594,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T12DAGGER, "Dagger of Foul Malevolence"},
     {T13DAGGER, "Dagger of Sinister Deeds"},
     {T14DAGGER, "Dagger of Dire Hatred"},
+    {MITHRILSWORD, "Mithril Sword"},
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -1716,6 +1734,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T14ROBE, "A phenomenal robe magically woven from fibers of sapphire, topaz and lapis lazuli, created for the archwizard of the seraphic realms"},
     {T0QUIVER, "A magical quiver that enchants arrows"},
     {T1QUIVER, "An enchanted quiver made of high-quality leather and brass"},
+    {DOOMQUIVER, "A heavy quiver of devastation; each arrow a whisper of impending cataclysm, leaving naught but ruin in its wake. No mortal can fire without feeling immese recoil."},
     {T2QUIVER, "A strong quiver of magical iron"},
     {T3QUIVER, "A powerful enchanting quiver made by forest elves"},
     {T4QUIVER, "A superior enchanting quiver made of high quality magesteel"},
@@ -1770,6 +1789,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T8SHIELD, "An indestructible shield crafted by the earthgiants, bearing a long history of destruction and strife by entire nations who wish to claim it"},
     {T0CLOAK, "A magical cloak, made for slipping into shadows undetected"},
     {T1CLOAK, "An enchanted cloak steeped in magical darkness"},
+    {RETRIBUTIONCLOAK, "The Cloak of Retribution drapes its wearer in a spectral shroud, where each stolen moment from the shadows forces a toll of slowed steps while infusing every strike with unparalleled fury"},
     {T2CLOAK, "A mystical gray cloak once used by blackguard tricksters for flanking maneuvers and sneak attacks"},
     {T3CLOAK, "An exceptional cloak used by sorcerer-thieves for night operations in dockyards and storehouses"},
     {T4CLOAK, "A powerful cloak used by master spies to infiltrate the most tightly guarded fortresses"},
@@ -1779,6 +1799,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T8CLOAK, "An ancient duskcloak that shifts in and out of existence, swaddling its wearer in an all-consuming nothingness"},
     {T0SPELL, "A spell that shoots fire in all directions"},
     {T1SPELL, "A dangerous spell that summons green fire from the astral plane"},
+    {CURLYWHIRLYSPELL, "A strange crowd-controlling spell that emits slow-moving stunning shots"},
     {T2SPELL, "A deadly spell created by goblin sorcerers to subdue their orcish enemies"},
     {T3SPELL, "A formidable fire spell used by dwarven magi in their war against the trolls"},
     {T4SPELL, "An immensely powerful spell created by the wizard lords of the underworld to harness dark energies"},
@@ -1816,6 +1837,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T12DAGGER, "A crimson felsteel dagger saturated with evil deeds and the hatred of the gods"},
     {T13DAGGER, "A moonsteel dagger of the underworld, corrupted by loathsome enchantments and profane spells"},
     {T14DAGGER, "A jagged, wickedly barbed blade of evil, charged with the unreasoning rage of ancestral vendettas"},
+    {MITHRILSWORD, "An ancient sword made from the strongest and most desirable of all metals. Rumors say its range is a mistake"},
 };
 
 std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
@@ -1830,6 +1852,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T6CLOAK, CLOAK},
     {T7CLOAK, CLOAK},
     {T8CLOAK, CLOAK},
+    {RETRIBUTIONCLOAK, {CLOAK}},
     {T0SHIELD, SHIELD},
     {T1SHIELD, SHIELD},
     {T2SHIELD, SHIELD},
@@ -1848,6 +1871,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T6SPELL, SPELL},
     {T7SPELL, SPELL},
     {T8SPELL, SPELL},
+    {CURLYWHIRLYSPELL, SPELL},
     {T0DAGGER, DAGGER},
     {T1DAGGER, DAGGER},
     {T2DAGGER, DAGGER},
@@ -1893,6 +1917,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T12SWORD, SWORD},
     {T13SWORD, SWORD},
     {T14SWORD, SWORD},
+    {MITHRILSWORD, SWORD},
     {IMPBLADE, SWORD},
     {T0BOW, BOW},
     {T1BOW, BOW},
@@ -2019,6 +2044,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T6QUIVER, QUIVER},
     {T7QUIVER, QUIVER},
     {T8QUIVER, QUIVER},
+    {DOOMQUIVER, QUIVER},
     {T0TOME, TOME},
     {T1TOME, TOME},
     {T2TOME, TOME},
@@ -2063,6 +2089,7 @@ std::unordered_map<items, groups> itemToGroup = {
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T0CLOAK, BROWNLOOTBAG},
     {T1CLOAK, BROWNLOOTBAG},
+    {RETRIBUTIONCLOAK, WHITELOOTBAG},
     {T2CLOAK, BROWNLOOTBAG},
     {T3CLOAK, PURPLELOOTBAG},
     {T4CLOAK, PURPLELOOTBAG},
@@ -2071,6 +2098,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T7CLOAK, CYANLOOTBAG},
     {T8CLOAK, CYANLOOTBAG},
     {T0SPELL, BROWNLOOTBAG},
+    {CURLYWHIRLYSPELL, WHITELOOTBAG},
     {T1SPELL, BROWNLOOTBAG},
     {T2SPELL, BROWNLOOTBAG},
     {T3SPELL, PURPLELOOTBAG},
@@ -2255,6 +2283,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T14ROBE, CYANLOOTBAG},
     {T0QUIVER, BROWNLOOTBAG},
     {T1QUIVER, BROWNLOOTBAG},
+    {DOOMQUIVER, WHITELOOTBAG},
+    {MITHRILSWORD, WHITELOOTBAG},
     {T2QUIVER, BROWNLOOTBAG},
     {T3QUIVER, PURPLELOOTBAG},
     {T4QUIVER, PURPLELOOTBAG},
@@ -2539,6 +2569,10 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {SNAKESKINARMOR, {LOFIOBJ2, 8, 8 ,{8*0, 8*0, 8, 8}, 12, true, false}},
     {TWILIGHTGEMSTONE, {LOFIOBJ3, 8, 8 ,{8*1, 8*72, 8, 8}, 12, true, false}},
     {CHICKENSWORD, {LOFIOBJ2, 8, 8, {8*5, 8*11, 8, 8,}, 12, true, false}},
+    {RETRIBUTIONCLOAK, {LOFIOBJ6, 8, 8, {8*9, 8*2, 8, 8}, 12, true, false}},
+    {DOOMQUIVER, {LOFIOBJ6, 8, 8, {8*9, 8*3, 8, 8}, 12, true, false}},
+    {CURLYWHIRLYSPELL, {LOFIOBJ6, 8, 8, {8*9, 8*4, 8, 8}, 12, true, false}},
+    {MITHRILSWORD, {LOFIOBJ, 8, 8, {8*8, 8*3, 8, 8}, 12, true, false}},
 };
 
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
@@ -2559,6 +2593,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T14SWORD,{350,250,305,640,false,1,0,LOFIOBJ2,8, 8, {8*1,8*7,8,8}, 3, true, 10, 10, {14,14}, false, 0, 0}},
     {IMPBLADE,{350,90,135,500,false,2,40,LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3, true,10,10,{14,14}, false, 0, 0}},
     {CHICKENSWORD,{500,90,130,640,false,1,0,LOFIOBJ2,8, 8, {8*6,8*11,8,8}, 3, true, 32,32,{4,4}, false, 0, 0}},
+    {MITHRILSWORD, {400,120,160,1024,false,1,0,LOFIOBJ,8,8,{10*8,8*11,8,8},3, true, 10,10,{14,14}, false, 0, 0}},
 
     {T0BOW, {440, 10, 40, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},
     {T1BOW, {440, 15, 45, 1024, true,1,0,LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,true,8,8,{16,16}, false, 0, 0}},

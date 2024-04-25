@@ -283,43 +283,43 @@ void Game::ProcessInput(){
                             shift = true;
                         } break;
                         case SDLK_9:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T1STAFF, lootbag);
-                            factory->createItemInBag(registry, T2STAFF, lootbag);
-                            factory->createItemInBag(registry, T3STAFF, lootbag);
-                            factory->createItemInBag(registry, T4STAFF, lootbag);
-                            factory->createItemInBag(registry, T5STAFF, lootbag);
-                            factory->createItemInBag(registry, T6STAFF, lootbag);
-                            factory->createItemInBag(registry, T7STAFF, lootbag);
-                            factory->createItemInBag(registry, T8STAFF, lootbag);
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, DOOMQUIVER, lootbag);
+                            // factory->createItemInBag(registry, CURLYWHIRLYSPELL, lootbag);
+                            // factory->createItemInBag(registry, RETRIBUTIONCLOAK, lootbag);
+                            // factory->createItemInBag(registry, MITHRILSWORD, lootbag);
+                            // factory->createItemInBag(registry, T5STAFF, lootbag);
+                            // factory->createItemInBag(registry, T6STAFF, lootbag);
+                            // factory->createItemInBag(registry, T7STAFF, lootbag);
+                            // factory->createItemInBag(registry, T8STAFF, lootbag);
                         } break;
                         case SDLK_0:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T9STAFF, lootbag);
-                            factory->createItemInBag(registry, T10STAFF, lootbag);
-                            factory->createItemInBag(registry, T11STAFF, lootbag);
-                            factory->createItemInBag(registry, T12STAFF, lootbag);
-                            factory->createItemInBag(registry, T13STAFF, lootbag);
-                            factory->createItemInBag(registry, T14STAFF, lootbag);
-                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            factory->createItemInBag(registry, T4DEFRING, lootbag);
-                            factory->createItemInBag(registry, T14LIGHTARMOR, lootbag);
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, T9STAFF, lootbag);
+                            // factory->createItemInBag(registry, T10STAFF, lootbag);
+                            // factory->createItemInBag(registry, T11STAFF, lootbag);
+                            // factory->createItemInBag(registry, T12STAFF, lootbag);
+                            // factory->createItemInBag(registry, T13STAFF, lootbag);
+                            // factory->createItemInBag(registry, T14STAFF, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, T4DEFRING, lootbag);
+                            // factory->createItemInBag(registry, T14LIGHTARMOR, lootbag);
                         } break;
                         case SDLK_MINUS:{
-                            if(dungeonRooms.size() > 0){
-                                const auto& spawnRoom = dungeonRooms[bossRoomId]; 
-                                // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
-                                player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
-                            } else {
-                                player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
-                            }
+                            // if(dungeonRooms.size() > 0){
+                            //     const auto& spawnRoom = dungeonRooms[bossRoomId]; 
+                            //     // player.GetComponent<TransformComponent>().position =  glm::vec2( ((spawnRoom.x + (spawnRoom.w / 2)) * 64)-24, ((spawnRoom.y + (spawnRoom.h / 2)) * 64)-24);
+                            //     player.GetComponent<TransformComponent>().position = glm::vec2(spawnRoom.x * 64, spawnRoom.y * 64);
+                            // } else {
+                            //     player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
+                            // }
                         } break;
                         case SDLK_BACKSPACE:{
-                            player.GetComponent<HPMPComponent>().activehp = 30;
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                         } break;
                         default:
                             break;
@@ -1062,6 +1062,11 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string onUse = "On Use: Shoots a ";
                     onUse.append(abillityItemToInfo.at(itemEnum));
                     onUse.append(" arrow");
+                    switch(itemEnum){
+                        case DOOMQUIVER:{
+                            onUse += ", Slowed for 1 second";
+                        } break;
+                    }
                     std::string damage = "Damage: " + std::to_string(quiverData.minDamage) + " - " + std::to_string(quiverData.maxDamage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     info.push_back(onUse);
@@ -1072,12 +1077,17 @@ void Game::PopulateItemIconsInAssetStore(){
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     auto helmData = itemEnumToHelmData.at(itemEnum); // cloaks are in helm table
-                    std::string onUse = "On Use: Invisible for ";
                     std::string duration = std::to_string(static_cast<float>(helmData.duration)/1000);
                     while(duration.back() == '0' || duration.back() == '.'){
                         duration.pop_back();
                     }
-                    info.push_back(onUse + duration + " seconds");
+                    std::string onUse = "On Use: Invisible for " + duration + " seconds";
+                    switch(itemEnum){
+                        case RETRIBUTIONCLOAK:{
+                            onUse += ", Slowed for 6 seconds, Berzerk for 6 seconds";
+                        } break;
+                    }
+                    info.push_back(onUse);
                     info.push_back(cost);
                     std::string cooldownSeconds = std::to_string(static_cast<float>(abilityData.cooldown)/1000);
                     while(cooldownSeconds.back() == '0' || cooldownSeconds.back() == '.'){

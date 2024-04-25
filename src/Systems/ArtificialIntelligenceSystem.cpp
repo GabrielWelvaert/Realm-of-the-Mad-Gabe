@@ -177,6 +177,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
     for(auto& entity: GetSystemEntities()){
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
+        const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<AnimatedChaseAIComponent>();
@@ -197,7 +198,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
             asc.animatedShooting = false;
             pec.isShooting = false;
             ac.xmin = 0; // enemy will walk unless they're in shoot, dont chase 
-            if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+            if(!paralyzed){
                 ac.numFrames = 2;   
             } else {
                 ac.numFrames = 1;
@@ -246,7 +247,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
                 asc.animatedShooting = false;
                 pec.isShooting = false;
                 ac.xmin = 0;
-                if(!entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
+                if(!paralyzed){
                     ac.numFrames = 2;   
                 } else {
                     ac.numFrames = 1;
@@ -331,6 +332,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
     
     for(auto& entity: GetSystemEntities()){
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
@@ -374,7 +376,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         asc.animatedShooting = false;
                         pec.isShooting = false;
                         ac.xmin = 0;
-                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     }
 
                 } else if(hp < aidata.survival){ // survival phase, chase player
@@ -392,7 +394,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         asc.animatedShooting = false;
                         pec.isShooting = false;
                         ac.xmin = 0;
-                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     } 
                     if(playerInvisible){
                         asc.animatedShooting = false;
@@ -424,7 +426,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         asc.animatedShooting = false;
                         pec.isShooting = false;
                         ac.xmin = 0;
-                        !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     } 
                     if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; dont move
                         velocity.x = velocity.y = 0.0;
@@ -513,10 +515,15 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     hitnoise = VOIDHIT;
                                     aidata.timer1 = pec.shots = asc.animatedShooting = pec.isShooting = 0;
                                     ac.xmin = 1;
-                                    !entity.GetComponent<StatusEffectComponent>().effects[PARALYZE] ? ac.numFrames = 2 : ac.numFrames = 1;
+                                    !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                                     position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
                                     ac.frameSpeedRate = 4;
                                     aidata.flags[3] = true;
+                                }
+                                if(ac.numFrames == 1 && !paralyzed){ // walking and not paralyzed: switch to run animation
+                                    ac.numFrames = 2;
+                                } else if(ac.numFrames == 2 && paralyzed){ // running and paralyzed: switch to stand animation running
+                                    ac.numFrames = 1;
                                 }
                             } else {
                                 aidata.flags[0] = aidata.flags[1] = aidata.flags[2] = true;
@@ -781,6 +788,12 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     aidata.timer0 = time;
                                     aidata.flags[2] = aidata.flags[1] = false;
                                 }
+                            }
+
+                            if(ac.numFrames == 1 && !paralyzed){ // animation should be running
+                                ac.numFrames = 3;
+                            } else if(ac.numFrames == 3 && paralyzed){ // animation should be standing
+                                ac.numFrames = 1;
                             }
                             // if arrived at player, set new position target to spawnPoint
                         } else { // go to center and shoot for X seconds (gordon is at center)
