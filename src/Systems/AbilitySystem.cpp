@@ -79,6 +79,9 @@ void AbilitySystem::onQuiverUse(QuiverUseEvent& event){
     projectile.AddComponent<ProjectileComponent>(damage, 1000, true, player, 4, NONESPRITE, true, quiver.debuff, 3000, false);
     projectile.AddComponent<LinearProjectileComponent>();
     projectile.Group(PROJECTILE);
+    if(quiver.quiverEnum == DOOMQUIVER){
+        event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SLOWED, event.eventbus, event.registry, 1000);
+    }
     
 }
 
@@ -183,14 +186,25 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
     int spellDuration = 1000;
     for(int i = 0; i < 20; i++){
         glm::vec2 destPos = {startPos.x + 5 * std::cos(spellAngles[i]), startPos.y + 5 * std::sin(spellAngles[i])};
-        float rotationDegrees = getRotationFromCoordiante(spellspeed, startPos.x, startPos.y, destPos.x, destPos.y, originVelocity, true); 
         Entity projectile = event.registry->CreateEntity();
+        switch(spell.spellEnum){
+            case CURLYWHIRLYSPELL:{
+                spellspeed = 30;
+                spellDuration = 5000;
+                projectile.AddComponent<OscillatingProjectileComponent>(15, .004, glm::vec2(startPos.x, startPos.y), (i%2 == 0));
+                projectile.AddComponent<ProjectileComponent>(damage, spellDuration, false, player, 4, NONESPRITE, true, STUNNED, 3000, false);
+                projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2(4,4));
+            } break;
+            default:{
+                projectile.AddComponent<LinearProjectileComponent>(); 
+                projectile.AddComponent<ProjectileComponent>(damage, spellDuration, false, player, 4, NONESPRITE, false, QUIET, 0, false);
+                projectile.AddComponent<BoxColliderComponent>(8,8,glm::vec2(16,16));
+            } break;
+        }
+        float rotationDegrees = getRotationFromCoordiante(spellspeed, startPos.x, startPos.y, destPos.x, destPos.y, originVelocity, true); 
         projectile.AddComponent<RidigBodyComponent>(originVelocity);
         projectile.AddComponent<SpriteComponent>(spell.texture, 8, 8, spell.srcRect, 3, false, true);
-        projectile.AddComponent<BoxColliderComponent>(8,8,glm::vec2(16,16));
         projectile.AddComponent<TransformComponent>(glm::vec2(startPos.x, startPos.y), glm::vec2(5.0,5.0), rotationDegrees);
-        projectile.AddComponent<ProjectileComponent>(damage, spellDuration, false, player, 4, NONESPRITE, false, QUIET, 0, false);
-        projectile.AddComponent<LinearProjectileComponent>(); 
         projectile.Group(PROJECTILE);
     }   
 }
@@ -204,7 +218,12 @@ void AbilitySystem::onHelmUse(HelmUseEvent& event){
 void AbilitySystem::onCloakUse(CloakUseEvent& event){
     const auto& cloak = event.player.GetComponent<CloakComponent>();
     event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVISIBLE, event.eventbus, event.registry, cloak.invisibilityDuration);
-    // can add a switch-case here for cloak.itemEnum for UT cloaks
+    switch(cloak.itemEnum){
+        case RETRIBUTIONCLOAK:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, 6000);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SLOWED, event.eventbus, event.registry, 6000);
+        } break;
+    }
 }
 
 // updates ability data. doesnt do anything for stats
@@ -226,6 +245,7 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             quiver.srcRect = newquiverdata.srcRect;
             quiver.texture = newquiverdata.texture;
             quiver.debuff = newquiverdata.debuff;
+            quiver.quiverEnum = event.itemEnum;
             break;
         }
         case PRIEST: {
@@ -248,6 +268,7 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             spell.maxDamage = data.maxDamage;
             spell.texture = data.texture;
             spell.srcRect = data.srcRect;
+            spell.spellEnum = event.itemEnum;
             break;
         }
         case KNIGHT: {
@@ -258,12 +279,14 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             shield.numshots = data.numshots;
             shield.minDamage = data.minDamage;
             shield.maxDamage = data.maxDamage;
+            shield.shieldEnum = event.itemEnum;
             break;
         }
         case ROGUE: {
             auto& cloak = player.GetComponent<CloakComponent>();
             auto data = itemEnumToHelmData.at(event.itemEnum);
             cloak.invisibilityDuration = data.duration;
+            cloak.itemEnum = event.itemEnum;
             break;
         }
     }

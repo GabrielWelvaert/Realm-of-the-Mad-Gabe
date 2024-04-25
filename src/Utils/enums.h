@@ -238,6 +238,10 @@ enum items{
     T6CLOAK,
     T7CLOAK,
     T8CLOAK,
+    MITHRILSWORD,
+    DOOMQUIVER,
+    RETRIBUTIONCLOAK,
+    CURLYWHIRLYSPELL,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -983,6 +987,10 @@ enum textureEnums{
     STATICHUDWIZARD,
     STATICHUDKNIGHT,
     STATICHUDROGUE,
+    MITHRILSWORDICON,
+    CURLYWHIRLYSPELLICON,
+    RETRIBUTIONCLOAKICON,
+    DOOMQUIVERICON,
 };
 
 #endif

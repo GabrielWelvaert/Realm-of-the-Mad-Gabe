@@ -64,7 +64,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
                     case ARCHER:{
                         activemp -= ac.mpRequired;
                         ac.timeLastUsed = time;
-                        eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera);
+                        eventbus->EmitEvent<QuiverUseEvent>(player, registry,mouseX, mouseY, camera, eventbus);
                         break;}
                     case WIZARD:{
                         activemp -= ac.mpRequired;

@@ -38,10 +38,11 @@ struct ShieldComponent{
     int numshots;
     int minDamage;
     int maxDamage;
+    items shieldEnum;
 
     inline ShieldComponent() = default;
-    inline ShieldComponent(statuses debuff, int debuffDuration, int numshots, int minDamage, int maxDamage): 
-        debuff(debuff), debuffDuration(debuffDuration), numshots(numshots), minDamage(minDamage), maxDamage(maxDamage) {}
+    inline ShieldComponent(statuses debuff, int debuffDuration, int numshots, int minDamage, int maxDamage, items shieldEnum): 
+        debuff(debuff), debuffDuration(debuffDuration), numshots(numshots), minDamage(minDamage), maxDamage(maxDamage), shieldEnum(shieldEnum) {}
 };
 
 struct SpellComponent{
@@ -49,10 +50,11 @@ struct SpellComponent{
     int maxDamage;
     textureEnums texture;
     SDL_Rect srcRect;
+    items spellEnum;
 
     inline SpellComponent() = default;
-    inline SpellComponent(int minDamage, int maxDamage, textureEnums texture, SDL_Rect srcRect):
-        minDamage(minDamage), maxDamage(maxDamage), texture(texture), srcRect(srcRect) {}
+    inline SpellComponent(int minDamage, int maxDamage, textureEnums texture, SDL_Rect srcRect, items spellEnum):
+        minDamage(minDamage), maxDamage(maxDamage), texture(texture), srcRect(srcRect), spellEnum(spellEnum) {}
 };
 
 struct CloakComponent{
@@ -78,6 +80,7 @@ struct QuiverComponent{
     textureEnums texture;
     SDL_Rect srcRect;
     statuses debuff;
+    items quiverEnum;
 
     inline QuiverComponent() = default;
 
