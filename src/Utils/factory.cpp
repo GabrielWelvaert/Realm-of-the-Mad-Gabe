@@ -11,6 +11,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     enemy.AddComponent<TransformComponent>(spawnpoint);
     enemy.AddComponent<StatusEffectComponent>();
     enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
+    enemy.AddComponent<DistanceToPlayerComponent>();
 
     if(hasSecondaryProjectile.find(spriteEnum) != hasSecondaryProjectile.end()){
         enemy.AddComponent<SecondaryProjectileComponent>(spriteEnum);
