@@ -21,6 +21,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/OscillatingProjectileComponent.h"
 #include "../Components/LinearProjectileComponent.h"
+#include "../Components/isShootingComponent.h"
 
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired

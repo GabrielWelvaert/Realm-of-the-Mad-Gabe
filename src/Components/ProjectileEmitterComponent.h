@@ -8,10 +8,8 @@
 #include <unordered_map>
 #include "../Utils/tables.h"
 
-
-// this struct is not cache friendly. it could be refacted into separated components to improve things.
 struct ProjectileEmitterComponent{
-    bool isShooting; 
+    // bool isShooting; // this is now its own compoennt for cache friendliness
     unsigned short repeatFrequency; // ms per shot 
     unsigned short duration; // ms until death of projectile
     Entity parent;  // parent
@@ -58,7 +56,7 @@ struct ProjectileEmitterComponent{
 
     inline ProjectileEmitterComponent(Entity parent,bool isShooting,unsigned short repeatFrequency,unsigned short duration, unsigned short damage,unsigned short projectileSpeed,bool piercing,unsigned char shots,float arcgap,textureEnums spriteassetId,unsigned char spritewidth,unsigned char spriteheight,SDL_Rect spritesrcRect,unsigned char spritezIndex,bool spriteisFixed,bool spritediagonalSprite,unsigned short boxwidth,unsigned short boxheight,glm::vec2 boxoffset) : 
         parent(parent),
-        isShooting(isShooting),
+        // isShooting(isShooting),
         repeatFrequency(repeatFrequency),
         duration(duration),
         damage(damage),
@@ -93,7 +91,7 @@ struct ProjectileEmitterComponent{
         this->parent = self;
         this->duration = pecdata.duration; 
         this->damage = pecdata.damage;
-        this->isShooting = pecdata.isShooting;
+        // this->isShooting = pecdata.isShooting;
         this->repeatFrequency = pecdata.repeatFrequency;
         this->projectileSpeed = pecdata.projectileSpeed;
         this->piercing = pecdata.piercing;

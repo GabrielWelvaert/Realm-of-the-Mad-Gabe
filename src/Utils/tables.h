@@ -104,7 +104,7 @@ struct AnimatedShootingData {
 
 
 struct enemyPECData{ // same as PEC minus parent, lastEmissionTime, velocity
-    bool isShooting; 
+    // bool isShooting; 
     unsigned short repeatFrequency; // ms per shot 
     unsigned short duration; // ms until death of projectile
     unsigned short damage; 
