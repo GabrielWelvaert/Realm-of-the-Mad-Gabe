@@ -23,6 +23,9 @@ ChaseAISystem::ChaseAISystem(){
     RequireComponent<ProjectileEmitterComponent>();
     RequireComponent<RidigBodyComponent>();
     RequireComponent<TransformComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<isShootingComponent>();
+    RequireComponent<SpriteComponent>();
 }
 
 void ChaseAISystem::Update(const Entity& player){
@@ -35,11 +38,12 @@ void ChaseAISystem::Update(const Entity& player){
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<ChaseAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible){
-            pec.isShooting = false;
+            isShooting = false;
             velocity = {0.0,0.0};
             continue;
         }
@@ -47,13 +51,13 @@ void ChaseAISystem::Update(const Entity& player){
         if(distanceToPlayer <= aidata.detectRange){
             if(distanceToPlayer <= aidata.engageRange){
                 if(distanceToPlayer <= aidata.maxDistance){ // shoot dont chase 
-                    if(!pec.isShooting && !stunned){
-                        pec.isShooting = true;
+                    if(!isShooting && !stunned){
+                        isShooting = true;
                     }
                     if(stunned){
-                        pec.isShooting = false;
-                    } else if(pec.isShooting == false){
-                        pec.isShooting = true;
+                        isShooting = false;
+                    } else if(isShooting == false){
+                        isShooting = true;
                     } 
                     velocity.x = 0;
                     velocity.y = 0;
@@ -64,9 +68,9 @@ void ChaseAISystem::Update(const Entity& player){
                         flip = SDL_FLIP_NONE;
                     }
                     if(stunned){
-                        pec.isShooting = false;
-                    } else if(pec.isShooting == false){
-                        pec.isShooting = true;
+                        isShooting = false;
+                    } else if(isShooting == false){
+                        isShooting = true;
                     } 
                 }
             } else { // chase, dont shoot 
@@ -75,11 +79,11 @@ void ChaseAISystem::Update(const Entity& player){
                 } else { // facing right
                     flip = SDL_FLIP_NONE;
                 }
-                pec.isShooting = false;
+                isShooting = false;
             }
 
         } else { // dont shoot or chase; out of detetctRange
-            pec.isShooting = false;
+            isShooting = false;
             velocity.x = 0;
             velocity.y = 0; 
         }
@@ -90,6 +94,10 @@ void ChaseAISystem::Update(const Entity& player){
 NeutralAISystem::NeutralAISystem(){
     RequireComponent<NeutralAIComponent>();
     RequireComponent<ProjectileEmitterComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<isShootingComponent>();
+    RequireComponent<SpriteComponent>();
 }
 
 void NeutralAISystem::Update(const Entity& player){ // remember, no animation for these guys!
@@ -102,10 +110,11 @@ void NeutralAISystem::Update(const Entity& player){ // remember, no animation fo
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<NeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible || stunned){
-            pec.isShooting = false;
+            isShooting = false;
             if(stunned){
                 playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
             }
@@ -114,10 +123,10 @@ void NeutralAISystem::Update(const Entity& player){ // remember, no animation fo
 
 
         if(distanceToPlayer <= aidata.engageRange){ // shoot, stand 
-            pec.isShooting = true;
+            isShooting = true;
             playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
         } else { // dont shoot; stand 
-            pec.isShooting = false;
+            isShooting = false;
             playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
         }
         
@@ -130,6 +139,8 @@ TrapAISystem::TrapAISystem(){
     RequireComponent<HPMPComponent>();
     RequireComponent<AnimationComponent>();
     RequireComponent<TransformComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<isShootingComponent>();
 }
 
 void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore){
@@ -141,6 +152,7 @@ void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         float distanceToPlayer = getDistanceToPlayer(position, playerPos);
         auto& aidata = entity.GetComponent<TrapAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& ac = entity.GetComponent<AnimationComponent>();
 
         
@@ -151,7 +163,7 @@ void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         }
         if(aidata.igntied && ac.currentFrame == aidata.iginitionFrame){
             entity.Kill();
-            pec.isShooting = true;
+            isShooting = true;
             const auto& hpmpdata = entity.GetComponent<HPMPComponent>();
             if(hpmpdata.activehp >= -1){ //if it wasn't killed play explosion sound!
                 assetStore->PlaySound(hpmpdata.deathsound);
@@ -169,6 +181,7 @@ AnimatedChaseAISystem::AnimatedChaseAISystem(){
     RequireComponent<RidigBodyComponent>();
     RequireComponent<SpriteComponent>();
     RequireComponent<StatusEffectComponent>();
+    RequireComponent<isShootingComponent>();
 }
 
 void AnimatedChaseAISystem::Update(const Entity& player){
@@ -182,6 +195,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<AnimatedChaseAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
@@ -189,14 +203,14 @@ void AnimatedChaseAISystem::Update(const Entity& player){
 
         if(playerInvisible){
             asc.animatedShooting = false;
-            pec.isShooting = false;
+            isShooting = false;
             ac.xmin = 0;
             ac.numFrames = 1;
             velocity = {0.0,0.0};
             continue;
         } else if(stunned){
             asc.animatedShooting = false;
-            pec.isShooting = false;
+            isShooting = false;
             ac.xmin = 0; // enemy will walk unless they're in shoot, dont chase 
             if(!paralyzed){
                 ac.numFrames = 2;   
@@ -210,9 +224,9 @@ void AnimatedChaseAISystem::Update(const Entity& player){
                 if(distanceToPlayer <= aidata.maxDistance){ // shoot, dont chase
                     velocity.x = 0;
                     velocity.y = 0;
-                    if(pec.isShooting == false && !stunned){ // this is a case where enemy spawns right infront of player which is perhaps never going to occur
+                    if(isShooting == false && !stunned){ // this is a case where enemy spawns right infront of player which is perhaps never going to occur
                         asc.animatedShooting = true;
-                        pec.isShooting = true;
+                        isShooting = true;
                         ac.xmin = 4;
                         ac.numFrames = 2; 
                         ac.currentFrame = 1;
@@ -228,9 +242,9 @@ void AnimatedChaseAISystem::Update(const Entity& player){
                     } else { // facing right
                         flip = SDL_FLIP_NONE;
                     }  
-                    if(pec.isShooting == false && !stunned){
+                    if(isShooting == false && !stunned){
                         asc.animatedShooting = true;
-                        pec.isShooting = true;
+                        isShooting = true;
                         ac.xmin = 4;
                         ac.numFrames = 2; 
                         ac.currentFrame = 1;
@@ -245,7 +259,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
                     flip = SDL_FLIP_NONE;
                 }
                 asc.animatedShooting = false;
-                pec.isShooting = false;
+                isShooting = false;
                 ac.xmin = 0;
                 if(!paralyzed){
                     ac.numFrames = 2;   
@@ -255,7 +269,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
             }
         } else { // dont chase or shoot
             asc.animatedShooting = false;
-            pec.isShooting = false;
+            isShooting = false;
             ac.xmin = 0;
             ac.numFrames = 1;
             velocity.x = 0;
@@ -269,6 +283,10 @@ AnimatedNeutralAISystem::AnimatedNeutralAISystem(){
     RequireComponent<ProjectileEmitterComponent>();
     RequireComponent<AnimatedShootingComponent>();
     RequireComponent<AnimationComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<isShootingComponent>();
+    RequireComponent<SpriteComponent>();
 }
 
 void AnimatedNeutralAISystem::Update(const Entity& player){
@@ -281,12 +299,13 @@ void AnimatedNeutralAISystem::Update(const Entity& player){
         if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<AnimatedNeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible || stunned){
-            pec.isShooting = false;
+            isShooting = false;
             asc.animatedShooting = false;
             ac.xmin = 0;
             ac.numFrames = 1;
@@ -296,14 +315,14 @@ void AnimatedNeutralAISystem::Update(const Entity& player){
         }
 
         if(distanceToPlayer <= aidata.engageRange && !stunned){ // shoot, stand 
-            pec.isShooting = true;
+            isShooting = true;
             asc.animatedShooting = true;
             ac.xmin = 4;
             ac.numFrames = 2;
             ac.startTime = pec.lastEmissionTime;
             playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
         } else { // dont shoot; stand 
-            pec.isShooting = false;
+            isShooting = false;
             asc.animatedShooting = false;
             ac.xmin = 0;
             ac.numFrames = 1;
@@ -321,6 +340,10 @@ BossAISystem::BossAISystem(){
     RequireComponent<ProjectileEmitterComponent>();
     RequireComponent<HPMPComponent>();
     RequireComponent<RidigBodyComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<isShootingComponent>();
+    RequireComponent<SpeedStatComponent>();
+    RequireComponent<StatusEffectComponent>();
 }
 
 void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom){
@@ -340,6 +363,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& hp = entity.GetComponent<HPMPComponent>().activehp;
         auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
         auto& sec = entity.GetComponent<StatusEffectComponent>();
@@ -354,9 +378,9 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     }
                     return; // boss will activate next frame
                 } 
-                if(!pec.isShooting && !playerInvisible && !stunned){ // re-enable shooting for any phase
+                if(!isShooting && !playerInvisible && !stunned){ // re-enable shooting for any phase
                     asc.animatedShooting = true;
-                    pec.isShooting = true;
+                    isShooting = true;
                     ac.xmin = 4;
                     ac.numFrames = 2; 
                     ac.currentFrame = 1;
@@ -374,7 +398,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     chasePosition(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
                     if(playerInvisible || stunned){ // if invisible or stunned, switch to walking animation
                         asc.animatedShooting = false;
-                        pec.isShooting = false;
+                        isShooting = false;
                         ac.xmin = 0;
                         !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     }
@@ -392,13 +416,13 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
                     if(stunned){
                         asc.animatedShooting = false;
-                        pec.isShooting = false;
+                        isShooting = false;
                         ac.xmin = 0;
                         !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     } 
                     if(playerInvisible){
                         asc.animatedShooting = false;
-                        pec.isShooting = false;
+                        isShooting = false;
                         ac.xmin = 0;
                         ac.numFrames = 1;
                         velocity = {0.0,0.0};    
@@ -424,7 +448,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     } 
                     if(playerInvisible || stunned){
                         asc.animatedShooting = false;
-                        pec.isShooting = false;
+                        isShooting = false;
                         ac.xmin = 0;
                         !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                     } 
@@ -471,7 +495,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             } break;
                         }
                         asc.animatedShooting = true;
-                        pec.isShooting = true;
+                        isShooting = true;
                         ac.xmin = 4;
                         ac.numFrames = 2; 
                         ac.currentFrame = 1;
@@ -490,12 +514,12 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         if(playerInvisible || stunned){ // state = STAND-DONT-SHOOT
                             aidata.timer0 = time;
                             asc.animatedShooting = false;
-                            pec.isShooting = false;
+                            isShooting = false;
                             ac.xmin = 0;
                             ac.numFrames = 1;
-                        } else if(!pec.isShooting){
+                        } else if(!isShooting){
                             asc.animatedShooting = true;
-                            pec.isShooting = true;
+                            isShooting = true;
                             ac.xmin = 4;
                             ac.numFrames = 2; 
                             ac.currentFrame = 1;
@@ -513,7 +537,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     sec.effects[INVULNERABLE] = true;
                                     sprite.srcRect.y = 16*110;
                                     hitnoise = VOIDHIT;
-                                    aidata.timer1 = pec.shots = asc.animatedShooting = pec.isShooting = 0;
+                                    aidata.timer1 = pec.shots = asc.animatedShooting = isShooting = 0;
                                     ac.xmin = 1;
                                     !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
                                     position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
@@ -537,7 +561,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             if(aidata.flags[3]){ // arcMage did run without shooting animation, re-enable shooting
                                 ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
                                 asc.animatedShooting = true;
-                                pec.isShooting = true;
+                                isShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2; 
                                 ac.currentFrame = 1;
@@ -574,12 +598,12 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         if(!aidata.flags[1]){
                             if(playerInvisible || stunned){
                                 asc.animatedShooting = false;
-                                pec.isShooting = false;
+                                isShooting = false;
                                 ac.xmin = 0;
                                 ac.numFrames = 1;
-                            } else if(!pec.isShooting){
+                            } else if(!isShooting){
                                 asc.animatedShooting = true;
-                                pec.isShooting = true;
+                                isShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2; 
                                 ac.currentFrame = 1;
@@ -590,7 +614,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         if(ac.frameSpeedRate == 4){ // if arcmage didnt recover from shoot-walk!
                             ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
                             asc.animatedShooting = true;
-                            pec.isShooting = true;
+                            isShooting = true;
                             ac.xmin = 4;
                             ac.numFrames = 2; 
                             ac.currentFrame = 1;
@@ -612,16 +636,16 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
                         if(playerInvisible || stunned){
                             asc.animatedShooting = false;
-                            pec.isShooting = false;
+                            isShooting = false;
                             ac.xmin = 0;
                             ac.numFrames = 1;
-                        } else if(!pec.isShooting){
+                        } else if(!isShooting){
 
                             if(aidata.flags[4]){
                                 aidata.flags[4] = false;
                                 ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
                                 asc.animatedShooting = true;
-                                pec.isShooting = true;
+                                isShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2; 
                                 ac.currentFrame = 1;
@@ -630,7 +654,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 pec.lastEmissionTime += pec.repeatFrequency / 2; 
                             } else {
                                 asc.animatedShooting = true;
-                                pec.isShooting = true;
+                                isShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2; 
                                 ac.currentFrame = 1;
@@ -719,7 +743,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     if(SDL_GetTicks() >= aidata.timer0 && !playerInvisible){
                         sec.effects[INVULNERABLE] = aidata.flags[0] = false;
                         aidata.activated = true;
-                        pec.isShooting = asc.animatedShooting = true;
+                        isShooting = asc.animatedShooting = true;
                         ac.xmin = 4;
                         ac.numFrames = 2;
                         ac.currentFrame = 1;
@@ -744,12 +768,12 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
                         if(playerInvisible || stunned){
                                 asc.animatedShooting = false;
-                                pec.isShooting = false;
+                                isShooting = false;
                                 ac.xmin = 0;
                                 ac.numFrames = 1;
-                        } else if(!pec.isShooting){
+                        } else if(!isShooting){
                                 asc.animatedShooting = true;
-                                pec.isShooting = true;
+                                isShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2; 
                                 ac.currentFrame = 1;
@@ -801,10 +825,10 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             if(playerInvisible || stunned){
                                 ac.xmin = 0;
                                 ac.numFrames = 1;
-                                pec.isShooting = asc.animatedShooting = false;
+                                isShooting = asc.animatedShooting = false;
                             } else { 
                                 if (ac.numFrames == 1){
-                                    pec.isShooting = asc.animatedShooting = true;
+                                    isShooting = asc.animatedShooting = true;
                                     ac.xmin = 4;
                                     ac.numFrames = 2;       // walking animation data 
                                     ac.currentFrame = 1;
@@ -817,7 +841,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             }
 
                             if(!aidata.flags[2] && !playerInvisible && !stunned){ // first frame of standign at center
-                                aidata.flags[2] = pec.isShooting = asc.animatedShooting = true;
+                                aidata.flags[2] = isShooting = asc.animatedShooting = true;
                                 ac.xmin = 4;
                                 ac.numFrames = 2;
                                 ac.currentFrame = 1;    // standing-shooting animation data
@@ -831,7 +855,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 ac.numFrames = 3;
                                 ac.currentFrame = 1;
                                 aidata.flags[1] = true; // start chasing sequence
-                                pec.isShooting = aidata.flags[2] = false;
+                                isShooting = aidata.flags[2] = false;
                                 aidata.positionflag = playerPos;
                             }
                             velocity = {0.0,0.0};
@@ -842,7 +866,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             pec.repeatFrequency = 500;
                             aidata.timer0 = time - pec.repeatFrequency;
                             ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            pec.isShooting = false;
+                            isShooting = false;
                             aidata.flags[0] = true;
                             sec.effects[INVULNERABLE] = true;
                             Entity key = factory->spawnMonster(registry, position, SHEEP);
@@ -907,7 +931,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 aidata.timer1 = time;
                             }
                         } else { // keys are dead
-                            pec.isShooting = false;
+                            isShooting = false;
                             ac.currentFrame = 1;
                             ac.numFrames = 1;
                             ac.xmin = 2;

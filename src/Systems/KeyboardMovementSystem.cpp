@@ -13,6 +13,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     auto& animation = player.GetComponent<AnimationComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     const auto& pec = player.GetComponent<ProjectileEmitterComponent>();
+    const auto& isShooting = player.GetComponent<isShootingComponent>().isShooting;
     auto& ac = player.GetComponent<AbilityComponent>(); 
     const auto& holdingItem = player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
     const auto& confused = player.GetComponent<StatusEffectComponent>().effects[CONFUSED];
@@ -89,7 +90,6 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     }
 
     // update stuff based off direction of travel
-    // this should be a switch-case !!!!
     switch(move){
         case UP:{ // up
             rigidbody.velocity = glm::vec2(0, -1);
@@ -163,7 +163,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
         }break;
     }
     // update stuff for if shooting
-    if(pec.isShooting && pec.shots > 0){ //previously if keysPressed[4]
+    if(isShooting && pec.shots > 0){ //previously if keysPressed[4]
         const auto& activedexterity = player.GetComponent<OffenseStatComponent>().activedexterity;
         auto& transform = player.GetComponent<TransformComponent>();
         auto& asc = player.GetComponent<AnimatedShootingComponent>();

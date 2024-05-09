@@ -13,6 +13,8 @@
 #include "../Components/SpriteComponent.h"
 #include "../Components/ProjectileComponent.h"
 #include "../../libs/SDL2/SDL.h"
+#include "../Components/isShootingComponent.h"
+#include "../Components/RotationComponent.h"
 
 class SecondaryProjectileEmitSystem: public System{
     private:
@@ -36,7 +38,7 @@ class SecondaryProjectileEmitSystem: public System{
             glm::vec2 bigCenter = {slimeGod.GetComponent<TransformComponent>().position.x + 32, slimeGod.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
             const auto& sprite = enumToSpriteComponent.at(PURPLESTAR);
-            float rotationDegrees = getRotationFromCoordiante(750, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            float rotationDegrees = getRotationFromCoordiante(448, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(velocity);
             projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
@@ -44,6 +46,7 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
             projectile.AddComponent<LinearProjectileComponent>();
             projectile.Group(PROJECTILE);
+            projectile.AddComponent<RotationComponent>(1);
             projectile.AddComponent<ProjectileComponent>(0, 2000, false, slimeGod, 0, SLIMEGOD, true, SLOWED, 3000, false);
         }
 
@@ -51,7 +54,7 @@ class SecondaryProjectileEmitSystem: public System{
             glm::vec2 bigCenter = {beholder.GetComponent<TransformComponent>().position.x + 32, beholder.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
             const auto& sprite = enumToSpriteComponent.at(YELLOWSTAR);
-            float rotationDegrees = getRotationFromCoordiante(750, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            float rotationDegrees = getRotationFromCoordiante(448, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(velocity);
             projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
@@ -59,7 +62,24 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
             projectile.AddComponent<LinearProjectileComponent>();
             projectile.Group(PROJECTILE);
-            projectile.AddComponent<ProjectileComponent>(0, 2000, false, beholder, 0, BEHOLDER, true, BLIND, 3000, false);
+            projectile.AddComponent<RotationComponent>(1);
+            projectile.AddComponent<ProjectileComponent>(0, 3000, false, beholder, 0, BEHOLDER, true, BLIND, 3000, false);
+        }
+
+        inline void spriteGodBoomerang(Entity spriteGod, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+            glm::vec2 bigCenter = {spriteGod.GetComponent<TransformComponent>().position.x + 32, spriteGod.GetComponent<TransformComponent>().position.y + 32};
+            glm::vec2 velocity;
+            float rotationDegrees = getRotationFromCoordiante(384, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            Entity projectile = registry->CreateEntity();
+            const SDL_Rect whiteBoomerang = {8*3, 8*8,8,8};
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, whiteBoomerang,3,false,false);
+            projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2({4,4}));
+            projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(6.0,6.0), rotationDegrees);
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.Group(PROJECTILE);
+            projectile.AddComponent<RotationComponent>(1);
+            projectile.AddComponent<ProjectileComponent>(0, 2400, false, spriteGod, 0, SPRITEGOD, true, QUIET, 5000, false);
         }
 
     public:

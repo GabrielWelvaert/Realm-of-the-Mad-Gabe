@@ -44,6 +44,7 @@
 #include "../Systems/VaultItemKillSystem.h"
 #include "../Systems/OscillatingProjectileMovementSystem.h"
 #include "../Systems/SecondaryProjectileEmitSystem.h"
+#include "../Systems/RotationSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -182,8 +183,8 @@ std::vector<sprites> monsters = { BAT0 };
 void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
-    auto& playerIsShooting = player.GetComponent<ProjectileEmitterComponent>().isShooting;
-    // auto& playerIsShooting = player.GetComponent<isShootingComponent>().isShooting;
+    // auto& playerIsShooting = player.GetComponent<ProjectileEmitterComponent>().isShooting;
+    auto& playerIsShooting = player.GetComponent<isShootingComponent>().isShooting;
     // DO NOT RESET KEYSPRESSED!! 
 
     while(SDL_GetTicks() - startTime < MSToReadInput){
@@ -2092,6 +2093,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<OscillatingProjectileMovementSystem>();
     registry->AddSystem<VaultItemSystem>();
     registry->AddSystem<SecondaryProjectileEmitSystem>();
+    registry->AddSystem<RotationSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2673,6 +2675,7 @@ void Game::Update(){
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
+    registry->GetSystem<RotationSystem>().Update(deltaTime);
 }
 
 void Game::Render(){

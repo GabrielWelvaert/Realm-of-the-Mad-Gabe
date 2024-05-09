@@ -25,6 +25,7 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/PlayerItemsComponent.h"
 #include "../Components/StatusEffectComponent.h"
+#include "../Components/isShootingComponent.h"
 #include "../Events/CloakUseEvent.h"
 #include "../Events/ShieldUseEvent.h"
 

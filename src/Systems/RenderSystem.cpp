@@ -1,6 +1,6 @@
 #include "RenderSystem.h"
 
-RenderSystem::RenderSystem() {
+RenderSystem::RenderSystem(){
     RequireComponent<TransformComponent>();
     RequireComponent<SpriteComponent>();
 }
