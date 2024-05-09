@@ -1,15 +1,13 @@
 #include "ArtificialIntelligenceSystem.h"
 
+#define DISTANCE_TO_CONTINUE 1250
+
 // call this to path to a position
 inline float chasePosition(const glm::vec2& origin, const glm::vec2& dest, glm::vec2& monsterVelocity){
     float angleRadians = std::atan2(dest.y - origin.y, dest.x - origin.x);   
     monsterVelocity.x = std::cos(angleRadians);
     monsterVelocity.y = std::sin(angleRadians); // x and y will be multiplied by speed in movementSystem
     return monsterVelocity.x; // this is returned simply to determine direction facing for sprites
-}
-
-inline float getDistanceToPlayer(const glm::vec2& origin, const glm::vec2& destination) {
-    return sqrt(pow(origin.x - destination.x, 2) + pow(origin.y - destination.y, 2));
 }
 
 PassiveAISystem::PassiveAISystem(){
@@ -26,27 +24,33 @@ ChaseAISystem::ChaseAISystem(){
     RequireComponent<StatusEffectComponent>();
     RequireComponent<isShootingComponent>();
     RequireComponent<SpriteComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
 void ChaseAISystem::Update(const Entity& player){
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
-        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
-        auto& aidata = entity.GetComponent<ChaseAIComponent>();
-        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+
+        if(distanceToPlayer > DISTANCE_TO_CONTINUE){ // if this entity can be skipped, skip it
+            continue;
+        }
+
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-        auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible){
             isShooting = false;
             velocity = {0.0,0.0};
             continue;
         }
+
+        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        const auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& aidata = entity.GetComponent<ChaseAIComponent>();
+        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(distanceToPlayer <= aidata.detectRange){
             if(distanceToPlayer <= aidata.engageRange){
@@ -98,19 +102,23 @@ NeutralAISystem::NeutralAISystem(){
     RequireComponent<TransformComponent>();
     RequireComponent<isShootingComponent>();
     RequireComponent<SpriteComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
-void NeutralAISystem::Update(const Entity& player){ // remember, no animation for these guys!
+// currently, unused
+void NeutralAISystem::Update(const Entity& player){ 
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        if(distanceToPlayer > DISTANCE_TO_CONTINUE){
+            continue;
+        }
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<NeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible || stunned){
@@ -141,16 +149,20 @@ TrapAISystem::TrapAISystem(){
     RequireComponent<TransformComponent>();
     RequireComponent<StatusEffectComponent>();
     RequireComponent<isShootingComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
 void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore){
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        auto& aidata = entity.GetComponent<TrapAIComponent>();
+        if(!aidata.igntied && distanceToPlayer > DISTANCE_TO_CONTINUE){
+            continue;
+        }
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        auto& aidata = entity.GetComponent<TrapAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& ac = entity.GetComponent<AnimationComponent>();
@@ -182,23 +194,26 @@ AnimatedChaseAISystem::AnimatedChaseAISystem(){
     RequireComponent<SpriteComponent>();
     RequireComponent<StatusEffectComponent>();
     RequireComponent<isShootingComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
 void AnimatedChaseAISystem::Update(const Entity& player){
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        if(distanceToPlayer > DISTANCE_TO_CONTINUE){
+            continue;
+        }
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<AnimatedChaseAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
-        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible){
@@ -287,19 +302,22 @@ AnimatedNeutralAISystem::AnimatedNeutralAISystem(){
     RequireComponent<TransformComponent>();
     RequireComponent<isShootingComponent>();
     RequireComponent<SpriteComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
 void AnimatedNeutralAISystem::Update(const Entity& player){
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        if(distanceToPlayer > DISTANCE_TO_CONTINUE){
+            continue;
+        }
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
-        if(distanceToPlayer > 1000){continue;} // hopefully already had its stuff turned off! 
         auto& aidata = entity.GetComponent<AnimatedNeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
         auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -344,6 +362,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<isShootingComponent>();
     RequireComponent<SpeedStatComponent>();
     RequireComponent<StatusEffectComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
 }
 
 void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom){
@@ -369,7 +388,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         auto& sec = entity.GetComponent<StatusEffectComponent>();
         auto& sprite = entity.GetComponent<SpriteComponent>();
         auto& hitnoise = entity.GetComponent<HPMPComponent>().hitsound;
-        float distanceToPlayer = getDistanceToPlayer(position, playerPos);
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         switch(aidata.bossType){
             case BOSSCHICKEN: { 
                 if(!aidata.activated){

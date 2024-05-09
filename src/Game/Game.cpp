@@ -45,6 +45,8 @@
 #include "../Systems/OscillatingProjectileMovementSystem.h"
 #include "../Systems/SecondaryProjectileEmitSystem.h"
 #include "../Systems/RotationSystem.h"
+#include "../Systems/RenderMiniMapSystem.h"
+#include "../Systems/DistanceToPlayerSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -393,7 +395,7 @@ void Game::ProcessInput(){
                     characterManager->SaveVaults(registry);
                     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
-                    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, false);
+                    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
                     Setup(false, true, NEXUS);
                 } break;
                 default:{ // portal is actually a door to another area (vault, dungeon)
@@ -2094,6 +2096,8 @@ void Game::PopulateRegistry(){
     registry->AddSystem<VaultItemSystem>();
     registry->AddSystem<SecondaryProjectileEmitSystem>();
     registry->AddSystem<RotationSystem>();
+    registry->AddSystem<RenderMiniMapSystem>();
+    registry->AddSystem<DistanceToPlayerSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2509,7 +2513,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
         SDL_RenderClear(renderer);
-        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, false);
+        registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
         registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
         millisecsPreviousFrame = SDL_GetTicks();
         if(camera.y == 5392 || camera.y == 0){
@@ -2636,7 +2640,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
         }
     }
     SDL_UnlockTexture(mapveilptr);
-    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore
+    assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore; no memory leak
     SDL_SetRenderTarget(renderer, nullptr);
 
 }
@@ -2653,7 +2657,7 @@ void Game::Update(){
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
-    // registry->GetSystem<PassiveAISystem>().Update(playerpos);
+    registry->GetSystem<DistanceToPlayerSystem>().Update(playerpos);
     registry->GetSystem<ChaseAISystem>().Update(player);
     registry->GetSystem<NeutralAISystem>().Update(player);
     registry->GetSystem<TrapAISystem>().Update(player, assetStore);
@@ -2681,10 +2685,13 @@ void Game::Update(){
 void Game::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
-    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry, player, true, idOfMiniMapEntity, idOfBoss, creationIdOfBoss, h);
+    registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
+    registry->GetSystem<RenderMiniMapSystem>().Update(renderer, player, idOfMiniMapEntity, registry, assetStore, idOfBoss, creationIdOfBoss);
+    if(h){registry->GetSystem<RenderSystem>().RenderHealthBars(renderer, camera, registry, player, idOfBoss, creationIdOfBoss);}
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 
+    registry->GetSystem<RenderSystem>().RenderVeils(renderer, player); // blood veil and blind veil for player
     registry->GetSystem<ItemIconSystem>().Update(renderer, assetStore);
     if(debug){
         registry->GetSystem<RenderColliderSystem>().Update(renderer, camera);

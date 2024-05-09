@@ -46,6 +46,7 @@
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/SecondaryProjectileComponent.h"
 #include "../Components/isShootingComponent.h"
+#include "../Components/DistanceToPlayerComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
