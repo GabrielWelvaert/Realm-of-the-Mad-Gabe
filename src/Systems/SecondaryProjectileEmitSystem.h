@@ -1,0 +1,71 @@
+#ifndef SECONDARYPROJECTILEEMITSYSTEM_H
+#define SECONDARYPROJECTILEEMITSYSTEM_H
+
+#include "../ECS/ECS.h"
+#include "../Components/ProjectileEmitterComponent.h"
+#include "../Components/SecondaryProjectileComponent.h"
+#include "../Components/LinearProjectileComponent.h"
+#include "../Components/OscillatingProjectileComponent.h"
+#include "../Components/TransformComponent.h"
+#include "../Components/RigidBodyComponent.h"
+#include "../Components/BoxColliderComponent.h"
+#include "../Components/LinearProjectileComponent.h"
+#include "../Components/SpriteComponent.h"
+#include "../Components/ProjectileComponent.h"
+#include "../../libs/SDL2/SDL.h"
+
+class SecondaryProjectileEmitSystem: public System{
+    private:
+        const int tileScale = 64;
+
+        inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
+            float angleRadians = std::atan2(destY - originY, destX - originX);   
+            float angleDegrees = angleRadians * (180.0 / M_PI);
+            emitterVelocity.x = projectileSpeed * std::cos(angleRadians);
+            emitterVelocity.y = projectileSpeed * std::sin(angleRadians);
+            return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
+        }
+
+        inline void projectileVelocityArcGap(const glm::vec2& originVelocity, const float& rotationDegrees, const float& deltaDegrees, glm::vec2& emitterVelocity){
+            float deltaRadians = deltaDegrees * (M_PI / 180.0);
+            emitterVelocity.x = originVelocity.x * std::cos(deltaRadians) - originVelocity.y * std::sin(deltaRadians);
+            emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
+        }
+
+        inline void slimeGodSlow(Entity slimeGod, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+            glm::vec2 bigCenter = {slimeGod.GetComponent<TransformComponent>().position.x + 32, slimeGod.GetComponent<TransformComponent>().position.y + 32};
+            glm::vec2 velocity;
+            const auto& sprite = enumToSpriteComponent.at(PURPLESTAR);
+            float rotationDegrees = getRotationFromCoordiante(750, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            Entity projectile = registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+            projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+            projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.Group(PROJECTILE);
+            projectile.AddComponent<ProjectileComponent>(0, 2000, false, slimeGod, 0, SLIMEGOD, true, SLOWED, 3000, false);
+        }
+
+        inline void beholderBlind(Entity beholder, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+            glm::vec2 bigCenter = {beholder.GetComponent<TransformComponent>().position.x + 32, beholder.GetComponent<TransformComponent>().position.y + 32};
+            glm::vec2 velocity;
+            const auto& sprite = enumToSpriteComponent.at(YELLOWSTAR);
+            float rotationDegrees = getRotationFromCoordiante(750, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            Entity projectile = registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
+            projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+            projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.Group(PROJECTILE);
+            projectile.AddComponent<ProjectileComponent>(0, 2000, false, beholder, 0, BEHOLDER, true, BLIND, 3000, false);
+        }
+
+    public:
+        SecondaryProjectileEmitSystem();
+        void Update(const glm::vec2& playerPos, std::unique_ptr<Registry>& registry);
+
+};
+
+#endif
