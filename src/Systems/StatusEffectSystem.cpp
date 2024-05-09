@@ -74,13 +74,7 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             }
             displayStatusEffectText(event.registry, statusEnum, entity);
         }break;
-        case PARALYZE:{
-            displayStatusEffectText(event.registry, statusEnum, entity);                 
-        }break;
         case SPEEDY:{
-            // if(!entity.HasComponent<SpeedStatComponent>()){
-            //     return;
-            // }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -104,16 +98,13 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
                 frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
             }
         }break;
-        case CONFUSED:{
+        case CONFUSED:
+        case BLEEDING:
+        case STUNNED:
+        case BLIND:
+        case PARALYZE: {
             displayStatusEffectText(event.registry, statusEnum, entity); 
-        }break;
-        case BLEEDING:{
-            displayStatusEffectText(event.registry, statusEnum, entity); 
-        }break;
-        case STUNNED:{
-            displayStatusEffectText(event.registry, statusEnum, entity);
-            // todo ?
-        }break;
+        } break;
         case INVISIBLE:{
             if(entity.BelongsToGroup(PLAYER)){
                 entity.GetComponent<SpriteComponent>().assetId = INVISIBLEPLAYERS;
@@ -153,7 +144,7 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
             if(recipient.BelongsToGroup(PLAYER)){
                 recipient.GetComponent<SpriteComponent>().assetId = PLAYERS;
             } else {
-                // todo monster invisibility
+                // todo monster invisibility if it exists
             }
         } break;
         default:{ // some status effects do not require anything to be reverted

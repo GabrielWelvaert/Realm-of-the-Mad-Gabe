@@ -11,6 +11,7 @@
 #include <algorithm>
 #include "../Components/AnimatedShootingComponent.h"
 #include "../Components/HPMPComponent.h"
+#include "../Components/StatusEffectComponent.h"
 
 /*
 This system is responsible for drawing sprites on the screen. It sorts them by their z-axis and y-position and takes into account animationComponents

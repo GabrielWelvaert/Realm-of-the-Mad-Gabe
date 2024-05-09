@@ -40,11 +40,12 @@
 #include "../AssetStore/AssetStore.h"
 #include "../Components/BossAIComponent.h"
 #include "../Utils/room.h"
-#include "../Components/AnimatedPounceAIComponent.h"
 #include <unordered_set>
 #include "../Utils/vechash.h"
 #include "../Components/OscillatingProjectileComponent.h"
 #include "../Components/LinearProjectileComponent.h"
+#include "../Components/SecondaryProjectileComponent.h"
+#include "../Components/isShootingComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 

@@ -12,6 +12,7 @@
 #include <string>
 #include "../Utils/roomSpawn.h"
 #include "../Utils/colors.h"
+#include <unordered_set>
 
 /*
 these maps, tables, vectors are used to access data associated with an enum
@@ -210,6 +211,9 @@ struct shieldData{
     int numshots;
 };
 
+
+extern std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq;
+extern std::unordered_set<sprites> hasSecondaryProjectile;
 extern std::unordered_map<items, shieldData> itemEnumToShieldData;
 extern std::unordered_map<items, spellData> itemEnumToSpellData;
 extern std::vector<std::vector<int>> gordonLairOnlyFloors;

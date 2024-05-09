@@ -43,6 +43,7 @@
 #include "../Utils/roomShut.h"
 #include "../Systems/VaultItemKillSystem.h"
 #include "../Systems/OscillatingProjectileMovementSystem.h"
+#include "../Systems/SecondaryProjectileEmitSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -182,6 +183,7 @@ void Game::ProcessInput(){
     startTime = SDL_GetTicks();
     inventoryUses.reset(); 
     auto& playerIsShooting = player.GetComponent<ProjectileEmitterComponent>().isShooting;
+    // auto& playerIsShooting = player.GetComponent<isShootingComponent>().isShooting;
     // DO NOT RESET KEYSPRESSED!! 
 
     while(SDL_GetTicks() - startTime < MSToReadInput){
@@ -283,29 +285,30 @@ void Game::ProcessInput(){
                             shift = true;
                         } break;
                         case SDLK_9:{
-                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            // factory->createItemInBag(registry, DOOMQUIVER, lootbag);
-                            // factory->createItemInBag(registry, CURLYWHIRLYSPELL, lootbag);
-                            // factory->createItemInBag(registry, RETRIBUTIONCLOAK, lootbag);
-                            // factory->createItemInBag(registry, MITHRILSWORD, lootbag);
-                            // factory->createItemInBag(registry, T5STAFF, lootbag);
-                            // factory->createItemInBag(registry, T6STAFF, lootbag);
-                            // factory->createItemInBag(registry, T7STAFF, lootbag);
-                            // factory->createItemInBag(registry, T8STAFF, lootbag);
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, DOOMQUIVER, lootbag);
+                            factory->createItemInBag(registry, CURLYWHIRLYSPELL, lootbag);
+                            factory->createItemInBag(registry, RETRIBUTIONCLOAK, lootbag);
+                            factory->createItemInBag(registry, MITHRILSWORD, lootbag);
+                            factory->createItemInBag(registry, T5STAFF, lootbag);
+                            factory->createItemInBag(registry, T6STAFF, lootbag);
+                            factory->createItemInBag(registry, T7STAFF, lootbag);
+                            factory->createItemInBag(registry, T8STAFF, lootbag);
                         } break;
                         case SDLK_0:{
-                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            // factory->createItemInBag(registry, T9STAFF, lootbag);
-                            // factory->createItemInBag(registry, T10STAFF, lootbag);
-                            // factory->createItemInBag(registry, T11STAFF, lootbag);
-                            // factory->createItemInBag(registry, T12STAFF, lootbag);
-                            // factory->createItemInBag(registry, T13STAFF, lootbag);
-                            // factory->createItemInBag(registry, T14STAFF, lootbag);
-                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            // factory->createItemInBag(registry, T4DEFRING, lootbag);
-                            // factory->createItemInBag(registry, T14LIGHTARMOR, lootbag);
+                            std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
+                            std::vector<glm::vec2> spawnPoints;
+                            const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            for(int i = 0; i <= 9; ++i) { // phase 1 destinations to make boss move in circle
+                                float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(9);
+                                float x = playerpos.x + 1000 * std::cos(angle);
+                                float y = playerpos.y + 1000 * std::sin(angle);
+                                spawnPoints.push_back({x,y});
+                            }
+                            for(int i = 0; i < 9; i++){
+                                factory->spawnMonster(registry, spawnPoints[i], gods[i]);
+                            }
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -315,8 +318,11 @@ void Game::ProcessInput(){
                             // } else {
                             //     player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
                             // }
+                            player.GetComponent<TransformComponent>().position = glm::vec2(12283.4, 13620);
                         } break;
                         case SDLK_BACKSPACE:{
+                            player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
+                            player.GetComponent<HPMPComponent>().activehp += 1000;
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
                             // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
@@ -414,10 +420,10 @@ void Game::ProcessInput(){
 // };
 
 bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
-    wallData wallData = wallThemeToWallData.at(wallTheme);
-    int wall = std::stoi(std::to_string(wallData.walls[0].x) + std::to_string(wallData.walls[0].y)); 
-    int alpha = std::stoi(std::to_string(wallData.alpha.x) + std::to_string(wallData.alpha.y)); 
-    int ceiling = std::stoi(std::to_string(wallData.walls.back().x) + std::to_string(wallData.walls.back().y)); 
+    wallData wd = wallThemeToWallData.at(wallTheme);
+    int wall = std::stoi(std::to_string(wd.walls[0].x) + std::to_string(wd.walls[0].y)); 
+    int alpha = std::stoi(std::to_string(wd.alpha.x) + std::to_string(wd.alpha.y)); 
+    int ceiling = std::stoi(std::to_string(wd.walls.back().x) + std::to_string(wd.walls.back().y)); 
     int floor = std::stoi(std::to_string(wallThemeToFloor.at(wallTheme).x) + std::to_string(wallThemeToFloor.at(wallTheme).y));
     int numRoomsCreated = 0;
     int x,y,w,h, distance, mapSizeTiles, numRooms, roomSizeTiles;
@@ -428,13 +434,17 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     std::vector<int> roomsIdsInOrderOfDepth; // .back() returns furthest room from genesis
     int bossRoomGenerationAttempts = 0;
     mapSizeTiles = 750; 
-    numRooms = RNG.randomFromRange(25,35);
-    // numRooms = 55;
-    roomsIdsInOrderOfDepth.reserve(numRooms);
-    w = h = RNG.randomFromRange(10,15);
+    if(wallTheme == GODLANDS){
+        numRooms = 1;
+        w = h = 200;
+    } else {
+        numRooms = RNG.randomFromRange(25,35);
+        w = h = RNG.randomFromRange(10,15);
+    }
     x = mapSizeTiles / 2;
     y = mapSizeTiles / 2;
-    room genesisRoom(numRoomsCreated, -1, x, y, w, h);
+    room genesisRoom(numRoomsCreated, -1, x, y, w, h); 
+    roomsIdsInOrderOfDepth.reserve(numRooms);
     rooms.push_back(genesisRoom);
     numRoomsCreated++;
 
@@ -614,32 +624,35 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     }
 
     // save data for game member fields; later used to spawn enemies
-    bossRoomId = roomsIdsInOrderOfDepth.back();
     dungeonRooms = rooms;
-    bossRoom = rooms[bossRoomId];
-
-    // save data in field of game to allow for closing boss room
-    const auto& lastHallway = hallways.back();
-    const auto& BR = rooms[bossRoomId];
-    switch(roomShut.directionOfHallway){
-        case S:{
-            x = lastHallway.x;
-            y = BR.y - 2;
-        } break;
-        case N:{
-            x = lastHallway.x;
-            y = BR.y + BR.h - 1;
-        } break;
-        case W:{
-            x = BR.x + BR.w - 1;
-            y = lastHallway.y - 1;
-        } break;
-        case E:{
-            x = BR.x;
-            y = lastHallway.y;
-        } break;
+    if(numRooms > 1){
+        bossRoomId = roomsIdsInOrderOfDepth.back();
+        bossRoom = rooms[bossRoomId];
+        // save data in field of game to allow for closing boss room
+        const auto& lastHallway = hallways.back();
+        const auto& BR = rooms[bossRoomId];
+        switch(roomShut.directionOfHallway){
+            case S:{
+                x = lastHallway.x;
+                y = BR.y - 2;
+            } break;
+            case N:{
+                x = lastHallway.x;
+                y = BR.y + BR.h - 1;
+            } break;
+            case W:{
+                x = BR.x + BR.w - 1;
+                y = lastHallway.y - 1;
+            } break;
+            case E:{
+                x = BR.x;
+                y = lastHallway.y;
+            } break;
+        }
+        roomShut.coordiantes = {x,y};
+    } else {
+        bossRoom = rooms[0];
     }
-    roomShut.coordiantes = {x,y};
 
     // step 4: set player to spawn in genesis room
     const auto& spawnRoom = rooms[0];
@@ -664,7 +677,6 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     }
 
     MiniMap(wallTheme, map);
-
     // step 6: add walls and ceilings around perimeter of map
     glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
     glm::ivec2 mapItr = endPos; 
@@ -847,8 +859,21 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                     // srcRect.y = 6 * tileSize;
                 } else if(wallTheme == UDL  && currentCoord.x == 5 && currentCoord.y == 0){
                     if(RNG.randomFromRange(0,25) == 20){
-                        srcRect.x += 1 * tileSize;
+                        srcRect.x += 1 * tileSize; // cracked tile
                     }
+                } else if(wallTheme == GODLANDS && currentCoord == glm::ivec2{0,7}){
+                    if(RNG.randomFromRange(0,250) == 1){ // each floor tile has 1/250 chance of getting a boulder
+                        if(xpos > 3 && xpos < 197 && ypos > 3 && ypos < 197){
+                            srcRect.x += 9 * tileSize; // boulder
+                            wallCoordinates.push_back(glm::ivec2(xpos,ypos)); // boulders will be given hitboxes like walls
+                            coordinateToPos.insert({glm::ivec2(xpos,ypos), glm::vec2(xpos*tileSize*tileScale, ypos*tileSize*tileScale)});
+                            wallCoordinatesHashSet.insert(glm::ivec2(xpos,ypos));   
+                        }
+                    } else { // its not a boulder tile
+                        srcRect.x += RNG.randomFromRange(0,3) * tileSize; // rotated versions
+                    }
+                    
+                    
                 }
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
@@ -1493,7 +1518,7 @@ void Game::PopulateAssetStore(){
     SDL_Surface* ttfSurface;
     SDL_Texture* ttfTextureFromSurface;
     SDL_Rect dstRect, srcRect;
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber", "???"};
+    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber", "???", "GodLands"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1984,6 +2009,7 @@ void Game::LoadPlayer(){
     player.AddComponent<StatusEffectComponent>();
     player.AddComponent<ProjectileEmitterComponent>();
     player.AddComponent<AbilityComponent>();
+    player.AddComponent<isShootingComponent>();
     player.GetComponent<ProjectileEmitterComponent>().repeatFrequency = 1000 / (.08666 * basestats.dexterity + 1.5);
     switch(classname){
         case ARCHER:{
@@ -2065,6 +2091,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<BossAISystem>();
     registry->AddSystem<OscillatingProjectileMovementSystem>();
     registry->AddSystem<VaultItemSystem>();
+    registry->AddSystem<SecondaryProjectileEmitSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2522,21 +2549,23 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
             if(playerLevel < 10){
                 factory->spawnPortal(registry, glm::vec2(750,600), LOCKEDPORTALTHEME); 
-                // factory->spawnPortal(registry, glm::vec2(750,600), UDL);  
             } else {
                 factory->spawnPortal(registry, glm::vec2(750,600), UDL);     
             }
             if(playerLevel < 20){
                 factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME);
-                // factory->spawnPortal(registry, glm::vec2(900,600), GORDONSLAIRWALLTHEME);
             } else {
                 factory->spawnPortal(registry, glm::vec2(900,600), GORDONSLAIRWALLTHEME); // todo spawn gordon's lair
             }
+            factory->spawnPortal(registry, glm::vec2(750,1350), GODLANDS);
         } break;
         case GORDONSLAIRWALLTHEME:{
             factory->spawnMonster(registry, glm::vec2(848,970), GORDON);
             idOfBoss = factory->idOfSpawnedBoss;
             creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
+        } break;
+        case GODLANDS:{
+            // dont spawn boss. todo spawn god spawning entity
         } break;
         default:{ // all other areas assumed to have a boss
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
@@ -2636,6 +2665,7 @@ void Game::Update(){
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);
+    registry->GetSystem<SecondaryProjectileEmitSystem>().Update(playerpos, registry); // must go before ProjectileEmitSystem
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);

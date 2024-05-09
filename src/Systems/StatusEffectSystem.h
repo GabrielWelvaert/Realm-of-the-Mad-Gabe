@@ -50,6 +50,9 @@ class StatusEffectSystem: public System{
                 case STUNNED:{
                     text = "STUNNED";
                 } break;
+                case BLIND:{
+                    text = "BLIND";
+                } break;
                 default:{
                     return;
                 }break;
@@ -69,6 +72,7 @@ class StatusEffectSystem: public System{
             {1*8, 1*8, 8, 8}, // invulnerable 
             {13*8, 2*8, 8, 8}, // stunned
             {2*8, 1*8, 8, 8}, // invisible
+            {8*9, 2*8, 8, 8}, // blind
         };
 
         std::vector<SDL_Texture*> iconSets = {nullptr};

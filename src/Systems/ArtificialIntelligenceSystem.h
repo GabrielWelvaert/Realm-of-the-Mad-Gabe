@@ -28,6 +28,7 @@
 #include "../Utils/room.h"
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/OscillatingProjectileComponent.h"
+#include "../Components/isShootingComponent.h"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions

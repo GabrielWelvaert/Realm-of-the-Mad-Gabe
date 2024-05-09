@@ -1,5 +1,7 @@
 #include "CollisionSystem.h"
 
+#define MS_ALLOW_PROJECTILE_WALL_COLLISION 60
+
 CollisionSystem::CollisionSystem(){
     RequireComponent<BoxColliderComponent>();
     RequireComponent<TransformComponent>();
@@ -174,7 +176,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case WALLBOX:{
                             const auto& projectileBirthTime = a.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 75){ // projectile immune from wall collision for first Xms
+                            if(SDL_GetTicks() >= projectileBirthTime + MS_ALLOW_PROJECTILE_WALL_COLLISION){ // projectile immune from wall collision for first Xms
                                 a.Kill();
                             }
                         } break;
@@ -188,7 +190,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                         } break;
                         case PROJECTILE:{
                             const auto& projectileBirthTime = b.GetComponent<ProjectileComponent>().startTime;
-                            if(SDL_GetTicks() >= projectileBirthTime + 75){ // projectile immune from wall collision for first Xms
+                            if(SDL_GetTicks() >= projectileBirthTime + MS_ALLOW_PROJECTILE_WALL_COLLISION){ // projectile immune from wall collision for first Xms
                                 b.Kill();
                             }
                         } break;

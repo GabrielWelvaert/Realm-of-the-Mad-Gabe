@@ -5,14 +5,64 @@ these maps, tables, vectors are used to access data associated with an enum
 basically, this is a database.........
 */
 
+#define T1WEAPONS {T1SWORD, T1DAGGER, T1BOW, T1WAND, T1STAFF}
+#define T2WEAPONS {T2SWORD, T2DAGGER, T2BOW, T2WAND, T2STAFF}
+#define T3WEAPONS {T3SWORD, T3DAGGER, T3BOW, T3WAND, T3STAFF}
+#define T4WEAPONS {T4SWORD, T4DAGGER, T4BOW, T4WAND, T4STAFF}
+#define T5WEAPONS {T5SWORD, T5DAGGER, T5BOW, T5WAND, T5STAFF}
+#define T6WEAPONS {T6SWORD, T6DAGGER, T6BOW, T6WAND, T6STAFF}
+#define T7WEAPONS {T7SWORD, T7DAGGER, T7BOW, T7WAND, T7STAFF}
+#define T8WEAPONS {T8SWORD, T8DAGGER, T8BOW, T8WAND, T8STAFF}
+#define T9WEAPONS {T9SWORD, T9DAGGER, T9BOW, T9WAND, T9STAFF}
+#define T10WEAPONS {T10SWORD, T10DAGGER, T10BOW, T10WAND, T10STAFF}
+#define T11WEAPONS {T11SWORD, T11DAGGER, T11BOW, T11WAND, T11STAFF}
+#define T12WEAPONS {T12SWORD, T12DAGGER, T12BOW, T12WAND, T12STAFF}
+#define T13WEAPONS {T13SWORD, T13DAGGER, T13BOW, T13WAND, T13STAFF}
+#define T14WEAPONS {T14SWORD, T14DAGGER, T14BOW, T14WAND, T14STAFF}
+
+#define T1ABILITIES {T1HELM, T1SHIELD, T1SPELL, T1CLOAK, T1TOME, T1QUIVER}
+#define T2ABILITIES {T2HELM, T2SHIELD, T2SPELL, T2CLOAK, T2TOME, T2QUIVER}
+#define T3ABILITIES {T3HELM, T3SHIELD, T3SPELL, T3CLOAK, T3TOME, T3QUIVER}
+#define T4ABILITIES {T4HELM, T4SHIELD, T4SPELL, T4CLOAK, T4TOME, T4QUIVER}
+#define T5ABILITIES {T5HELM, T5SHIELD, T5SPELL, T5CLOAK, T5TOME, T5QUIVER}
+#define T6ABILITIES {T6HELM, T6SHIELD, T6SPELL, T6CLOAK, T6TOME, T6QUIVER}
+#define T7ABILITIES {T7HELM, T7SHIELD, T7SPELL, T7CLOAK, T7TOME, T7QUIVER}
+#define T8ABILITIES {T8HELM, T8SHIELD, T8SPELL, T8CLOAK, T8TOME, T8QUIVER}
+
+#define T0RING {T0DEFRING, T0ATTRING, T0SPDRING, T0WISRING, T0VITRING, T0DEXRING, T0HPRING, T0MPRING}
+#define T1RING {T1DEFRING, T1ATTRING, T1SPDRING, T1WISRING, T1VITRING, T1DEXRING, T1HPRING, T1MPRING}
+#define T2RING {T2DEFRING, T2ATTRING, T2SPDRING, T2WISRING, T2VITRING, T2DEXRING, T2HPRING, T2MPRING}
+#define T3RING {T3DEFRING, T3ATTRING, T3SPDRING, T3WISRING, T3VITRING, T3DEXRING, T3HPRING, T3MPRING}
+#define T4RING {T4DEFRING, T4ATTRING, T4SPDRING, T4WISRING, T4VITRING, T4DEXRING, T4HPRING, T4MPRING}
+
+#define T0ARMOR {T0HEAVYARMOR, T0ROBE, T0LIGHTARMOR}
+#define T1ARMOR {T1HEAVYARMOR, T1ROBE, T1LIGHTARMOR}
+#define T2ARMOR {T2HEAVYARMOR, T2ROBE, T2LIGHTARMOR}
+#define T3ARMOR {T3HEAVYARMOR, T3ROBE, T3LIGHTARMOR}
+#define T4ARMOR {T4HEAVYARMOR, T4ROBE, T4LIGHTARMOR}
+#define T5ARMOR {T5HEAVYARMOR, T5ROBE, T5LIGHTARMOR}
+#define T6ARMOR {T6HEAVYARMOR, T6ROBE, T6LIGHTARMOR}
+#define T7ARMOR {T7HEAVYARMOR, T7ROBE, T7LIGHTARMOR}
+#define T8ARMOR {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}
+#define T9ARMOR {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}
+#define T10ARMOR {T10HEAVYARMOR, T10ROBE, T10LIGHTARMOR}
+#define T11ARMOR {T11HEAVYARMOR, T11ROBE, T11LIGHTARMOR}
+#define T12ARMOR {T12HEAVYARMOR, T12ROBE, T12LIGHTARMOR}
+#define T13ARMOR {T13HEAVYARMOR, T13ROBE, T13LIGHTARMOR}
+#define T14ARMOR {T14HEAVYARMOR, T14ROBE, T14LIGHTARMOR}
+
+#define HPMP {HPPOT, MPPOT}
+
+
+// lofienvironment xy to SDL_Color for minimap
 std::unordered_map<int, SDL_Color> miniMapColors = {
     {{84}, miniMapGrass},
     {{04}, nexusFloor},
     {{44}, black},
     {{50}, udlFloor},
     {{16}, chickenFloor},
-    {{52}, gordonLairFloor}
-
+    {{52}, gordonLairFloor},
+    {{07}, godlandsfloor},
 };
 
 std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMonsterSpawns = {
@@ -137,7 +187,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPPOT, MPPOT}},
                 {8, {T0ATTRING, T0WISRING, T0DEFRING, T0DEXRING, T0VITRING, T0HPRING, T0MPRING}},
-                {7, {T1SWORD, T1WAND, T1BOW}},
+                {99, T1WEAPONS},
             }
         }
     },
@@ -425,6 +475,72 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             }
         }
     },
+    /**/
+        {
+        SPRITEGOD,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        MEDUSA,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        DJINN,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        ENTGOD,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        BEHOLDER,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        FLYINGBRAIN,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        SLIMEGOD,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        GHOSTGOD,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+    
 };
 
 std::vector<std::vector<int>> gordonLairOnlyFloors = {
@@ -670,6 +786,14 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {GORDON, std::string("Chef Gordon Ramsay")},
     {SHEEP, std::string("Sheep")},
     {GIGASHEEP, std::string("Giga Sheep")},
+    {SPRITEGOD, std::string("Sprite God")},
+    {MEDUSA, std::string("Medusa")},
+    {DJINN, std::string("Djinn")},
+    {ENTGOD, std::string("Ent Gdd")},
+    {BEHOLDER, std::string("Beholder")},
+    {FLYINGBRAIN, std::string("Flying Brain")},
+    {SLIMEGOD, std::string("Slime God")},
+    {GHOSTGOD, std::string("Ghost God")},
 
 };
 
@@ -683,6 +807,7 @@ std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData = {
     {CHANGENAME, {LOFICHAR, 8, 8, {8*8,0,8,8}, 4, false, false}},
     {LOCKEDPORTALTHEME, {LOFIOBJ2, 8, 8, {8*10,8*11,8,8}, 4, false, false}},
     {GORDONSLAIRWALLTHEME, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
+    {GODLANDS, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
 };
 
 std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
@@ -694,6 +819,7 @@ std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
     {std::string("Castle"), CASTLEPORTAL},    
     {std::string("Gordon's Chamber"), GORDONSCHAMBERPORTAL},
     {std::string("???"), LOCKEDPORTAL},
+    {std::string("GodLands"), GODLANDSPORTAL},
 };
 
 std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
@@ -705,6 +831,7 @@ std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
     {UDL, CASTLEPORTAL},
     {GORDONSLAIRWALLTHEME, GORDONSCHAMBERPORTAL},
     {LOCKEDPORTALTHEME, LOCKEDPORTAL},  
+    {GODLANDS, GODLANDSPORTAL},
 };
 
 std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = {
@@ -712,7 +839,8 @@ std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = {
     {UDL, {5,0}},
     {VAULT, {3,4}},
     {CHICKENLAIR, {1,6}},
-    {GORDONSLAIRWALLTHEME, {5,3}}
+    {GORDONSLAIRWALLTHEME, {5,3}},
+    {GODLANDS, {0,7}},
 };
 
 std::unordered_map<items, const char *> abillityItemToInfo = {
@@ -1108,7 +1236,15 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {BAT0, ASC},
     {GORDON, GORDONBOSSAI},
     {SHEEP, KEY},
-    {GIGASHEEP, ASC}
+    {GIGASHEEP, ASC},
+    {SPRITEGOD, AS},
+    {MEDUSA, ASC},
+    {DJINN, ASC},
+    {ENTGOD, ASC},
+    {BEHOLDER, ASC},
+    {FLYINGBRAIN, ASC},
+    {SLIMEGOD, ASC},
+    {GHOSTGOD, ASC},
 };
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -1734,7 +1870,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T14ROBE, "A phenomenal robe magically woven from fibers of sapphire, topaz and lapis lazuli, created for the archwizard of the seraphic realms"},
     {T0QUIVER, "A magical quiver that enchants arrows"},
     {T1QUIVER, "An enchanted quiver made of high-quality leather and brass"},
-    {DOOMQUIVER, "A heavy quiver of devastation; each arrow a whisper of impending cataclysm, leaving naught but ruin in its wake. No mortal can fire without feeling immese recoil."},
+    {DOOMQUIVER, "A heavy quiver of devastation; each arrow is a whisper of impending cataclysm, leaving none but ruin in its wake. No mortal can fire without feeling immese recoil"},
     {T2QUIVER, "A strong quiver of magical iron"},
     {T3QUIVER, "A powerful enchanting quiver made by forest elves"},
     {T4QUIVER, "A superior enchanting quiver made of high quality magesteel"},
@@ -2664,12 +2800,15 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
 
 std::vector<long> nextXPToLevelUp{0,50,200,450,800,1250,1800,2450,3200,4050,5000,6050,7200,8450,9800,11250,12800,14450,16200,18050};
 
-std::unordered_map<wallTheme, wallData> wallThemeToWallData = { // {textureEnum, {wall, ceiling}, alpha}
+// any single entries' values may not have duplicates otherwise wall generation algorithm in GenerateMap will fail 
+// also, must be single digit because currently LoadTileMap assumes tile-to-spritesheet coords are each between 0-9
+std::unordered_map<wallTheme, wallData> wallThemeToWallData = { // {textureEnum, {wall, ceiling}, alpha} 
     {UDL, {LOFIENVIRONMENT, {glm::ivec2(0,0), glm::ivec2(4,0)}, glm::ivec2(4,4)}},
     {NEXUS, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
     {VAULT, {LOFIENVIRONMENT, {glm::ivec2(0,5), glm::ivec2(3,5)}, glm::ivec2(4,4)}},
     {CHICKENLAIR, {LOFIENVIRONMENT, {glm::ivec2(0,1), glm::ivec2(4,1)}, glm::ivec2(4,4)}},
-    {GORDONSLAIRWALLTHEME, {LOFIENVIRONMENT, {glm::ivec2(0,2), glm::ivec2(4,2)}, glm::ivec2(4,4)}}
+    {GORDONSLAIRWALLTHEME, {LOFIENVIRONMENT, {glm::ivec2(0,2), glm::ivec2(4,2)}, glm::ivec2(4,4)}},
+    {GODLANDS, {LOFIENVIRONMENT, {glm::ivec2(3,0), glm::ivec2(3,1)}, glm::ivec2(4,4)}}
 };
 
 std::unordered_map<classes, std::array<int, 8>> maxStats = {
@@ -2720,7 +2859,15 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {BAT0, {0}},
     {GORDON, {0}},
     {SHEEP, {0}},
-    {GIGASHEEP, {0}}
+    {GIGASHEEP, {0}},
+    {SPRITEGOD, {2}},
+    {MEDUSA, {0}},
+    {DJINN, {0}},
+    {ENTGOD, {0}},
+    {BEHOLDER, {0}},
+    {FLYINGBRAIN, {0}},
+    {SLIMEGOD, {0}},
+    {GHOSTGOD, {0}},
 
 };
 
@@ -2796,6 +2943,16 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {GIGASHEEP, {false, 500,666,35,500,false,3,36, LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false ,12,12,{0,8}, false, SLOWED, 5000, false, false, 0 ,0}},
 
     {GORDON, {false, 1000,5000,70,500,false,17,360, LOFIOBJ2,8,8,{8*0,8*4,8,8},4,false,false,32,32,{4,4}, false, QUIET, 0, false, false, 0 ,0}},
+                        // repeatFreq, duration, dmg, speed, percing, shots, arcgap       isfixed, diagonal                        ignoresdef, oscillating
+    {SPRITEGOD, {false, 1000,2000,100,448,false,4,60, LOFIOBJ,3,6,{12*8+3, 8*14, 3, 6},4,false,false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {MEDUSA, {false, 1000,2000,100,448,false,5,60, LOFIOBJ,8,8,{10*8, 8*10,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {DJINN, {false, 500,1500,60,384,false,20,360, LOFIOBJ2,8,8,{8*9,8*4,8,8},4,false,false,20,20,{10,10}, false, QUIET, 0, false, false, 0 ,0}},
+    {ENTGOD, {false, 1000,2000,70,512,false,5,60, LOFIOBJ,8,8,{10*8, 8*9,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {BEHOLDER, {false, 1000,2700,120,320,false,5,360, LOFIOBJ,8,8,{10*8, 8*8,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {FLYINGBRAIN, {false, 500,1800,50,768,false,5,360, LOFIOBJ,8,8,{10*8, 8*12,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {SLIMEGOD, {false, 1000,1100,80,640,false,5,60, LOFIOBJ,3,6,{4*8+3, 8*13+1, 3, 6},4,false,false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+    {GHOSTGOD, {false, 1000,2700,120,320,false,7,172, LOFIOBJ,8,8,{10*8, 8*8,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+
 };
 
 
@@ -2837,7 +2994,17 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SHEEP, {3500,0,0,10,35,0,50,0,DEFAULTHIT,DEFAULTDEATH}},
     {GIGASHEEP, {3000,0,0,20,40,0,50,0,SKULLSHRINEHIT,SKULLSHRINEDEATH}},
 
-    {GORDON, {65535,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}}
+    {GORDON, {65535,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}},
+            //hp,mp,att,def,spd,dex,vit,wis
+    {SPRITEGOD,{2000,0,0,12,30,0,40,0,SPRITEGODHIT,SPRITESDEATH}},
+    {MEDUSA,{2000,0,0,18,30,0,40,0,MEDUSAHIT,MEDUSADEATH}},
+    {DJINN,{1000,0,0,12,34,0,40,0,DJINNHIT,DJINNDEATH}},
+    {ENTGOD,{1000,0,0,18,32,0,40,0,ENTSHIT,ENTSDEATH}},
+    {BEHOLDER,{1500,0,0,12,32,0,40,0,BEHOLDERHIT,BEHOLDERDEATH}},
+    {FLYINGBRAIN,{1000,0,0,12,30,0,40,0,FLYINGBRAINHIT,FLYINGBRAINDEATH}},
+    {SLIMEGOD,{1000,0,0,12,28,0,40,0,SLIMESHIT,SLIMESDEATH}},
+    {GHOSTGOD,{1000,0,0,12,28,0,40,0,GHOSTGODHIT,GHOSTGODDEATH}},
+
 };
 
 // GIVEN BOXCOLLIDER ENUM RETURNS ASSOCIATED BOXCOLLIDER DATA
@@ -2901,6 +3068,7 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {REDFIREBALL, {LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false}},
     {GREENSTAR, {LOFIOBJ,8,8,{8*3,8*7,8,8},4,false,false}}, // quiet
     {PURPLESTAR, {LOFIOBJ,8,8,{8*0,8*7,8,8},4,false,false}}, // slowed
+    {YELLOWSTAR, {LOFIOBJ,8,8,{8*6,8*7,8,8},4,false,false}}, // blind
     {ORYXTEAR, {LOFIOBJ2, 8, 8, {8*1, 8*4, 8,8},4,false,true}},
     {ORYXARROW, {LOFIOBJ3, 8, 8, {8*6, 8*47, 8,8},4,false,false}},
 
@@ -2931,6 +3099,16 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {GIGASHEEP,{CHARS8X8BEACH, 8, 8, {0,8*1,8,8},4,false,false}},
 
     {GORDON, {CHARS16X16ENCOUNTERS, 16,16, {0,16*58,16,16}, 4, false, false}},
+
+    {SPRITEGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*1,16,16}, 4, false, false}},
+    {MEDUSA,{CHARS16X16MOUNTAINS1, 16,16, {0,16*2,16,16}, 4, false, false}},
+    {DJINN,{CHARS16X16MOUNTAINS1, 16,16, {0,16*3,16,16}, 4, false, false}},
+    {ENTGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*4,16,16}, 4, false, false}},
+    {BEHOLDER,{CHARS16X16MOUNTAINS1, 16,16, {0,16*5,16,16}, 4, false, false}},
+    {FLYINGBRAIN,{CHARS16X16MOUNTAINS1, 16,16, {0,16*6,16,16}, 4, false, false}},
+    {SLIMEGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*7,16,16}, 4, false, false}},
+    {GHOSTGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*8,16,16}, 4, false, false}},
+
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -2976,6 +3154,14 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {GORDON, BIG},
     {SHEEP, STANDARD},
     {GIGASHEEP, BIG},
+    {SPRITEGOD,BIG},
+    {MEDUSA,BIG},
+    {DJINN,BIG},
+    {ENTGOD,BIG},
+    {BEHOLDER,BIG},
+    {FLYINGBRAIN,BIG},
+    {SLIMEGOD,BIG},
+    {GHOSTGOD,BIG},
 
 
 };
@@ -2985,6 +3171,7 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     unsigned short maxDistance; */
 std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     // not great, but 0 indicates unused variable or one that is derived later from somewhere else
+    // monsters will ahve their engage range updated such that they will only shoot if they are close enough to hit target
     {SKELETON0, {400, 0, 100}},
     {SKELETON1, {400, 0, 100}},
     {SKELETON2, {400, 0, 100}},
@@ -3014,8 +3201,16 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {MOUSE0,{600,0,150}},
     {BAT0,{600,0,150}},
     {GORDON, {750,0,5}},
-    {GIGASHEEP, {1000,0,120}},
+    {GIGASHEEP, {1000,0,120}}, // detect, engage, max
     {HELLHOUND, {500,0,120}},
+    {SPRITEGOD, {300, 0, 280}}, // prev 500 not 300
+    {MEDUSA, {300, 0, 280}},
+    {DJINN, {300, 0, 200}},
+    {ENTGOD, {300, 0, 300}},
+    {BEHOLDER, {300, 0, 270}},
+    {FLYINGBRAIN, {300, 0, 200}},
+    {SLIMEGOD, {300, 0, 220}},
+    {GHOSTGOD, {300, 0, 180}},
 
 };
 /*    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
@@ -3064,5 +3259,23 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {BAT0, {3,0,0}},
     {GORDON, {2,0,0}},
     {SHEEP, {3,0,0}},
-    {GIGASHEEP, {3,0,0}}
+    {GIGASHEEP, {3,0,0}},
+    {SPRITEGOD, {3, 0, 0}},
+    {MEDUSA, {3, 0, 0}},
+    {DJINN, {3, 0, 0}},
+    {ENTGOD, {3, 0, 0}},
+    {BEHOLDER, {3, 0, 0}},
+    {FLYINGBRAIN, {3, 0, 0}},
+    {SLIMEGOD, {3, 0, 0}},
+    {GHOSTGOD, {3, 0, 0}},
+
+};
+
+std::unordered_set<sprites> hasSecondaryProjectile = {
+    SLIMEGOD, BEHOLDER   
+};
+
+std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq = {
+    {SLIMEGOD, 5000},
+    {BEHOLDER, 5000}
 };
