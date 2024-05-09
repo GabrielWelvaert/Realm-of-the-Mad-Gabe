@@ -12,6 +12,10 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     enemy.AddComponent<StatusEffectComponent>();
     enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
 
+    if(hasSecondaryProjectile.find(spriteEnum) != hasSecondaryProjectile.end()){
+        enemy.AddComponent<SecondaryProjectileComponent>(spriteEnum);
+    }
+
     enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
     switch(enemyCat){
         case KEY:{
@@ -26,6 +30,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
             enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case AS:{ // animated shooting category
             enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -33,17 +38,20 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<AnimatedNeutralAIComponent>(spriteEnum);
             enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case SC:{ // shooting chase category
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<ChaseAIComponent>(spriteEnum, RNG);
             enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case T:{ // trap category
             enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is only trap
             enemy.AddComponent<TrapAIComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case CHICKENBOSSAI:{
             enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -54,14 +62,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
             enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
             idOfSpawnedBoss = enemy.GetId();
-        } break;
-        case POUNCE:{
-            enemy.AddComponent<AnimationComponent>(spriteEnum);
-            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
-            enemy.AddComponent<AnimatedPounceAIComponent>(spriteEnum, RNG);
-            enemy.AddComponent<RidigBodyComponent>();
-            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case ARCMAGEBOSSAI:{
             enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -77,6 +78,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             ac.xmin = 0;
             ac.numFrames = 1;
             idOfSpawnedBoss = enemy.GetId();
+            enemy.AddComponent<isShootingComponent>();
         } break;
         case GORDONBOSSAI:{
             enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -92,6 +94,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             ac.xmin = 0;
             ac.numFrames = 1;
             idOfSpawnedBoss = enemy.GetId();
+            enemy.AddComponent<isShootingComponent>();
         } break;
     }
 

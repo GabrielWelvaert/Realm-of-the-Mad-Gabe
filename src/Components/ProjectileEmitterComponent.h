@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include "../Utils/tables.h"
 
+
+// this struct is not cache friendly. it could be refacted into separated components to improve things.
 struct ProjectileEmitterComponent{
     bool isShooting; 
     unsigned short repeatFrequency; // ms per shot 

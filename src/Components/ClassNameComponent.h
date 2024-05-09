@@ -6,7 +6,7 @@
 struct ClassNameComponent{
     classes classname;
 
-    inline ClassNameComponent() : classname(EGG) {}; // compiler wants a default!
+    inline ClassNameComponent() = default; // compiler wants a default!
 
     inline ClassNameComponent(classes classname): classname(classname) {}
 };

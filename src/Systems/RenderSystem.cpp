@@ -237,6 +237,14 @@ void RenderSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& a
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
 
         }
+
+        if(player.GetComponent<StatusEffectComponent>().effects[BLIND]){
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 40,40,40,150);
+            SDL_Rect screen = {0,0,750,750};
+            SDL_RenderFillRect(renderer, &screen);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        }
     }
 
 }

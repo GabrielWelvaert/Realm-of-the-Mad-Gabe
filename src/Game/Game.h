@@ -91,6 +91,17 @@ class Game{
         glm::vec2 playerSpawn = glm::vec2(750, 1575);
         wallTheme currentArea = NEXUS;
         std::bitset<5> keysPressed;
+
+        template <typename T>
+        inline void print2d(T c){
+            for(auto line: c){
+                for(auto x: line){
+                    std::cout << x;
+                }
+                std::cout << "\n";
+            }
+        }
+
 };
 
 #endif
