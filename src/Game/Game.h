@@ -15,6 +15,7 @@
 #include <string>
 #include "../Utils/roomShut.h"
 #include "../Utils/vechash.h"
+#include "../Utils/BossIds.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -44,12 +45,10 @@ class Game{
         bool successfulMapGen = false; 
         deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         roomShut roomShut;
-        // int mapDimension = 0;
+        std::vector<BossIds> bosses;
         int idOfMiniMapEntity;
         int idOfMiniMapVeil;
         int rendererMaxTextureDimension;
-        int idOfBoss = -1;
-        int creationIdOfBoss;
         SDL_Texture * mapveilptr = nullptr;
         
 

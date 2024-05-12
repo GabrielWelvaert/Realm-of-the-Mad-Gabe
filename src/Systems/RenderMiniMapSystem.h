@@ -7,6 +7,8 @@
 #include "../../libs/SDL2/SDL.h"
 #include "../Components/SpriteComponent.h"
 #include "../AssetStore/AssetStore.h"
+#include "../Utils/BossIds.h"
+
 
 class RenderMiniMapSystem: public System{
     private:
@@ -16,7 +18,7 @@ class RenderMiniMapSystem: public System{
 
     public:
         RenderMiniMapSystem();
-        void Update(SDL_Renderer* renderer, Entity player, int idOfMiniMap, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, int idOfboss = -1, int creationIdOfBoss = -1);
+        void Update(SDL_Renderer* renderer, Entity player, int idOfMiniMap, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, std::vector<BossIds>& bosses);
 
 };
 

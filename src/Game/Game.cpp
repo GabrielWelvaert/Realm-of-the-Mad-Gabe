@@ -2548,7 +2548,7 @@ void Game::PopulateEventBus(){
 
 
 void Game::SpawnAreaEntities(wallTheme area){
-    idOfBoss = creationIdOfBoss = -1; // will be updated if boss is spawned
+    bosses.clear();
     switch(area){
         case VAULT: { // create entities for vault chests
             factory->spawnVaultChests(registry, characterManager);
@@ -2574,18 +2574,14 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnPortal(registry, glm::vec2(750,1350), GODLANDS);
         } break;
         case GORDONSLAIRWALLTHEME:{
-            factory->spawnMonster(registry, glm::vec2(848,970), GORDON);
-            idOfBoss = factory->idOfSpawnedBoss;
-            creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
+            Entity boss = factory->spawnMonster(registry, glm::vec2(848,970), GORDON);
+            bosses.push_back({boss.GetId(), boss.GetCreationId()});
         } break;
         case GODLANDS:{
-            // use variable bossRoom to initialize the godspawner
             factory->spawnGodLandsSpawner(registry, bossRoom, 50);
         } break;
         default:{ // all other areas assumed to have a boss
-            factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
-            idOfBoss = factory->idOfSpawnedBoss;
-            creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
+            factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId, bosses); // bosses are spawned in this function
         } break;
     }
 }
@@ -2700,8 +2696,8 @@ void Game::Render(){
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); 
     SDL_RenderClear(renderer);
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
-    registry->GetSystem<RenderMiniMapSystem>().Update(renderer, player, idOfMiniMapEntity, registry, assetStore, idOfBoss, creationIdOfBoss);
-    if(h){registry->GetSystem<RenderSystem>().RenderHealthBars(renderer, camera, registry, player, idOfBoss, creationIdOfBoss);}
+    registry->GetSystem<RenderMiniMapSystem>().Update(renderer, player, idOfMiniMapEntity, registry, assetStore, bosses);
+    if(h){registry->GetSystem<RenderSystem>().RenderHealthBars(renderer, camera, registry, player, bosses);}
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 

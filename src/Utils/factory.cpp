@@ -132,7 +132,7 @@ void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::
     }
 }
 
-void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId){
+void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
     for(const auto& room: dungeonRooms){
         if(room.id == 0){
             continue;
@@ -140,10 +140,12 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
             glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
             switch(dungeonType){
                 case CHICKENLAIR:{
-                    spawnMonster(registry, spawnPos, BOSSCHICKEN);
+                    Entity boss = spawnMonster(registry, spawnPos, BOSSCHICKEN);
+                    bosses.push_back({boss.GetId(), boss.GetCreationId()});
                 } break;
                 case UDL:{
-                    spawnMonster(registry, spawnPos, ARCMAGE);          
+                    Entity boss = spawnMonster(registry, spawnPos, ARCMAGE);          
+                    bosses.push_back({boss.GetId(), boss.GetCreationId()});
                 } 
             }
             continue;
