@@ -262,6 +262,12 @@ enum enemyCategory{
     KEY
 };
 
+enum parabolicCompletion{
+    PARABOLIC_BULLET, //entity is a bullet
+    PARABOLIC_MEDUSA_AOE_BOMB, // entity will spawn AOE damage at end of lerp
+    PARABOLIC_TRAP,
+};
+
 // an incredibly messy and semantically ambiguous enum
 enum wallTheme{ //wall themes are used as primary keys for areas/dungeons 
     UDL, // ACTUAL DUNGEON: CASTLE

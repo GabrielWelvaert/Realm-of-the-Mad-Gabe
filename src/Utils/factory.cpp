@@ -102,6 +102,31 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     return enemy;
 }
 
+Factory::Factory(){
+    for(int i = 0; i < 12; i++){ // destination positions for partcile velocity calculations
+        particleAngles[i] = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(12);
+    }
+}
+
+
+void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius){
+    // these particles will need their own system & component for movement & elimintaion
+    const SDL_Rect redsquare = {0,8*5,8,8};
+    glm::vec2 velocity;
+    glm::vec2 spawnPointCenter = {spawnpoint.x + 20, spawnpoint.y + 20};
+    auto time = SDL_GetTicks();
+    for(int i = 0; i < 12; i++){
+        Entity particle = registry->CreateEntity();
+        glm::vec2 destPos = {spawnPointCenter.x + 5 * std::cos(particleAngles[i]), spawnPointCenter.y + 5 * std::sin(particleAngles[i])};
+        float rotationDegrees = getRotationFromCoordiante(2000, spawnPointCenter.x, spawnPointCenter.y, destPos.x, destPos.y, velocity);
+        particle.AddComponent<RidigBodyComponent>(velocity);
+        particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,3,false,false);
+        particle.AddComponent<TransformComponent>(glm::vec2(spawnPointCenter.x, spawnPointCenter.y), glm::vec2(5.0,5.0), rotationDegrees);
+        float timeToReachDestination = radius / glm::length(velocity) * 1000.0f;
+        particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
+    }
+}
+
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId){
     for(const auto& room: dungeonRooms){
         if(room.id == 0){

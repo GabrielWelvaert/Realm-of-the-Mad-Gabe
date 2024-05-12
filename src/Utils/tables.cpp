@@ -3204,7 +3204,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {GIGASHEEP, {1000,0,120}}, // detect, engage, max
     {HELLHOUND, {500,0,120}},
     {SPRITEGOD, {300, 0, 280}}, // prev 500 not 300
-    {MEDUSA, {300, 0, 280}},
+    {MEDUSA, {320, 0, 300}},
     {DJINN, {300, 0, 200}},
     {ENTGOD, {300, 0, 300}},
     {BEHOLDER, {300, 0, 270}},
@@ -3272,11 +3272,12 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
 };
 
 std::unordered_set<sprites> hasSecondaryProjectile = {
-    SLIMEGOD, BEHOLDER, SPRITEGOD   
+    SLIMEGOD, BEHOLDER, SPRITEGOD, MEDUSA   
 };
 
 std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq = {
     {SLIMEGOD, 5000},
     {BEHOLDER, 5000},
     {SPRITEGOD, 5000},
+    {MEDUSA, 5000},
 };

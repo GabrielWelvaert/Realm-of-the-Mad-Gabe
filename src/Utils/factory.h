@@ -47,6 +47,7 @@
 #include "../Components/SecondaryProjectileComponent.h"
 #include "../Components/isShootingComponent.h"
 #include "../Components/DistanceToPlayerComponent.h"
+#include "../Components/ParticleComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -57,12 +58,25 @@ class Factory{
     private:
         Xoshiro256 RNG;
         std::vector<SDL_RendererFlip> flips = {SDL_FLIP_HORIZONTAL, SDL_FLIP_NONE};
+        std::vector<float> particleAngles = std::vector<float>(12);
+
+        inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
+            float angleRadians = std::atan2(destY - originY, destX - originX);   
+            float angleDegrees = angleRadians * (180.0 / M_PI);
+            emitterVelocity.x = projectileSpeed * std::cos(angleRadians);
+            emitterVelocity.y = projectileSpeed * std::sin(angleRadians);
+            return fmod(angleDegrees + 90.0, 360.0) - 45*diagonal; // fmod shit because degrees=0 is top right
+        }
 
     public:
     
+        Factory();
+
         int idOfSpawnedBoss = -1;
 
         Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
+
+        void spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
 
         Entity creatLootBag(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
 
