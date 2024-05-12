@@ -49,6 +49,7 @@
 #include "../Systems/DistanceToPlayerSystem.h"
 #include "../Systems/ParabolicMovementSystem.h"
 #include "../Systems/ParticleSystem.h"
+#include "../Systems/EnemySpawnSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -2103,6 +2104,7 @@ void Game::PopulateRegistry(){
     registry->AddSystem<DistanceToPlayerSystem>();
     registry->AddSystem<ParabolicMovementSystem>();
     registry->AddSystem<ParticleSystem>();
+    registry->AddSystem<EnemySpawnSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2577,7 +2579,8 @@ void Game::SpawnAreaEntities(wallTheme area){
             creationIdOfBoss = registry->GetCreationIdFromEntityId(idOfBoss);
         } break;
         case GODLANDS:{
-            // dont spawn boss. todo spawn god spawning entity
+            // use variable bossRoom to initialize the godspawner
+            factory->spawnGodLandsSpawner(registry, bossRoom, 50);
         } break;
         default:{ // all other areas assumed to have a boss
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId);
@@ -2688,6 +2691,9 @@ void Game::Update(){
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
+    if(currentArea == GODLANDS){
+        registry->GetSystem<EnemySpawnSystem>().Update(player, registry->GetSystem<ProjectileEmitSystem>().GetSystemEntities().size(), registry, factory);
+    }
 }
 
 void Game::Render(){

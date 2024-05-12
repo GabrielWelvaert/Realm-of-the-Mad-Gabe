@@ -211,7 +211,7 @@ struct shieldData{
     int numshots;
 };
 
-
+extern std::vector<sprites> gods;
 extern std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq;
 extern std::unordered_set<sprites> hasSecondaryProjectile;
 extern std::unordered_map<items, shieldData> itemEnumToShieldData;

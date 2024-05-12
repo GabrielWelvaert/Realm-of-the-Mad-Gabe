@@ -48,6 +48,7 @@
 #include "../Components/isShootingComponent.h"
 #include "../Components/DistanceToPlayerComponent.h"
 #include "../Components/ParticleComponent.h"
+#include "../Components/EnemySpawnerComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -75,6 +76,8 @@ class Factory{
         int idOfSpawnedBoss = -1;
 
         Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
+
+        Entity spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const room& room, int maxMonsters);
 
         void spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
 

@@ -543,6 +543,17 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
     
 };
 
+std::vector<sprites> gods = {
+    SPRITEGOD,
+    MEDUSA,
+    DJINN,
+    ENTGOD,
+    BEHOLDER,
+    FLYINGBRAIN,
+    SLIMEGOD,
+    GHOSTGOD
+};
+
 std::vector<std::vector<int>> gordonLairOnlyFloors = {
     {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
     {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
@@ -2949,7 +2960,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {DJINN, { 500,1500,60,384,false,20,360, LOFIOBJ2,8,8,{8*9,8*4,8,8},4,false,false,20,20,{10,10}, false, QUIET, 0, false, false, 0 ,0}},
     {ENTGOD, { 1000,2000,70,512,false,5,60, LOFIOBJ,8,8,{10*8, 8*9,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
     {BEHOLDER, { 1000,2700,120,320,false,5,360, LOFIOBJ,8,8,{10*8, 8*8,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
-    {FLYINGBRAIN, {500,1800,50,768,false,5,360, LOFIOBJ,8,8,{10*8, 8*12,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
+    {FLYINGBRAIN, {500,1250,50,768,false,5,360, LOFIOBJ,8,8,{10*8, 8*12,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
     {SLIMEGOD, { 1000,1100,80,640,false,5,60, LOFIOBJ,3,6,{4*8+3, 8*13+1, 3, 6},4,false,false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
     {GHOSTGOD, { 1000,2700,120,320,false,7,172, LOFIOBJ,8,8,{10*8, 8*8,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
 
