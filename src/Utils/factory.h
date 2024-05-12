@@ -49,6 +49,7 @@
 #include "../Components/DistanceToPlayerComponent.h"
 #include "../Components/ParticleComponent.h"
 #include "../Components/EnemySpawnerComponent.h"
+#include "../Utils/BossIds.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -91,7 +92,7 @@ class Factory{
 
         void spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager);
 
-        void populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId);
+        void populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses);
 };
 
 #endif

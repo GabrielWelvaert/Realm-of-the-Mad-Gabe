@@ -28,43 +28,47 @@ void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player){
     }
 }
 
-void RenderSystem::RenderHealthBars(SDL_Renderer* renderer, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, int idOfboss, int creationIdOfBoss){
+void RenderSystem::RenderHealthBars(SDL_Renderer* renderer, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, std::vector<BossIds>& bosses){
     // todo: make this work with multiple bosses
     // render boss health bar(s) for living bosses
-    if(idOfboss > -1 && registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){
-        const auto& sprite = registry->GetComponent<SpriteComponent>(idOfboss);
-        const auto& transform = registry->GetComponent<TransformComponent>(idOfboss);
-        if(transform.position.x - camera.x < 750){ // if some part of hp bar not under HUD
-            auto rightcorner = transform.position.x + sprite.width * transform.scale.x - camera.x;
-            int widthSubtraction = 0;
-            if(rightcorner > 750){
-                widthSubtraction = rightcorner - 750;
-            }
-            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-            SDL_Rect rect = {
-                static_cast<int>(transform.position.x - camera.x), 
-                static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
-                static_cast<int>((sprite.width * transform.scale.x) - widthSubtraction),
-                static_cast<int>(8)
-            };
-            SDL_RenderFillRect(renderer, &rect);
+    for(const auto& boss: bosses){
+        auto idOfboss = boss.Id;
+        auto creationIdOfBoss = boss.CreationId; 
+        if(registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){
+            const auto& sprite = registry->GetComponent<SpriteComponent>(idOfboss);
+            const auto& transform = registry->GetComponent<TransformComponent>(idOfboss);
+            if(transform.position.x - camera.x < 750){ // if some part of hp bar not under HUD
+                auto rightcorner = transform.position.x + sprite.width * transform.scale.x - camera.x;
+                int widthSubtraction = 0;
+                if(rightcorner > 750){
+                    widthSubtraction = rightcorner - 750;
+                }
+                SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+                SDL_Rect rect = {
+                    static_cast<int>(transform.position.x - camera.x), 
+                    static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                    static_cast<int>((sprite.width * transform.scale.x) - widthSubtraction),
+                    static_cast<int>(8)
+                };
+                SDL_RenderFillRect(renderer, &rect);
 
-            const auto& hpmp = registry->GetComponent<HPMPComponent>(idOfboss);
-            auto percentHealth = hpmp.activehp / hpmp.maxhp;
-            rightcorner = transform.position.x - camera.x + (sprite.width * transform.scale.x * percentHealth);
-            if(rightcorner > 750){
-                widthSubtraction = rightcorner - 750;
-            } else {
-                widthSubtraction = 0;
+                const auto& hpmp = registry->GetComponent<HPMPComponent>(idOfboss);
+                auto percentHealth = hpmp.activehp / hpmp.maxhp;
+                rightcorner = transform.position.x - camera.x + (sprite.width * transform.scale.x * percentHealth);
+                if(rightcorner > 750){
+                    widthSubtraction = rightcorner - 750;
+                } else {
+                    widthSubtraction = 0;
+                }
+                rect = {
+                    static_cast<int>(transform.position.x - camera.x), 
+                    static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
+                    static_cast<int>((sprite.width * transform.scale.x * percentHealth) - widthSubtraction),
+                    static_cast<int>(8)
+                };
+                SDL_SetRenderDrawColor(renderer, hpbarcolor.r, hpbarcolor.g, hpbarcolor.b, 255);
+                SDL_RenderFillRect(renderer, &rect);
             }
-            rect = {
-                static_cast<int>(transform.position.x - camera.x), 
-                static_cast<int>(transform.position.y - camera.y + sprite.height * transform.scale.y + 4), 
-                static_cast<int>((sprite.width * transform.scale.x * percentHealth) - widthSubtraction),
-                static_cast<int>(8)
-            };
-            SDL_SetRenderDrawColor(renderer, hpbarcolor.r, hpbarcolor.g, hpbarcolor.b, 255);
-            SDL_RenderFillRect(renderer, &rect);
         }
     }
 

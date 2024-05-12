@@ -12,6 +12,7 @@
 #include "../Components/AnimatedShootingComponent.h"
 #include "../Components/HPMPComponent.h"
 #include "../Components/StatusEffectComponent.h"
+#include "../Utils/BossIds.h"
 
 /*
 This system is responsible for drawing sprites on the screen. It sorts them by their z-axis and y-position and takes into account animationComponents
@@ -22,7 +23,7 @@ class RenderSystem: public System {
         RenderSystem();
         void Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry);
         void RenderVeils(SDL_Renderer* renderer, Entity player);
-        void RenderHealthBars(SDL_Renderer* renderer, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, int idOfboss = -1, int creationIdOfBoss = -1);
+        void RenderHealthBars(SDL_Renderer* renderer, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, std::vector<BossIds>& bosses);
 };
 
 #endif 

@@ -7,7 +7,7 @@ RenderMiniMapSystem::RenderMiniMapSystem(){
     RequireComponent<DistanceToPlayerComponent>();
 }
 
-void RenderMiniMapSystem::Update(SDL_Renderer* renderer, Entity player, int idOfMiniMap, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, int idOfboss, int creationIdOfBoss){
+void RenderMiniMapSystem::Update(SDL_Renderer* renderer, Entity player, int idOfMiniMap, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, std::vector<BossIds>& bosses){
     glm::ivec2 MiniMapHudSpot = {755,5};
     const int entitySquare = 8; // dimension of the icon (its just a colored square)
     const int originOfRealMap = 60; // coordinate where map actually starts (inside of padded area of texture)
@@ -73,19 +73,23 @@ void RenderMiniMapSystem::Update(SDL_Renderer* renderer, Entity player, int idOf
 
     // render boss squares (allowed to be on top of veil)
     // todo re-write this to work for multiple bosses!
-    if(idOfboss > -1 && registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){ // if we're in an area that has a boss, and its still alive...
-        const auto& transform = registry->GetComponent<TransformComponent>(idOfboss);
-        mmpMonster = {(transform.position.x / mapPixels) * 240.0, (transform.position.y / mapPixels) * 240.0}; // real position in 240x240 mini map
-        if(scale > 1.0){
-            renderSpotMonster = {renderSpotPlayer.x + ((mmpMonster.x - mmpPlayer.x) * (scale)), renderSpotPlayer.y + ((mmpMonster.y - mmpPlayer.y) * (scale))};              
-        } else {
-            renderSpotMonster = {MiniMapHudSpot.x + mmpMonster.x - (entitySquare/4), MiniMapHudSpot.y + mmpMonster.y - (entitySquare/4)};
+    for(const auto& boss: bosses){
+        auto idOfboss = boss.Id;
+        auto creationIdOfBoss = boss.CreationId; 
+        if(registry->GetCreationIdFromEntityId(idOfboss) == creationIdOfBoss){ // if we're in an area that has a boss, and its still alive...
+            const auto& transform = registry->GetComponent<TransformComponent>(idOfboss);
+            mmpMonster = {(transform.position.x / mapPixels) * 240.0, (transform.position.y / mapPixels) * 240.0}; // real position in 240x240 mini map
+            if(scale > 1.0){
+                renderSpotMonster = {renderSpotPlayer.x + ((mmpMonster.x - mmpPlayer.x) * (scale)), renderSpotPlayer.y + ((mmpMonster.y - mmpPlayer.y) * (scale))};              
+            } else {
+                renderSpotMonster = {MiniMapHudSpot.x + mmpMonster.x - (entitySquare/4), MiniMapHudSpot.y + mmpMonster.y - (entitySquare/4)};
+            }
+            dstRectMonster = {renderSpotMonster.x, renderSpotMonster.y, entitySquare, entitySquare};
+            if(dstRectMonster.x > 750 && dstRectMonster.x < 990 - entitySquare && dstRectMonster.y > 5 && dstRectMonster.y < 245 - entitySquare){
+                SDL_SetRenderDrawColor(renderer,211,30,18,255);
+                SDL_RenderFillRect(renderer, &dstRectMonster);       
+            } 
         }
-        dstRectMonster = {renderSpotMonster.x, renderSpotMonster.y, entitySquare, entitySquare};
-        if(dstRectMonster.x > 750 && dstRectMonster.x < 990 - entitySquare && dstRectMonster.y > 5 && dstRectMonster.y < 245 - entitySquare){
-            SDL_SetRenderDrawColor(renderer,211,30,18,255);
-            SDL_RenderFillRect(renderer, &dstRectMonster);       
-        } 
     }
 
     // render player squares (impossible to be under veil and should always be on top)
