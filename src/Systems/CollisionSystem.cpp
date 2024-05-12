@@ -7,6 +7,32 @@ CollisionSystem::CollisionSystem(){
     RequireComponent<TransformComponent>();
 }
 
+void CollisionSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
+    eventBus->SubscribeToEvent<AOEBombEvent>(this, &CollisionSystem::onAOEBomb);
+}
+
+void CollisionSystem::onAOEBomb(AOEBombEvent& event){
+    bool playerIsEmitter = event.spriteOfEmitter == NONESPRITE;
+    if(playerIsEmitter){
+        // implement this if its needed
+        // would need to search collision system for collision
+    } else { // monster emitted, is player within radius? 
+        const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
+        if(glm::distance(playerPos, event.epicenter) <= event.radius){
+            event.eventBus->EmitEvent<ProjectileDamageEvent>(event.projectile,
+                                                            event.player,
+                                                            event.eventBus,
+                                                            event.registry,
+                                                            event.assetStore,
+                                                            event.factory,
+                                                            event.Setup,
+                                                            event.dp,
+                                                            event.activeCharacterID,
+                                                            event.characterManager);
+        }
+    }
+}
+
 void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
     auto& entities = GetSystemEntities();
     const int x = 500; // 500 pixels off camera is around 8 tiles past the bounds of the camera
@@ -15,6 +41,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
         auto& aTransform = a.GetComponent<TransformComponent>();
         auto& aCollider = a.GetComponent<BoxColliderComponent>();
         // skip entities which are X pixels off-screen
+        // since player is always on-screen-center, its possible to optimize this using new distanceToPlayer system
         if((aTransform.position.x + aCollider.width < camera.x - x|| 
             aTransform.position.y + aCollider.height < camera.y - x|| 
             aTransform.position.x > camera.x + camera.w + x|| 

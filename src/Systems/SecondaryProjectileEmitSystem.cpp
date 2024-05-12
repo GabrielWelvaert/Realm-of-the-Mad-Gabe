@@ -13,23 +13,27 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
     for(auto& entity: GetSystemEntities()){
         const auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         if(isShooting){
-            const auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
             auto& SPEC = entity.GetComponent<SecondaryProjectileComponent>();
-            if(time - SPEC.lastEmissionTime > SPEC.repeatFrequency && time - PEC.lastEmissionTime > PEC.repeatFrequency){
-                const auto& spriteEnum = PEC.spriteOfParent;
-                const auto& monsterPos = entity.GetComponent<TransformComponent>().position;
-                SPEC.lastEmissionTime = time;
-                switch(spriteEnum){
-                    case SLIMEGOD:{
-                        slimeGodSlow(entity, playerPos, monsterPos, registry);
-                    } break;
-                    case BEHOLDER:{
-                        beholderBlind(entity, playerPos, monsterPos, registry);
-                    } break;
-                    case SPRITEGOD:{
-                        spriteGodBoomerang(entity, playerPos, monsterPos, registry);
-                    } break;
-                    
+            if(time - SPEC.lastEmissionTime > SPEC.repeatFrequency){
+                const auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
+                if(time - PEC.lastEmissionTime > PEC.repeatFrequency){
+                    const auto& spriteEnum = PEC.spriteOfParent;
+                    const auto& monsterPos = entity.GetComponent<TransformComponent>().position;
+                    SPEC.lastEmissionTime = time; 
+                    switch(spriteEnum){
+                        case SLIMEGOD:{
+                            slimeGodSlow(entity, playerPos, registry);
+                        } break;
+                        case BEHOLDER:{
+                            beholderBlind(entity, playerPos, registry);
+                        } break;
+                        case SPRITEGOD:{
+                            spriteGodBoomerang(entity, playerPos, registry);
+                        } break;
+                        case MEDUSA:{
+                            MedusaBomb(entity, playerPos, registry);
+                        } break;
+                    }
                 }
             }
         }

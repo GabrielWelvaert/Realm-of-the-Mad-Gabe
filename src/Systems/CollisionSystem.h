@@ -16,6 +16,7 @@
 #include "../Utils/factory.h"
 #include "../Events/PortalCollisionEvent.h"
 #include "../Utils/deadPlayer.h"
+#include "../Events/AOEBombEvent.h"
 
 /*
 This system is responsible for parsing box-collider collision and emitting respective events
@@ -60,6 +61,10 @@ class CollisionSystem: public System {
 
     public:
         CollisionSystem();
+
+        void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
+
+        void onAOEBomb(AOEBombEvent& event);
 
         void Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager);
 };

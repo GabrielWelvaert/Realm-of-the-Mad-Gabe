@@ -47,6 +47,8 @@
 #include "../Systems/RotationSystem.h"
 #include "../Systems/RenderMiniMapSystem.h"
 #include "../Systems/DistanceToPlayerSystem.h"
+#include "../Systems/ParabolicMovementSystem.h"
+#include "../Systems/ParticleSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -297,7 +299,7 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, T5STAFF, lootbag);
                             factory->createItemInBag(registry, T6STAFF, lootbag);
                             factory->createItemInBag(registry, T7STAFF, lootbag);
-                            factory->createItemInBag(registry, T8STAFF, lootbag);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
                         } break;
                         case SDLK_0:{
                             std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
@@ -321,12 +323,13 @@ void Game::ProcessInput(){
                             // } else {
                             //     player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
                             // }
-                            player.GetComponent<TransformComponent>().position = glm::vec2(12283.4, 13620);
+                            player.GetComponent<TransformComponent>().position = glm::vec2(-500, -500);
+                            factory->spawnMonster(registry, glm::vec2(-400,-500), MEDUSA);
                         } break;
                         case SDLK_BACKSPACE:{
-                            player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
-                            player.GetComponent<HPMPComponent>().activehp += 1000;
-                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
+                            player.GetComponent<HPMPComponent>().activehp += 10000;
+                            player.GetComponent<BaseStatComponent>().xp += 20000;
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
                             // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                         } break;
@@ -2098,6 +2101,8 @@ void Game::PopulateRegistry(){
     registry->AddSystem<RotationSystem>();
     registry->AddSystem<RenderMiniMapSystem>();
     registry->AddSystem<DistanceToPlayerSystem>();
+    registry->AddSystem<ParabolicMovementSystem>();
+    registry->AddSystem<ParticleSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2536,6 +2541,7 @@ void Game::PopulateEventBus(){
     registry->GetSystem<StatusEffectSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<ItemIconSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<DisplayNameSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<CollisionSystem>().SubscribeToEvents(eventBus);
 }
 
 
@@ -2668,6 +2674,8 @@ void Game::Update(){
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateRealPositions(registry);
+    registry->GetSystem<ParabolicMovementSystem>().Update(player, deltaTime, eventBus, registry, assetStore, factory, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
+    registry->GetSystem<ParticleSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
     registry->GetSystem<CameraMovementSystem>().Update(camera, mapheight, mapWidth);

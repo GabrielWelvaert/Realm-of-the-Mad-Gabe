@@ -15,10 +15,12 @@
 #include "../../libs/SDL2/SDL.h"
 #include "../Components/isShootingComponent.h"
 #include "../Components/RotationComponent.h"
+#include "../Components/ParabolicMovementComponent.h"
 
 class SecondaryProjectileEmitSystem: public System{
     private:
-        const int tileScale = 64;
+        // const int tileScale = 64;
+        // const float gravity = 9.81f;
 
         inline float getRotationFromCoordiante(const float& projectileSpeed, const float& originX, const float& originY, const float& destX, const float& destY, glm::vec2& emitterVelocity, const bool& diagonal = false){
             float angleRadians = std::atan2(destY - originY, destX - originX);   
@@ -34,7 +36,7 @@ class SecondaryProjectileEmitSystem: public System{
             emitterVelocity.y = originVelocity.x * std::sin(deltaRadians) + originVelocity.y * std::cos(deltaRadians);
         }
 
-        inline void slimeGodSlow(Entity slimeGod, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+        inline void slimeGodSlow(Entity slimeGod, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {slimeGod.GetComponent<TransformComponent>().position.x + 32, slimeGod.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
             const auto& sprite = enumToSpriteComponent.at(PURPLESTAR);
@@ -50,7 +52,7 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.AddComponent<ProjectileComponent>(0, 2000, false, slimeGod, 0, SLIMEGOD, true, SLOWED, 3000, false);
         }
 
-        inline void beholderBlind(Entity beholder, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+        inline void beholderBlind(Entity beholder, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {beholder.GetComponent<TransformComponent>().position.x + 32, beholder.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
             const auto& sprite = enumToSpriteComponent.at(YELLOWSTAR);
@@ -66,7 +68,7 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.AddComponent<ProjectileComponent>(0, 3000, false, beholder, 0, BEHOLDER, true, BLIND, 3000, false);
         }
 
-        inline void spriteGodBoomerang(Entity spriteGod, const glm::vec2& playerPos, const glm::vec2& monsterPos, std::unique_ptr<Registry>& registry){
+        inline void spriteGodBoomerang(Entity spriteGod, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {spriteGod.GetComponent<TransformComponent>().position.x + 32, spriteGod.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
             float rotationDegrees = getRotationFromCoordiante(384, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
@@ -80,6 +82,16 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.Group(PROJECTILE);
             projectile.AddComponent<RotationComponent>(1);
             projectile.AddComponent<ProjectileComponent>(0, 2400, false, spriteGod, 0, SPRITEGOD, true, QUIET, 5000, false);
+        }
+
+        inline void MedusaBomb(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
+            glm::vec2 bigCenter = {monster.GetComponent<TransformComponent>().position.x + 32, monster.GetComponent<TransformComponent>().position.y + 32};
+            const SDL_Rect redsquare = {0,8*5,8,8};
+            Entity square = registry->CreateEntity();
+            square.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0));
+            square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,3,false,false);
+            square.AddComponent<ParabolicMovementComponent>(glm::vec3(bigCenter.x, bigCenter.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 80.0, 1.0, PARABOLIC_MEDUSA_AOE_BOMB);
+            square.AddComponent<ProjectileComponent>(150,INT_MAX,0,monster, 0,MEDUSA); // bogus projectile component needed for damage event logic
         }
 
     public:
