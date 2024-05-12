@@ -402,7 +402,8 @@ enum sprites{
     BEHOLDER,
     FLYINGBRAIN,
     SLIMEGOD,
-    GHOSTGOD
+    GHOSTGOD,
+    GODSPAWNER
 };
 
 enum soundEnums{

@@ -108,6 +108,11 @@ Factory::Factory(){
     }
 }
 
+Entity Factory::spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const room& room, int maxMonsters){
+    Entity spawner = registry->CreateEntity();
+    spawner.AddComponent<EnemySpawnerComponent>(room, maxMonsters);
+    return spawner;
+}
 
 void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius){
     // these particles will need their own system & component for movement & elimintaion
