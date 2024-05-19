@@ -168,7 +168,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                             }
                         } break;
                         case WALLBOX:{
-                            eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height));
+                            eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height), registry);
                         } break;
                     }
 
@@ -181,7 +181,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                             }
                         } break;
                         case WALLBOX:{ // b is wall
-                            eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height));
+                            eventBus->EmitEvent<CollisionEvent>(b,a,getCollisionSide(aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height,bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height), registry);
                         } break;
                     }
                 } break;
@@ -213,7 +213,7 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
                     switch(Bgroup){
                         case PLAYER:
                         case MONSTER:{
-                            eventBus->EmitEvent<CollisionEvent>(a,b,getCollisionSide(bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height,aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height));
+                            eventBus->EmitEvent<CollisionEvent>(a,b,getCollisionSide(bTransform.position.x + bCollider.offset[0],bTransform.position.y + bCollider.offset[1],bCollider.width,bCollider.height,aTransform.position.x + aCollider.offset[0],aTransform.position.y + aCollider.offset[1],aCollider.width,aCollider.height), registry);
                         } break;
                         case PROJECTILE:{
                             const auto& projectileBirthTime = b.GetComponent<ProjectileComponent>().startTime;

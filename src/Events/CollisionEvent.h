@@ -12,7 +12,9 @@ class CollisionEvent: public Event {
         Entity b;
         sidehit side;
         double deltatime;
-        inline CollisionEvent(Entity a, Entity b, sidehit side): a(a), b(b), side(side) {};
+        std::unique_ptr<Registry>& registry;
+        inline CollisionEvent(Entity a, Entity b, sidehit side, std::unique_ptr<Registry>& registry): 
+            a(a), b(b), side(side), registry(registry) {};
 };
 
 #endif 

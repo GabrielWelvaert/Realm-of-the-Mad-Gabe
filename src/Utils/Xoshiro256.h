@@ -45,14 +45,20 @@ public:
         return static_cast<int>(minX + normalized * (maxX - minX + 1));
     }
 
-    inline int randomFromRange(double minX, double maxX){
-        double normalized = static_cast<double>(next()) / UINT64_MAX;
-        return static_cast<double>(minX + normalized * (maxX - minX + 1));
+    inline double randomFromRange(double minX, double maxX){
+        uint64_t max_val = UINT64_MAX;
+        double scaled = static_cast<double>(next()) / max_val; // Scale to [0, 1)
+        return minX + scaled * (maxX - minX);
     }
 
-    inline int randomFromRange(float minX, float maxX){
-        float normalized = static_cast<float>(next()) / UINT64_MAX;
-        return static_cast<float>(minX + normalized * (maxX - minX + 1));
+    inline float randomFromRange(float minX, float maxX){
+        uint64_t max_val = UINT64_MAX;
+        float scaled = static_cast<float>(next()) / max_val;
+        return minX + scaled * (maxX - minX);
+    }
+
+    inline bool randomBool() {
+        return randomFromRange(0, 1) == 1;
     }
 
     template <typename T>

@@ -16,7 +16,9 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     const auto& isShooting = player.GetComponent<isShootingComponent>().isShooting;
     auto& ac = player.GetComponent<AbilityComponent>(); 
     const auto& holdingItem = player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
-    const auto& confused = player.GetComponent<StatusEffectComponent>().effects[CONFUSED];
+    const auto& statusEffects = player.GetComponent<StatusEffectComponent>().effects;
+    const auto& confused = statusEffects[CONFUSED];
+    const auto& stunned = statusEffects[STUNNED];
     int move;
     
     if(confused){
@@ -163,7 +165,7 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
         }break;
     }
     // update stuff for if shooting
-    if(isShooting && pec.shots > 0){ //previously if keysPressed[4]
+    if(isShooting && pec.shots > 0 && !stunned){ //previously if keysPressed[4]
         const auto& activedexterity = player.GetComponent<OffenseStatComponent>().activedexterity;
         auto& transform = player.GetComponent<TransformComponent>();
         auto& asc = player.GetComponent<AnimatedShootingComponent>();

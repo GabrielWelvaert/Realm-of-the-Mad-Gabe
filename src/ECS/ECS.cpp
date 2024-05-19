@@ -17,16 +17,20 @@ void Entity::Kill(){
     registry->KillEntity(*this);
 }
 
-void Entity::Tag(const tags& tag){
-    registry->TagEntity(*this, tag);
-}
+// void Entity::Tag(const tags& tag){
+//     registry->TagEntity(*this, tag);
+// }
 
-bool Entity::HasTag(const tags& tag) const {
-    return registry->EntityHasTag(*this, tag);
-}
+// bool Entity::HasTag(const tags& tag) const {
+//     return registry->EntityHasTag(*this, tag);
+// }
 
 void Entity::Group(const groups& group){
     registry->GroupEntity(*this, group);
+}
+
+void Entity::monsterSubGroup(const monsterSubGroups& msg){
+    registry->monsterSubGroupEntity(*this, msg);
 }
 
 bool Entity::BelongsToGroup(const groups& group) const {
@@ -139,7 +143,7 @@ void Registry::Update() {
         // std::cout << entityId << " has died" << std::endl;
         entityIdToCreationId[entityId] = 0; // creationId of 0 used for dead entities
         // std::cout << entityIdToCreationId.at(entityId) << " this should be 0" << std::endl;
-        RemoveEntityTag(entity);
+        // RemoveEntityTag(entity);
         RemoveEntityGroup(entity);
     }
 
@@ -147,42 +151,48 @@ void Registry::Update() {
     entitiesToBeKilled.clear();
 }
 
-void Registry::TagEntity(Entity entity, const tags& tag){
-    entityPerTag.emplace(tag, entity);
-    tagPerEntity.emplace(entity.GetId(), tag);
-}
+// void Registry::TagEntity(Entity entity, const tags& tag){
+//     entityPerTag.emplace(tag, entity);
+//     tagPerEntity.emplace(entity.GetId(), tag);
+// }
 
-bool Registry::EntityHasTag(Entity entity, const tags& tag) const {
-    if (tagPerEntity.find(entity.GetId()) == tagPerEntity.end()){
-        return false;
-    }
-    return entityPerTag.find(tag)->second == entity;
-}
+// bool Registry::EntityHasTag(Entity entity, const tags& tag) const {
+//     if (tagPerEntity.find(entity.GetId()) == tagPerEntity.end()){
+//         return false;
+//     }
+//     return entityPerTag.find(tag)->second == entity;
+// }
 
-bool Registry::EntityHasTag(int id, const tags& tag) const {
-    if (tagPerEntity.find(id) == tagPerEntity.end()){
-        return false;
-    }
-    return entityPerTag.find(tag)->second.GetId() == id;
-}
+// bool Registry::EntityHasTag(int id, const tags& tag) const {
+//     if (tagPerEntity.find(id) == tagPerEntity.end()){
+//         return false;
+//     }
+//     return entityPerTag.find(tag)->second.GetId() == id;
+// }
 
-Entity Registry::GetEntityByTag(const tags& tag) const {
-    return entityPerTag.at(tag);
-}
+// Entity Registry::GetEntityByTag(const tags& tag) const {
+//     return entityPerTag.at(tag);
+// }
 
-void Registry::RemoveEntityTag(Entity entity){
-    auto taggedEntity = tagPerEntity.find(entity.GetId());
-    if (taggedEntity != tagPerEntity.end()){
-        auto tag = taggedEntity->second;
-        entityPerTag.erase(tag);
-        tagPerEntity.erase(taggedEntity);
-    }
+// void Registry::RemoveEntityTag(Entity entity){
+//     auto taggedEntity = tagPerEntity.find(entity.GetId());
+//     if (taggedEntity != tagPerEntity.end()){
+//         auto tag = taggedEntity->second;
+//         entityPerTag.erase(tag);
+//         tagPerEntity.erase(taggedEntity);
+//     }
+// }
+
+void Registry::monsterSubGroupEntity(Entity entity, const monsterSubGroups& msg){
+    entitiesPerMonsterSubGroup.emplace(msg, std::unordered_set<int>());
+    entitiesPerMonsterSubGroup[msg].emplace(entity.GetId());
+    monsterSubGroupPerEntity.emplace(entity.GetId(), msg);
 }
 
 void Registry::GroupEntity(Entity entity, const groups& group){
-    entitiesPerGroup.emplace(group, std::set<Entity>());
+    entitiesPerGroup.emplace(group, std::unordered_set<int>());
     // emplace automatically checks if value exists at key yet
-    entitiesPerGroup[group].emplace(entity);
+    entitiesPerGroup[group].emplace(entity.GetId());
     groupPerEntity.emplace(entity.GetId(), group);
 }
 
@@ -200,23 +210,51 @@ bool Registry::IdBelongsToGroup(int Id, const groups& group) const {
     return groupPerEntity.find(Id)->second == group;
 }
 
-std::vector<Entity> Registry::GetEntitiesByGroup(const groups& group) const {
-    auto& setOfEntities = entitiesPerGroup.at(group);
-    return std::vector<Entity>(setOfEntities.begin(), setOfEntities.end());
-}
+// std::vector<Entity> Registry::GetEntitiesByGroup(const groups& group) const {
+//     auto& setOfEntities = entitiesPerGroup.at(group);
+//     return std::vector<Entity>(setOfEntities.begin(), setOfEntities.end());
+// }
 
+// remove entity from the set of ids
 void Registry::RemoveEntityGroup(Entity entity){
-    auto groupedEntity = groupPerEntity.find(entity.GetId());
+    auto id = entity.GetId();
+    auto groupedEntity = groupPerEntity.find(id);
     if(groupedEntity != groupPerEntity.end()){
         auto group = entitiesPerGroup.find(groupedEntity->second);
         if(group != entitiesPerGroup.end()){
-            auto entityInGroup = group->second.find(entity);
+            auto entityInGroup = group->second.find(id);
             if(entityInGroup != group->second.end()){
                 group->second.erase(entityInGroup);
+                if(group->first == MONSTER){
+                    removeEntityMonsterSubGroup(entity);
+                }
+            
             }
         }
         groupPerEntity.erase(groupedEntity);
     }
+}
+
+void Registry::removeEntityMonsterSubGroup(Entity entity){
+    auto id = entity.GetId();
+    auto groupedEntity = monsterSubGroupPerEntity.find(id);
+    if(groupedEntity != monsterSubGroupPerEntity.end()){
+        auto msg = entitiesPerMonsterSubGroup.find(groupedEntity->second);
+        if(msg != entitiesPerMonsterSubGroup.end()){
+            auto entityInMSG = msg->second.find(id);
+            if(entityInMSG != msg->second.end()){
+                msg->second.erase(entityInMSG);
+            }
+        }
+        monsterSubGroupPerEntity.erase(groupedEntity); 
+    }
+}
+
+int Registry::numEntitiesPerMonsterSubGroup(const monsterSubGroups& msg){
+    if(entitiesPerMonsterSubGroup.empty()){
+        return 0;
+    }
+    return entitiesPerMonsterSubGroup.at(msg).size();
 }
 
 unsigned int Registry::GetCreationIdFromEntityId(unsigned int Id) const {
@@ -225,17 +263,4 @@ unsigned int Registry::GetCreationIdFromEntityId(unsigned int Id) const {
 
 const Signature& Entity::getComponentSignature() const{
     return registry->getComponentSignatureOfEntity(id);
-}
-
-void Registry::printTagsAndGroups(){
-    // std::cout << "----------------------------------------------------------------------------------------------------------------" << std::endl;
-    // std::cout << "tags: " << std::endl;
-    // for(const auto& value: entityPerTag){
-    //     std::cout << value.first << ", " << value.second.GetId() << std::endl;
-    // }
-    // std::cout << "----------------------------------------------------------------------------------------------------------------" << std::endl;
-    // std::cout << "groups: " << std::endl;
-    // for(const auto& value: groupPerEntity){
-    //     std::cout << value.first << ", " << value.second << std::endl;
-    // }
 }

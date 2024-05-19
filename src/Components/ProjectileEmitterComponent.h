@@ -8,6 +8,57 @@
 #include <unordered_map>
 #include "../Utils/tables.h"
 
+// use to access PECbools
+// enum PECBoolEnums{ 
+//     PIERCING,
+//     DIAGONALSPRITE,
+//     INFLICTSSTATUSEFFECT,
+//     IGNORESDEFENSE,
+//     OSCILLATES,
+// };
+
+// struct ProjectilEmitterComponent{
+//     std::bitset<8> PECbools; // access via PECBoolEnums
+
+//     // Entity field should just be ID (ProjectileDamageEvent already has registry)
+//     // fixed sprite can be removed. projectiles are never fixed
+//     // zindex can be removed. all sprites have same zindex
+//     // width and height fields can be removed from the sprite data portion
+
+//     // info about emitter
+//     int emitterId;
+//     sprites emitterSprite;
+
+//     // basic data
+//     unsigned short repeatFrequency; // ms per shot 
+//     unsigned short projectileSpeed; 
+//     unsigned short duration; // ms until death of projectile
+//     unsigned short maxDamage; // max damage 
+//     unsigned short minDamage; // used by player; damage between minDamage and damage;
+//     unsigned short projectileSpeed; 
+//     Uint32 lastEmissionTime;
+//     unsigned char shots = 0; // dont use odd number of shots with 360, 720, etc
+//     float arcgap; // sum of all angles between shots
+
+//     // data about the sprite of an emitted projectile
+//     textureEnums spriteassetId; 
+//     SDL_Rect spritesrcRect;
+
+//     // hitbox data
+//     unsigned short boxwidth;
+//     unsigned short boxheight;
+//     glm::vec2 boxoffset;
+
+//     // status effect infliction data
+//     statuses statusEffect;
+//     unsigned short durationMS;
+
+//     // oscillating projectile data
+//     float amplitude;
+//     float frequency; // not repeat frequency. oscillation stuff.
+//     // float additionalOffset; // remove? never used?
+// };
+
 struct ProjectileEmitterComponent{
     // bool isShooting; // this is now its own compoennt for cache friendliness
     unsigned short repeatFrequency; // ms per shot 
@@ -76,15 +127,6 @@ struct ProjectileEmitterComponent{
         boxheight(boxheight),
         boxoffset(boxoffset){}
 
-    // inline ProjectileEmitterComponent(int repeatFrequency, int duration, Entity parent, int damage, int lastEmissionTime, bool isShooting){
-    //     this->repeatFrequency = repeatFrequency; // old default of 100
-    //     this->duration = duration; // old default of 50000
-    //     this->parent = parent;
-    //     this->damage = damage;
-    //     this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
-    //     this->isShooting = false;
-    // }
-
     // used by monsters
     inline ProjectileEmitterComponent(sprites spriteEnum, Entity self){
         const auto& pecdata = spriteEnumToPEC.at(spriteEnum);
@@ -116,26 +158,6 @@ struct ProjectileEmitterComponent{
         this->frequency = pecdata.frequency;
         this->amplitude = pecdata.amplitude;
     }
-
-    // used for player. updates will occur when equipping items 
-    // inline ProjectileEmitterComponent(Entity parent, boxColliderData bcdata, spritedata sdata){ //used for player, later equipping items will manually update PEC enums 
-    //     this->repeatFrequency = 250; // old default of 100
-    //     this->duration = 500; // old default of 50000
-    //     this->parent = parent;
-    //     this->damage = 1;
-    //     this->lastEmissionTime = SDL_GetTicks() - repeatFrequency; // subtract repeatFrequency to fix not being able to shoot instantly after spawning?
-    //     this->spriteassetId = sdata.assetId;
-    //     this->spritewidth = sdata.width;
-    //     this->spriteheight = sdata.height;
-    //     this->spritesrcRect = sdata.srcRect;
-    //     this->spritezIndex = sdata.zIndex;
-    //     this->spriteisFixed = sdata.isFixed;
-    //     this->spritediagonalSprite = sdata.diagonalSprite;
-    //     this->boxwidth = bcdata.width;
-    //     this->boxheight = bcdata.height;
-    //     this->boxoffset = bcdata.offset;
-    //     this->isShooting = false;
-    // }
 
 
 };

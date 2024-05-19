@@ -16,6 +16,7 @@
 #include "../Events/CollisionEvent.h"
 #include <unordered_map>
 #include "../../libs/SDL2/SDL.h"
+#include "../Components/OrbitalMovementComponent.h"
 
 
 /*

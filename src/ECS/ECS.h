@@ -5,6 +5,7 @@
 #include <bitset>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include <typeindex>
 #include <set>
 #include <memory>
@@ -55,10 +56,14 @@ class Entity {
         const Signature& getComponentSignature() const;
 
         //tag and group management 
-        void Tag(const tags& tag);
-        bool HasTag(const tags& tag) const;
+        // void Tag(const tags& tag);
+        // bool HasTag(const tags& tag) const;
         void Group(const groups& group);
         bool BelongsToGroup(const groups& group) const;
+
+        // monster sub grouping
+        void monsterSubGroup(const monsterSubGroups& msg);
+        
 
 };
 
@@ -187,7 +192,7 @@ void System::RequireComponent(){
 class Registry {
     private:
         unsigned int numEntities = 0; // used for entityId; recycled from dead entities 
-        unsigned int creationId = 0; // reset creation values, never recycled
+        unsigned int creationId = 0; // reset creation values, NEVER recycled
         
         // unordered_map of entityId to CreationId to check if entity has died for ex
         std::unordered_map<unsigned int, unsigned int> entityIdToCreationId;  
@@ -209,13 +214,18 @@ class Registry {
         // type_index is just a unqiue ID for an object
         std::unordered_map<std::type_index, std::shared_ptr<System>> systems; 
 
-        // tags are unique identifiers for ONE entity
-        std::unordered_map<tags, Entity> entityPerTag; // unique tag name per entity; may not need
-        std::unordered_map<int, tags> tagPerEntity; // get unique entity tag from id
+        // tags are unique identifiers for ONE entity (not used currently)
+        // std::unordered_map<tags, Entity> entityPerTag; // unique tag name per entity; may not need
+        // std::unordered_map<int, tags> tagPerEntity; // get unique entity tag from id
 
         // group is a way of identifying a GROUP of entities: ex projectile, wall
-        std::unordered_map<groups, std::set<Entity>> entitiesPerGroup; // group name returns all entities of group
-        std::unordered_map<int, groups> groupPerEntity; // entityID returns group name 
+        // std::unordered_map<groups, std::set<Entity>> entitiesPerGroup; // group name returns all entities of group
+        std::unordered_map<groups, std::unordered_set<int>> entitiesPerGroup; // group to hash set of ids
+        std::unordered_map<int, groups> groupPerEntity; // id to group name 
+
+        // secondary grouping is used to further categorize monsters, if necessary
+        std::unordered_map<monsterSubGroups, std::unordered_set<int>> entitiesPerMonsterSubGroup;
+        std::unordered_map<int, monsterSubGroups> monsterSubGroupPerEntity;
 
     public:
         Registry() = default;
@@ -244,20 +254,24 @@ class Registry {
         void RemoveEntityFromSystems(Entity entity);
 
         //tag management 
-        void TagEntity(Entity entity, const tags& tag);
-        bool EntityHasTag(Entity entity, const tags& tag) const;
-        bool EntityHasTag(int id, const tags& tag) const;
-        Entity GetEntityByTag(const tags& tag) const;
-        void RemoveEntityTag(Entity entity);
-        void printTagsAndGroups();
+        // void TagEntity(Entity entity, const tags& tag);
+        // bool EntityHasTag(Entity entity, const tags& tag) const;
+        // bool EntityHasTag(int id, const tags& tag) const;
+        // Entity GetEntityByTag(const tags& tag) const;
+        // void RemoveEntityTag(Entity entity);
+        // void printTagsAndGroups();
 
         //group mgmt 
         void GroupEntity(Entity entity, const groups& group);
         bool EntityBelongsToGroup(Entity entity, const groups& group) const;
         bool IdBelongsToGroup(int Id, const groups& group) const;
-        std::vector<Entity> GetEntitiesByGroup(const groups& group) const;
+        // std::vector<Entity> GetEntitiesByGroup(const groups& group) const;
         void RemoveEntityGroup(Entity entity);
         inline groups IdToGroup(int id){return groupPerEntity.at(id);}
+
+        void monsterSubGroupEntity(Entity entity, const monsterSubGroups& msg);
+        void removeEntityMonsterSubGroup(Entity entity);
+        int numEntitiesPerMonsterSubGroup(const monsterSubGroups& msg);
 
         unsigned int GetCreationIdFromEntityId(unsigned int Id) const;
         unsigned int getCurrentCreationId() const {return creationId;};
@@ -267,6 +281,10 @@ class Registry {
         void printEntitiesToBeKilled() const {/*for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}*/}
         void killAllEntities();
         void printFreeIds() const {/*for(const auto& x: freeIds){std::cout << x << std::endl;}*/}
+
+        inline bool entityIsAlive(int id, unsigned int creationId){
+            return GetCreationIdFromEntityId(id) == creationId;
+        }
 
 };
 

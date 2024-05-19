@@ -540,7 +540,63 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             }
         }
     },
+        {
+        CUBEGOD,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        CYANCUBE,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        ORANGECUBE,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        YELLOWCUBE,
+        {
+            {
+                {5, {FIREWATER}},
+            }
+        }
+    },
+        {
+        SPRITEMINION,
+        {
+            {
+                {1, {FIREWATER}},
+            }
+        }
+    },
     
+    
+};
+
+std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups = {
+    {SPRITEGOD, GODLANDSGOD},
+    {MEDUSA, GODLANDSGOD},
+    {DJINN, GODLANDSGOD},
+    {ENTGOD, GODLANDSGOD},
+    {BEHOLDER, GODLANDSGOD},
+    {FLYINGBRAIN, GODLANDSGOD},
+    {SLIMEGOD, GODLANDSGOD},
+    {GHOSTGOD, GODLANDSGOD}
+};
+
+std::vector<sprites> eventBosses = {
+    CUBEGOD,
 };
 
 std::vector<sprites> gods = {
@@ -805,6 +861,11 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {FLYINGBRAIN, std::string("Flying Brain")},
     {SLIMEGOD, std::string("Slime God")},
     {GHOSTGOD, std::string("Ghost God")},
+    {CUBEGOD, std::string("Cube God")},
+    {CYANCUBE, std::string("Cube Blaster")},
+    {ORANGECUBE, std::string("Cube Overseer")},
+    {YELLOWCUBE, std::string("Cube Defender")},
+    {SPRITEMINION, std::string{"Sprite Child"}},
 
 };
 
@@ -1215,6 +1276,13 @@ std::vector<groups> validWeapons = {DAGGER,BOW,STAFF,WAND,SWORD,SWORD,SWORD,SWOR
 std::vector<groups> validability = {CLOAK,QUIVER,SPELL,TOME,HELM,SHIELD};
 std::vector<groups> validarmor = {LIGHTARMOR, LIGHTARMOR, ROBE, ROBE, HEAVYARMOR, HEAVYARMOR};
 
+std::unordered_map<sprites, minionAItypes> spriteToMinionAIType = {
+    {CYANCUBE, ORBIT},
+    {ORANGECUBE, ORBIT},
+    {YELLOWCUBE, ORBIT},
+    {SPRITEMINION, ORBIT},
+};
+
 std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {SKELETON0, ASC},
     {SKELETON1, ASC},
@@ -1256,6 +1324,11 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {FLYINGBRAIN, ASC},
     {SLIMEGOD, ASC},
     {GHOSTGOD, ASC},
+    {CUBEGOD, CUBEGODAI},
+    {CYANCUBE, MINION},
+    {ORANGECUBE, MINION},
+    {YELLOWCUBE, MINION},
+    {SPRITEMINION, MINION},
 };
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -2964,6 +3037,8 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {SLIMEGOD, { 1000,1100,80,640,false,5,60, LOFIOBJ,3,6,{4*8+3, 8*13+1, 3, 6},4,false,false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
     {GHOSTGOD, { 1000,2700,120,320,false,7,172, LOFIOBJ,8,8,{10*8, 8*8,8,8},4,false,true,10,10,{14,14}, false, QUIET, 0, false, false, 0 ,0}},
 
+    {CUBEGOD, { 1000,2400,100,640,false,9,90, LOFIOBJ2,3,6,{8*3+3, 8*10+1,3,6},4,false,false,12,12,{0,8}, false, QUIET, 0, false, false, 0 ,0}},
+
 };
 
 
@@ -3016,6 +3091,12 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SLIMEGOD,{1000,0,0,12,28,0,40,0,SLIMESHIT,SLIMESDEATH}},
     {GHOSTGOD,{1000,0,0,12,28,0,40,0,GHOSTGODHIT,GHOSTGODDEATH}},
 
+    {CUBEGOD, {10000,0,0,40,0,0,0,0, CUBESHIT, CUBESDEATH}},
+    {SPRITEMINION, {50,0,0,0,30,0,0,0, SPRITESHIT,SPRITESDEATH}},
+    {YELLOWCUBE, {1000,0,0,0,20,0,0,0, CUBESHIT, CUBESDEATH}},
+    {ORANGECUBE, {1500,0,0,0,15,0,0,0, CUBESHIT, CUBESDEATH}},
+    {CYANCUBE, {500,0,0,0,22,0,0,0, CUBESHIT, CUBESDEATH}},
+
 };
 
 // GIVEN BOXCOLLIDER ENUM RETURNS ASSOCIATED BOXCOLLIDER DATA
@@ -3035,7 +3116,10 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {WIDE, {38*2,18,{6*2,30}}},
     {BIG, {38*2,18*2+12,{6*2,30*2-12}}},
     {STAR, {10,10,{14,14}}},
-    {PORTALBOX, {8*6, 8*7, {0,0}}}
+    {PORTALBOX, {8*6, 8*7, {0,0}}},
+    {SCALED7, {42,26,{6,30}}},
+    {SCALED8, {52,24,{6,36}}},
+    {SCALED4, {38,18,{2,22}}},
 
 };
 
@@ -3120,6 +3204,12 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {SLIMEGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*7,16,16}, 4, false, false}},
     {GHOSTGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*8,16,16}, 4, false, false}},
 
+    {CUBEGOD, {LOFICHAR2, 16, 16, {16*7, 16*6, 16, 16}, 4, false, false}},
+    {SPRITEMINION, {LOFICHAR,8,8,{8*11, 8*9,8,8},4,false,false}},
+    {ORANGECUBE, {LOFICHAR2,8,8,{8*0, 8*4,8,8},4,false,false}},
+    {YELLOWCUBE, {LOFICHAR2,8,8,{8*1, 8*4,8,8},4,false,false}},
+    {CYANCUBE, {LOFICHAR2,8,8,{8*2, 8*4,8,8},4,false,false}},
+
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -3173,7 +3263,11 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {FLYINGBRAIN,BIG},
     {SLIMEGOD,BIG},
     {GHOSTGOD,BIG},
-
+    {CUBEGOD, BIG},
+    {SPRITEMINION,STANDARD},
+    {ORANGECUBE,SCALED8},
+    {YELLOWCUBE,SCALED7},
+    {CYANCUBE,SCALED4},
 
 };
 
@@ -3222,17 +3316,9 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {FLYINGBRAIN, {300, 0, 200}},
     {SLIMEGOD, {300, 0, 220}},
     {GHOSTGOD, {300, 0, 180}},
+    {CUBEGOD, {0,0,0}}
 
 };
-/*    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
-    unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
-    unsigned short shootRange; 
-    std::vector<int> speeds; 
-    int cooldown;*/
-std::unordered_map<sprites, AnimatedPounceAIdata> spritesToPounceData = {
-    {HELLHOUND,{600,400,100,{15,25,85}, 2500}}, //POUNCE AI
-};
-
 
 std::unordered_map<sprites, trapaidata> spritetotrap = {
     {SHATTERSBOMB, {200, 7}}
@@ -3279,11 +3365,12 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {FLYINGBRAIN, {3, 0, 0}},
     {SLIMEGOD, {3, 0, 0}},
     {GHOSTGOD, {3, 0, 0}},
+    {CUBEGOD, {0,0,0}}
 
 };
 
 std::unordered_set<sprites> hasSecondaryProjectile = {
-    SLIMEGOD, BEHOLDER, SPRITEGOD, MEDUSA   
+    SLIMEGOD, BEHOLDER, SPRITEGOD, MEDUSA, CUBEGOD   
 };
 
 std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq = {
@@ -3291,4 +3378,21 @@ std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq = {
     {BEHOLDER, 5000},
     {SPRITEGOD, 5000},
     {MEDUSA, 5000},
+    {CUBEGOD, 5000},
+};
+
+std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData = {
+    // monsterToSpawn, maxMinions, respawnInterval
+    {SPRITEGOD, {SPRITEMINION, 5, 5000}}, // change back to 5, 10000
+    {CUBEGOD, {ORANGECUBE, 4, 10000}}, // should respawn every 30,000 for production
+    {ORANGECUBE, {YELLOWCUBE, 2, 10000}},
+    {YELLOWCUBE, {CYANCUBE, 3, 10000}},
+};
+
+std::unordered_map<sprites, orbitalMovementData> spriteToOrbitalMovementData = {
+            // ditance (min), mod max 
+    {SPRITEMINION, {75, 1.4}},
+    {ORANGECUBE, {150, 2.0}},
+    {YELLOWCUBE, {100, 1.5}},
+    {CYANCUBE, {50, 1.25}}
 };

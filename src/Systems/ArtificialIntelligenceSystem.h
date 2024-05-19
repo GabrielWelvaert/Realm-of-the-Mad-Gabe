@@ -29,6 +29,8 @@
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/OscillatingProjectileComponent.h"
 #include "../Components/isShootingComponent.h"
+#include "../Components/MinionComponent.h"
+#include "../../libs/glm/gtc/random.hpp"
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -84,6 +86,12 @@ class AnimatedNeutralAISystem: public System{
         AnimatedNeutralAISystem();
 
         void Update(const Entity& player);
+};
+
+class MinionAISystem: public System{
+    public:
+        MinionAISystem();
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
 };
 
 class BossAISystem: public System{

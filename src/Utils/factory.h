@@ -50,6 +50,9 @@
 #include "../Components/ParticleComponent.h"
 #include "../Components/EnemySpawnerComponent.h"
 #include "../Utils/BossIds.h"
+#include "../Components/MinionSpawnerComponent.h"
+#include "../Components/MinionComponent.h"
+#include "../Components/OrbitalMovementComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -74,9 +77,7 @@ class Factory{
     
         Factory();
 
-        int idOfSpawnedBoss = -1;
-
-        Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
+        Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum, int parentId = 0);
 
         Entity spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const room& room, int maxMonsters);
 
