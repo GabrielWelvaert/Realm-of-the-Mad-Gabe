@@ -349,10 +349,95 @@ void AnimatedNeutralAISystem::Update(const Entity& player){
     }
 }
 
+MinionAISystem::MinionAISystem(){
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<SpeedStatComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
+    RequireComponent<MinionComponent>();
+}
+
+void MinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
+    auto time = SDL_GetTicks();
+    bool playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    for(auto& entity: GetSystemEntities()){
+        const auto& mc = entity.GetComponent<MinionComponent>();
+        auto& position = entity.GetComponent<TransformComponent>().position;
+        bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        switch(mc.minionType){
+            case ORBIT:{ // has no animation, cant shoot
+                auto& oc = entity.GetComponent<OrbitalMovementComponent>();
+                if(!parentIsAlive){
+                    velocity = {0.0,0.0};
+                    oc.orbiting = false;
+                    continue;
+                }
+                const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
+                const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
+                glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+                float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+                if(distanceFromOrbitalPath < -5.0f){ // inside of orbiath path; use escapvelocity to move outward
+                    oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
+                    velocity = oc.escapeVelocity;
+                } else { // entity is now close enough to orbital path, start orbiting
+                    oc.origin = parentCenter;
+                    if(!oc.orbiting){
+                        oc.orbiting = true;
+                        velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
+                        oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+                    }
+                }
+
+            } break;
+            case ORBIT_SHOOT:{ // has no animation. can shoot
+                auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
+                const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+                if(!isShooting && distanceToPlayer < 750){
+                    isShooting = true;
+                }
+                const auto& mc = entity.GetComponent<MinionComponent>();
+                bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
+                auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+                auto& oc = entity.GetComponent<OrbitalMovementComponent>();
+                if(!parentIsAlive){
+                    velocity = {0.0,0.0};
+                    oc.orbiting = false;
+                    continue;
+                }
+                auto& position = entity.GetComponent<TransformComponent>().position;
+                auto& flip = entity.GetComponent<SpriteComponent>().flip;
+                const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
+                const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
+                glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+                float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+                if(distanceFromOrbitalPath < -5.0f){ // inside of orbiat path; use escapvelocity to move outward
+                    oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
+                    velocity = oc.escapeVelocity;
+                } else { // entity is now close enough to orbital path, start orbiting
+                    oc.origin = parentCenter;
+                    if(!oc.orbiting){
+                        oc.orbiting = true;
+                        velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
+                        oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+                    }
+                }
+            } break;
+        }
+        if(!playerInvisible){
+            playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
+        }
+    }
+    
+}
+
 BossAISystem::BossAISystem(){
-    RequireComponent<AnimatedShootingComponent>();
     RequireComponent<BossAIComponent>();
-    RequireComponent<AnimationComponent>();
     RequireComponent<TransformComponent>();
     RequireComponent<SpriteComponent>();
     RequireComponent<ProjectileEmitterComponent>();
@@ -378,8 +463,6 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
-        auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-        auto& ac = entity.GetComponent<AnimationComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
@@ -391,6 +474,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         switch(aidata.bossType){
             case BOSSCHICKEN: { 
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
                 if(!aidata.activated){
                     if(distanceToPlayer <= aidata.detectRange){
                         aidata.activated = true; 
@@ -480,6 +565,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                 }
             } break;
             case ARCMAGE:{
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
                 if(!aidata.activated){ 
                     if(distanceToPlayer <= 300){ // activate arcmage
                         aidata.timer0 = SDL_GetTicks();
@@ -754,6 +841,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
             } break;
             case GORDON:{
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
                 if(!aidata.activated){ // boss stands invulnerable for 2.5s
                     if(!aidata.flags[0]){
                         aidata.timer0 = SDL_GetTicks() + 2500;
@@ -974,6 +1063,17 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             }
                         }
                     }
+                }
+            } break;
+            case CUBEGOD:{ // can prob put skull shrine here too             
+                if(distanceToPlayer < 1550){
+                    isShooting = true;
+                } else {
+                    isShooting = false;
+                }
+
+                if(stunned || playerInvisible){
+                    isShooting = false;
                 }
             } break;
         }

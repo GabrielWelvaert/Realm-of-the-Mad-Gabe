@@ -211,6 +211,22 @@ struct shieldData{
     int numshots;
 };
 
+struct minionSpawnerData{
+    sprites monsterToSpawn;
+    unsigned char maxMinions;
+    Uint32 respawnInterval;
+};
+
+struct orbitalMovementData{
+    float distance;
+    float distanceModMax;
+};
+
+extern std::unordered_map<sprites, orbitalMovementData> spriteToOrbitalMovementData;
+extern std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData;
+extern std::unordered_map<sprites, minionAItypes> spriteToMinionAIType;
+extern std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups;
+extern std::vector<sprites> eventBosses;
 extern std::vector<sprites> gods;
 extern std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq;
 extern std::unordered_set<sprites> hasSecondaryProjectile;

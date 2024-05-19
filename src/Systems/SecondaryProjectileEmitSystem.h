@@ -89,9 +89,50 @@ class SecondaryProjectileEmitSystem: public System{
             const SDL_Rect redsquare = {0,8*5,8,8};
             Entity square = registry->CreateEntity();
             square.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0));
-            square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,3,false,false);
-            square.AddComponent<ParabolicMovementComponent>(glm::vec3(bigCenter.x, bigCenter.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 80.0, 1.0, PARABOLIC_MEDUSA_AOE_BOMB);
+            square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,3,false,false);                                                                       // height, speed
+            square.AddComponent<ParabolicMovementComponent>(glm::vec3(bigCenter.x, bigCenter.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, .8, PARABOLIC_MEDUSA_AOE_BOMB);
             square.AddComponent<ProjectileComponent>(150,INT_MAX,0,monster, 0,MEDUSA); // bogus projectile component needed for damage event logic
+        }
+
+        inline void cubeGodShotgun(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
+            glm::vec2 bigCenter = {monster.GetComponent<TransformComponent>().position.x + 32, monster.GetComponent<TransformComponent>().position.y + 32};
+            const SDL_Rect bluebolt = {10*8, 8*11, 8, 8};
+            Entity projectile = registry->CreateEntity();
+            int numshots = 4;
+            double realgap = 40 / (numshots-1);
+            int speed = 512;
+            int duration = 2000;
+            bool isDiagonal = true;
+            glm::vec2 originVelocity;
+            float rotationDegrees = getRotationFromCoordiante(speed, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, originVelocity, isDiagonal); // updates originVelocity
+
+            for(int i = 0; i < numshots/2; i++){
+                bool first = i != 0;
+                Entity projectile = registry->CreateEntity();
+                glm::vec2 velocity; // velocity of current projectile
+                // problem is probably because projectileVelocityArcGap expects deltaDegrees to be relative to origin
+                projectileVelocityArcGap(originVelocity, rotationDegrees, (realgap/2) + realgap*i*first, velocity);
+                projectile.AddComponent<RidigBodyComponent>(velocity);
+                projectile.AddComponent<SpriteComponent>(LOFIOBJ,8,8,bluebolt,3,false,true);
+                projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0), (rotationDegrees + realgap/2) + realgap*i*first);
+                projectile.AddComponent<LinearProjectileComponent>();
+                projectile.AddComponent<ProjectileComponent>(150, duration, false, monster, 0, CUBEGOD);
+                projectile.Group(PROJECTILE);
+
+                Entity projectile2 = registry->CreateEntity();
+                glm::vec2 velocity2; // velocity of current projectile
+                // problem is probably because projectileVelocityArcGap expects deltaDegrees to be relative to origin
+                projectileVelocityArcGap(originVelocity, rotationDegrees, (realgap/-2) + realgap*-i*first, velocity2);
+                projectile2.AddComponent<RidigBodyComponent>(velocity2);
+                projectile2.AddComponent<SpriteComponent>(LOFIOBJ,8,8,bluebolt,3,false,true);
+                projectile2.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+                projectile2.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0), (rotationDegrees - realgap/2) + realgap*-i*first);
+                projectile2.AddComponent<LinearProjectileComponent>();
+                projectile2.AddComponent<ProjectileComponent>(150, duration, false, monster, 0, CUBEGOD);
+                projectile2.Group(PROJECTILE);
+            }
+
         }
 
     public:

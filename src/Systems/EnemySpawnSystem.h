@@ -18,8 +18,9 @@ class EnemySpawnSystem: public System{
         Xoshiro256 RNG;
 
     public:
+        bool firstSpawn = true;
         EnemySpawnSystem();
-        void Update(Entity player, int numMonsters, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
+        void Update(Entity player,std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses);
 
 };
 

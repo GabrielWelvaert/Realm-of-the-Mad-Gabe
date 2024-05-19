@@ -50,6 +50,8 @@
 #include "../Systems/ParabolicMovementSystem.h"
 #include "../Systems/ParticleSystem.h"
 #include "../Systems/EnemySpawnSystem.h"
+#include "../Systems/MinionSpawnSystem.h"
+#include "../Systems/OrbitalMovementSystem.h"
 
 #define SCROLLDELAYMS 100
 
@@ -298,23 +300,24 @@ void Game::ProcessInput(){
                             factory->createItemInBag(registry, RETRIBUTIONCLOAK, lootbag);
                             factory->createItemInBag(registry, MITHRILSWORD, lootbag);
                             factory->createItemInBag(registry, T5STAFF, lootbag);
-                            factory->createItemInBag(registry, T6STAFF, lootbag);
-                            factory->createItemInBag(registry, T7STAFF, lootbag);
+                            factory->createItemInBag(registry, T14BOW, lootbag);
+                            factory->createItemInBag(registry, T14DAGGER, lootbag);
                             factory->createItemInBag(registry, ADMINCROWN, lootbag);
                         } break;
                         case SDLK_0:{
-                            std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
-                            std::vector<glm::vec2> spawnPoints;
-                            const auto& playerpos = player.GetComponent<TransformComponent>().position;
-                            for(int i = 0; i <= 9; ++i) { // phase 1 destinations to make boss move in circle
-                                float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(9);
-                                float x = playerpos.x + 1000 * std::cos(angle);
-                                float y = playerpos.y + 1000 * std::sin(angle);
-                                spawnPoints.push_back({x,y});
-                            }
-                            for(int i = 0; i < 9; i++){
-                                factory->spawnMonster(registry, spawnPoints[i], gods[i]);
-                            }
+                            // std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
+                            // std::vector<glm::vec2> spawnPoints;
+                            // const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            // for(int i = 0; i <= 9; ++i) { // phase 1 destinations to make boss move in circle
+                            //     float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(9);
+                            //     float x = playerpos.x + 1000 * std::cos(angle);
+                            //     float y = playerpos.y + 1000 * std::sin(angle);
+                            //     spawnPoints.push_back({x,y});
+                            // }
+                            // for(int i = 0; i < 9; i++){
+                            //     factory->spawnMonster(registry, spawnPoints[i], gods[i]);
+                            // }
+                            player.GetComponent<TransformComponent>().position = glm::vec2(-600,-600);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -324,8 +327,16 @@ void Game::ProcessInput(){
                             // } else {
                             //     player.GetComponent<TransformComponent>().position = glm::vec2(0,0);
                             // }
-                            player.GetComponent<TransformComponent>().position = glm::vec2(-500, -500);
-                            factory->spawnMonster(registry, glm::vec2(-400,-500), MEDUSA);
+                            // auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
+                            // std::cout << "there are currently " << numGodLandsGods << " gods" << '\n';
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            factory->spawnMonster(registry, playerPos, SPRITEMINION, player.GetId());
+                            // factory->spawnMonster(registry, glm::vec2(-400,-500), SPRITEGOD);
+                        } break;
+                        case SDLK_p:{
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
                         } break;
                         case SDLK_BACKSPACE:{
                             // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
@@ -2105,6 +2116,9 @@ void Game::PopulateRegistry(){
     registry->AddSystem<ParabolicMovementSystem>();
     registry->AddSystem<ParticleSystem>();
     registry->AddSystem<EnemySpawnSystem>();
+    registry->AddSystem<MinionSpawnSystem>();
+    registry->AddSystem<OrbitalMovementSystem>();
+    registry->AddSystem<MinionAISystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2612,6 +2626,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<InteractUISystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().checkMaxHPMP(player);
+    registry->GetSystem<EnemySpawnSystem>().firstSpawn = true;
     PopulatePlayerInventoryAndEquipment(area);
     registry->Update(); // because we made new entities (spawned items)
     eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
@@ -2647,7 +2662,6 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     SDL_UnlockTexture(mapveilptr);
     assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore; no memory leak
     SDL_SetRenderTarget(renderer, nullptr);
-
 }
 
 void Game::Update(){
@@ -2669,11 +2683,13 @@ void Game::Update(){
     registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom);
     registry->GetSystem<AnimatedChaseAISystem>().Update(player);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(player);
+    registry->GetSystem<MinionAISystem>().Update(player, registry);
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateRealPositions(registry);
     registry->GetSystem<ParabolicMovementSystem>().Update(player, deltaTime, eventBus, registry, assetStore, factory, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
+    registry->GetSystem<OrbitalMovementSystem>().Update(deltaTime);
     registry->GetSystem<ParticleSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update(camera);
     registry->GetSystem<CollisionSystem>().Update(eventBus, registry, assetStore, deltaTime, factory, camera, [&](bool populate, bool mainmenus, wallTheme area) {this->Setup(populate, mainmenus, area);}, deadPlayer, activeCharacterID, characterManager);
@@ -2687,9 +2703,8 @@ void Game::Update(){
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
-    if(currentArea == GODLANDS){
-        registry->GetSystem<EnemySpawnSystem>().Update(player, registry->GetSystem<ProjectileEmitSystem>().GetSystemEntities().size(), registry, factory);
-    }
+    registry->GetSystem<EnemySpawnSystem>().Update(player, registry, factory, bosses);
+    registry->GetSystem<MinionSpawnSystem>().Update(factory, registry);
 }
 
 void Game::Render(){

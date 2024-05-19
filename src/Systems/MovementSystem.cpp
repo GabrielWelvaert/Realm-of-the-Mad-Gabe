@@ -11,6 +11,7 @@ void MovementSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<CollisionEvent>(this, &MovementSystem::onCollision);
 }
 
+// legacy code
 void MovementSystem::onCollision(CollisionEvent& event){
     // WALL IS ALWAYS EVENT.A !!! if it isn't things are going to be very bad!
     auto& transform = event.b.GetComponent<TransformComponent>();
@@ -57,6 +58,12 @@ void MovementSystem::onCollision(CollisionEvent& event){
         flags.idOfWallHit = event.a.GetId();
     }
 
+    if(event.registry->HasComponent<OrbitalMovementComponent>(event.b.GetId())){
+        // orbitally moving entities dont move with velocity and deltaTime, so they phase through walls currently
+        // current collision resolution strategy is to reduce their radius by 1% each collision
+        auto& distance = event.registry->GetComponent<OrbitalMovementComponent>(event.b.GetId()).distance;
+        distance *= .99;
+    }
 }
 
 void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& registry) {

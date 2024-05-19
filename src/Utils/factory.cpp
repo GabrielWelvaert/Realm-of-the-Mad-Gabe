@@ -1,6 +1,6 @@
 #include "factory.h"
 
-Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
+Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum, int parentId){
     Entity enemy = registry->CreateEntity();
     enemy.Group(MONSTER);
     enemy.AddComponent<HPMPComponent>(spriteEnum);
@@ -8,18 +8,66 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     enemy.GetComponent<SpriteComponent>().flip = flips[RNG.randomFromRange(0,1)]; // monsters spawns facing random direction
     enemy.AddComponent<BoxColliderComponent>(spriteEnum);
     enemy.AddComponent<CollisionFlagComponent>();
-    enemy.AddComponent<TransformComponent>(spawnpoint);
     enemy.AddComponent<StatusEffectComponent>();
     enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
     enemy.AddComponent<DistanceToPlayerComponent>();
 
+    // very few monsters will requrie non-default (6.0) scaling
+    switch(spriteEnum){
+        case ORANGECUBE:{
+            enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(8.0));
+        } break;
+        case YELLOWCUBE:{
+            enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(7.0));
+        } break;
+        case CYANCUBE: {
+            enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0));
+        } break;
+        default:{
+            enemy.AddComponent<TransformComponent>(spawnpoint); // default = 6.0
+        } break;
+    }
+
+
+    // if this monster has a secondary projectile
     if(hasSecondaryProjectile.find(spriteEnum) != hasSecondaryProjectile.end()){
         enemy.AddComponent<SecondaryProjectileComponent>(spriteEnum);
     }
 
+    // if this monster must be grouped with a monster sub-group
+    if(spriteToMonsterSubGroups.find(spriteEnum) != spriteToMonsterSubGroups.end()){
+        monsterSubGroups msg = spriteToMonsterSubGroups.at(spriteEnum);
+        enemy.monsterSubGroup(msg);
+    }
+
+    // if this monster should be able to spawn minions
+    if(spriteToMinionSpawnerData.find(spriteEnum) != spriteToMinionSpawnerData.end()){
+        const auto& msd = spriteToMinionSpawnerData.at(spriteEnum);
+        enemy.AddComponent<MinionSpawnerComponent>(msd.monsterToSpawn, msd.maxMinions, msd.respawnInterval);
+    }
+
     enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
     switch(enemyCat){
-        case KEY:{
+        case MINION:{ // minions may do things like shoot but also want to stay near their parent
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            const auto& minionType = spriteToMinionAIType.at(spriteEnum);
+            enemy.AddComponent<MinionComponent>(minionType, parentId, registry->GetCreationIdFromEntityId(parentId));
+            switch(minionType){
+                case ORBIT:{ // no animation, no shooting
+                    const auto& orbitData = spriteToOrbitalMovementData.at(spriteEnum);
+                    auto distance = orbitData.distance * RNG.randomFromRange(1.0f, orbitData.distanceModMax);
+                    enemy.AddComponent<OrbitalMovementComponent>(distance, RNG.randomBool());
+                } break;
+                case ORBIT_SHOOT:{ // no animation, does shoot
+                    enemy.AddComponent<isShootingComponent>();
+                    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+                } break;
+            }
+            
+
+        } break;
+        case KEY:{ // keys are not minion-like because they dont shoot or anything
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<ItemTableComponent>(spriteEnum);
@@ -62,7 +110,6 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
             enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
-            idOfSpawnedBoss = enemy.GetId();
             enemy.AddComponent<isShootingComponent>();
         } break;
         case ARCMAGEBOSSAI:{
@@ -78,7 +125,6 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             auto& ac = enemy.GetComponent<AnimationComponent>();
             ac.xmin = 0;
             ac.numFrames = 1;
-            idOfSpawnedBoss = enemy.GetId();
             enemy.AddComponent<isShootingComponent>();
         } break;
         case GORDONBOSSAI:{
@@ -94,8 +140,15 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             auto& ac = enemy.GetComponent<AnimationComponent>();
             ac.xmin = 0;
             ac.numFrames = 1;
-            idOfSpawnedBoss = enemy.GetId();
             enemy.AddComponent<isShootingComponent>();
+        } break;
+        case CUBEGODAI:{
+            enemy.AddComponent<BossAIComponent>(CUBEGOD, spawnpoint,0,0,0);
+            enemy.AddComponent<ItemTableComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<isShootingComponent>();
+            // todo add minion spawning component or the logic can be in the boss AI system
         } break;
     }
 

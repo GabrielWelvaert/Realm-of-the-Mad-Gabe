@@ -33,6 +33,9 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                         case MEDUSA:{
                             MedusaBomb(entity, playerPos, registry);
                         } break;
+                        case CUBEGOD:{
+                            cubeGodShotgun(entity, playerPos, registry);
+                        } break;
                     }
                 }
             }

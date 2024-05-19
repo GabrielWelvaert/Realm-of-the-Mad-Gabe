@@ -258,8 +258,9 @@ enum enemyCategory{
     CHICKENBOSSAI,
     ARCMAGEBOSSAI,
     GORDONBOSSAI,
-    POUNCE,
-    KEY
+    CUBEGODAI,
+    KEY,
+    MINION,
 };
 
 enum parabolicCompletion{
@@ -323,7 +324,10 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     WIDE,
     BIG,
     STAR,
-    PORTALBOX
+    PORTALBOX,
+    SCALED7,
+    SCALED8,
+    SCALED4,
 };
 
 // like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
@@ -403,7 +407,14 @@ enum sprites{
     FLYINGBRAIN,
     SLIMEGOD,
     GHOSTGOD,
-    GODSPAWNER
+    GODSPAWNER,
+    CUBEGOD,
+    SKULLSHRINE,
+    MYSTERIOUSCRYSTAL,
+    CYANCUBE,
+    ORANGECUBE,
+    YELLOWCUBE,
+    SPRITEMINION
 };
 
 enum soundEnums{
@@ -662,6 +673,18 @@ enum tags{
 
 };
 
+enum monsterSubGroups{
+    CUBEGODMINION,
+    GODLANDSGOD,
+    SKULLSHRINEMINION,
+    MYSTERIOUSCRYSTALMINION,
+};
+
+enum minionAItypes{
+    ORBIT,
+    ORBIT_SHOOT,
+};
+
 enum groups{
     MONSTER,
     PROJECTILE,
@@ -685,7 +708,8 @@ enum groups{
     HEAVYARMOR,
     RING,
     PORTAL,
-    HPPOTGROUP, // keep the groups at the end for logic in processInput
+    /*all consumable group types must be entered below this line*/ 
+    HPPOTGROUP, 
     MPPOTGROUP,
     ATTPOTGROUP,
     DEFPOTGROUP,
@@ -697,7 +721,6 @@ enum groups{
     MANAPOTGROUP,
     CABERNETGROUP,
     FIREWATERGROUP,
-
 };
 
 enum statuses{
