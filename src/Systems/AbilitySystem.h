@@ -25,6 +25,7 @@
 #include "../Components/ProjectileComponent.h"
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/OscillatingProjectileComponent.h"
+#include "../Components/RotationComponent.h"
 
 /*
 This system is responsible for being the event handler for equipping abilities and using them!

@@ -17,6 +17,7 @@
 #include "../Components/MouseBoxComponent.h"
 #include "../Events/KillItemIconEvent.h"
 #include "../Events/PortalCollisionEvent.h"
+#include <algorithm>
 
 /*
 This system is responsible for managing the interact-gui (lowest portion)
@@ -32,7 +33,7 @@ class InteractUISystem: public System{
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
         void displayBag(LootBagCollisionEvent& event);
         void displayPortal(PortalCollisionEvent& event);
-        void sort();
+        void sortEntities();
         // display portal button 
 
 };

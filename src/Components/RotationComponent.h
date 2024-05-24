@@ -7,10 +7,10 @@ struct RotationComponent{
 
     float AngleChangePerDeltaTime; 
     
-    RotationComponent() = default;
+    // RotationComponent() = default;
 
     // pass RPS, it works like that I swear
-    RotationComponent(float AngleChangePerDeltaTime): AngleChangePerDeltaTime(AngleChangePerDeltaTime * 100) {}
+    RotationComponent(float AngleChangePerDeltaTime = 1.0f): AngleChangePerDeltaTime(AngleChangePerDeltaTime * 100) {}
 
 };
 

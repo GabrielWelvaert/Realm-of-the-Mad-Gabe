@@ -200,9 +200,9 @@ class ItemMovementSystem: public System{
                 contents1[item1pos] = destBag[destPos];
                 destBag[destPos] = tempitem.second;
                 assetStore->PlaySound(INVENTORY); 
-                if(item1TransformPosition == item2TranformPosition){
-                    std::cout << "broken shit detected use gdb bt" << std::endl;
-                }
+                // if(item1TransformPosition == item2TranformPosition){
+                //     std::cout << "broken shit detected use gdb bt" << std::endl;
+                // }
             /*one item involved*/
             } else { // destination spot is vacant; move 
                 auto& item1 = contents1.at(item1pos);
@@ -349,6 +349,7 @@ class ItemMovementSystem: public System{
         inline void ForcePlayerPopulateInventory(std::unique_ptr<Registry>& registry, Entity& player, const items& itemEnum, const int& position){
             auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
             Entity item = registry->CreateEntity();
+            std::cout << "spawning " << itemToName.at(itemEnum) << " w/ id " << item.GetId() << '\n'; 
             item.AddComponent<SpriteComponent>(itemEnum);
             item.AddComponent<ItemComponent>(itemEnum, position);
             item.AddComponent<MouseBoxComponent>(40,40);

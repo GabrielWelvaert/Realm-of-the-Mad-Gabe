@@ -16,6 +16,7 @@ void CollisionSystem::onAOEBomb(AOEBombEvent& event){
     if(playerIsEmitter){
         // implement this if its needed
         // would need to search collision system for collision
+        // this, and necromancer and sorcerer abilitities should be moved to distanceToPlayer? 
     } else { // monster emitted, is player within radius? 
         const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
         if(glm::distance(playerPos, event.epicenter) <= event.radius){

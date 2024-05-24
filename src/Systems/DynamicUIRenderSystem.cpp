@@ -4,7 +4,7 @@ DynamicUIRenderSystem::DynamicUIRenderSystem(){
     RequireComponent<DynamicUIEntityComponent>();
 }
 
-void DynamicUIRenderSystem::sort(){
+void DynamicUIRenderSystem::sortEntities(){
     auto& entities = GetSystemEntities();
     std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DynamicUIEntityComponent>().statEnum < entity2.GetComponent<DynamicUIEntityComponent>().statEnum;});
 }

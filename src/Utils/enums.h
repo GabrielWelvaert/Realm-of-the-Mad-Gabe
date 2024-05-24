@@ -311,14 +311,14 @@ enum stats{ // used to get values via indexing in statSys lvlup
 };
 
 enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
-    MAGIC, // ex: wand
-    MISSILE, // staves 
-    BOLT, // ex: fire sword
-    BLADE, // ex: low tier swords
-    ARROW, // bows
+    // MAGIC, // ex: wand
+    // MISSILE, // staves 
+    // BOLT, // ex: fire sword
+    // BLADE, // ex: low tier swords
+    // ARROW, // bows
     STANDARD, // 8x8 players
-    BULLETBOX, //? remove?
-    CIRCLEMAGIC,
+    // BULLETBOX, //? remove?
+    // CIRCLEMAGIC,
     SHATTERSBOMBBOX,
     LOOTBAG,
     WIDE,
@@ -332,20 +332,20 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
 
 // like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
 enum sprites{
-    REDMAGIC,
-    BLUEMAGIC,
-    GREENMAGIC,
-    PURPLEMAGIC,
-    DEFAULTBLADE, //low tier swords n daggers
-    WHITEBOLT,
-    REDBOLT,
-    GREENBOLT,
-    BLUEBOLT,
-    PURPLEBOLT,
-    GREENARROW,
-    REDARROW,
-    BLUEARROW,
-    GOLDARROW,
+    // REDMAGIC,
+    // BLUEMAGIC,
+    // GREENMAGIC,
+    // PURPLEMAGIC,
+    // DEFAULTBLADE, //low tier swords n daggers
+    // WHITEBOLT,
+    // REDBOLT,
+    // GREENBOLT,
+    // BLUEBOLT,
+    // PURPLEBOLT,
+    // GREENARROW,
+    // REDARROW,
+    // BLUEARROW,
+    // GOLDARROW,
     SKELETON0,
     SKELETON1,
     SKELETON2,
@@ -356,7 +356,7 @@ enum sprites{
     BROWNSLIME,
     BOBBY,
     REDKNIGHT0,
-    REDCIRCLEMAGIC,
+    // REDCIRCLEMAGIC,
     SHATTERSBOMB,
     BROWNLOOTBAG,
     PURPLELOOTBAG,
@@ -386,18 +386,18 @@ enum sprites{
     WHITEDEMON,
     SKELETON5,
     REDSTAR,
-    BLUESTAR,
-    WHITESTAR,
-    PURPLESTAR,
-    GREENSTAR,
-    YELLOWSTAR,
+    // BLUESTAR,
+    // WHITESTAR,
+    // PURPLESTAR,
+    // GREENSTAR,
+    // YELLOWSTAR,
     MOUSE0,
     BAT0,
     GORDON,
-    REDFIREBALL,
-    ORYXTEAR,
+    // REDFIREBALL,
+    // ORYXTEAR,
     SHEEP,
-    ORYXARROW,
+    // ORYXARROW,
     GIGASHEEP,
     SPRITEGOD,
     MEDUSA,
@@ -736,7 +736,8 @@ enum statuses{
     INVISIBLE,
     BLIND,
     /* entries must be made above*/
-    TOTAL_NUMBER_OF_STATUS_EFFECTS
+    TOTAL_NUMBER_OF_STATUS_EFFECTS,
+    NULL_STATUS_EFFECT
 };
 
 enum textureEnums{

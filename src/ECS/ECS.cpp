@@ -38,7 +38,14 @@ bool Entity::BelongsToGroup(const groups& group) const {
 }
 
 void System::AddEntityToSystem(Entity entity){
+    // auto before = entities.data();
     entities.push_back(entity);
+    // if(before != entities.data()){
+    //     std::cout << "reallocation detected" << '\n';
+    // }
+    // if(entities.size() == 64){
+    //     std::cout << "entities vector has size 64" << '\n';
+    // }
 }
 
 void System::RemoveEntityFromSystem(Entity entity){
@@ -79,6 +86,9 @@ Entity Registry::CreateEntity(){
     Entity entity(entityId);
     entity.registry = this; //assigning this entity to this registry! 
     entitiesToBeAdded.insert(entity);
+    if(entitiesToBeAdded.find(entity) == entitiesToBeAdded.end()){
+        std::cout << entity.GetId() << " failed to enter entitiesToBeAdded!" << '\n';
+    }
     entityIdToCreationId[entityId] = creationId;
     // std::cout << "entity created w/ ID " << entityId << std::endl;
     return entity;

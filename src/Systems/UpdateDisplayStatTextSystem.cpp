@@ -11,7 +11,7 @@ void UpdateDisplayStatTextSystem::SubscribeToEvents(std::unique_ptr<EventBus>& e
 
 void UpdateDisplayStatTextSystem::onUpdateDisplayName(){}
 
-void UpdateDisplayStatTextSystem::sort(){
+void UpdateDisplayStatTextSystem::sortEntities(){
     auto& entities = GetSystemEntities();
     std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DisplayStatComponent>().statEnum < entity2.GetComponent<DisplayStatComponent>().statEnum;});
 }

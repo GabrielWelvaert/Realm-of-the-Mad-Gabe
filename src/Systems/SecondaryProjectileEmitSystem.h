@@ -39,12 +39,12 @@ class SecondaryProjectileEmitSystem: public System{
         inline void slimeGodSlow(Entity slimeGod, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {slimeGod.GetComponent<TransformComponent>().position.x + 32, slimeGod.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
-            const auto& sprite = enumToSpriteComponent.at(PURPLESTAR);
+            constexpr projectilePPD data = {PURPLESTAR};
             float rotationDegrees = getRotationFromCoordiante(448, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(velocity);
-            projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
-            projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
             projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
             projectile.AddComponent<LinearProjectileComponent>();
             projectile.Group(PROJECTILE);
@@ -55,12 +55,13 @@ class SecondaryProjectileEmitSystem: public System{
         inline void beholderBlind(Entity beholder, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {beholder.GetComponent<TransformComponent>().position.x + 32, beholder.GetComponent<TransformComponent>().position.y + 32};
             glm::vec2 velocity;
-            const auto& sprite = enumToSpriteComponent.at(YELLOWSTAR);
+            // const auto& sprite = enumToSpriteComponent.at(YELLOWSTAR);
+            constexpr projectilePPD data = {YELLOWSTAR};
             float rotationDegrees = getRotationFromCoordiante(448, bigCenter.x, bigCenter.y, playerPos.x+20, playerPos.y+8, velocity, false);
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(velocity);
-            projectile.AddComponent<SpriteComponent>(sprite.assetId, sprite.width, sprite.height, sprite.srcRect, sprite.zIndex, sprite.isFixed, sprite.diagonalSprite);
-            projectile.AddComponent<BoxColliderComponent>(10,10,glm::vec2({14,14}));
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
             projectile.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0), rotationDegrees);
             projectile.AddComponent<LinearProjectileComponent>();
             projectile.Group(PROJECTILE);
@@ -97,7 +98,6 @@ class SecondaryProjectileEmitSystem: public System{
         inline void cubeGodShotgun(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             glm::vec2 bigCenter = {monster.GetComponent<TransformComponent>().position.x + 32, monster.GetComponent<TransformComponent>().position.y + 32};
             const SDL_Rect bluebolt = {10*8, 8*11, 8, 8};
-            Entity projectile = registry->CreateEntity();
             int numshots = 4;
             double realgap = 40 / (numshots-1);
             int speed = 512;

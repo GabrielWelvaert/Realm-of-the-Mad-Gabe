@@ -331,12 +331,12 @@ void Game::ProcessInput(){
                             // std::cout << "there are currently " << numGodLandsGods << " gods" << '\n';
                             // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, SPRITEMINION, player.GetId());
+                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
                             // factory->spawnMonster(registry, glm::vec2(-400,-500), SPRITEGOD);
                         } break;
                         case SDLK_p:{
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
+                            // factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
                         } break;
                         case SDLK_BACKSPACE:{
                             // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
@@ -2622,9 +2622,9 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
     LoadPlayer();
     LoadGui(); // LoadGui requires player to be loaded first; it uses player's classnameComponent
     registry->Update(); // because we made gui and player
-    registry->GetSystem<DynamicUIRenderSystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
-    registry->GetSystem<UpdateDisplayStatTextSystem>().sort();  // this system's vector of eternal-during-game-loop entities must be sorted 
-    registry->GetSystem<InteractUISystem>().sort(); // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<DynamicUIRenderSystem>().sortEntities(); // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<UpdateDisplayStatTextSystem>().sortEntities();  // this system's vector of eternal-during-game-loop entities must be sorted 
+    registry->GetSystem<InteractUISystem>().sortEntities(); // this system's vector of eternal-during-game-loop entities must be sorted 
     registry->GetSystem<UpdateDisplayStatTextSystem>().checkMaxHPMP(player);
     registry->GetSystem<EnemySpawnSystem>().firstSpawn = true;
     PopulatePlayerInventoryAndEquipment(area);
