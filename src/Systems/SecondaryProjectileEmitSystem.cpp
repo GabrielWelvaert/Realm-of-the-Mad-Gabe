@@ -17,7 +17,7 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
             if(time - SPEC.lastEmissionTime > SPEC.repeatFrequency){
                 const auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
                 if(time - PEC.lastEmissionTime > PEC.repeatFrequency){
-                    const auto& spriteEnum = PEC.spriteOfParent;
+                    const auto& spriteEnum = PEC.emitterSprite;
                     const auto& monsterPos = entity.GetComponent<TransformComponent>().position;
                     SPEC.lastEmissionTime = time; 
                     switch(spriteEnum){

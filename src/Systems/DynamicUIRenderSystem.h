@@ -26,7 +26,7 @@ class DynamicUIRenderSystem: public System{
 
         DynamicUIRenderSystem();
 
-        void sort();
+        void sortEntities();
 
         void Update(SDL_Renderer* renderer, Entity player);
 };

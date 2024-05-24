@@ -3,6 +3,7 @@
 ItemMovementSystem::ItemMovementSystem(){
     RequireComponent<MouseBoxComponent>();
     RequireComponent<ItemComponent>();
+    RequireComponent<SpriteComponent>();
 }
 
 /*

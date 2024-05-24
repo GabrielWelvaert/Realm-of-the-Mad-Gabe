@@ -22,6 +22,7 @@
 #include "../Components/OscillatingProjectileComponent.h"
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/isShootingComponent.h"
+#include "../Components/RotationComponent.h"
 
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired
@@ -61,7 +62,7 @@ class ProjectileEmitSystem: public System{
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
         void onPlayerEquippedWeapon(WeaponEquipEvent& event);
 
-        void Update(std::unique_ptr<Registry>& registry, SDL_Rect camera, int mx, int my, glm::vec2 playerPos, std::unique_ptr<AssetStore>& assetStore);
+        void Update(std::unique_ptr<Registry>& registry, const SDL_Rect& camera, int mx, int my, const glm::vec2& playerPos, std::unique_ptr<AssetStore>& assetStore);
 };
 
 

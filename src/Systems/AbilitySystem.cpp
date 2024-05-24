@@ -184,9 +184,12 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
     int damage = RNG.randomFromRange(spell.minDamage, spell.maxDamage);
     int spellspeed = 1024;
     int spellDuration = 1000;
+    int j = 0;
     for(int i = 0; i < 20; i++){
         glm::vec2 destPos = {startPos.x + 5 * std::cos(spellAngles[i]), startPos.y + 5 * std::sin(spellAngles[i])};
         Entity projectile = event.registry->CreateEntity();
+        // std::cout << "spawning spell projectile with id " << projectile.GetId() << '\n';
+        j++;
         switch(spell.spellEnum){
             case CURLYWHIRLYSPELL:{
                 spellspeed = 30;
@@ -194,6 +197,7 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
                 projectile.AddComponent<OscillatingProjectileComponent>(15, .004, glm::vec2(startPos.x, startPos.y), (i%2 == 0));
                 projectile.AddComponent<ProjectileComponent>(damage, spellDuration, false, player, 4, NONESPRITE, true, STUNNED, 3000, false);
                 projectile.AddComponent<BoxColliderComponent>(32,32,glm::vec2(4,4));
+                projectile.AddComponent<RotationComponent>();
             } break;
             default:{
                 projectile.AddComponent<LinearProjectileComponent>(); 
@@ -207,6 +211,8 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
         projectile.AddComponent<TransformComponent>(glm::vec2(startPos.x, startPos.y), glm::vec2(5.0,5.0), rotationDegrees);
         projectile.Group(PROJECTILE);
     }   
+    std::cout << "spawned " << j << " projectiles" << '\n';
+
 }
 
 void AbilitySystem::onHelmUse(HelmUseEvent& event){

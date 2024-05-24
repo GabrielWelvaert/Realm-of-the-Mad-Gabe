@@ -18,6 +18,7 @@
 #include "../Components/TextLabelComponent.h"
 #include "../Components/TransformComponent.h"
 #include "../AssetStore/AssetStore.h"
+#include <algorithm>
 
 /*
 This system updates the display strings for xp, hp, and mp. They are only displayed and updated when mouse pos > 750
@@ -34,7 +35,7 @@ class UpdateDisplayStatTextSystem: public System{
 
         void onUpdateDisplayName();
 
-        void sort();
+        void sortEntities();
 
         // event update for att,def,spd,dex,vit,wis and display string
         void onDisplayStatUpdate(UpdateDisplayStatEvent& event);

@@ -21,9 +21,13 @@ void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
             }
 
             msc.timeOfLastRespawn = time;
-            for(auto& pair: msc.minionIdToCreationId){ // update map to remove dead minions
-                if(!registry->entityIsAlive(pair.first, pair.second)){
-                    msc.minionIdToCreationId.erase(pair.first);
+            // this loop was previously a range-based for loop, but this invalidates iterators when we .erase and causes undefined behavior
+            // https://stackoverflow.com/a/29571569/20080198 
+            for(auto it = msc.minionIdToCreationId.begin(); it != msc.minionIdToCreationId.end();){
+                if(!registry->entityIsAlive(it->first, it->second)){
+                    it = msc.minionIdToCreationId.erase(it); 
+                }else{
+                    ++it; 
                 }
             }
             if(msc.minionIdToCreationId.size() == msc.maxMinions){
