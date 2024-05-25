@@ -5,10 +5,8 @@
 #include "../ECS/ECS.h"
 #include "../AssetStore/AssetStore.h"
 #include "../EventBus/EventBus.h"
-#include "../../libs/glm/glm.hpp"
 #include "../Utils/Xoshiro256.h"
 #include "../Utils/enums.h"
-#include "../Utils/factory.h"
 #include "../Utils/room.h"
 #include "../Utils/CharacterManager.h"
 #include "../Utils/deadPlayer.h"
@@ -16,6 +14,59 @@
 #include "../Utils/roomShut.h"
 #include "../Utils/vechash.h"
 #include "../Utils/BossIds.h"
+#include "../../libs/SDL2/SDL_mixer.h"
+#include <iostream>
+#include "../../libs/glm/glm.hpp"
+#include <random>
+#include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
+#include "../Systems/CollisionSystem.h"
+#include "../Systems/AnimationSystem.h"
+#include "../Systems/DamageSystem.h"
+#include "../Systems/KeyboardMovementSystem.h"
+#include "../Systems/RenderColliderSystem.h"
+#include <fstream>
+#include <sstream>
+#include "../Systems/CameraMovementSystem.h"
+#include "../Systems/ProjectileEmitSystem.h"
+#include "../Systems/ProjectileLifeCycleSystem.h"
+#include "../Systems/ArtificialIntelligenceSystem.h"
+#include "../Systems/RenderTextSystem.h"
+#include "../Systems/StatSystem.h"
+#include <filesystem>
+#include "../Systems/DynamicUIRenderSystem.h"
+#include "../Systems/UpdateDisplayStatTextSystem.h"
+#include "../Utils/colors.h"
+#include "../Systems/ProjectileMovementSystem.h"
+#include "../Systems/InteractUISystem.h"
+#include "../Systems/LootBagSystem.h"
+#include "../Systems/RenderMouseBoxSystem.h"
+#include "../Systems/ItemMovementSystem.h"
+#include "../Utils/factory.h"
+#include "../Systems/AbilitySystem.h"
+#include "../Events/StatusEffectEvent.h"
+#include "../Systems/StatusEffectSystem.h"
+#include "../Systems/ItemIconSystem.h"
+#include "../Systems/VaultSystem.h"
+#include "../Systems/PortalSystem.h"
+#include "../Systems/DisplayNameSystem.h"
+#include "../Utils/room.h"
+#include <queue>
+#include <ctime>
+#include "../Utils/roomShut.h"
+#include "../Systems/VaultItemKillSystem.h"
+#include "../Systems/OscillatingProjectileMovementSystem.h"
+#include "../Systems/SecondaryProjectileEmitSystem.h"
+#include "../Systems/RotationSystem.h"
+#include "../Systems/RenderMiniMapSystem.h"
+#include "../Systems/DistanceToPlayerSystem.h"
+#include "../Systems/ParabolicMovementSystem.h"
+#include "../Systems/ParticleSystem.h"
+#include "../Systems/EnemySpawnSystem.h"
+#include "../Systems/MinionSpawnSystem.h"
+#include "../Systems/OrbitalMovementSystem.h"
+#include "../Utils/KeyboardInput.h"
+
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -33,6 +84,7 @@ class Game{
         std::unique_ptr<EventBus> eventBus;
         std::unique_ptr<Factory> factory;
         std::unique_ptr<CharacterManager> characterManager;
+        std::unique_ptr<KeyBoardInput> keyboardinput;
         const bool debug = false;
         Entity player;
         Xoshiro256 RNG;
@@ -89,7 +141,6 @@ class Game{
         static int mouseY;
         glm::vec2 playerSpawn = glm::vec2(750, 1575);
         wallTheme currentArea = NEXUS;
-        std::bitset<5> keysPressed;
 
         template <typename T>
         inline void print2d(T c){

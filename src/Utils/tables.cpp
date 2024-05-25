@@ -1241,7 +1241,7 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {SKELETON3, AS},
     {SKELETON4, ASC},
     {REDKNIGHT0, SC},
-    {SHATTERSBOMB, T},
+    {SHATTERSBOMB, TRAP},
     {TINYWHITECHICKEN,SC},
     {TINYREDCHICKEN,SC},
     {COCKATRICE,SC},

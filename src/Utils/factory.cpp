@@ -96,8 +96,8 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<isShootingComponent>();
         } break;
-        case T:{ // trap category
-            enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is only trap
+        case TRAP:{ // trap category
+            enemy.AddComponent<AnimationComponent>(1,4,0); // hard-coded; shatters bomb is currently only trap
             enemy.AddComponent<TrapAIComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<isShootingComponent>();

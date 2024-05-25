@@ -5,7 +5,7 @@ KeyboardMovementSystem::KeyboardMovementSystem(){
     RequireComponent<KeyboardControlledComponent>(); //only the player has this.
 }
 
-void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
+void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
     if(GetSystemEntities().size() == 0){return;}
     const auto& player = GetSystemEntities()[0]; //asumes this system has 1 entity: the player
     auto& sprite = player.GetComponent<SpriteComponent>();
@@ -22,12 +22,12 @@ void KeyboardMovementSystem::Update(const std::bitset<5>& keysPressed, int mouse
     int move;
     
     if(confused){
-        move = confusedMoves[keysPressed];
+        move = confusedMoves[keyboardinput->movementKeys];
     } else {
-        move = moves[keysPressed];
+        move = moves[keyboardinput->movementKeys];
     }
 
-    if(space){ // ability use attempt by player
+    if(keyboardinput->utilityKeys[SPACE]){ // ability use attempt by player
         auto& ac = player.GetComponent<AbilityComponent>(); 
         auto& activemp = player.GetComponent<HPMPComponent>().activemp;
         Uint32 time = SDL_GetTicks();

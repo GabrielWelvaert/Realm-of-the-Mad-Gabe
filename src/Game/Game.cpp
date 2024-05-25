@@ -1,59 +1,7 @@
 #include "Game.h"
-#include "../../libs/SDL2/SDL_image.h"
-#include "../../libs/SDL2/SDL.h"
-#include "../../libs/SDL2/SDL_mixer.h"
-#include <iostream>
-#include "../../libs/glm/glm.hpp"
-#include <random>
-#include "../Systems/MovementSystem.h"
-#include "../Systems/RenderSystem.h"
-#include "../Systems/CollisionSystem.h"
-#include "../Systems/AnimationSystem.h"
-#include "../Systems/DamageSystem.h"
-#include "../Systems/KeyboardMovementSystem.h"
-#include "../Systems/RenderColliderSystem.h"
-#include <fstream>
-#include <sstream>
-#include "../Systems/CameraMovementSystem.h"
-#include "../Systems/ProjectileEmitSystem.h"
-#include "../Systems/ProjectileLifeCycleSystem.h"
-#include "../Systems/ArtificialIntelligenceSystem.h"
-#include "../Systems/RenderTextSystem.h"
-#include "../Systems/StatSystem.h"
-#include <filesystem>
-#include "../Systems/DynamicUIRenderSystem.h"
-#include "../Systems/UpdateDisplayStatTextSystem.h"
-#include "../Utils/colors.h"
-#include "../Systems/ProjectileMovementSystem.h"
-#include "../Systems/InteractUISystem.h"
-#include "../Systems/LootBagSystem.h"
-#include "../Systems/RenderMouseBoxSystem.h"
-#include "../Systems/ItemMovementSystem.h"
-#include "../Utils/factory.h"
-#include "../Systems/AbilitySystem.h"
-#include "../Events/StatusEffectEvent.h"
-#include "../Systems/StatusEffectSystem.h"
-#include "../Systems/ItemIconSystem.h"
-#include "../Systems/VaultSystem.h"
-#include "../Systems/PortalSystem.h"
-#include "../Systems/DisplayNameSystem.h"
-#include "../Utils/room.h"
-#include <queue>
-#include <ctime>
-#include "../Utils/roomShut.h"
-#include "../Systems/VaultItemKillSystem.h"
-#include "../Systems/OscillatingProjectileMovementSystem.h"
-#include "../Systems/SecondaryProjectileEmitSystem.h"
-#include "../Systems/RotationSystem.h"
-#include "../Systems/RenderMiniMapSystem.h"
-#include "../Systems/DistanceToPlayerSystem.h"
-#include "../Systems/ParabolicMovementSystem.h"
-#include "../Systems/ParticleSystem.h"
-#include "../Systems/EnemySpawnSystem.h"
-#include "../Systems/MinionSpawnSystem.h"
-#include "../Systems/OrbitalMovementSystem.h"
 
 #define SCROLLDELAYMS 100
+#define MS_READ_INPUT 1
 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
@@ -69,6 +17,7 @@ Game::Game(){
     eventBus = std::make_unique<EventBus>();
     factory = std::make_unique<Factory>();
     characterManager = std::make_unique<CharacterManager>();
+    keyboardinput = std::make_unique<KeyBoardInput>();
 }
 
 //initialize SDL stuff 
@@ -106,21 +55,20 @@ void Game::Initialize(){
     camera.w = windowHeight; 
     camera.h = windowHeight;
 
-    // algorithm for window icon 
-    std::random_device rd;
-    std::mt19937 gen(rd()); // Mersenne Twister pseudo-random number generator
     SDL_Surface* atlas = IMG_Load("assets/images/lofi_portrait.png");
-    std::uniform_int_distribution<> disx(0, 15); 
-    std::uniform_int_distribution<> disy(0, 27); 
+    int x = RNG.randomFromRange(0,15);
+    int y = RNG.randomFromRange(0,27);
     SDL_Rect rectempty1 = {8*15,8*15,8,8}; //x,y,w,h
     SDL_Surface* empty1 = SDL_CreateRGBSurface(0, rectempty1.w, rectempty1.h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(atlas, &rectempty1, empty1, NULL);
-    SDL_Rect portraitRect = {8*disx(gen),8*disy(gen),8,8}; //x,y,w,h
+    SDL_Rect portraitRect = {8*x,8*y,8,8}; //x,y,w,h
     SDL_Surface* iconsmall = SDL_CreateRGBSurface(0, portraitRect.w, portraitRect.h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL);
     // while iconsmall is identical to an empty portrait, re-roll a tile from portrait atlas
     while (memcmp(empty1->pixels, iconsmall->pixels, empty1->w * empty1->h * empty1->format->BytesPerPixel) == 0){
-        portraitRect = {8*disx(gen),8*disy(gen),8,8}; //x,y,w,h
+        x = RNG.randomFromRange(0,15);
+        y = RNG.randomFromRange(0,27);
+        portraitRect = {8*x,8*y,8,8}; //x,y,w,h
         SDL_FreeSurface(iconsmall);
         iconsmall = SDL_CreateRGBSurface(0, portraitRect.w, portraitRect.h, 32, 0, 0, 0, 0);
         SDL_BlitSurface(atlas, &portraitRect, iconsmall, NULL); 
@@ -130,8 +78,13 @@ void Game::Initialize(){
         for (int x = 0; x < 32; x++) {
             int smallX = x / 4;  
             int smallY = y / 4;  
-            Uint32 pixel = ((Uint32*)iconsmall->pixels)[smallY * 8 + smallX];
-            ((Uint32*)iconlarge->pixels)[y * 32 + x] = pixel;
+            // Uint32 pixel = ((Uint32*)iconsmall->pixels)[smallY * 8 + smallX];
+            // ((Uint32*)iconlarge->pixels)[y * 32 + x] = pixel;
+
+            Uint32* smallPixels = (Uint32*)((Uint8*)iconsmall->pixels + smallY * iconsmall->pitch);
+            Uint32* largePixels = (Uint32*)((Uint8*)iconlarge->pixels + y * iconlarge->pitch);
+            // Copy the pixel
+            largePixels[x] = smallPixels[smallX];
         }
     }
     SDL_SetWindowIcon(window, iconlarge);
@@ -165,44 +118,19 @@ void Game::Run(bool populate){
     }
 }
 
-// some things used by ProcessInput:
-// std::bitset<5> keysPressed; // mb,d,s,a,w
-std::unordered_map<SDL_Keycode, int> keyindex = {
-    {SDLK_w, 0}, 
-    {SDLK_a, 1}, 
-    {SDLK_s, 2},  
-    {SDLK_d, 3},
-    //keysPressed[4] is for mouse button (any) but its not a SDL_KeyCode! 
-};
-std::bitset<8> inventoryUses; // used to enforce player can use an inventory slot ONCE per ProcessInput (as to not clog eventbus)
-bool space = false;
-bool shift = false;
-bool h = false;
-bool t = false;
-SDL_Keycode key;
-unsigned int startTime;
-const unsigned int MSToReadInput = 1;
-int invetoryNumber;
-Uint32 timeOfLastScroll = 0;
-static int chicken = 0;
-// std::vector<sprites> monsters = { ARCMAGE, HELLHOUND, IMP0, IMP1, IMP2, IMP3, WHITEDEMON, SKELETON5 };
-std::vector<sprites> monsters = { BAT0 };
 void Game::ProcessInput(){
-    startTime = SDL_GetTicks();
-    inventoryUses.reset(); 
-    // auto& playerIsShooting = player.GetComponent<ProjectileEmitterComponent>().isShooting;
+    auto startTime = SDL_GetTicks();
+    keyboardinput->inventoryUses.reset(); 
     auto& playerIsShooting = player.GetComponent<isShootingComponent>().isShooting;
-    // DO NOT RESET KEYSPRESSED!! 
-
-    while(SDL_GetTicks() - startTime < MSToReadInput){
+    while(SDL_GetTicks() - startTime < MS_READ_INPUT){
         SDL_Event sdlEvent;
         while(SDL_PollEvent(&sdlEvent)) {
-            key = sdlEvent.key.keysym.sym;
+            SDL_Keycode key = sdlEvent.key.keysym.sym;
             switch(sdlEvent.type){
                 case SDL_MOUSEWHEEL:{
                     Uint32 time = SDL_GetTicks();
                     const auto& playpos = player.GetComponent<TransformComponent>().position;
-                    if(time > timeOfLastScroll + SCROLLDELAYMS){ 
+                    if(time > keyboardinput->timeOfLastScroll + SCROLLDELAYMS){ 
                         auto& sprite = registry->GetComponent<SpriteComponent>(idOfMiniMapEntity);
                         if(sdlEvent.wheel.y > 0 && sprite.srcRect.w > 60){ // scroll up (away from you); zoom in mini map
                             sprite.srcRect.w /= 2;
@@ -211,7 +139,7 @@ void Game::ProcessInput(){
                             sprite.srcRect.w *= 2;
                             sprite.srcRect.h *= 2;
                         }
-                        timeOfLastScroll = time;    
+                        keyboardinput->timeOfLastScroll = time;    
                     }
                     } break;
                 case SDL_QUIT: 
@@ -235,11 +163,17 @@ void Game::ProcessInput(){
                         case SDLK_m:{
                             assetStore->PlayMusic("ost");
                         } break;
-                        case SDLK_w:
-                        case SDLK_a:
-                        case SDLK_s:
+                        case SDLK_w:{
+                            keyboardinput->movementKeys[W] = true;
+                        } break;
+                        case SDLK_a:{
+                            keyboardinput->movementKeys[A] = true;
+                        } break;
+                        case SDLK_s:{
+                            keyboardinput->movementKeys[S] = true;
+                        } break;
                         case SDLK_d:{
-                            keysPressed[keyindex[key]] = true;
+                            keyboardinput->movementKeys[D] = true;
                         } break;
                         case SDLK_1:
                         case SDLK_2:
@@ -249,15 +183,15 @@ void Game::ProcessInput(){
                         case SDLK_6:
                         case SDLK_7:
                         case SDLK_8:{
-                            invetoryNumber = static_cast<int>(key)-49; 
-                            if(!inventoryUses[invetoryNumber]){
-                                inventoryUses[invetoryNumber] = true;  
+                            int inventoryNumber = static_cast<int>(key)-49; 
+                            if(!keyboardinput->inventoryUses[inventoryNumber]){
+                                keyboardinput->inventoryUses[inventoryNumber] = true;  
                                 const auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
                                 auto& playerIC = player.GetComponent<PlayerItemsComponent>();
-                                if(inventory.find(invetoryNumber+1) != inventory.end()){
-                                    const auto& itemEnum = inventory.at(invetoryNumber+1).GetComponent<ItemComponent>().itemEnum;
+                                if(inventory.find(inventoryNumber+1) != inventory.end()){
+                                    const auto& itemEnum = inventory.at(inventoryNumber+1).GetComponent<ItemComponent>().itemEnum;
                                     if(static_cast<int>(itemToGroup.at(itemEnum)) >= static_cast<int>(HPPOTGROUP)){ // magic number, start of end of group enums which contains consumable items
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, invetoryNumber+1);    
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, inventoryNumber+1);    
                                     } else {
                                         assetStore->PlaySound(ERROR);
                                     }
@@ -270,17 +204,17 @@ void Game::ProcessInput(){
                             }
                         } break;
                         case SDLK_t:{
-                            if(t){
-                                playerIsShooting = t = false;
+                            if(keyboardinput->utilityKeys[T]){
+                                playerIsShooting = keyboardinput->utilityKeys[T] = false;
                             } else {
-                                playerIsShooting = t = true;
+                                playerIsShooting = keyboardinput->utilityKeys[T] = true;
                             }
                         } break;
                         case SDLK_h:{
-                            h = !h;
+                            keyboardinput->utilityKeys[H] = !keyboardinput->utilityKeys[H];
                         } break; 
                         case SDLK_SPACE:{
-                            space = true;
+                            keyboardinput->utilityKeys[SPACE] = true;
                         } break;
                         case SDLK_f:{
                             if(currentArea != NEXUS){
@@ -290,8 +224,9 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_LSHIFT:
                         case SDLK_RSHIFT:{
-                            shift = true;
+                            keyboardinput->utilityKeys[SHIFT] = true;
                         } break;
+                        /*ALL OTHER SDL_KEYDOWNS ARE USED FOR DEVELOPMENT PURPOSES AND SHOULD BE COMMENTED OUT FOR PRODUCTION!*/
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
@@ -351,36 +286,42 @@ void Game::ProcessInput(){
                     break; // break out of SDL_KEYDOWN
                 case SDL_KEYUP:
                     switch(key){
-                        case SDLK_w:
-                        case SDLK_a:
-                        case SDLK_s:
+                        case SDLK_w:{
+                            keyboardinput->movementKeys[W] = false;
+                        } break;
+                        case SDLK_a:{
+                            keyboardinput->movementKeys[A] = false;
+                        } break;
+                        case SDLK_s:{
+                            keyboardinput->movementKeys[S] = false;
+                        } break;
                         case SDLK_d:{
-                            keysPressed[keyindex[key]] = false;
+                            keyboardinput->movementKeys[D] = false;
                         } break;
                         case SDLK_SPACE:{
-                            space = false;
+                            keyboardinput->utilityKeys[SPACE] = false;
                         } break;
                         case SDLK_LSHIFT:
                         case SDLK_RSHIFT:{
-                            shift = false;
+                            keyboardinput->utilityKeys[SHIFT] = false;
                         } break;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    keysPressed[4] = true;
+                    keyboardinput->movementKeys[MB] = true;
                     break;
-                case SDL_MOUSEBUTTONUP: //remove this ?
-                    keysPressed[4] = false;
+                case SDL_MOUSEBUTTONUP:
+                    keyboardinput->movementKeys[MB] = false;
                     break;
             }
         }
     }
     SDL_GetMouseState(&Game::mouseX, &Game::mouseY); // call this regardless of player shooting attempt; various systems need it!
-    // if(keysPressed[4]){
+    // if(keyboardinput->movementKeys[MB]){
     //     std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl; 
     // }
-    // if(keysPressed[4]){std::cout << mouseX << ", " << mouseY << std::endl;}
-    if(keysPressed[4]){
+    // if(keyboardinput->movementKeys[MB]){std::cout << mouseX << ", " << mouseY << std::endl;}
+    if(keyboardinput->movementKeys[MB]){
         if(mouseX <= 750){
             if(!player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame){
                 playerIsShooting = true;    
@@ -395,7 +336,7 @@ void Game::ProcessInput(){
             assetStore->PlaySound(BUTTON);
             characterManager->SaveCharacter(activeCharacterID, player);
             const auto& area = player.GetComponent<PlayerItemsComponent>().areaOfViewedPortal;
-            keysPressed[4] = false;
+            keyboardinput->movementKeys[MB] = false;
             auto& velocity = player.GetComponent<RidigBodyComponent>().velocity;
             velocity = {0.0,0.0};
             switch(area){
@@ -419,23 +360,11 @@ void Game::ProcessInput(){
             }
             deltaTime = 0.0;
         }
-    } else if (!t){
+    } else if (!keyboardinput->utilityKeys[T]){
         playerIsShooting = false;
     }
 
 }
-
-// struct Vec2Comparator { // used in LoadTilemap algorithm
-//     bool operator()(const glm::vec2& a, const glm::vec2& b) const{
-//         return a.x < b.x || (a.x == b.x && a.y < b.y);
-//     }
-// };
-
-// struct Vec2Hash { // used in LoadTileMap algorithm
-//     std::size_t operator()(const glm::vec2& v) const {
-//         return std::hash<float>{}(v.x) ^ (std::hash<float>{}(v.y) << 1);
-//     }
-// };
 
 bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
     wallData wd = wallThemeToWallData.at(wallTheme);
@@ -525,19 +454,19 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
 
         // 2.3) make the room as an offshoot of parent in cardnial direction; acquire x and y positions
         switch(direction){
-            case N:{ 
+            case NORTH:{ 
                 x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
                 y = RNG.randomFromRange(pr.y - distance - h, pr.y - h - 4);
             } break;
-            case S:{ 
+            case SOUTH:{ 
                 x = RNG.randomFromRange(pr.x + 4 - w, pr.x + pr.w - 4);
                 y = RNG.randomFromRange(pr.y + pr.h + 4, pr.y + pr.h + distance);
             } break;
-            case E:{
+            case EAST:{
                 x = RNG.randomFromRange(pr.x + pr.w + 4, pr.x + pr.w + distance);
                 y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
             } break;
-            case W:{ 
+            case WEST:{ 
                 x = RNG.randomFromRange(pr.x - distance - w, pr.x - w - 4);
                 y = RNG.randomFromRange(pr.y - h + 4, pr.y + pr.h - 4);
             } break;
@@ -591,7 +520,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         int xmax,xmin,ymin,ymax;
         SDL_Rect hallway;
         switch(direction){
-            case N:{
+            case NORTH:{
                 h = distance;
                 y = room.y + room.h;
                 xmin = std::max(pr.x, room.x);
@@ -599,7 +528,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
                 x = RNG.randomFromRange(xmin, xmax);
                 hallway = {x,y-1,3,h+3};
             } break;
-            case S:{
+            case SOUTH:{
                 h = distance;
                 y = pr.y + pr.h;
                 xmin = std::max(pr.x, room.x);
@@ -607,7 +536,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
                 x = RNG.randomFromRange(xmin, xmax);
                 hallway = {x,y-1,3,h+3};
             } break;
-            case E:{
+            case EAST:{
                 w = distance;
                 x = pr.x + pr.w;
                 ymin = std::max(room.y, pr.y);
@@ -615,7 +544,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
                 y = RNG.randomFromRange(ymin,ymax);
                 hallway = {x-1,y,w+3,3};
             } break;
-            case W:{
+            case WEST:{
                 w = distance;
                 x = room.x + room.w;
                 ymin = std::max(room.y, pr.y);
@@ -650,19 +579,19 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         const auto& lastHallway = hallways.back();
         const auto& BR = rooms[bossRoomId];
         switch(roomShut.directionOfHallway){
-            case S:{
+            case SOUTH:{
                 x = lastHallway.x;
                 y = BR.y - 2;
             } break;
-            case N:{
+            case NORTH:{
                 x = lastHallway.x;
                 y = BR.y + BR.h - 1;
             } break;
-            case W:{
+            case WEST:{
                 x = BR.x + BR.w - 1;
                 y = lastHallway.y - 1;
             } break;
-            case E:{
+            case EAST:{
                 x = BR.x;
                 y = lastHallway.y;
             } break;
@@ -872,7 +801,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 }
             }
             if(isFloor){ // floor tile
-                if(wallTheme == CHICKENLAIR && currentCoord.x == 1 && currentCoord.y ==6 ){ // random floor tile 
+                if(wallTheme == CHICKENLAIR && currentCoord.x == 1 && currentCoord.y == 6){ // random floor tile 
                     srcRect.x = RNG.randomFromRange(1,5) * tileSize;
                     // srcRect.y = 6 * tileSize;
                 } else if(wallTheme == UDL  && currentCoord.x == 5 && currentCoord.y == 0){
@@ -1260,6 +1189,7 @@ void Game::PopulateItemIconsInAssetStore(){
         // rendering description texts to icon
         for(int i = 0; i < descriptionStrings.size(); i++){
             const std::string& line = descriptionStrings[i]; // for each line 
+            SDL_FreeSurface(ttfSurface);
             ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
             int w,h; 
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
@@ -1273,6 +1203,7 @@ void Game::PopulateItemIconsInAssetStore(){
         // rendering info texts to icon 
         for(int i = 0; i < infoStrings.size(); i++){
             const std::string& line = infoStrings[i];
+            SDL_FreeSurface(ttfSurface);
             ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), white); // make the surface w the text from line
             int w,h; 
             TTF_SizeText(assetStore->GetFont("iconDescriptionInfoFont"), line.c_str(), &w, &h); // w and h store width and height used for actual rendering
@@ -1559,6 +1490,7 @@ void Game::PopulateAssetStore(){
         } else {
             buttonText = "Enter";
         }
+        SDL_FreeSurface(ttfSurface); 
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
         TTF_SizeText(assetStore->GetFont("namefont"), title.c_str(), &w, &h);
 
@@ -1568,6 +1500,7 @@ void Game::PopulateAssetStore(){
         SDL_RenderCopy(renderer, assetStore->GetTexture(PORTALBUTTONBACKGROUND), &srcRect, &dstRect);
 
         // button text
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("namefont"), buttonText.c_str(), white);
         TTF_SizeText(assetStore->GetFont("namefont"), buttonText.c_str(), &w, &h);
         SDL_DestroyTexture(ttfTextureFromSurface);
@@ -1659,6 +1592,7 @@ void Game::PopulateAssetStore(){
         dstRect = {32,380, width, height};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEF -", grey);
         SDL_DestroyTexture(ttfTextureFromSurface);
         ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
@@ -1666,6 +1600,7 @@ void Game::PopulateAssetStore(){
         dstRect = {150,380, width, height};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "SPD -", grey);
         SDL_DestroyTexture(ttfTextureFromSurface);
         ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
@@ -1673,6 +1608,7 @@ void Game::PopulateAssetStore(){
         dstRect = {30,400, width, height};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "DEX -", grey);
         SDL_DestroyTexture(ttfTextureFromSurface);
         ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
@@ -1680,6 +1616,7 @@ void Game::PopulateAssetStore(){
         dstRect = {150,400, width, height};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "VIT -", grey);
         SDL_DestroyTexture(ttfTextureFromSurface);
         ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
@@ -1687,6 +1624,7 @@ void Game::PopulateAssetStore(){
         dstRect = {36,420, width, height};
         SDL_RenderCopy(renderer, ttfTextureFromSurface, NULL, &dstRect);
 
+        SDL_FreeSurface(ttfSurface);
         ttfSurface = TTF_RenderText_Blended(assetStore->GetFont("statfont"), "WIS -", grey);
         SDL_DestroyTexture(ttfTextureFromSurface);
         ttfTextureFromSurface = SDL_CreateTextureFromSurface(renderer, ttfSurface);
@@ -1752,8 +1690,6 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, BAGSLOTS, bagslots); //QED
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_RenderClear(renderer);
-
-
 }
 
 void Game::MiniMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){ // why does this take a map copy...
@@ -1929,10 +1865,10 @@ void Game::LoadGui(){
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 0+4, true);
         } break;
         case ROGUE:{
-            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 44*1+4, true); // TODO
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 44*1+4, true); 
         } break;
         case WIZARD:{
-            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 44*1+4, true); // TODO
+            weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 44*1+4, true); 
         } break;
         case PRIEST:{
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 0+4, true);
@@ -2338,7 +2274,8 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
 
     if(deadPlayer.level > 0){ // player has died
         menuonedisposables = loadDeathMenu();
-        keysPressed.reset();
+        keyboardinput->movementKeys.reset();
+        keyboardinput->utilityKeys.reset();
     } else{
         menuonedisposables = loadMenuOne();
     }
@@ -2397,7 +2334,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
         }
 
         while(SDL_PollEvent(&sdlEvent)) {
-            key = sdlEvent.key.keysym.sym;
+            SDL_Keycode key = sdlEvent.key.keysym.sym;
             if(sdlEvent.type == SDL_QUIT) {
                 Destory();
                 exit(0);
@@ -2601,13 +2538,13 @@ void Game::SpawnAreaEntities(wallTheme area){
 }
 
 void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts
-    t = false; // autofire button reset when changing areas
+    keyboardinput->utilityKeys[T] = false; // autofire button reset when changing areas
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
     currentArea = area;
     registry->killAllEntities();
-    if(populate){
+    if(populate){ // heap allocations, making textures
         PopulateAssetStore();
         PopulateRegistry();
         PopulateEventBus();
@@ -2670,12 +2607,13 @@ void Game::Update(){
     millisecsPreviousFrame = SDL_GetTicks(); 
     if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
         deltaTime = 0.0;
-        keysPressed.reset();
+        keyboardinput->movementKeys.reset();
+        keyboardinput->utilityKeys.reset();
     } 
 
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    registry->GetSystem<KeyboardMovementSystem>().Update(keysPressed, Game::mouseX, Game::mouseY, camera, space, assetStore, eventBus, registry);
+    registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry);
     registry->GetSystem<DistanceToPlayerSystem>().Update(playerpos);
     registry->GetSystem<ChaseAISystem>().Update(player);
     registry->GetSystem<NeutralAISystem>().Update(player);
@@ -2699,7 +2637,7 @@ void Game::Update(){
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
-    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keysPressed[4], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, shift);
+    registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keyboardinput->movementKeys[MB], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, keyboardinput->utilityKeys[SHIFT]);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
@@ -2712,7 +2650,7 @@ void Game::Render(){
     SDL_RenderClear(renderer);
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<RenderMiniMapSystem>().Update(renderer, player, idOfMiniMapEntity, registry, assetStore, bosses);
-    if(h){registry->GetSystem<RenderSystem>().RenderHealthBars(renderer, camera, registry, player, bosses);}
+    if(keyboardinput->utilityKeys[H]){registry->GetSystem<RenderSystem>().RenderHealthBars(renderer, camera, registry, player, bosses);}
     registry->GetSystem<DynamicUIRenderSystem>().Update(renderer, player);
     registry->GetSystem<RenderTextSystem>().Update(renderer, assetStore, camera, registry);
     registry->GetSystem<StatusEffectSystem>().Update(renderer, eventBus, assetStore, camera); 
