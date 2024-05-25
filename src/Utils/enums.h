@@ -247,14 +247,14 @@ enum items{
 };
 
 enum cardinalDirection{
-    N,S,W,E
+    NORTH,SOUTH,WEST,EAST
 };
 
 enum enemyCategory{
     ASC, // animated shoot chase 
     AS, // animated shoot
     SC, // shoot chase 
-    T, // trap
+    TRAP, // trap
     CHICKENBOSSAI,
     ARCMAGEBOSSAI,
     GORDONBOSSAI,
@@ -1034,6 +1034,7 @@ enum textureEnums{
     RETRIBUTIONCLOAKICON,
     DOOMQUIVERICON,
     GODLANDSPORTAL, 
+    LOFIPORTRAIT
 };
 
 #endif

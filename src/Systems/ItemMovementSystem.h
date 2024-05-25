@@ -349,7 +349,7 @@ class ItemMovementSystem: public System{
         inline void ForcePlayerPopulateInventory(std::unique_ptr<Registry>& registry, Entity& player, const items& itemEnum, const int& position){
             auto& inventory = player.GetComponent<PlayerItemsComponent>().inventory;
             Entity item = registry->CreateEntity();
-            std::cout << "spawning " << itemToName.at(itemEnum) << " w/ id " << item.GetId() << '\n'; 
+            // std::cout << "spawning " << itemToName.at(itemEnum) << " w/ id " << item.GetId() << '\n'; 
             item.AddComponent<SpriteComponent>(itemEnum);
             item.AddComponent<ItemComponent>(itemEnum, position);
             item.AddComponent<MouseBoxComponent>(40,40);

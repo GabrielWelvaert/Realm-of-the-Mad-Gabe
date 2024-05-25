@@ -211,7 +211,6 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
         projectile.AddComponent<TransformComponent>(glm::vec2(startPos.x, startPos.y), glm::vec2(5.0,5.0), rotationDegrees);
         projectile.Group(PROJECTILE);
     }   
-    std::cout << "spawned " << j << " projectiles" << '\n';
 
 }
 

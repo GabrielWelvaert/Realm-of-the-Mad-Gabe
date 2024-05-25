@@ -577,8 +577,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         hitnoise = GHOSTGODHIT;
                         Entity block = registry->CreateEntity();
                         switch(roomToShut.directionOfHallway){ 
-                            case N:
-                            case S:{ 
+                            case NORTH:
+                            case SOUTH:{ 
                                 block.AddComponent<SpriteComponent>(HORIZONTALROOMBLOCKCEILINGS, 128, 64, 9, 0, 0, 0);
                                 block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
                                 Entity walls = registry->CreateEntity();
@@ -587,13 +587,13 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 walls.AddComponent<BoxColliderComponent>(128,64);  
                                 walls.Group(WALLBOX);
                             } break;
-                            case W:{ 
+                            case WEST:{ 
                                 block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
                                 block.AddComponent<BoxColliderComponent>(64, 64*4);
                                 block.AddComponent<TransformComponent>(glm::vec2(roomToShut.coordiantes.x * 64, roomToShut.coordiantes.y * 64), glm::vec2(8.0, 8.0));
                                 block.Group(WALLBOX);
                             } break;
-                            case E:{
+                            case EAST:{
                                 block.AddComponent<SpriteComponent>(VERTICALROOMBLOCKCEILINGS, 64, 64*3, 9, 0, 0, 0);
                                 block.AddComponent<BoxColliderComponent>(64, 64*4);
                                 block.AddComponent<TransformComponent>(glm::vec2((roomToShut.coordiantes.x-1) * 64, (roomToShut.coordiantes.y-1) * 64), glm::vec2(8.0, 8.0));

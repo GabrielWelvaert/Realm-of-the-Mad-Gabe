@@ -86,9 +86,9 @@ Entity Registry::CreateEntity(){
     Entity entity(entityId);
     entity.registry = this; //assigning this entity to this registry! 
     entitiesToBeAdded.insert(entity);
-    if(entitiesToBeAdded.find(entity) == entitiesToBeAdded.end()){
-        std::cout << entity.GetId() << " failed to enter entitiesToBeAdded!" << '\n';
-    }
+    // if(entitiesToBeAdded.find(entity) == entitiesToBeAdded.end()){
+    //     std::cout << entity.GetId() << " failed to enter entitiesToBeAdded!" << '\n';
+    // }
     entityIdToCreationId[entityId] = creationId;
     // std::cout << "entity created w/ ID " << entityId << std::endl;
     return entity;

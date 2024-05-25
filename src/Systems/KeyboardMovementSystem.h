@@ -28,6 +28,7 @@
 #include "../Components/isShootingComponent.h"
 #include "../Events/CloakUseEvent.h"
 #include "../Events/ShieldUseEvent.h"
+#include "../Utils/KeyBoardInput.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
@@ -61,80 +62,80 @@ class KeyboardMovementSystem: public System {
             }
         }
 
-        std::unordered_map<std::bitset<5>, movements> moves = {
-                {std::bitset<5>(0b00000), NONE},
-                {std::bitset<5>(0b00001), UP},
-                {std::bitset<5>(0b00010), LEFT},
-                {std::bitset<5>(0b00011), UPLEFT},
-                {std::bitset<5>(0b00100), DOWN},
-                {std::bitset<5>(0b00101), NONE},
-                {std::bitset<5>(0b00110), DOWNLEFT},
-                {std::bitset<5>(0b00111), LEFT},
-                {std::bitset<5>(0b01000), RIGHT},
-                {std::bitset<5>(0b01001), UPRIGHT},
-                {std::bitset<5>(0b01010), NONE},
-                {std::bitset<5>(0b01011), UP},
-                {std::bitset<5>(0b01100), DOWNRIGHT},
-                {std::bitset<5>(0b01101), RIGHT},
-                {std::bitset<5>(0b01110), DOWN},
-                {std::bitset<5>(0b01111), NONE},
-                {std::bitset<5>(0b10000), NONE},
-                {std::bitset<5>(0b10001), UP},
-                {std::bitset<5>(0b10010), LEFT},
-                {std::bitset<5>(0b10011), UPLEFT},
-                {std::bitset<5>(0b10100), DOWN},
-                {std::bitset<5>(0b10101), NONE},
-                {std::bitset<5>(0b10110), DOWNLEFT},
-                {std::bitset<5>(0b10111), LEFT},
-                {std::bitset<5>(0b11000), RIGHT},
-                {std::bitset<5>(0b11001), UPRIGHT},
-                {std::bitset<5>(0b11010), NONE},
-                {std::bitset<5>(0b11011), UP},
-                {std::bitset<5>(0b11100), DOWNRIGHT},
-                {std::bitset<5>(0b11101), RIGHT},
-                {std::bitset<5>(0b11110), DOWN},
-                {std::bitset<5>(0b11111), NONE}
+        std::unordered_map<std::bitset<8>, movements> moves = {
+                {std::bitset<8>(0b00000000), NONE},
+                {std::bitset<8>(0b00000001), UP},
+                {std::bitset<8>(0b00000010), LEFT},
+                {std::bitset<8>(0b00000011), UPLEFT},
+                {std::bitset<8>(0b00000100), DOWN},
+                {std::bitset<8>(0b00000101), NONE},
+                {std::bitset<8>(0b00000110), DOWNLEFT},
+                {std::bitset<8>(0b00000111), LEFT},
+                {std::bitset<8>(0b00001000), RIGHT},
+                {std::bitset<8>(0b00001001), UPRIGHT},
+                {std::bitset<8>(0b00001010), NONE},
+                {std::bitset<8>(0b00001011), UP},
+                {std::bitset<8>(0b00001100), DOWNRIGHT},
+                {std::bitset<8>(0b00001101), RIGHT},
+                {std::bitset<8>(0b00001110), DOWN},
+                {std::bitset<8>(0b00001111), NONE},
+                {std::bitset<8>(0b00010000), NONE},
+                {std::bitset<8>(0b00010001), UP},
+                {std::bitset<8>(0b00010010), LEFT},
+                {std::bitset<8>(0b00010011), UPLEFT},
+                {std::bitset<8>(0b00010100), DOWN},
+                {std::bitset<8>(0b00010101), NONE},
+                {std::bitset<8>(0b00010110), DOWNLEFT},
+                {std::bitset<8>(0b00010111), LEFT},
+                {std::bitset<8>(0b00011000), RIGHT},
+                {std::bitset<8>(0b00011001), UPRIGHT},
+                {std::bitset<8>(0b00011010), NONE},
+                {std::bitset<8>(0b00011011), UP},
+                {std::bitset<8>(0b00011100), DOWNRIGHT},
+                {std::bitset<8>(0b00011101), RIGHT},
+                {std::bitset<8>(0b00011110), DOWN},
+                {std::bitset<8>(0b00011111), NONE}
         };
 
-        std::unordered_map<std::bitset<5>, movements> confusedMoves = {
-                {std::bitset<5>(0b00000), NONE},
-                {std::bitset<5>(0b00001), DOWN},
-                {std::bitset<5>(0b00010), RIGHT},
-                {std::bitset<5>(0b00011), DOWNRIGHT},
-                {std::bitset<5>(0b00100), UP},
-                {std::bitset<5>(0b00101), NONE},
-                {std::bitset<5>(0b00110), UPRIGHT},
-                {std::bitset<5>(0b00111), RIGHT},
-                {std::bitset<5>(0b01000), LEFT},
-                {std::bitset<5>(0b01001), DOWNLEFT},
-                {std::bitset<5>(0b01010), NONE},
-                {std::bitset<5>(0b01011), DOWN},
-                {std::bitset<5>(0b01100), UPLEFT},
-                {std::bitset<5>(0b01101), LEFT},
-                {std::bitset<5>(0b01110), UP},
-                {std::bitset<5>(0b01111), NONE},
-                {std::bitset<5>(0b10000), NONE},
-                {std::bitset<5>(0b10001), DOWN},
-                {std::bitset<5>(0b10010), RIGHT},
-                {std::bitset<5>(0b10011), DOWNRIGHT},
-                {std::bitset<5>(0b10100), UP},
-                {std::bitset<5>(0b10101), NONE},
-                {std::bitset<5>(0b10110), UPRIGHT},
-                {std::bitset<5>(0b10111), RIGHT},
-                {std::bitset<5>(0b11000), LEFT},
-                {std::bitset<5>(0b11001), DOWNLEFT},
-                {std::bitset<5>(0b11010), NONE},
-                {std::bitset<5>(0b11011), DOWN},
-                {std::bitset<5>(0b11100), UPLEFT},
-                {std::bitset<5>(0b11101), LEFT},
-                {std::bitset<5>(0b11110), UP},
-                {std::bitset<5>(0b11111), NONE}
+        std::unordered_map<std::bitset<8>, movements> confusedMoves = {
+                {std::bitset<8>(0b00000000), NONE},
+                {std::bitset<8>(0b00000001), DOWN},
+                {std::bitset<8>(0b00000010), RIGHT},
+                {std::bitset<8>(0b00000011), DOWNRIGHT},
+                {std::bitset<8>(0b00000100), UP},
+                {std::bitset<8>(0b00000101), NONE},
+                {std::bitset<8>(0b00000110), UPRIGHT},
+                {std::bitset<8>(0b00000111), RIGHT},
+                {std::bitset<8>(0b00001000), LEFT},
+                {std::bitset<8>(0b00001001), DOWNLEFT},
+                {std::bitset<8>(0b00001010), NONE},
+                {std::bitset<8>(0b00001011), DOWN},
+                {std::bitset<8>(0b00001100), UPLEFT},
+                {std::bitset<8>(0b00001101), LEFT},
+                {std::bitset<8>(0b00001110), UP},
+                {std::bitset<8>(0b00001111), NONE},
+                {std::bitset<8>(0b00010000), NONE},
+                {std::bitset<8>(0b00010001), DOWN},
+                {std::bitset<8>(0b00010010), RIGHT},
+                {std::bitset<8>(0b00010011), DOWNRIGHT},
+                {std::bitset<8>(0b00010100), UP},
+                {std::bitset<8>(0b00010101), NONE},
+                {std::bitset<8>(0b00010110), UPRIGHT},
+                {std::bitset<8>(0b00010111), RIGHT},
+                {std::bitset<8>(0b00011000), LEFT},
+                {std::bitset<8>(0b00011001), DOWNLEFT},
+                {std::bitset<8>(0b00011010), NONE},
+                {std::bitset<8>(0b00011011), DOWN},
+                {std::bitset<8>(0b00011100), UPLEFT},
+                {std::bitset<8>(0b00011101), LEFT},
+                {std::bitset<8>(0b00011110), UP},
+                {std::bitset<8>(0b00011111), NONE}
         };
 
     public:
         KeyboardMovementSystem();
 
-        void Update(const std::bitset<5>& keysPressed, int mouseX, int mouseY, SDL_Rect camera, bool space, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry);
+        void Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry);
         
 };
 

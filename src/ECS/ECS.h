@@ -144,35 +144,19 @@ class Pool: public IPool { //pool of component, where each index represents enti
                 data[index] = object;
                 size++;
             }
-            if constexpr (is_specific_struct<T>::value) {
-                if(entityId == 27){
-                    std::cout << "entityIdToIndex[entityId] = " << entityIdToIndex[entityId] << '\n';
-                    std::cout << "setting entity "<< entityId << " at " << "position " << index << " in spritecomp pool" << '\n';
-                }
-                if(index == 11){
-                    std::cout << "spritecomp pos 11 modified via set" << '\n';
-                }
-                if(entityIdToIndex.find(27) == entityIdToIndex.end()){
-                    std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
-                }
-            }
+            // if constexpr (is_specific_struct<T>::value) {
+            //     if(entityId == 27){
+            //         std::cout << "entityIdToIndex[entityId] = " << entityIdToIndex[entityId] << '\n';
+            //         std::cout << "setting entity "<< entityId << " at " << "position " << index << " in spritecomp pool" << '\n';
+            //     }
+            //     if(index == 11){
+            //         std::cout << "spritecomp pos 11 modified via set" << '\n';
+            //     }
+            //     if(entityIdToIndex.find(27) == entityIdToIndex.end()){
+            //         std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
+            //     }
+            // }
         }
-
-        // void Set(int entityId, T object){
-        //     if(entityIdToIndex.find(entityId) != entityIdToIndex.end()){ //already exists; replace existing data 
-        //         int index = entityIdToIndex[entityId];
-        //         data[index] = object;
-        //     } else {
-        //         int index = size;
-        //         entityIdToIndex[entityId] = index; 
-        //         indexToEntityId[entityIdToIndex[entityId]] = entityId; // here! 
-        //         if(index >= data.capacity()){
-        //             data.resize(size * 2);
-        //         }
-        //         data[index] = object;
-        //         size++;
-        //     }
-        // }
 
         void Remove(int entityId){
             int indexOfRemoved = entityIdToIndex[entityId];
@@ -184,20 +168,20 @@ class Pool: public IPool { //pool of component, where each index represents enti
             entityIdToIndex.erase(entityId);
             indexToEntityId.erase(indexOfLast);
             size--;
-            if(size > 4000000000){
-                std::cout << "overflow of some pool! " << std::endl;
-            }
-            if constexpr (is_specific_struct<T>::value) {
-                if(entityId == 27){
-                    std::cout << "removing " << entityId <<  " from position " << indexOfRemoved << " in spritecomp pool" << '\n';
-                }
-                if(indexOfRemoved == 11){
-                    std::cout << "removing position 11 in spritecomp pool" << '\n';
-                }
-                if(entityIdToIndex.find(27) == entityIdToIndex.end()){
-                    std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
-                }
-            }
+            // if(size > 4000000000){
+            //     std::cout << "overflow of some pool! " << std::endl;
+            // }
+            // if constexpr (is_specific_struct<T>::value) {
+            //     if(entityId == 27){
+            //         std::cout << "removing " << entityId <<  " from position " << indexOfRemoved << " in spritecomp pool" << '\n';
+            //     }
+            //     if(indexOfRemoved == 11){
+            //         std::cout << "removing position 11 in spritecomp pool" << '\n';
+            //     }
+            //     if(entityIdToIndex.find(27) == entityIdToIndex.end()){
+            //         std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
+            //     }
+            // }
 
         }
 
@@ -210,12 +194,12 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         T& Get(int entityId) { 
-            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
-                std::cout << "entity " << entityId << " engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
-                for(auto& pair: entityIdToIndex){
-                    std::cout << pair.first << ", " << pair.second << '\n';
-                }
-            }
+            // if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+            //     // std::cout << "entity " << entityId << " engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
+            //     for(auto& pair: entityIdToIndex){
+            //         std::cout << pair.first << ", " << pair.second << '\n';
+            //     }
+            // }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }
 
