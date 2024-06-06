@@ -10,11 +10,9 @@ struct SecondaryProjectileComponent{
     Uint32 lastEmissionTime;
 
     inline SecondaryProjectileComponent() = default;
-
-    inline SecondaryProjectileComponent(sprites SpriteEnum): 
-        lastEmissionTime(SDL_GetTicks() - repeatFrequency) {
-            repeatFrequency = spriteToSPECRepeatFreq.at(SpriteEnum);
-        }
+    
+    inline SecondaryProjectileComponent(unsigned long repeatFrequency):
+        repeatFrequency(repeatFrequency), lastEmissionTime(SDL_GetTicks() - repeatFrequency) {}
 
 };
 

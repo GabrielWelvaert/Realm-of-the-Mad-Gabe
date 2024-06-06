@@ -97,7 +97,6 @@ void ChaseAISystem::Update(const Entity& player){
 
 NeutralAISystem::NeutralAISystem(){
     RequireComponent<NeutralAIComponent>();
-    RequireComponent<ProjectileEmitterComponent>();
     RequireComponent<StatusEffectComponent>();
     RequireComponent<TransformComponent>();
     RequireComponent<isShootingComponent>();
@@ -105,7 +104,6 @@ NeutralAISystem::NeutralAISystem(){
     RequireComponent<DistanceToPlayerComponent>();
 }
 
-// currently, unused
 void NeutralAISystem::Update(const Entity& player){ 
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
@@ -118,7 +116,6 @@ void NeutralAISystem::Update(const Entity& player){
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& position = entity.GetComponent<TransformComponent>().position;
         auto& aidata = entity.GetComponent<NeutralAIComponent>();
-        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
         if(playerInvisible || stunned){
@@ -136,6 +133,10 @@ void NeutralAISystem::Update(const Entity& player){
         } else { // dont shoot; stand 
             isShooting = false;
             playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+        }
+
+        if(entity.HasComponent<TowerComponent>()){
+            flip = SDL_FLIP_NONE;
         }
         
     }
@@ -349,7 +350,7 @@ void AnimatedNeutralAISystem::Update(const Entity& player){
     }
 }
 
-MinionAISystem::MinionAISystem(){
+OrbitMinionAISystem::OrbitMinionAISystem(){ 
     RequireComponent<TransformComponent>();
     RequireComponent<SpriteComponent>();
     RequireComponent<RidigBodyComponent>();
@@ -358,9 +359,10 @@ MinionAISystem::MinionAISystem(){
     RequireComponent<StatusEffectComponent>();
     RequireComponent<DistanceToPlayerComponent>();
     RequireComponent<MinionComponent>();
+    RequireComponent<OrbitMinionComponent>();
 }
 
-void MinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
+void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
     auto time = SDL_GetTicks();
     bool playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     const auto& playerPos = player.GetComponent<TransformComponent>().position;
@@ -370,70 +372,364 @@ void MinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& reg
         bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        switch(mc.minionType){
-            case ORBIT:{ // has no animation, cant shoot
-                auto& oc = entity.GetComponent<OrbitalMovementComponent>();
-                if(!parentIsAlive){
-                    velocity = {0.0,0.0};
-                    oc.orbiting = false;
-                    continue;
-                }
-                const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
-                const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
-                glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-                float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
-                if(distanceFromOrbitalPath < -5.0f){ // inside of orbiath path; use escapvelocity to move outward
-                    oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
-                    velocity = oc.escapeVelocity;
-                } else { // entity is now close enough to orbital path, start orbiting
-                    oc.origin = parentCenter;
-                    if(!oc.orbiting){
-                        oc.orbiting = true;
-                        velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                        oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
-                    }
-                }
-
-            } break;
-            case ORBIT_SHOOT:{ // has no animation. can shoot
-                auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
-                const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
-                if(!isShooting && distanceToPlayer < 750){
-                    isShooting = true;
-                }
-                const auto& mc = entity.GetComponent<MinionComponent>();
-                bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
-                auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-                auto& oc = entity.GetComponent<OrbitalMovementComponent>();
-                if(!parentIsAlive){
-                    velocity = {0.0,0.0};
-                    oc.orbiting = false;
-                    continue;
-                }
-                auto& position = entity.GetComponent<TransformComponent>().position;
-                auto& flip = entity.GetComponent<SpriteComponent>().flip;
-                const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
-                const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
-                glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-                float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
-                if(distanceFromOrbitalPath < -5.0f){ // inside of orbiat path; use escapvelocity to move outward
-                    oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
-                    velocity = oc.escapeVelocity;
-                } else { // entity is now close enough to orbital path, start orbiting
-                    oc.origin = parentCenter;
-                    if(!oc.orbiting){
-                        oc.orbiting = true;
-                        velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                        oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
-                    }
-                }
-            } break;
-        }
         if(!playerInvisible){
             playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
         }
+        auto& oc = entity.GetComponent<OrbitalMovementComponent>();
+        if(!parentIsAlive){
+            velocity = {0.0,0.0};
+            oc.orbiting = false;
+            continue;
+        }
+        const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
+        const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
+        glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+        float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+        if(distanceFromOrbitalPath < -5.0f){ // inside of orbiath path; use escapvelocity to move outward
+            oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
+            velocity = mc.escapeVelocity;
+        } else { // entity is now close enough to orbital path, start orbiting
+            oc.origin = parentCenter;
+            if(!oc.orbiting){
+                oc.orbiting = true;
+                velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
+                oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+            }
+        }
     }
-    
+}
+
+OrbitShootMinionAISystem::OrbitShootMinionAISystem(){
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<SpeedStatComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
+    RequireComponent<MinionComponent>();
+    RequireComponent<OrbitShootMinionComponent>();
+}
+
+// orbits and shoots, does not have any animation
+void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
+    auto time = SDL_GetTicks();
+    bool playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    for(auto& entity: GetSystemEntities()){
+        const auto& mc = entity.GetComponent<MinionComponent>();
+        bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        const auto& engageRange = entity.GetComponent<OrbitShootMinionComponent>().shootRange;
+        distanceToPlayer < engageRange ? isShooting = true : isShooting = false;
+        auto& oc = entity.GetComponent<OrbitalMovementComponent>();
+        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        if(!playerInvisible){
+            playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
+        }
+        if(!parentIsAlive){
+            velocity = {0.0,0.0};
+            oc.orbiting = false;
+            continue;
+        }
+        const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
+        const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
+        glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+        float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+        if(distanceFromOrbitalPath < -5.0f){ // inside of orbiat path; use escapvelocity to move outward
+            oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
+            velocity = mc.escapeVelocity;
+        } else { // entity is now close enough to orbital path, start orbiting
+            oc.origin = parentCenter;
+            if(!oc.orbiting){
+                oc.orbiting = true;
+                velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
+                oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+            }
+        }
+    }
+}
+
+StandShootMinionAISystem::StandShootMinionAISystem(){
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<SpeedStatComponent>();
+    RequireComponent<StatusEffectComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
+    RequireComponent<MinionComponent>();
+    RequireComponent<StandShootMinionComponent>();
+    RequireComponent<isShootingComponent>();
+}
+
+void StandShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
+    auto time = SDL_GetTicks();
+    bool playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    for(auto& entity: GetSystemEntities()){
+        const auto& mc = entity.GetComponent<MinionComponent>();
+        bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        const auto& ssmc = entity.GetComponent<StandShootMinionComponent>();
+        distanceToPlayer < ssmc.shootRange ? isShooting = true : isShooting = false;
+        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        if(!playerInvisible){
+            playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
+        }
+        if(!parentIsAlive){
+            velocity = {0.0,0.0};
+            continue;
+        }
+        const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
+        const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
+        glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+        float distanceFromOrbitalPath = glm::distance(parentCenter, position);
+        if(distanceFromOrbitalPath < ssmc.distance){ // inside of orbiat path; use escapvelocity to move outward
+            velocity = mc.escapeVelocity;
+        } else { // entity is now close enough to orbital path, start orbiting
+            velocity = {0.0,0.0};
+        }
+    }
+}
+
+randomChaseMinionAISystem::randomChaseMinionAISystem(){
+    RequireComponent<RandomChaseMinionComponent>();
+    RequireComponent<MinionComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<isShootingComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
+    RequireComponent<SpeedStatComponent>();
+    RequireComponent<StatusEffectComponent>();
+}
+
+void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry){
+    auto time = SDL_GetTicks();
+    const auto& playerPos = player.GetComponent<TransformComponent>().position;
+    const auto& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
+    for(auto& entity: GetSystemEntities()){
+        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        const auto& collisionFlag = entity.GetComponent<CollisionFlagComponent>().collisionFlag;
+        const auto& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        if(distanceToPlayer > 1500){
+            velocity.x = velocity.y = 0;
+            continue;
+        }
+        auto& rcmc = entity.GetComponent<RandomChaseMinionComponent>();
+        const auto& mc = entity.GetComponent<MinionComponent>();
+        const auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
+        if(time >= rcmc.timeOfLastSwitch + rcmc.switchInterval || (velocity.x == 0 && velocity.y == 0) || collisionFlag != NONESIDE){
+            if(!registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent)){
+                entity.Kill();
+                continue;
+            }
+            rcmc.timeOfLastSwitch = time;
+            if(RNG.randomFromRange(1,3) == 1 && distanceToPlayer < 300 && !playerInvisible){
+                rcmc.state = CHASE_PLAYER;
+            } else {
+                const auto& parentPos = registry->GetComponent<TransformComponent>(mc.idOfParent).position;
+                rcmc.state = CHASE_RANDOM_POINT_NEAR_PARENT;
+                double distance = RNG.randomFromRange(100.0,800.0);
+                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                float offsetX = distance * glm::cos(randomAngle); 
+                float offsetY = distance * glm::sin(randomAngle);
+                rcmc.destination = {(parentPos.x + offsetX), (parentPos.y + offsetY)};
+            }
+        }
+
+        if(!paralyzed){
+            switch(rcmc.state){
+                case CHASE_PLAYER:{
+                    if(glm::distance(position, playerPos) < 50.0){
+                        velocity = {0,0};
+                    } else {
+                        chasePosition(position, playerPos, velocity);
+                    }
+                } break;
+                case CHASE_RANDOM_POINT_NEAR_PARENT:{
+                    if(glm::distance(position, rcmc.destination) < 8.0){
+                        velocity = {0,0};
+                    } else {
+                        chasePosition(position, rcmc.destination, velocity);    
+                    }
+                } break;
+            }
+        } else {
+            velocity = {0,0};
+        }
+
+        if(distanceToPlayer < 300 && !playerInvisible && !stunned){
+            if(!isShooting && entity.HasComponent<AnimatedShootingComponent>()){ // switch to shooting animation
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
+                auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
+                asc.animatedShooting = true;
+                ac.xmin = 4;
+                ac.numFrames = 2; 
+                ac.currentFrame = 1;
+                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                pec.lastEmissionTime += pec.repeatFrequency / 2;
+            }
+            isShooting = true;
+        } else {
+            if(isShooting && entity.HasComponent<AnimatedShootingComponent>()){ // switch to walking animation
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
+                asc.animatedShooting = false;
+                ac.xmin = 0;
+                ac.numFrames = 1;
+                !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+            }
+            isShooting = false;
+        }
+
+        if(!playerInvisible){
+            playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+        }
+    }
+}
+
+// invisible bosses dont have many components of other bosses so they need their own system to respect ECS!
+InvisibleBossAISystem::InvisibleBossAISystem(){ 
+    RequireComponent<BossAIComponent>();
+    RequireComponent<InvisibleBossComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<MinionSpawnerComponent>();
+}
+
+void InvisibleBossAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom){
+    auto time = SDL_GetTicks();
+    for(auto& entity: GetSystemEntities()){
+        auto& origin = entity.GetComponent<TransformComponent>().position;
+        auto& aidata = entity.GetComponent<BossAIComponent>();
+        auto& msc = entity.GetComponent<MinionSpawnerComponent>();
+        int numLivingMinions = msc.minionIdToCreationId.size();
+        std::bitset<5> occupiedSockets;
+        aidata.flags[0] = false; // reset this each frame so open pentaract sockets may be checked
+        constexpr float towerDistance = 600.0f;
+        switch(aidata.bossType){
+            case PENTARACT:{ // invisible entity which spawns pentaract towers
+
+                if(msc.minionIdToCreationId.empty()){ // first frame of pentaract; audit position
+                    glm::vec2 spawnPosUnscaled = origin / 64.0f;
+                    constexpr float maxDistanceFromRoomBorder = (towerDistance / 64.0f) * 2;
+                    if(!(spawnPosUnscaled.x > bossRoom.x + maxDistanceFromRoomBorder && spawnPosUnscaled.x < bossRoom.x + bossRoom.w - maxDistanceFromRoomBorder && spawnPosUnscaled.y > bossRoom.y + maxDistanceFromRoomBorder && spawnPosUnscaled.y < bossRoom.y + bossRoom.h - maxDistanceFromRoomBorder)){
+                        // this pentaract is too close to the wall and must be relocated. 
+                        do{
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            double distance = RNG.randomFromRange(2000.0,3500.0);
+                            float randomAngle =  (0.0f, 6.2831855f);
+                            float offsetX = distance * glm::cos(randomAngle); 
+                            float offsetY = distance * glm::sin(randomAngle);
+                            spawnPosUnscaled = {(playerPos.x + offsetX)/64, (playerPos.y + offsetY)/64};
+
+                        } while(!(spawnPosUnscaled.x > bossRoom.x + maxDistanceFromRoomBorder && spawnPosUnscaled.x < bossRoom.x + bossRoom.w - maxDistanceFromRoomBorder && spawnPosUnscaled.y > bossRoom.y + maxDistanceFromRoomBorder && spawnPosUnscaled.y < bossRoom.y + bossRoom.h - maxDistanceFromRoomBorder));
+                        origin = spawnPosUnscaled * 64.0f;
+                    }
+                }
+
+                // get number of dead minions socket occupation
+                int numDead = 0;
+                std::vector<int> originTowers; // new towers at origin. never access if any entities in minionIdToCreationId are dead
+                for(auto& pair: msc.minionIdToCreationId){ // if this is empty, will still report 0 dead minions
+                    if(!registry->entityIsAlive(pair.first, pair.second)){
+                        numDead++;
+                    } else { // living entity; deduce sockets. we need to know for particles regardless of if there are new towers at origin
+                        const auto& position = registry->GetComponent<TransformComponent>(pair.first).position;
+                        if(glm::distance(origin, position) > towerDistance / 2){ // tower in some socket
+                            float angleToSocket = angleBetweenTwoPoints(origin + 40.0f, position);
+                            constexpr float tolerance = 40.0f;
+                            if(floatCompare(-90.0f, angleToSocket, tolerance)){ // socket 0 (north)
+                                occupiedSockets[0] = true;
+                            } else if(floatCompare(-18.0f, angleToSocket, tolerance)){ // socket 1
+                                occupiedSockets[1] = true;
+                            } else if(floatCompare(54.0f, angleToSocket, tolerance)){ // socket 2
+                                occupiedSockets[2] = true;
+                            } else if(floatCompare(126.0f, angleToSocket, tolerance)){ // socket 3
+                                occupiedSockets[3] = true;
+                            } else if(floatCompare(-156.0f, angleToSocket, tolerance)){ // socket 4
+                                occupiedSockets[4] = true;
+                            }
+                        } else { // living entity that is not in a socket
+                            originTowers.push_back(pair.first); 
+                        }
+                    }
+                }
+
+                // check if pentaract should die
+                if(numDead == msc.maxMinions){
+                    entity.Kill();
+                    continue;
+                } 
+                if(numDead == 0){
+                    if(!msc.minionIdToCreationId.empty()){ // minionSpawnSystem has cleaned minionIdToCreationId and we have new towers at origin this frame 
+                        for(auto id: originTowers){
+                            auto& towerPosition = registry->GetComponent<TransformComponent>(id).position;
+                            if(registry->HasComponent<isShootingComponent>(id)){
+                                registry->GetComponent<isShootingComponent>(id).isShooting = false; // disable shooting for spawn frame
+                            }
+                            for(int i = 0; i < occupiedSockets.size(); ++i) { // find first open socket for the towerPosition
+                                if(!occupiedSockets[i]){
+                                    towerPosition = towerDestination(origin, -90.0f + (72.0f * i), towerDistance); 
+                                    occupiedSockets[i] = true;
+                                    break;
+                                }
+                            }
+                        }
+                        // if 5 living towers, reset countdown to spawn new towers, so that when one tower dies, the countdown effectively starts
+                        if(msc.minionIdToCreationId.size() == msc.maxMinions){
+                            msc.timeOfLastRespawn = time; 
+                        } 
+                    }
+                } 
+                // spawn decorative particles between towers every so often
+                if(time >= aidata.timer1 + 200){
+                    aidata.timer1 = time;
+                    for(int i = 0; i < occupiedSockets.size(); i++){
+                        if(occupiedSockets[i]){ // this socket has a tower!
+                            auto startPos = towerDestination(origin, -90.0f + (72.0f * i), towerDistance);
+                            std::array<int, 2> arr;
+                            switch(i){
+                                case 0:{ // socket 0 shoots at 4 and 3
+                                    arr = {4,3};
+                                } break;
+                                case 1:{ // socket 1 shoots at 0 and 4
+                                    arr = {0,4};
+                                } break;
+                                case 2:{ // socket 2 shoots at 1 and 0
+                                    arr = {1,0};
+                                } break;
+                                case 3:{ // socket 3 shoots at 2 and 1
+                                    arr = {2,1};
+                                } break;
+                                case 4:{ // socket 4 shoots at 3 and 2 
+                                    arr = {3,2};
+                                } break;
+                            }
+                            for(int j: arr){
+                                if(occupiedSockets[j]){
+                                    factory->spawnLinearParticle(registry, startPos + 40.0f, towerDestination(origin, -90.0f + (72.0f * j), towerDistance) + 40.0f);    
+                                }
+                            }
+                        }
+                    }
+                }        
+
+            } break;
+        }
+    }
 }
 
 BossAISystem::BossAISystem(){
@@ -1065,7 +1361,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     }
                 }
             } break;
-            case CUBEGOD:{ // can prob put skull shrine here too             
+            case CUBEGOD:{ // this includes skull shrines         
                 if(distanceToPlayer < 1550){
                     isShooting = true;
                 } else {
@@ -1075,6 +1371,194 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                 if(stunned || playerInvisible){
                     isShooting = false;
                 }
+            } break;
+            case CRYSTALPRISONER:{
+                auto time = SDL_GetTicks();
+                auto& scale = entity.GetComponent<TransformComponent>().scale;
+                auto& bc = entity.GetComponent<BoxColliderComponent>();
+                constexpr Uint32 phaseDuration = 15000;
+                // switch phases every 10s
+                if(!aidata.activated){
+                    // simulate end of phase 3 so phase 1 starts immediately after spawn
+                    aidata.activated = true;
+                    aidata.timer0 = time - phaseDuration;
+                    aidata.flags[2] = true;
+                }
+                if(time >= aidata.timer0 + phaseDuration){ 
+                    aidata.timer0 = time;
+                    if(aidata.flags[2]){ // enable phase 1
+                        scale.x = 6.0f;
+                        scale.y = 6.0f;
+                        bc = bcEnumToData.at(BIG);
+                        aidata.flags[2] = false;
+                        aidata.flags[0] = true;
+                        isShooting = false;
+                    } else if(aidata.flags[0]){ // enable phase 2
+                        aidata.flags[0] = false;
+                        aidata.flags[1] = true;
+                    } else if(aidata.flags[1]){ // enable phase 3
+                        aidata.flags[1] = false;
+                        aidata.flags[2] = true;
+                        aidata.timer2 = time;
+                        isShooting = false;
+                    }
+                }
+
+                if(aidata.flags[0]){ // phase 1
+                    if(time >= aidata.timer1 + 250 && !playerInvisible && !stunned){ // shoot twice per second
+                        aidata.timer1 = time;
+                        glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                        aidata.phaseOneIndex ++;
+                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                            aidata.phaseOneIndex = 0;
+                        } 
+                        spiralBalls(entity, registry, target);
+                    }
+
+                } else if(aidata.flags[1]){ // phase 2
+                    if(!playerInvisible && !stunned){
+                        isShooting = true;
+                        if(time >= aidata.timer1 + 250){ // shoot twice per second
+                            aidata.timer1 = time;
+                            for(int i = 0; i < 3; i++){
+                                glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                                aidata.phaseOneIndex ++;
+                                if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                                    aidata.phaseOneIndex = 0;
+                                } 
+                                revolvingSlowShotgun(entity, registry, target);
+                            }
+                        }
+                    } else {
+                        isShooting = false;
+                    }
+
+                } else if(aidata.flags[2]){ // phase 3
+                    constexpr float growthFactor = 1.25f;
+                    if(time <= aidata.timer2 + 1500){ // first 1500ms of phase 3
+                        if(time >= aidata.timer3 + 250 && scale.x < 14.0f){
+                            auto oldsize = sprite.width * scale.x;
+                            aidata.timer3 = time;
+                            scale *= growthFactor;
+                            bc.width *= growthFactor;
+                            bc.height *= growthFactor;
+                            bc.offset *= growthFactor;
+                            position -= ((sprite.width * scale.x) - oldsize)/2.0f;
+                        }
+                    } else if(time >= aidata.timer2 + (phaseDuration - 1500)){ // last 1500ms of phase 3
+                        if(time >= aidata.timer3 + 250 && scale.x > 6.0f){
+                            auto oldsize = sprite.width * scale.x;
+                            aidata.timer3 = time;
+                            scale *= 1.0f/growthFactor;
+                            bc.width *= 1.0f/growthFactor;
+                            bc.height *= 1.0f/growthFactor;
+                            bc.offset *= 1.0f/growthFactor;
+                            position += (oldsize - (sprite.width * scale.x))/2.0f;
+                        }
+                    } else {
+                        if(time >= aidata.timer1 + 250 && !playerInvisible && !stunned){
+                            aidata.timer1 = time;
+                            glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                            aidata.phaseOneIndex ++;
+                            if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                                aidata.phaseOneIndex = 0;
+                            } 
+                            revolvingConfusedShots(entity, registry, target);
+                        }
+                    }
+                }
+
+            } break;
+            case GRANDSPHINX:{
+                auto time = SDL_GetTicks();
+                auto& scale = entity.GetComponent<TransformComponent>().scale;
+                auto& bc = entity.GetComponent<BoxColliderComponent>();
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
+                constexpr Uint32 phaseDuration = 10000;
+                if(!aidata.activated){
+                    aidata.activated = true;
+                    aidata.timer0 = time - phaseDuration;
+                    aidata.flags[1] = true;
+                }
+
+                if(time >= aidata.timer0 + phaseDuration){ // switch phases
+                    aidata.timer0 = time;
+                    if(aidata.flags[1]){ // enable phase 1
+                        aidata.flags[1] = false;
+                        aidata.flags[0] = true;
+                    } else if(aidata.flags[0]){ // enable phase 2
+                        aidata.flags[0] = false;
+                        aidata.flags[1] = true;
+                    }
+                }
+
+                if(distanceToPlayer < 1000){
+                    if(playerInvisible || stunned){
+                        asc.animatedShooting = false;
+                        isShooting = false;
+                        ac.xmin = 0;
+                        ac.currentFrame = 1;
+                        ac.numFrames = 1;
+                    } else if(!isShooting){
+                        asc.animatedShooting = true;
+                        isShooting = true;
+                        ac.xmin = 4;
+                        ac.numFrames = 2; 
+                        ac.currentFrame = 1;
+                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                        pec.lastEmissionTime += pec.repeatFrequency / 2;
+                    }
+                }
+
+                if(time >= aidata.timer2 + 500){ // randomly change default shot pattern
+                    switch(RNG.randomFromRange(1,4)){
+                        case 1:{
+                            pec.shots = 1;
+                            pec.arcgap = 0.0f;
+                        } break;
+                        case 2:{
+                            pec.shots = 2;
+                            pec.arcgap = 15.0f;
+                        } break;
+                        case 3:{
+                            pec.shots = 3;
+                            pec.arcgap = 30.0f;
+                        } break;
+                        case 4:{
+                            pec.shots = 4;
+                            pec.arcgap = 45.0f;
+                        } break;
+                    }
+                }
+
+                if(aidata.flags[0]){ // z shots and default shots
+                    if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
+                        aidata.timer1 = time;
+                        glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
+                        aidata.phaseOneIndex ++;
+                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
+                            aidata.phaseOneIndex = 0;
+                        } 
+                        // todo shoot Z-shots 
+                        zShotguns(entity, registry, target);
+                        int opposite = (aidata.phaseOneIndex + 18) % 36; // mod 36 stops value from going over 35
+                        target = aidata.phaseOnePositions[opposite];
+                        zShotguns(entity, registry, target);
+                    }
+
+                } else if(aidata.flags[1]){ // red fireblls and default shots
+                    if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
+                        aidata.timer1 = time;
+                        // todo shoot red fireballs
+                        for(int i = 0; i < 5; i++){
+                            aidata.phaseOneIndex = RNG.randomFromRange(0,35);
+                            fireBall(entity, registry, aidata.phaseOnePositions[aidata.phaseOneIndex]);
+                        }
+
+                    }
+                }
+
             } break;
         }
         if(!playerInvisible){

@@ -194,12 +194,12 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         T& Get(int entityId) { 
-            // if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
-            //     // std::cout << "entity " << entityId << " engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
-            //     for(auto& pair: entityIdToIndex){
-            //         std::cout << pair.first << ", " << pair.second << '\n';
-            //     }
-            // }
+            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+                std::cout << "entity " << entityId << " engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
+                // for(auto& pair: entityIdToIndex){
+                //     std::cout << pair.first << ", " << pair.second << '\n';
+                // }
+            }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }
 
@@ -313,6 +313,10 @@ class Registry {
         void monsterSubGroupEntity(Entity entity, const monsterSubGroups& msg);
         void removeEntityMonsterSubGroup(Entity entity);
         int numEntitiesPerMonsterSubGroup(const monsterSubGroups& msg);
+
+        bool entityWasKilledThisFrame(Entity& entity){
+            return entitiesToBeKilled.find(entity) != entitiesToBeKilled.end();
+        };
 
         unsigned int GetCreationIdFromEntityId(unsigned int Id) const;
         unsigned int getCurrentCreationId() const {return creationId;};

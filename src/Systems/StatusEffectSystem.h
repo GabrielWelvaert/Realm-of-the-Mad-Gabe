@@ -73,9 +73,12 @@ class StatusEffectSystem: public System{
             {13*8, 2*8, 8, 8}, // stunned
             {2*8, 1*8, 8, 8}, // invisible
             {8*9, 2*8, 8, 8}, // blind
+            {0, 1*8, 8, 8}, // armored
         };
 
-        std::vector<SDL_Texture*> iconSets = {nullptr};
+        std::unordered_map<unsigned long, SDL_Texture*> effectTextures;
+
+        void GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits);
 
     public:
         StatusEffectSystem();
@@ -87,8 +90,6 @@ class StatusEffectSystem: public System{
         void onStatusDisable(Entity& recipient, statuses status, std::unique_ptr<EventBus>& eventbus);
 
         void Update(SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera);
-
-        void GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore);
 
         void killIconSetTextures();
 

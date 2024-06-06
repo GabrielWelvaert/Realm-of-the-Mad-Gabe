@@ -73,7 +73,7 @@ struct SpriteComponent {
 
     // projectile-specific
     inline SpriteComponent(textureEnums textureEnum, SDL_Rect rect, bool diagonal = false):
-        assetId(textureEnum), width(rect.w), height(rect.h), srcRect(rect), zIndex(4), isFixed(false), diagonalSprite(diagonal), flip(SDL_FLIP_NONE)
+        assetId(textureEnum), width(rect.w), height(rect.h), srcRect(rect), zIndex(3), isFixed(false), diagonalSprite(diagonal), flip(SDL_FLIP_NONE)
         {}
 };
 

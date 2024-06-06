@@ -84,6 +84,7 @@
 #define YELLOWMAGIC LOFIOBJ2, {8*1+3, 8*10+1, 3, 6}, 12,12,{0,8}
 #define CYANMAGIC LOFIOBJ2, {8*0+3, 8*10+1, 3, 6}, 12,12,{0,8}
 #define DARKBLUEMAGIC LOFIOBJ2, {8*3+3, 8*10+1, 3, 6}, 12,12,{0,8}
+#define CHRONUSMAGIC LOFIPROJS, {8*14+3, 8*2+1, 3, 6}, 12,12,{0,8}
 
 #define GREENARROW LOFIPROJS, {8, 8*7, 8, 8}, 8,8,{16,16}
 #define REDARROW LOFIPROJS, {8*2, 8*7, 8, 8}, 8,8,{16,16}
@@ -101,6 +102,7 @@
 #define GREENSTAR LOFIOBJ, {8*3,8*7,8,8}, 10, 10, {14,14} // quiet
 #define PURPLESTAR LOFIOBJ, {8*0,8*7,8,8}, 10, 10, {14,14} // slowed
 #define YELLOWSTAR LOFIOBJ, {8*6,8*7,8,8}, 10, 10, {14,14} // blind
+#define ORANGESTAR LOFIOBJ, {8*9,8*7,8,8}, 10, 10, {14,14} // stunned
 
 #define REDCIRCLEMAGIC LOFIOBJ, {8*1,8*9,8,8}, 32,32,{4,4}
 #define ARCMAGIC LOFIOBJ3, {8*1,8*22,8,8}, 32,32,{4,4}
@@ -109,9 +111,15 @@
 #define ORYXARROW LOFIOBJ3, {8*6, 8*47, 8,8}, 10, 10, {14,14}
 #define REDSHARD LOFIOBJ4, {8*1, 8*12,8,8}, 10,10,{14,14}
 #define DJINNSHOT LOFIOBJ2, {8*9,8*4,8,8}, 20,20,{10,10}
+#define BLUEBOOMERANG LOFIOBJ, {8*3, 8*11,8,8}, 32, 32, {4,4}
+#define SHILEDBULLET LOFIOBJ2, {8*3, 8*1, 8, 8}, 32, 32, {8,8}
+#define FIREBALL LOFICHAR2, {8*8, 8*3, 8, 8}, 32, 32, {4,4}
+#define LONGFIREBOLT LOFICHAR2, {8*10, 8*2, 8, 16}, 32, 32, {4,24}
+#define ZSHOT LOFIOBJ4, {8*0, 8*12, 8, 8}, 32, 32, {4,4} 
 
 #define WHITEMISSILE LOFIOBJ2, {12*8+2, 9*8+1, 5,5}, 8,8,{12,12}
 #define REDMISSILE LOFIOBJ2, {8*10+2, 8*8+1, 5,5}, 8,8,{12,12}
+#define BLACKMISSILE LOFIOBJ2, {8*10+2, 8*9+1, 5,5}, 8,8,{12,12}
 #define GREENMISSILE LOFIOBJ, {13*8+2, 13*8+1, 5,5}, 8,8,{12,12}
 #define YELLOWMISSILE LOFIOBJ2, {11*8+2, 9*8+1, 5,5}, 8,8,{12,12}
 #define PURPLEMISSILE LOFIOBJ2, {8*11+2, 8*8+1, 5,5}, 8,8,{12,12}
@@ -119,6 +127,9 @@
 #define AQUAMISSILE LOFIOBJ2, {12*8+2, 8*8+1, 5,5}, 8,8,{12,12}
 #define ORANGEMISSILE LOFIOBJ2, {4*8+2, 8*7+1, 5,5}, 8,8,{12,12}
 
+#define NULL_PEC 0, 0, 0, 0, 0, 0.0f // pentaract tower uses this. fake PEC 
+
+// in order of how they're written its: unused, orbits, rotates, oscillates, ignoredef, inflictSE, diagonal, piercing
 #define BITS_NONE 0b00000000
 #define BITS_DIAGONAL 0b00000010 
 #define BITS_ROTATE_DIAGONAL 0b00100010
@@ -129,6 +140,9 @@
 #define BITS_IGNOREDEF 0b00001000
 #define BUTS_IGNOREDEF_ROTATE 0b00101000
 #define BITS_ROTATE_INFLICTSE 0b00100100
+#define BITS_OSCILLATING 0b00010000
+#define BITS_INFLICTSE 0b00000100
+
 
 
 /*
@@ -293,7 +307,7 @@ struct quiverData{
 };
 
 struct ItemTableComponentData{
-    std::map<int, std::vector<items>> dropTable;
+    std::multimap<int, std::vector<items>> dropTable;
 };
 
 struct helmData{
@@ -316,24 +330,29 @@ struct shieldData{
 };
 
 struct minionSpawnerData{
-    sprites monsterToSpawn;
+    std::vector<sprites> minions;
     unsigned char maxMinions;
     Uint32 respawnInterval;
 };
 
-struct orbitalMovementData{
+struct travelDistanceData{
     float distance;
     float distanceModMax;
 };
 
-extern std::unordered_map<sprites, orbitalMovementData> spriteToOrbitalMovementData;
+struct secondaryPECdata{
+    unsigned int RFmin;
+    float RFmaxmod;
+};
+
+extern std::unordered_set<sprites> hasDeathAction;
+extern std::unordered_set<sprites> towers;
+extern std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData;
 extern std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData;
-extern std::unordered_map<sprites, minionAItypes> spriteToMinionAIType;
 extern std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups;
 extern std::vector<sprites> eventBosses;
 extern std::vector<sprites> gods;
-extern std::unordered_map<sprites, unsigned long> spriteToSPECRepeatFreq;
-extern std::unordered_set<sprites> hasSecondaryProjectile;
+extern std::unordered_map<sprites, secondaryPECdata> spriteToSPECRepeatFreq;
 extern std::unordered_map<items, shieldData> itemEnumToShieldData;
 extern std::unordered_map<items, spellData> itemEnumToSpellData;
 extern std::vector<std::vector<int>> gordonLairOnlyFloors;

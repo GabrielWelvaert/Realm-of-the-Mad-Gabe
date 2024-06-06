@@ -16,7 +16,7 @@ void CollisionSystem::onAOEBomb(AOEBombEvent& event){
     if(playerIsEmitter){
         // implement this if its needed
         // would need to search collision system for collision
-        // this, and necromancer and sorcerer abilitities should be moved to distanceToPlayer? 
+        // this, and necromancer and sorcerer abilitities should be moved to distanceToPlayer? so that entity vector could be partially sorted to get 10 closest or whatever
     } else { // monster emitted, is player within radius? 
         const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
         if(glm::distance(playerPos, event.epicenter) <= event.radius){
@@ -42,7 +42,6 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
         auto& aTransform = a.GetComponent<TransformComponent>();
         auto& aCollider = a.GetComponent<BoxColliderComponent>();
         // skip entities which are X pixels off-screen
-        // since player is always on-screen-center, its possible to optimize this using new distanceToPlayer system
         if((aTransform.position.x + aCollider.width < camera.x - x|| 
             aTransform.position.y + aCollider.height < camera.y - x|| 
             aTransform.position.x > camera.x + camera.w + x|| 

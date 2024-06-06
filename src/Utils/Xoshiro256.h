@@ -73,6 +73,11 @@ public:
         return num += modifier;
     }
 
+    template <typename T>
+    inline T randomFromVector(const std::vector<T>& v){
+        return v[randomFromRange(0, v.size()-1)];
+    }
+
 
 };
 

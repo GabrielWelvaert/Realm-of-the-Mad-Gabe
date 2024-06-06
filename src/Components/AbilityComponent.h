@@ -68,10 +68,11 @@ struct CloakComponent{
 
 struct HelmComponent{
     int berserkDuration;
+    items itemEnum;
 
     inline HelmComponent() = default;
 
-    inline HelmComponent(int berserkDuration): berserkDuration(berserkDuration) {}
+    inline HelmComponent(int berserkDuration, items itemEnum): berserkDuration(berserkDuration), itemEnum(itemEnum) {}
 };
 
 struct QuiverComponent{

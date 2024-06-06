@@ -13,6 +13,10 @@ struct NeutralAIComponent{
         auto pec = spriteEnumToPEC.at(se);
         this->engageRange = (pec.projectileSpeed * pec.duration / 1000);
     }
+
+    inline NeutralAIComponent(unsigned short engageRange){
+        
+    }
 };
 
 #endif

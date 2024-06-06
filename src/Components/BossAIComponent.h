@@ -18,6 +18,7 @@ struct BossAIComponent{
     Uint32 timer0 = 0; // timer that can be used for whatever
     Uint32 timer1 = 0;
     Uint32 timer2 = 0;
+    Uint32 timer3 = 0;
     glm::vec2 positionflag;
 
     // optional. used to give boss static movement patterns
@@ -67,6 +68,8 @@ struct BossAIComponent{
                     phaseTwoPositions.push_back({spawnPoint.x, spawnPoint.y});
 
                 } break;
+                case GRANDSPHINX:
+                case CRYSTALPRISONER:
                 case GORDON:{
                     for(int i = 0; i < 36; i++) { // inner key pathing destinations 
                         float angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(36);

@@ -3,10 +3,9 @@
 MinionSpawnSystem::MinionSpawnSystem(){
     RequireComponent<TransformComponent>();
     RequireComponent<MinionSpawnerComponent>();
-    RequireComponent<SpriteComponent>();
 }
 
-void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_ptr<Registry>& registry){
+void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_ptr<Registry>& registry, std::vector<BossIds>& bosses){
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){ // monster that spawns minions
         auto& msc = entity.GetComponent<MinionSpawnerComponent>();
@@ -23,6 +22,7 @@ void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
             msc.timeOfLastRespawn = time;
             // this loop was previously a range-based for loop, but this invalidates iterators when we .erase and causes undefined behavior
             // https://stackoverflow.com/a/29571569/20080198 
+            // removing dead minions from minionIdToCreationId
             for(auto it = msc.minionIdToCreationId.begin(); it != msc.minionIdToCreationId.end();){
                 if(!registry->entityIsAlive(it->first, it->second)){
                     it = msc.minionIdToCreationId.erase(it); 
@@ -36,11 +36,22 @@ void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
             
             // spawn new minions to replace dead ones
             const auto& pt = entity.GetComponent<TransformComponent>();
-            const auto& ps = entity.GetComponent<SpriteComponent>();
-            glm::vec2 center = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+            glm::vec2 center;
+            if(entity.HasComponent<SpriteComponent>()){
+                const auto& ps = entity.GetComponent<SpriteComponent>();
+                center = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+            } else {
+                center = pt.position;
+            }
             for(int i = msc.minionIdToCreationId.size(); i < msc.maxMinions; i++){
-                Entity minion = factory->spawnMonster(registry, center, msc.monsterToSpawn, entity.GetId());
+                sprites s = RNG.randomFromVector(msc.minions);
+                Entity minion = factory->spawnMonster(registry, center, s, entity.GetId());
                 msc.minionIdToCreationId[minion.GetId()] = registry->GetCreationIdFromEntityId(minion.GetId());
+                switch(s){ // should this mosnter be considered as a boss?
+                    case PENTARACTTOWER:{
+                        bosses.push_back({minion.GetId(), minion.GetCreationId()});
+                    } break;
+                }
             }
         }
     }

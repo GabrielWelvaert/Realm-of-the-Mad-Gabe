@@ -242,6 +242,10 @@ enum items{
     DOOMQUIVER,
     RETRIBUTIONCLOAK,
     CURLYWHIRLYSPELL,
+    CHRONUSDIRK,
+    JUGGHELM,
+    CRYSTALWAND,
+    EPSTAFF,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -251,6 +255,7 @@ enum cardinalDirection{
 };
 
 enum enemyCategory{
+    NEUTRAL, // no animation, no chasing, but can shoot (neutral ai)
     ASC, // animated shoot chase 
     AS, // animated shoot
     SC, // shoot chase 
@@ -260,7 +265,13 @@ enum enemyCategory{
     GORDONBOSSAI,
     CUBEGODAI,
     KEY,
-    MINION,
+    ORBITMINION,
+    SHOOTORBITMINION,
+    STANDSHOOTMINION,
+    PENTARACTAI,
+    RANDOMCHASEMINION,
+    CRYSTALPRISONERAI,
+    GRANDSPHINXAI
 };
 
 enum parabolicCompletion{
@@ -311,14 +322,7 @@ enum stats{ // used to get values via indexing in statSys lvlup
 };
 
 enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
-    // MAGIC, // ex: wand
-    // MISSILE, // staves 
-    // BOLT, // ex: fire sword
-    // BLADE, // ex: low tier swords
-    // ARROW, // bows
     STANDARD, // 8x8 players
-    // BULLETBOX, //? remove?
-    // CIRCLEMAGIC,
     SHATTERSBOMBBOX,
     LOOTBAG,
     WIDE,
@@ -328,24 +332,11 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     SCALED7,
     SCALED8,
     SCALED4,
+    BIGSCALED8
 };
 
-// like a primary key for an entity, used to access needed member attributes in tables.h for almost all components
+// sprites enum act like primary keys for monsters, lootbags, and portals
 enum sprites{
-    // REDMAGIC,
-    // BLUEMAGIC,
-    // GREENMAGIC,
-    // PURPLEMAGIC,
-    // DEFAULTBLADE, //low tier swords n daggers
-    // WHITEBOLT,
-    // REDBOLT,
-    // GREENBOLT,
-    // BLUEBOLT,
-    // PURPLEBOLT,
-    // GREENARROW,
-    // REDARROW,
-    // BLUEARROW,
-    // GOLDARROW,
     SKELETON0,
     SKELETON1,
     SKELETON2,
@@ -356,7 +347,6 @@ enum sprites{
     BROWNSLIME,
     BOBBY,
     REDKNIGHT0,
-    // REDCIRCLEMAGIC,
     SHATTERSBOMB,
     BROWNLOOTBAG,
     PURPLELOOTBAG,
@@ -386,19 +376,11 @@ enum sprites{
     WHITEDEMON,
     SKELETON5,
     REDSTAR,
-    // BLUESTAR,
-    // WHITESTAR,
-    // PURPLESTAR,
-    // GREENSTAR,
-    // YELLOWSTAR,
     MOUSE0,
     BAT0,
     GORDON,
-    // REDFIREBALL,
-    // ORYXTEAR,
     SHEEP,
-    // ORYXARROW,
-    GIGASHEEP,
+    GIGASHEEP, /* all monsters below are from release v2*/
     SPRITEGOD,
     MEDUSA,
     DJINN,
@@ -410,11 +392,21 @@ enum sprites{
     GODSPAWNER,
     CUBEGOD,
     SKULLSHRINE,
-    MYSTERIOUSCRYSTAL,
+    REDFLAMINGSKULL,
+    BLUEFLAMINGSKULL,
     CYANCUBE,
     ORANGECUBE,
     YELLOWCUBE,
-    SPRITEMINION
+    SPRITEMINION,
+    PENTARACT,
+    PENTARACTTOWER,
+    PENTARACTEYE,
+    MYSTERIOUSCRYSTAL,
+    CRYSTALPRISONER,
+    CRYSTALSTEED,
+    GRANDSPHINX,
+    HORRIDREAPER1,
+    HORRIDREAPER2,
 };
 
 enum soundEnums{
@@ -586,67 +578,6 @@ enum classes{
     MYSTIC,
     TRICKSTER,
     SORCERER,
-    // ABYSSBRUTE,
-    // ABYSSDEMON,
-    // ARCHDEMON,
-    // BAT,
-    // BEHOLDER,
-    // BLOB,
-    // CAVEPIRATE,
-    // CHICKEN,
-    // CUBE,
-    // CYCLOPS,
-    // DARKELF,
-    // DEFAULT,
-    // DEMON,
-    // DJINN,
-    // DRAGON,
-    // DWARFGOD,
-    // DWARF,
-    // EGG,
-    // ELF,
-    // ENT,
-    // FLAMINGSKULL,
-    // FLAYER,
-    // FLYINGBRAIN,
-    // GHOSTGOD,
-    // GHOST,
-    // GOBLIN,
-    // GOLEM,
-    // GREATERDEMON,
-    // GREATERPITSNAKE,
-    // HOBBIT,
-    // LIZARDGOD,
-    // MEDUSA,
-    // MINIONOFORYX,
-    // MUMMY,
-    // NIGHTELF,
-    // OGRE,
-    // ORC,
-    // ORYX,
-    // PIRATEKING,
-    // PIRATE,
-    // PITSNAKE,
-    // PYTHON,
-    // ROCK,
-    // SCORPION,
-    // SKELETON,
-    // SKULLSHRINE,
-    // SLIME,
-    // SNAKEQUEEN,
-    // SNAKE,
-    // SPIDERQUEEN,
-    // SPIDER,
-    // SPRITEGOD,
-    // SPRITE,
-    // STONEWALL,
-    // TRAP,
-    // TREE,
-    // UNDEADDWARF,
-    // UNDEADHOBBIT,
-    // WOODWALL,
-    // TESTDUMMY,
-    // REDKNIGHT
 };
 
 enum movements{
@@ -674,17 +605,9 @@ enum tags{
 };
 
 enum monsterSubGroups{
-    CUBEGODMINION,
     GODLANDSGOD,
-    SKULLSHRINEMINION,
-    MYSTERIOUSCRYSTALMINION,
+    EVENTBOSS,
 };
-
-enum minionAItypes{
-    ORBIT,
-    ORBIT_SHOOT,
-};
-
 enum groups{
     MONSTER,
     PROJECTILE,
@@ -709,7 +632,7 @@ enum groups{
     RING,
     PORTAL,
     /*all consumable group types must be entered below this line*/ 
-    HPPOTGROUP, 
+    HPPOTGROUP, // can just replace all of these with CONSUMABLE. I dont see why having all of these is necessary?
     MPPOTGROUP,
     ATTPOTGROUP,
     DEFPOTGROUP,
@@ -735,6 +658,7 @@ enum statuses{
     STUNNED,
     INVISIBLE,
     BLIND,
+    ARMORED,
     /* entries must be made above*/
     TOTAL_NUMBER_OF_STATUS_EFFECTS,
     NULL_STATUS_EFFECT
@@ -1034,7 +958,14 @@ enum textureEnums{
     RETRIBUTIONCLOAKICON,
     DOOMQUIVERICON,
     GODLANDSPORTAL, 
-    LOFIPORTRAIT
+    LOFIPORTRAIT,
+    CHARS16X16DENCOUNTERS,
+    CHARS16X16DENCOUNTERS2,
+    LOSTHALLS16X16,
+    CHRONUSDIRKICON,
+    JUGGHELMICON,
+    CRYSTALWANDICON,
+    EPSTAFFICON
 };
 
 #endif
