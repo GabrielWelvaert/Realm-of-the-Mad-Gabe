@@ -6,7 +6,7 @@
 #include <map>
 
 struct ItemTableComponent{
-    std::map<int, std::vector<items>> dropTable;
+    std::multimap<int, std::vector<items>> dropTable;
     bool hasAlreadySpawnedBag = false;
 
     inline ItemTableComponent() = default;

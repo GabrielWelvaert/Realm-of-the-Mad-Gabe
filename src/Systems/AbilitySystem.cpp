@@ -215,9 +215,17 @@ void AbilitySystem::onSpellUse(SpellUseEvent& event){
 }
 
 void AbilitySystem::onHelmUse(HelmUseEvent& event){
-    const auto& duration = event.player.GetComponent<HelmComponent>().berserkDuration;
-    event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, duration);
-    event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, duration);
+    const auto& helm = event.player.GetComponent<HelmComponent>();
+    switch(helm.itemEnum){
+        case JUGGHELM:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, helm.berserkDuration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, ARMORED, event.eventbus, event.registry, helm.berserkDuration);
+        } break;
+        default:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, helm.berserkDuration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, helm.berserkDuration);
+        } break;
+    }
 }
 
 void AbilitySystem::onCloakUse(CloakUseEvent& event){
@@ -263,6 +271,7 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             auto& helm = player.GetComponent<HelmComponent>();
             Uint32 duration = itemEnumToHelmData.at(event.itemEnum).duration;
             helm.berserkDuration = duration;
+            helm.itemEnum = event.itemEnum;
             player.GetComponent<AbilityComponent>().coolDownMS = duration;
             break;
         }

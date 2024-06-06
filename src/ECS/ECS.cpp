@@ -261,7 +261,7 @@ void Registry::removeEntityMonsterSubGroup(Entity entity){
 }
 
 int Registry::numEntitiesPerMonsterSubGroup(const monsterSubGroups& msg){
-    if(entitiesPerMonsterSubGroup.empty()){
+    if(entitiesPerMonsterSubGroup.find(msg) == entitiesPerMonsterSubGroup.end() || entitiesPerMonsterSubGroup.at(msg).size() == 0){
         return 0;
     }
     return entitiesPerMonsterSubGroup.at(msg).size();

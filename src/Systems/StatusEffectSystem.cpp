@@ -10,31 +10,52 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<StatusEffectEvent>(this, &StatusEffectSystem::onStatusEnable);
 }
 
-// 8 status effects = 1mb
-// 10 status effects = 5mb
-void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
-    SDL_Texture* texture;
+// no longer used. status effect icons are allocated as they are needed.
+// void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
+//     SDL_Texture* texture;
+//     SDL_Rect dstRect;
+//     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
+//     const int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
+// 	for(unsigned int i = 1; i < (1 << totalNumberStatusEffects); i++){ // incrementation of bitset starting at 00000001
+//         std::bitset<totalNumberStatusEffects> bits(i);
+//         int numIconsToRender = bits.count();
+//         int iconDimension = 16;
+//         int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
+//         texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
+//         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+//         SDL_SetRenderTarget(renderer, texture);
+//         int iconsRendered = 0;
+//         for(int i = 0; i < totalNumberStatusEffects; i++){
+//             if(bits[i]){
+//                 dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
+//                 SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
+//                 iconsRendered++;
+//             }
+//         }
+//         iconSets.push_back(texture); // private vector used by this system
+//     }
+// }
+
+void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits){
     SDL_Rect dstRect;
     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
-    const int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
-	for(unsigned int i = 1; i < (1 << totalNumberStatusEffects); i++){ // incrementation of bitset starting at 00000001
-        std::bitset<totalNumberStatusEffects> bits(i);
-        int numIconsToRender = bits.count();
-        int iconDimension = 16;
-        int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
-        texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
-        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderTarget(renderer, texture);
-        int iconsRendered = 0;
-        for(int i = 0; i < totalNumberStatusEffects; i++){
-            if(bits[i]){
-                dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
-                SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
-                iconsRendered++;
-            }
+    int numIconsToRender = bits.count();
+    constexpr int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
+    constexpr int iconDimension = 16;
+    int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
+    SDL_Texture* texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(renderer, texture);
+    int iconsRendered = 0;
+    for(int i = 0; i < totalNumberStatusEffects; i++){
+        if(bits[i]){
+            dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
+            SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
+            iconsRendered++;
         }
-        iconSets.push_back(texture); // private vector used by this system
     }
+    effectTextures[bits.to_ulong()] = texture;
+    SDL_SetRenderTarget(renderer, nullptr);
 }
 
 void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify stats if necessary, save modified value for reversal later
@@ -86,6 +107,23 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
                 activespeed += activespeed / 2;
             }
         }break;
+        case ARMORED:{
+            auto& activedef = entity.GetComponent<HPMPComponent>().activedefense;
+            if(entity.BelongsToGroup(PLAYER)){
+                const auto& basestats = entity.GetComponent<BaseStatComponent>();
+                if(basestats.defense == 0){
+                    activedef += 2;
+                    sec.modifications[ARMORED] = 2;
+                } else {
+                    activedef += basestats.defense / 2;
+                    sec.modifications[ARMORED] = basestats.defense / 2;
+                }
+            } else {
+                // for monsters (no base stat) you MUST save modification amount before modifying!
+                sec.modifications[ARMORED] = activedef / 2;
+                activedef += activedef / 2;
+            }
+        }break;
         case BERSERK:{ // monsters dont have offensive stats
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -129,6 +167,10 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
             activespeed -= sec.modifications[SPEEDY];
         }break;
+        case ARMORED:{ //
+            auto& activedef = recipient.GetComponent<HPMPComponent>().activedefense;
+            activedef -= sec.modifications[ARMORED];
+        }break;
         case BERSERK:{ //BERSERK
             if(recipient.BelongsToGroup(PLAYER)){ // ? 
                 const auto& basestats = recipient.GetComponent<BaseStatComponent>();
@@ -157,8 +199,8 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
 }
 
 void StatusEffectSystem::killIconSetTextures(){
-    for(auto& x: iconSets){
-        SDL_DestroyTexture(x);
+    for(auto& x: effectTextures){
+        SDL_DestroyTexture(x.second);
     }
 }
 
@@ -189,11 +231,15 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
                 int iconDimension = 16;
                 int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
                 const auto& parentSprite = entity.GetComponent<SpriteComponent>();
-                const auto& parentPosition = entity.GetComponent<TransformComponent>().position;
-                int xpos = static_cast<int>(parentPosition.x + (static_cast<int>(parentSprite.width) * 6 / 2) - width/2 - camera.x);
+                const auto& transform = entity.GetComponent<TransformComponent>();
+                int xpos = static_cast<int>(transform.position.x + (static_cast<int>(parentSprite.width) * transform.scale.x / 2) - width / 2 - camera.x);
                 if(xpos + width < 750){
-                    dstRect = {xpos,static_cast<int>(parentPosition.y - iconDimension - 2 - camera.y),width,iconDimension};
-                    SDL_RenderCopy(renderer, iconSets[sec.effects.to_ulong()], NULL, &dstRect);
+                    dstRect = {xpos,static_cast<int>(transform.position.y - iconDimension - 2 - camera.y),width,iconDimension};
+                    auto set = sec.effects.to_ulong();
+                    if(effectTextures.find(set) == effectTextures.end()){
+                        GenerateStatusIcon(renderer, assetStore, sec.effects);
+                    }
+                    SDL_RenderCopy(renderer, effectTextures[sec.effects.to_ulong()], NULL, &dstRect);
                 }
             }
         }

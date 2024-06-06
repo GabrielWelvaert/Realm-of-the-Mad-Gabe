@@ -45,6 +45,13 @@ struct BoxColliderComponent {
         this->offset = data.offset;
     }
 
+    BoxColliderComponent& operator=(const boxColliderData& other){
+        width = other.width;
+        height = other.height;
+        offset = other.offset;
+        return *this;
+    }
+
 };
 
 #endif

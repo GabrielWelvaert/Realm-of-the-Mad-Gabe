@@ -10,12 +10,13 @@ struct MinionSpawnerComponent{
     Uint32 timeOfLastRespawn = 0;
     unsigned char maxMinions;
     std::unordered_map<int,int> minionIdToCreationId;
-    sprites monsterToSpawn;
+    std::vector<sprites> minions;
+    bool neverSpawnedMinions = true;
 
     MinionSpawnerComponent() = default;
 
-    MinionSpawnerComponent(sprites monsterToSpawn, int maxMinions, Uint32 respawnInterval = 10000):
-        respawnInterval(respawnInterval), maxMinions(maxMinions), monsterToSpawn(monsterToSpawn) {}
+    MinionSpawnerComponent(std::vector<sprites> minions, int maxMinions, Uint32 respawnInterval = 10000):
+        respawnInterval(respawnInterval), maxMinions(maxMinions), minions(minions) {}
 };
 
 #endif

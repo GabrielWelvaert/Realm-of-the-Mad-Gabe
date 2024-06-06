@@ -3,17 +3,26 @@
 Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum, int parentId){
     Entity enemy = registry->CreateEntity();
     enemy.Group(MONSTER);
-    enemy.AddComponent<HPMPComponent>(spriteEnum);
-    enemy.AddComponent<SpriteComponent>(spriteEnum);
-    enemy.GetComponent<SpriteComponent>().flip = flips[RNG.randomFromRange(0,1)]; // monsters spawns facing random direction
-    enemy.AddComponent<BoxColliderComponent>(spriteEnum);
-    enemy.AddComponent<CollisionFlagComponent>();
-    enemy.AddComponent<StatusEffectComponent>();
-    enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
-    enemy.AddComponent<DistanceToPlayerComponent>();
+    switch(spriteEnum){
+        case PENTARACT:{
+            enemy.AddComponent<BossAIComponent>(PENTARACT, spawnpoint, 0,0,0);
+            enemy.AddComponent<InvisibleBossComponent>();
+        } break;
+        default:{
+            enemy.AddComponent<HPMPComponent>(spriteEnum);
+            enemy.AddComponent<SpriteComponent>(spriteEnum);
+            enemy.GetComponent<SpriteComponent>().flip = flips[RNG.randomFromRange(0,1)]; // monsters spawns facing random direction
+            enemy.AddComponent<BoxColliderComponent>(spriteEnum);
+            enemy.AddComponent<CollisionFlagComponent>();
+            enemy.AddComponent<StatusEffectComponent>();
+            enemy.AddComponent<SpeedStatComponent>(spriteEnum, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
+            enemy.AddComponent<DistanceToPlayerComponent>();
+        } break;
+    }
 
     // very few monsters will requrie non-default (6.0) scaling
     switch(spriteEnum){
+        case GRANDSPHINX:
         case ORANGECUBE:{
             enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(8.0));
         } break;
@@ -28,10 +37,19 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
         } break;
     }
 
+    if(towers.find(spriteEnum) != towers.end()){
+        enemy.AddComponent<TowerComponent>();
+    }
+
+    if(hasDeathAction.find(spriteEnum) != hasDeathAction.end()){
+        enemy.AddComponent<DeathActionComponent>(spriteEnum);
+    }
 
     // if this monster has a secondary projectile
-    if(hasSecondaryProjectile.find(spriteEnum) != hasSecondaryProjectile.end()){
-        enemy.AddComponent<SecondaryProjectileComponent>(spriteEnum);
+    if(spriteToSPECRepeatFreq.find(spriteEnum) != spriteToSPECRepeatFreq.end()){
+        auto data = spriteToSPECRepeatFreq.at(spriteEnum);
+        auto rf = data.RFmin * RNG.randomFromRange(1.0f, data.RFmaxmod);
+        enemy.AddComponent<SecondaryProjectileComponent>(rf);
     }
 
     // if this monster must be grouped with a monster sub-group
@@ -43,41 +61,71 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     // if this monster should be able to spawn minions
     if(spriteToMinionSpawnerData.find(spriteEnum) != spriteToMinionSpawnerData.end()){
         const auto& msd = spriteToMinionSpawnerData.at(spriteEnum);
-        enemy.AddComponent<MinionSpawnerComponent>(msd.monsterToSpawn, msd.maxMinions, msd.respawnInterval);
+        enemy.AddComponent<MinionSpawnerComponent>(msd.minions, msd.maxMinions, msd.respawnInterval);
+    }
+
+    // if this monster should be able to drop loot
+    if(spriteEnumToItemTableComponentData.find(spriteEnum) != spriteEnumToItemTableComponentData.end()){
+        enemy.AddComponent<ItemTableComponent>(spriteEnum);
     }
 
     enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
     switch(enemyCat){
-        case MINION:{ // minions may do things like shoot but also want to stay near their parent
+        case RANDOMCHASEMINION:{
+            enemy.AddComponent<isShootingComponent>();
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RandomChaseMinionComponent>(RNG.randomFromRange(3000,10000));
+            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
             enemy.AddComponent<RidigBodyComponent>();
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
-            const auto& minionType = spriteToMinionAIType.at(spriteEnum);
-            enemy.AddComponent<MinionComponent>(minionType, parentId, registry->GetCreationIdFromEntityId(parentId));
-            switch(minionType){
-                case ORBIT:{ // no animation, no shooting
-                    const auto& orbitData = spriteToOrbitalMovementData.at(spriteEnum);
-                    auto distance = orbitData.distance * RNG.randomFromRange(1.0f, orbitData.distanceModMax);
-                    enemy.AddComponent<OrbitalMovementComponent>(distance, RNG.randomBool());
-                } break;
-                case ORBIT_SHOOT:{ // no animation, does shoot
-                    enemy.AddComponent<isShootingComponent>();
-                    enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            switch(spriteEnum){
+                case HORRIDREAPER1:
+                case HORRIDREAPER2:{
+                    enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+                    enemy.AddComponent<AnimationComponent>(spriteEnum);
                 } break;
             }
-            
-
+        } break;
+        case NEUTRAL:{
+            enemy.AddComponent<isShootingComponent>();
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<NeutralAIComponent>(spriteEnum);
+        } break;
+        case SHOOTORBITMINION:{
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
+            const auto& orbitData = spriteToMinionTravelDistanceData.at(spriteEnum);
+            auto distance = orbitData.distance * RNG.randomFromRange(1.0f, orbitData.distanceModMax);
+            enemy.AddComponent<OrbitalMovementComponent>(distance, RNG.randomBool());
+            enemy.AddComponent<isShootingComponent>();
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<OrbitShootMinionComponent>(RNG.randomFromRange(150,550));
+        } break;
+        case ORBITMINION:{
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
+            const auto& orbitData = spriteToMinionTravelDistanceData.at(spriteEnum);
+            auto distance = orbitData.distance * RNG.randomFromRange(1.0f, orbitData.distanceModMax);
+            enemy.AddComponent<OrbitalMovementComponent>(distance, RNG.randomBool());
+            enemy.AddComponent<OrbitMinionComponent>();
+        } break;
+        case STANDSHOOTMINION:{
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
+            const auto& data = spriteToMinionTravelDistanceData.at(spriteEnum);
+            auto distance = data.distance * RNG.randomFromRange(1.0f, data.distanceModMax);
+            enemy.AddComponent<StandShootMinionComponent>(RNG.randomFromRange(150,550), distance);
+            enemy.AddComponent<isShootingComponent>();
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
         } break;
         case KEY:{ // keys are not minion-like because they dont shoot or anything
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
         } break;
         case ASC:{ // animated shooting chase category
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<AnimatedChaseAIComponent>(spriteEnum, RNG);
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<isShootingComponent>();
         } break;
@@ -85,14 +133,12 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
             enemy.AddComponent<AnimatedNeutralAIComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<isShootingComponent>();
         } break;
         case SC:{ // shooting chase category
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<ChaseAIComponent>(spriteEnum, RNG);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<isShootingComponent>();
         } break;
@@ -107,7 +153,6 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
             enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
             enemy.AddComponent<isShootingComponent>();
@@ -117,7 +162,6 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<BossAIComponent>(ARCMAGE, spawnpoint, 20000, 3500, 750);
             auto& sec = enemy.GetComponent<StatusEffectComponent>();
             sec.effects[INVULNERABLE] = true;
@@ -132,7 +176,6 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<BossAIComponent>(GORDON, spawnpoint, 45000, 10000, 2000);
             auto& sec = enemy.GetComponent<StatusEffectComponent>();
             sec.effects[INVULNERABLE] = true;
@@ -142,11 +185,24 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             ac.numFrames = 1;
             enemy.AddComponent<isShootingComponent>();
         } break;
-        case CUBEGODAI:{
+        case CUBEGODAI:{ // skull shrines are also cube gods
             enemy.AddComponent<BossAIComponent>(CUBEGOD, spawnpoint,0,0,0);
-            enemy.AddComponent<ItemTableComponent>(spriteEnum);
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<isShootingComponent>();
+        } break;
+        case CRYSTALPRISONERAI:{
+            enemy.AddComponent<BossAIComponent>(CRYSTALPRISONER, spawnpoint,0,0,0);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<isShootingComponent>();
+        } break;
+        case GRANDSPHINXAI:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(GRANDSPHINX, spawnpoint, 0, 0, 0);
             enemy.AddComponent<isShootingComponent>();
         } break;
     }
@@ -177,11 +233,25 @@ void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::
         glm::vec2 destPos = {spawnPointCenter.x + 5 * std::cos(particleAngles[i]), spawnPointCenter.y + 5 * std::sin(particleAngles[i])};
         float rotationDegrees = getRotationFromCoordiante(2000, spawnPointCenter.x, spawnPointCenter.y, destPos.x, destPos.y, velocity);
         particle.AddComponent<RidigBodyComponent>(velocity);
-        particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,3,false,false);
+        particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,3,false,false); // ground particle should be below monsters, so zaxis = 3
         particle.AddComponent<TransformComponent>(glm::vec2(spawnPointCenter.x, spawnPointCenter.y), glm::vec2(5.0,5.0), rotationDegrees);
         float timeToReachDestination = radius / glm::length(velocity) * 1000.0f;
         particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
     }
+}
+
+void Factory::spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint){
+    const SDL_Rect redsquare = {0,8*5,8,8};
+    glm::vec2 velocity;
+    auto time = SDL_GetTicks();
+    Entity particle = registry->CreateEntity();
+    float scale = RNG.randomFromRange(5.0,8.0);
+    float rotationDegrees = getRotationFromCoordiante(500, spawnpoint.x, spawnpoint.y, endpoint.x, endpoint.y, velocity);
+    particle.AddComponent<RidigBodyComponent>(velocity);
+    particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,5,false,false); // these are floating particles, z-axis = 5?
+    particle.AddComponent<TransformComponent>(glm::vec2(spawnpoint.x, spawnpoint.y), glm::vec2(scale), rotationDegrees);
+    float timeToReachDestination = glm::distance(spawnpoint, endpoint) / glm::length(velocity) * 1000.0f;
+    particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
 }
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
@@ -276,6 +346,32 @@ void Factory::createLootAtDeath(Entity& monster, std::unique_ptr<Registry>& regi
     }
 }
 
+// overloaded version that generates lootbag with spriteEnum and position rather than a monster reference; can be called for any monster at any time
+void Factory::createLootAtDeath(sprites spriteEnum, const glm::vec2& spawnPos, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore){
+    auto tables = spriteEnumToItemTableComponentData.at(spriteEnum).dropTable;
+    Entity lootbag = registry->CreateEntity();
+    lootbag.Group(LOOTBAGGROUP);
+    lootbag.AddComponent<LootBagComponent>();
+    auto& lbc = lootbag.GetComponent<LootBagComponent>();
+    int roll;
+    sprites bagsprite = BROWNLOOTBAG;
+    for(const auto& table: tables){
+        roll = RNG.randomFromRange(1,100);
+        if(roll <= table.first){ // if value is lower than table rate, table is hit so random item from it
+            const auto& item = table.second[RNG.randomFromRange(0,table.second.size()-1)];
+            createItemInBag(registry, item, lootbag);
+            itemEnumToLootBagSpriteEnum.at(item) > bagsprite ? bagsprite = itemEnumToLootBagSpriteEnum.at(item) : bagsprite = bagsprite;
+        }
+    } if(lbc.contents.size() > 0){
+        lootbag.AddComponent<TransformComponent>(spawnPos, glm::vec2(5.0,5.0));
+        lootbag.AddComponent<BoxColliderComponent>(LOOTBAG);
+        lootbag.AddComponent<SpriteComponent>(bagsprite);
+        assetstore->PlaySound(LOOT);
+    } else { //empty bag; kill it
+        lootbag.Kill();
+    }
+}
+
 void Factory::spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, wallTheme area){
     Entity portal = registry->CreateEntity();
     const auto& sprite = wallThemeToSpriteData.at(area);
@@ -312,4 +408,10 @@ void Factory::spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_
         }
     }
 
+}
+
+void Factory::spawnNumberEntity(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, std::string&& number){
+    Entity entity = registry->CreateEntity();
+    entity.AddComponent<TextLabelComponent>(number, "namefont", grey, true, 0,0,0);
+    entity.AddComponent<TransformComponent>(spawnpoint);
 }

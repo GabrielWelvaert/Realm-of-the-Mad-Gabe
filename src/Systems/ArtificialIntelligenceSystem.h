@@ -33,6 +33,13 @@
 #include "../../libs/glm/gtc/random.hpp"
 #include "../Utils/tables.h"
 #include "../Components/RotationComponent.h"
+#include "../Components/OrbitShootMinionComponent.h"
+#include "../Components/StandShootMinionComponent.h"
+#include "../Components/TowerComponent.h"
+#include "../Components/InvisibleBossComponent.h"
+#include "../Components/RandomChaseMinionComponent.h"
+
+#define PENTARACT_TOWER_DISTANCE = 300
 
 /*
 These systems are like the KBMS but for monsters; they update sprite-atlas ranges, velocities, and various flags based off of their reaction environmental (player) conditions
@@ -90,14 +97,72 @@ class AnimatedNeutralAISystem: public System{
         void Update(const Entity& player);
 };
 
-class MinionAISystem: public System{
+class OrbitMinionAISystem: public System{
+    private:
+        Xoshiro256 RNG;
     public:
-        MinionAISystem();
+        OrbitMinionAISystem();
         void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+};
+
+class OrbitShootMinionAISystem: public System{
+    public:
+        OrbitShootMinionAISystem();
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+
+};
+
+class StandShootMinionAISystem: public System{
+    public:
+        StandShootMinionAISystem();
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+};
+
+class randomChaseMinionAISystem: public System{
+    private:
+        Xoshiro256 RNG;
+
+    public:
+        randomChaseMinionAISystem();
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+
+};
+
+class InvisibleBossAISystem: public System{
+    private:
+        Xoshiro256 RNG;
+
+        inline float angleBetweenTwoPoints(const glm::vec2& origin, const glm::vec2& dest){
+            float angleRadians = std::atan2(dest.y - origin.y, dest.x - origin.x);   
+            float angleDegrees = angleRadians * (180.0 / M_PI);
+            return angleDegrees;
+        }
+
+        inline bool floatCompare(float a, float b, float tolerance){
+            return std::fabs(a - b) <= tolerance;
+        }
+
+        inline glm::vec2 towerDestination(const glm::vec2& origin, float angleDegrees, float distance){
+            float angleRadians = glm::radians(angleDegrees);
+            float deltaX = distance * std::cos(angleRadians);
+            float deltaY = distance * std::sin(angleRadians);
+            glm::vec2 destination = origin + glm::vec2(deltaX, deltaY);
+            return destination;
+        }
+
+    public: 
+        InvisibleBossAISystem();
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom);
+
 };
 
 class BossAISystem: public System{
     private:
+
+        inline bool floatCompare(float a, float b, float tolerance){
+            return std::fabs(a - b) <= tolerance;
+        }
+        
         Xoshiro256 RNG;
 
         const int tileScale = 64;
@@ -227,6 +292,113 @@ class BossAISystem: public System{
                     projectile.Group(PROJECTILE);
                 }
             }
+        }
+
+        inline void spiralBalls(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& target){
+            float gap = 90.0f;
+            glm::vec2 bossCenter = {boss.GetComponent<TransformComponent>().position.x + 32, boss.GetComponent<TransformComponent>().position.y + 32};
+            constexpr projectilePPD data = {ORYXCIRCLE};
+            glm::vec2 ov; // origin velocity
+            float rotationDegrees = getRotationFromCoordiante(512, bossCenter.x, bossCenter.y, target.x, target.y, ov);
+            for(int i = 0; i < 4; i++){
+                glm::vec2 velocity;
+                Entity projectile = registry->CreateEntity();
+                projectileVelocityArcGap(ov, rotationDegrees, gap*i, velocity);
+                projectile.AddComponent<RidigBodyComponent>(velocity);
+                projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
+                projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + gap*i);
+                projectile.AddComponent<ProjectileComponent>(95, 1500, false, boss, 0, MYSTERIOUSCRYSTAL);
+                projectile.AddComponent<LinearProjectileComponent>();
+                projectile.Group(PROJECTILE);
+            }
+        }
+
+        inline void revolvingSlowShotgun(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& target){
+            float gap = 120.0f;
+            glm::vec2 bossCenter = {boss.GetComponent<TransformComponent>().position.x + 32, boss.GetComponent<TransformComponent>().position.y + 32};
+            constexpr projectilePPD data = {PURPLESTAR};
+            glm::vec2 ov; // origin velocity
+            float rotationDegrees = getRotationFromCoordiante(400, bossCenter.x, bossCenter.y, target.x, target.y, ov);
+            for(int i = 0; i < 3; i++){
+                glm::vec2 velocity;
+                Entity projectile = registry->CreateEntity();
+                projectileVelocityArcGap(ov, rotationDegrees, gap*i, velocity);
+                projectile.AddComponent<RidigBodyComponent>(velocity);
+                projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
+                projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + gap*i);
+                projectile.AddComponent<ProjectileComponent>(50, 1500, false, boss, 0, MYSTERIOUSCRYSTAL, true, SLOWED, 3000);
+                projectile.AddComponent<LinearProjectileComponent>();
+                projectile.AddComponent<RotationComponent>();
+                projectile.Group(PROJECTILE);
+            }
+        }
+
+        inline void revolvingConfusedShots(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& target){
+            float gap = 60.0f;
+            const auto& transform = boss.GetComponent<TransformComponent>();
+            const auto& sprite = boss.GetComponent<SpriteComponent>();
+            glm::vec2 bossCenter = {transform.position.x + (sprite.width * transform.scale.x)/2.0f, transform.position.y + (sprite.height * transform.scale.y)/2.0f};
+            constexpr projectilePPD data = {BLUESTAR};
+            glm::vec2 ov; // origin velocity
+            float rotationDegrees = getRotationFromCoordiante(400, bossCenter.x, bossCenter.y, target.x, target.y, ov);
+            for(int i = 0; i < 6; i++){
+                glm::vec2 velocity;
+                Entity projectile = registry->CreateEntity();
+                projectileVelocityArcGap(ov, rotationDegrees, gap*i, velocity);
+                projectile.AddComponent<RidigBodyComponent>(velocity);
+                projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
+                projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + gap*i);
+                projectile.AddComponent<ProjectileComponent>(35, 1500, false, boss, 0, MYSTERIOUSCRYSTAL, true, CONFUSED, 3000);
+                projectile.AddComponent<LinearProjectileComponent>();
+                projectile.AddComponent<RotationComponent>();
+                projectile.Group(PROJECTILE);
+            }
+        }
+
+        inline void zShotguns(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& target){
+            float gap = 10.0f;
+            const auto& transform = boss.GetComponent<TransformComponent>();
+            const auto& sprite = boss.GetComponent<SpriteComponent>();
+            glm::vec2 bossCenter = {transform.position.x + (sprite.width * transform.scale.x)/2.0f, transform.position.y + (sprite.height * transform.scale.y)/2.0f};
+            constexpr projectilePPD data = {ZSHOT};
+            glm::vec2 ov; // origin velocity
+            float rotationDegrees = getRotationFromCoordiante(352, bossCenter.x, bossCenter.y, target.x, target.y, ov);
+            for(int i = 0; i < 9; i++){
+                glm::vec2 velocity;
+                Entity projectile = registry->CreateEntity();
+                projectileVelocityArcGap(ov, rotationDegrees, gap*i, velocity);
+                projectile.AddComponent<RidigBodyComponent>(velocity);
+                projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
+                projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+                projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + gap*i);
+                projectile.AddComponent<ProjectileComponent>(150, 1900, false, boss, 0, GRANDSPHINX, true, BLIND, 3000);
+                projectile.AddComponent<LinearProjectileComponent>();
+                projectile.AddComponent<RotationComponent>();
+                projectile.Group(PROJECTILE);
+            }
+        }
+        
+        inline void fireBall(Entity boss, std::unique_ptr<Registry>& registry, const glm::vec2& target){
+            const auto& transform = boss.GetComponent<TransformComponent>();
+            const auto& sprite = boss.GetComponent<SpriteComponent>();
+            glm::vec2 bossCenter = {transform.position.x + (sprite.width * transform.scale.x)/2.0f, transform.position.y + (sprite.height * transform.scale.y)/2.0f};
+            constexpr projectilePPD data = {FIREBALL};
+            glm::vec2 ov; // origin velocity
+            float rotationDegrees = getRotationFromCoordiante(352, bossCenter.x, bossCenter.y, target.x, target.y, ov);
+            glm::vec2 velocity;
+            Entity projectile = registry->CreateEntity();
+            projectileVelocityArcGap(ov, rotationDegrees, 0.0f, velocity);
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+            projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees);
+            projectile.AddComponent<ProjectileComponent>(150, 1900, false, boss, 0, GRANDSPHINX, true, BLIND, 3000);
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.AddComponent<RotationComponent>();
+            projectile.Group(PROJECTILE);
         }
 
         inline void arcMageConfuseShots(Entity boss, glm::vec2& spawnpoint, std::unique_ptr<Registry>& registry, std::vector<glm::vec2>& phaseOnePositions){

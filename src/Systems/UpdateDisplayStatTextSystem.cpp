@@ -64,6 +64,9 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     if(activeSpeedStat > pbs.speed){
         spddisplayString += " (+" + std::to_string(activeSpeedStat - pbs.speed) + ")";
         color = statgreen;
+    } else if(activeSpeedStat < pbs.speed){
+        spddisplayString += " (-" + std::to_string(pbs.speed - activeSpeedStat) + ")";
+        color = titleRed;
     }
     if(pbs.speed == maxStats[classname][SPEED]){
         color = maxstatcolor;

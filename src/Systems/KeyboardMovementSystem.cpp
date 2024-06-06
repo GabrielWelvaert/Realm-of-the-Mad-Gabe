@@ -13,7 +13,7 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
     auto& animation = player.GetComponent<AnimationComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     const auto& pec = player.GetComponent<ProjectileEmitterComponent>();
-    const auto& isShooting = player.GetComponent<isShootingComponent>().isShooting;
+    auto& isShooting = player.GetComponent<isShootingComponent>().isShooting;
     auto& ac = player.GetComponent<AbilityComponent>(); 
     const auto& holdingItem = player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
     const auto& statusEffects = player.GetComponent<StatusEffectComponent>().effects;
@@ -21,6 +21,10 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
     const auto& stunned = statusEffects[STUNNED];
     int move;
     
+    if(stunned){
+        isShooting = false;
+    }
+
     if(confused){
         move = confusedMoves[keyboardinput->movementKeys];
     } else {
@@ -165,7 +169,7 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
         }break;
     }
     // update stuff for if shooting
-    if(isShooting && pec.shots > 0 && !stunned){ //previously if keysPressed[4]
+    if(isShooting && pec.shots > 0){ //previously if keysPressed[4]
         const auto& activedexterity = player.GetComponent<OffenseStatComponent>().activedexterity;
         auto& transform = player.GetComponent<TransformComponent>();
         auto& asc = player.GetComponent<AnimatedShootingComponent>();

@@ -122,6 +122,7 @@ void Game::ProcessInput(){
     auto startTime = SDL_GetTicks();
     keyboardinput->inventoryUses.reset(); 
     auto& playerIsShooting = player.GetComponent<isShootingComponent>().isShooting;
+    const auto& stunned = player.GetComponent<StatusEffectComponent>().effects[STUNNED];
     while(SDL_GetTicks() - startTime < MS_READ_INPUT){
         SDL_Event sdlEvent;
         while(SDL_PollEvent(&sdlEvent)) {
@@ -230,14 +231,16 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, DOOMQUIVER, lootbag);
-                            factory->createItemInBag(registry, CURLYWHIRLYSPELL, lootbag);
-                            factory->createItemInBag(registry, RETRIBUTIONCLOAK, lootbag);
-                            factory->createItemInBag(registry, MITHRILSWORD, lootbag);
-                            factory->createItemInBag(registry, T5STAFF, lootbag);
-                            factory->createItemInBag(registry, T14BOW, lootbag);
-                            factory->createItemInBag(registry, T14DAGGER, lootbag);
                             factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            factory->createItemInBag(registry, EPSTAFF, lootbag);
+                            factory->createItemInBag(registry, CHRONUSDIRK, lootbag);
+                            factory->createItemInBag(registry, T10SWORD, lootbag);
+                            factory->createItemInBag(registry, T10HEAVYARMOR, lootbag);
+                            factory->createItemInBag(registry, T4SHIELD, lootbag);
+                            factory->createItemInBag(registry, T4HPRING, lootbag);
+                            player.GetComponent<BaseStatComponent>().xp += 20000;
+                            factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
                         } break;
                         case SDLK_0:{
                             // std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
@@ -252,7 +255,9 @@ void Game::ProcessInput(){
                             // for(int i = 0; i < 9; i++){
                             //     factory->spawnMonster(registry, spawnPoints[i], gods[i]);
                             // }
-                            player.GetComponent<TransformComponent>().position = glm::vec2(-600,-600);
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-600,-600);
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            factory->spawnMonster(registry, playerPos, GRANDSPHINX, player.GetId());
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -266,17 +271,20 @@ void Game::ProcessInput(){
                             // std::cout << "there are currently " << numGodLandsGods << " gods" << '\n';
                             // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
-                            // factory->spawnMonster(registry, glm::vec2(-400,-500), SPRITEGOD);
+                            factory->spawnMonster(registry, playerPos, PENTARACT, player.GetId());
+                            // factory->spawnMonster(registry, playerPos, PENTARACTEYE, player.GetId());
+                            // factory->spawnMonster(registry, glm::vec2(-400,200), MEDUSA);
                         } break;
                         case SDLK_p:{
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
+                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
                         } break;
                         case SDLK_BACKSPACE:{
                             // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
                             player.GetComponent<HPMPComponent>().activehp += 10000;
                             player.GetComponent<BaseStatComponent>().xp += 20000;
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            factory->spawnMonster(registry, playerPos, SKULLSHRINE, player.GetId());
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
                             // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                         } break;
@@ -318,7 +326,13 @@ void Game::ProcessInput(){
     }
     SDL_GetMouseState(&Game::mouseX, &Game::mouseY); // call this regardless of player shooting attempt; various systems need it!
     // if(keyboardinput->movementKeys[MB]){
-    //     std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl; 
+    //     const auto& origin = player.GetComponent<TransformComponent>().position;
+    //     glm::vec2 dest = {mouseX + camera.x, mouseY + camera.y};
+    //     float angleRadians = std::atan2(dest.y - origin.y, dest.x - origin.x);   
+    //     float angleDegrees = angleRadians * (180.0 / M_PI);
+    //     std::cout << angleDegrees << '\n';
+    //     // if(startTime % 100 == 0)factory->spawnLinearParticle(registry, origin, dest);
+    //     // std::cout << mouseX + camera.x << ", " << mouseY + camera.y << std::endl; 
     // }
     // if(keyboardinput->movementKeys[MB]){std::cout << mouseX << ", " << mouseY << std::endl;}
     if(keyboardinput->movementKeys[MB]){
@@ -1020,7 +1034,15 @@ void Game::PopulateItemIconsInAssetStore(){
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     auto helmData = itemEnumToHelmData.at(itemEnum);
-                    std::string onUse = "On Use: Speedy and Berzerk on self for ";
+                    std::string onUse;
+                    switch(itemEnum){
+                        case JUGGHELM:{
+                            onUse = "On Use: Armored and Berzerk on self for ";
+                        } break;
+                        default:{
+                            onUse = "On Use: Speedy and Berzerk on self for ";
+                        } break;
+                    }
                     std::string duration = std::to_string(static_cast<float>(helmData.duration)/1000);
                     while(duration.back() == '0' || duration.back() == '.'){
                         duration.pop_back();
@@ -1234,7 +1256,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIPROJS, "./assets/images/lofiProjs.png"); //arrows etc
     assetStore->AddTexture(renderer, GUIBACKGROUND, "./assets/images/guibackground.png");
     assetStore->AddTexture(renderer, LOFIOBJ4, "./assets/images/lofiObj4.png");
-    assetStore->AddTexture(renderer, TEMPMINIMAP, "./assets/images/todominimap.png");
+    // assetStore->AddTexture(renderer, TEMPMINIMAP, "./assets/images/todominimap.png");
     assetStore->AddTexture(renderer, LOFIINTERFACEBIG, "./assets/images/lofiInterfaceBig.png");
     assetStore->AddTexture(renderer, CHAR8X8RHERO1, "./assets/images/chars8x8rHero1.png");
     assetStore->AddTexture(renderer, INVENTORYICONS, "./assets/images/inventoryIcons.png");
@@ -1252,6 +1274,9 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIOBJ3, "./assets/images/lofiObj3.png");
     assetStore->AddTexture(renderer, CHARS16X16MOUNTAINS1, "./assets/images/chars16x16dMountains1.png");
     assetStore->AddTexture(renderer, LOFIINTERFACE2, "./assets/images/lofiInterface2.png");
+    assetStore->AddTexture(renderer, CHARS16X16DENCOUNTERS, "./assets/images/chars16x16dEncounters.png");
+    assetStore->AddTexture(renderer, CHARS16X16DENCOUNTERS2, "./assets/images/chars16x16dEncounters2.png");
+    assetStore->AddTexture(renderer, LOSTHALLS16X16, "./assets/images/lostHallsChars16x16.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -2054,7 +2079,12 @@ void Game::PopulateRegistry(){
     registry->AddSystem<EnemySpawnSystem>();
     registry->AddSystem<MinionSpawnSystem>();
     registry->AddSystem<OrbitalMovementSystem>();
-    registry->AddSystem<MinionAISystem>();
+    registry->AddSystem<OrbitMinionAISystem>();
+    registry->AddSystem<OrbitShootMinionAISystem>();
+    registry->AddSystem<StandShootMinionAISystem>();
+    registry->AddSystem<InvisibleBossAISystem>();
+    registry->AddSystem<randomChaseMinionAISystem>();
+    registry->AddSystem<DeathActionSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2549,7 +2579,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
         PopulateRegistry();
         PopulateEventBus();
         PopulateItemIconsInAssetStore();
-        registry->GetSystem<StatusEffectSystem>().GenerateStatusIcons(renderer, assetStore);        
+        // registry->GetSystem<StatusEffectSystem>().GenerateStatusIcons(renderer, assetStore);        
     }
     if(mainmenus){
         Background();
@@ -2614,14 +2644,20 @@ void Game::Update(){
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
     registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry);
+    // registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); // must go before AI systems
     registry->GetSystem<DistanceToPlayerSystem>().Update(playerpos);
     registry->GetSystem<ChaseAISystem>().Update(player);
     registry->GetSystem<NeutralAISystem>().Update(player);
     registry->GetSystem<TrapAISystem>().Update(player, assetStore);
     registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom);
+    registry->GetSystem<InvisibleBossAISystem>().Update(player, registry, factory, bossRoom);
     registry->GetSystem<AnimatedChaseAISystem>().Update(player);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(player);
-    registry->GetSystem<MinionAISystem>().Update(player, registry);
+    registry->GetSystem<OrbitMinionAISystem>().Update(player, registry);
+    registry->GetSystem<OrbitShootMinionAISystem>().Update(player, registry);
+    registry->GetSystem<StandShootMinionAISystem>().Update(player, registry);
+    registry->GetSystem<randomChaseMinionAISystem>().Update(player, registry);
+    /*AI updates must occur before movement*/
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
@@ -2636,13 +2672,14 @@ void Game::Update(){
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, playerpos, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
+    registry->GetSystem<DeathActionSystem>().Update(factory, registry, assetStore, bosses);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keyboardinput->movementKeys[MB], assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, keyboardinput->utilityKeys[SHIFT]);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
     registry->GetSystem<EnemySpawnSystem>().Update(player, registry, factory, bosses);
-    registry->GetSystem<MinionSpawnSystem>().Update(factory, registry);
+    registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); // must go before AI systems
 }
 
 void Game::Render(){

@@ -66,6 +66,7 @@
 #include "../Systems/MinionSpawnSystem.h"
 #include "../Systems/OrbitalMovementSystem.h"
 #include "../Utils/KeyboardInput.h"
+#include "../Systems/DeathActionSystem.h"
 
 
 const int FPS = 60;

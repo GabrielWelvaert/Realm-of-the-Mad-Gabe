@@ -31,10 +31,26 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                             spriteGodBoomerang(entity, playerPos, registry);
                         } break;
                         case MEDUSA:{
-                            MedusaBomb(entity, playerPos, registry);
+                            MedusaBomb(entity, playerPos, registry, spriteEnum);
                         } break;
                         case CUBEGOD:{
                             cubeGodShotgun(entity, playerPos, registry);
+                        } break;
+                        case CYANCUBE:{
+                            slowedStar(entity, playerPos, registry);
+                        } break;
+                        case ORANGECUBE:{
+                            fireBolt(entity, playerPos, registry);
+                        } break;
+                        case SKELETON5:{
+                            if(RNG.randomBool()){
+                                confusedStarShotgeun(entity, playerPos, registry);
+                            } else {
+                                stunedStarShotgun(entity, playerPos, registry);
+                            }
+                        } break;
+                        case PENTARACTTOWER:{
+                            MedusaBomb(entity, playerPos, registry, spriteEnum, 130);
                         } break;
                     }
                 }

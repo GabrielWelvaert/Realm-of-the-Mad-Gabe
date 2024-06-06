@@ -53,6 +53,15 @@
 #include "../Components/MinionSpawnerComponent.h"
 #include "../Components/MinionComponent.h"
 #include "../Components/OrbitalMovementComponent.h"
+#include "../Components/OrbitShootMinionComponent.h"
+#include "../../libs/glm/gtc/random.hpp"
+#include "../Components/StandShootMinionComponent.h"
+#include "../Components/OrbitMinionComponent.h"
+#include "../Components/TowerComponent.h"
+#include "../Components/InvisibleBossComponent.h"
+#include "../Components/NeutralAIComponent.h"
+#include "../Components/RandomChaseMinionComponent.h"
+#include "../Components/DeathActionComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -89,11 +98,17 @@ class Factory{
 
         void createLootAtDeath(Entity& monster, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore);
 
+        void createLootAtDeath(sprites spriteEnum, const glm::vec2& spawnPos, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore);
+
         void spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpoint, wallTheme area);
 
         void spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager);
 
         void populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses);
+
+        void spawnNumberEntity(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, std::string&& number);
+
+        void spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint);
 };
 
 #endif

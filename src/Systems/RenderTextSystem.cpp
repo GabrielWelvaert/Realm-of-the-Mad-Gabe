@@ -45,15 +45,15 @@ void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore
         // if not fixed, it must be following a monster/player (parent=victim)
         if(!textlabel.isFixed){
             const auto& victimSprite = registry->GetComponent<SpriteComponent>(textlabel.parentId);
-            const auto& parentPosition = registry->GetComponent<TransformComponent>(textlabel.parentId).position;
-            position.x = parentPosition.x + (static_cast<int>(victimSprite.width) * 6 /2 - textlabel.textwidth/2);
+            const auto& transform = registry->GetComponent<TransformComponent>(textlabel.parentId);
+            position.x = transform.position.x + (static_cast<int>(victimSprite.width) * transform.scale.x /2 - textlabel.textwidth/2);
             if(position.x + textlabel.textwidth - camera.x >= 750){continue;} // dont render if its under the HUD
             if(textlabel.spawnframe){
-                position.y = parentPosition.y - textlabel.textheight - 4;
+                position.y = transform.position.y - textlabel.textheight - 4;
                 textlabel.spawnframe = false;
             } else {
                 float deltaTime = SDL_GetTicks() - textlabel.birthTime;
-                position.y = parentPosition.y - textlabel.textheight - 4 - deltaTime/10;
+                position.y = transform.position.y - textlabel.textheight - 4 - deltaTime/10;
             }
         }
 
