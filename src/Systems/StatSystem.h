@@ -24,6 +24,7 @@
 #include "../Components/AnimationComponent.h"
 #include "../Components/LootBagComponent.h"
 #include "../Events/KillItemIconEvent.h"
+#include "../Events/StatusEffectEvent.h"
 
 /*
 this system is responsbile for managing the player stat increases at level up and potion drinking via events
@@ -34,6 +35,11 @@ class StatSystem: public System{
 
         Xoshiro256 RNG;
         
+        inline bool increaseHP(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, int amount);
+
+        inline bool increaseMP(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, int amount);
+
+        std::vector<soundEnums> sounds = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
 
         std::unordered_map<classes, std::array<std::array<char, 2>, 8>> levelUpRanges = {
             // HP, MP, ATTACK, def, SPEED, DEXTERITY, VITALITY, WISDOM 
@@ -57,6 +63,7 @@ class StatSystem: public System{
         }
 
         inline void displayHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
+            if(healAmount == 0){return;}
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),
@@ -71,6 +78,7 @@ class StatSystem: public System{
         }
 
         inline void displayMpHealText(std::unique_ptr<Registry>& registry, const glm::vec2& playerPosition, const int& healAmount, const Entity& player){
+            if(healAmount == 0){return;}
             Entity dmgText = registry->CreateEntity();
             dmgText.AddComponent<TextLabelComponent>(
                 "+" + std::to_string(healAmount),
@@ -82,6 +90,20 @@ class StatSystem: public System{
                 player.GetCreationId()
                 );
             dmgText.AddComponent<TransformComponent>(playerPosition);
+        }
+
+        inline void displayDamgeText(std::unique_ptr<Registry>& registry, const glm::vec2& victimPosition, const int& dmg, const Entity& player){
+            Entity dmgText = registry->CreateEntity();
+            dmgText.AddComponent<TextLabelComponent>(
+                "-" + std::to_string(dmg),
+                "damagefont",
+                damagered,
+                false,
+                350,
+                player.GetId(),
+                player.GetCreationId()
+                );
+            dmgText.AddComponent<TransformComponent>(victimPosition);
         }
 
 

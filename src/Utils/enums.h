@@ -246,6 +246,12 @@ enum items{
     JUGGHELM,
     CRYSTALWAND,
     EPSTAFF,
+    MINORHPPOT,
+    MINORMPPOT,
+    CUBEJUICE,
+    FLAMINGFLASK,
+    GORDONINCANTATION,
+    ADMINSWORD,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -407,6 +413,7 @@ enum sprites{
     GRANDSPHINX,
     HORRIDREAPER1,
     HORRIDREAPER2,
+    REDLOOTBAG
 };
 
 enum soundEnums{
@@ -631,19 +638,9 @@ enum groups{
     HEAVYARMOR,
     RING,
     PORTAL,
-    /*all consumable group types must be entered below this line*/ 
-    HPPOTGROUP, // can just replace all of these with CONSUMABLE. I dont see why having all of these is necessary?
-    MPPOTGROUP,
-    ATTPOTGROUP,
-    DEFPOTGROUP,
-    DEXPOTGROUP,
-    SPDPOTGROUP,
-    WISPOTGROUP,
-    VITPOTGROUP,
-    LIFEPOTGROUP,
-    MANAPOTGROUP,
-    CABERNETGROUP,
-    FIREWATERGROUP,
+    CONSUMABLE,
+    SKULL,
+    SCEPTER
 };
 
 enum statuses{
@@ -965,7 +962,13 @@ enum textureEnums{
     CHRONUSDIRKICON,
     JUGGHELMICON,
     CRYSTALWANDICON,
-    EPSTAFFICON
+    EPSTAFFICON,
+    MINORHPICON,
+    MINORMPICON,
+    CUBEJUICEICON,
+    FLAMINGFLASKICON,
+    GORDONINCANTATIONICON,
+    ADMINSWORDICON,
 };
 
 #endif
