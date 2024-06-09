@@ -215,7 +215,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BOSSCHICKEN,
         {
             {
-                {100, {SPDPOT, DEXPOT}},
+                {25, {SPDPOT, DEXPOT}},
                 {2, {CHICKENTOME, CHICKENSWORD}},
                 {50, {CABERNET, FIREWATER}},
                 {20, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
@@ -223,6 +223,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {22, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
                 {24, {T2TOME, T2HELM, T2QUIVER}},
                 {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
+                {5, {GORDONINCANTATION}},
             }
         }
     },
@@ -285,6 +286,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {29, {T9SWORD, T9BOW, T9WAND}},
                 {5, {T10SWORD, T10BOW, T10WAND}},
                 {4, {T10HEAVYARMOR, T10ROBE, T10LIGHTARMOR}},
+                {9, {GORDONINCANTATION}},
             }
         }
     },
@@ -407,6 +409,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {20, {T7QUIVER, T7TOME, T7HELM}},
                 {76, {T6HELM, T6TOME, T6TOME, T12WAND, T12BOW, T12SWORD, T12LIGHTARMOR, T12HEAVYARMOR, T12ROBE}},
                 {77, {T5HELM, T5TOME, T5TOME, T11WAND, T11BOW, T11SWORD, T11LIGHTARMOR, T11HEAVYARMOR, T11ROBE}},
+                {25, {GORDONINCANTATION}},
             }
         }
     },
@@ -448,7 +451,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T8ARMOR},
                 {1, T4ABILITIES},
                 {1, T3RING},
-                {5, {ATTPOT}},
+                {5, {ATTPOT, DEXPOT}},
                 {7, HPMPPOT},
             }
         }
@@ -548,7 +551,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T8ARMOR},
                 {1, T4ABILITIES},
                 {1, T3RING},
-                {5, {ATTPOT}},
+                {5, {ATTPOT, DEXPOT}},
                 {7, HPMPPOT},
             }
         }
@@ -610,8 +613,10 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {10, T11ARMOR},
                 {10, T5ABILITIES},
                 {10, T4RING},
+                {25, {CUBEJUICE}},
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {2, {CHRONUSDIRK}} // todo dirk of chronus
+                {2, {CHRONUSDIRK}}, // todo dirk of chronus
+                {5, {GORDONINCANTATION}},
             }
         }
     },
@@ -620,6 +625,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {2, {HPPOT, MPPOT}},
+                {1, {CUBEJUICE}},
             }
         }
     },
@@ -628,6 +634,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {HPPOT, MPPOT}},
+                {1, {CUBEJUICE}},
             }
         }
     },
@@ -635,7 +642,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         YELLOWCUBE,
         {
             {
-                {5, {HPPOT, MPPOT}},
+                {3, {HPPOT, MPPOT}},
+                {1, {CUBEJUICE}},
             }
         }
     },
@@ -653,6 +661,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {HPPOT, MPPOT}},
+                {1, {FLAMINGFLASK}},
             }
         }
     },
@@ -661,6 +670,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {HPPOT, MPPOT}},
+                {1, {FLAMINGFLASK}},
             }
         }
     },
@@ -681,8 +691,10 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {10, T11ARMOR},
                 {10, T5ABILITIES},
                 {10, T4RING},
+                {25, {FLAMINGFLASK}},
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {2, {RETRIBUTIONCLOAK}}
+                {2, {RETRIBUTIONCLOAK}},
+                {5, {GORDONINCANTATION}},
             }
         }
     },
@@ -712,7 +724,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {3, T5ABILITIES},
                 {3, T4RING},
                 {33, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {1, {DOOMQUIVER}}
+                {1, {DOOMQUIVER}},
+                {2, {GORDONINCANTATION}},
             }
         }
     },
@@ -725,6 +738,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {8, {MITHRILSWORD}},
                 {5, {ATTACKPENDANT}},
                 {2, {CRYSTALWAND}},
+                {5, {GORDONINCANTATION}},
             }
         }
     },
@@ -754,7 +768,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {10, T5ABILITIES},
                 {10, T4RING},
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {2, {JUGGHELM}} 
+                {2, {JUGGHELM}}, 
+                {5, {GORDONINCANTATION}},
             }
         }
     },
@@ -1158,6 +1173,11 @@ std::unordered_map<items, const char *> consumableItemToInfo = {
     {MANAPOT, "+5 maximum MP"},
     {CABERNET, "+150 HP"},
     {FIREWATER, "+230 HP"},
+    {MINORHPPOT, "+50 HP"},
+    {MINORMPPOT, "+50 MP"},
+    {CUBEJUICE, "+120 HP, +120 MP"},
+    {FLAMINGFLASK, "-15 HP, invisible for 4 seconds"},
+    {GORDONINCANTATION, "Summons a portal to Gordon's Lair"}
 };
 
 std::unordered_map<classes, startingEquipment> classesToStartingItems = {
@@ -1800,6 +1820,12 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {JUGGHELM, JUGGHELMICON},
     {CRYSTALWAND, CRYSTALWANDICON},
     {EPSTAFF, EPSTAFFICON},
+    {MINORHPPOT, MINORHPICON},
+    {MINORMPPOT, MINORMPICON},
+    {CUBEJUICE, CUBEJUICEICON},
+    {FLAMINGFLASK, FLAMINGFLASKICON},
+    {GORDONINCANTATION, GORDONINCANTATIONICON},
+    {ADMINSWORD, ADMINSWORDICON}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -2046,7 +2072,13 @@ std::unordered_map<items, const char *> itemToName = {
     {CHRONUSDIRK, "Dirk of Cronus"},
     {JUGGHELM, "Helm of the Juggernaut"},
     {CRYSTALWAND, "Crystal Wand"},
-    {EPSTAFF, "Staff of Extreme Prejudice"}
+    {EPSTAFF, "Staff of Extreme Prejudice"},
+    {MINORHPPOT, "Minor Health Potion"},
+    {MINORMPPOT, "Minor Magic Potion"},
+    {CUBEJUICE, "Cube Juice"},
+    {FLAMINGFLASK, "Flaming Flask"},
+    {GORDONINCANTATION, "Gordon's Lair Incantation"},
+    {ADMINSWORD, "Admin Sword"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -2293,7 +2325,13 @@ std::unordered_map<items, const char *> itemToDescription = {
     {CHRONUSDIRK, "This legendary dagger was commissioned by a band of mad rogues to prove the worth of the Dirk"},
     {JUGGHELM, "This helm was forged of metal that fell from the sky. It is strangely light and emits a faint hum"},
     {CRYSTALWAND, "A stunning crystal wand that shoots piercing crystals while emanating a soft, wind chime-like sound"},
-    {EPSTAFF, "Once the most powerful staff in existence; a crack in its frame has rendered it incapable of focusing fire. It remains uniquely deadly"}
+    {EPSTAFF, "Once the most powerful staff in existence; a crack in its frame has rendered it incapable of focusing fire. It remains uniquely deadly"},
+    {MINORHPPOT, "A small potion that restores health points"},
+    {MINORMPPOT, "A small potion that restores magic points"},
+    {CUBEJUICE, "A sweet potion made from the fluid-gel of a gelatinous cube's core"},
+    {FLAMINGFLASK, "A scorching potion infused with the fire magic of a skull shrine"},
+    {GORDONINCANTATION, "A single-use incantation which summons Gordon's Lair"},
+    {ADMINSWORD, "A sword used by the admins"}
 };
 
 std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
@@ -2521,18 +2559,18 @@ std::unordered_map<items, groups> itemToGroup = {
     {T7HELM, HELM},
     {T8HELM, HELM},
     {ATTACKPENDANT,RING},
-    {HPPOT, HPPOTGROUP},
-    {MPPOT, MPPOTGROUP},
-    {ATTPOT, ATTPOTGROUP},
-    {DEFPOT, DEFPOTGROUP},
-    {DEXPOT, DEXPOTGROUP},
-    {SPDPOT, SPDPOTGROUP},
-    {WISPOT, WISPOTGROUP},
-    {VITPOT, VITPOTGROUP},
-    {LIFEPOT, LIFEPOTGROUP},
-    {MANAPOT, MANAPOTGROUP},
-    {CABERNET, CABERNETGROUP},
-    {FIREWATER, FIREWATERGROUP},
+    {HPPOT, CONSUMABLE},
+    {MPPOT, CONSUMABLE},
+    {ATTPOT, CONSUMABLE},
+    {DEFPOT, CONSUMABLE},
+    {DEXPOT, CONSUMABLE},
+    {SPDPOT, CONSUMABLE},
+    {WISPOT, CONSUMABLE},
+    {VITPOT, CONSUMABLE},
+    {LIFEPOT, CONSUMABLE},
+    {MANAPOT, CONSUMABLE},
+    {CABERNET, CONSUMABLE},
+    {FIREWATER, CONSUMABLE},
     {ADMINCROWN, RING},
     {CHICKENTOME, TOME},
     {SNAKESKINARMOR, LIGHTARMOR},
@@ -2544,6 +2582,12 @@ std::unordered_map<items, groups> itemToGroup = {
     {CHRONUSDIRK, DAGGER},
     {JUGGHELM, HELM},
     {CRYSTALWAND, WAND},
+    {MINORHPPOT, CONSUMABLE},
+    {MINORMPPOT, CONSUMABLE},
+    {CUBEJUICE, CONSUMABLE},
+    {FLAMINGFLASK, CONSUMABLE},
+    {GORDONINCANTATION, CONSUMABLE},
+    {ADMINSWORD, SWORD}
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
@@ -2555,8 +2599,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4CLOAK, PURPLELOOTBAG},
     {T5CLOAK, CYANLOOTBAG},
     {T6CLOAK, CYANLOOTBAG},
-    {T7CLOAK, CYANLOOTBAG},
-    {T8CLOAK, CYANLOOTBAG},
+    {T7CLOAK, REDLOOTBAG},
+    {T8CLOAK, REDLOOTBAG},
     {T0SPELL, BROWNLOOTBAG},
     {CURLYWHIRLYSPELL, WHITELOOTBAG},
     {T1SPELL, BROWNLOOTBAG},
@@ -2565,8 +2609,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4SPELL, PURPLELOOTBAG},
     {T5SPELL, CYANLOOTBAG},
     {T6SPELL, CYANLOOTBAG},
-    {T7SPELL, CYANLOOTBAG},
-    {T8SPELL, CYANLOOTBAG},
+    {T7SPELL, REDLOOTBAG},
+    {T8SPELL, REDLOOTBAG},
     {T0SHIELD, BROWNLOOTBAG},
     {T1SHIELD, BROWNLOOTBAG},
     {T2SHIELD, BROWNLOOTBAG},
@@ -2574,8 +2618,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4SHIELD, PURPLELOOTBAG},
     {T5SHIELD, CYANLOOTBAG},
     {T6SHIELD, CYANLOOTBAG},
-    {T7SHIELD, CYANLOOTBAG},
-    {T8SHIELD, CYANLOOTBAG},
+    {T7SHIELD, REDLOOTBAG},
+    {T8SHIELD, REDLOOTBAG},
     {T0STAFF, BROWNLOOTBAG},
     {T1STAFF, BROWNLOOTBAG},
     {T2STAFF, BROWNLOOTBAG},
@@ -2589,8 +2633,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10STAFF, CYANLOOTBAG},
     {T11STAFF, CYANLOOTBAG},
     {T12STAFF, CYANLOOTBAG},
-    {T13STAFF, CYANLOOTBAG},
-    {T14STAFF, CYANLOOTBAG},
+    {T13STAFF, REDLOOTBAG},
+    {T14STAFF, REDLOOTBAG},
     {T0DAGGER, BROWNLOOTBAG},
     {T1DAGGER, BROWNLOOTBAG},
     {T2DAGGER, BROWNLOOTBAG},
@@ -2604,8 +2648,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10DAGGER, CYANLOOTBAG},
     {T11DAGGER, CYANLOOTBAG},
     {T12DAGGER, CYANLOOTBAG},
-    {T13DAGGER, CYANLOOTBAG},
-    {T14DAGGER, CYANLOOTBAG},
+    {T13DAGGER, REDLOOTBAG},
+    {T14DAGGER, REDLOOTBAG},
     {SNAKESKINARMOR, CYANLOOTBAG},
     {CHICKENTOME, WHITELOOTBAG},
     {ADMINCROWN, BROWNLOOTBAG},
@@ -2622,8 +2666,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10SWORD, CYANLOOTBAG},
     {T11SWORD, CYANLOOTBAG},
     {T12SWORD, CYANLOOTBAG},
-    {T13SWORD, CYANLOOTBAG},
-    {T14SWORD, CYANLOOTBAG},
+    {T13SWORD, REDLOOTBAG},
+    {T14SWORD, REDLOOTBAG},
     {IMPBLADE, WHITELOOTBAG},
     {T0BOW, BROWNLOOTBAG},
     {T1BOW, BROWNLOOTBAG},
@@ -2638,8 +2682,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10BOW, CYANLOOTBAG},
     {T11BOW, CYANLOOTBAG},
     {T12BOW, CYANLOOTBAG},
-    {T13BOW, CYANLOOTBAG},
-    {T14BOW, CYANLOOTBAG},
+    {T13BOW, REDLOOTBAG},
+    {T14BOW, REDLOOTBAG},
     {T0WAND, BROWNLOOTBAG},
     {T1WAND, BROWNLOOTBAG},
     {T2WAND, BROWNLOOTBAG},
@@ -2653,8 +2697,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10WAND, CYANLOOTBAG},
     {T11WAND, CYANLOOTBAG},
     {T12WAND, CYANLOOTBAG},
-    {T13WAND, CYANLOOTBAG},
-    {T14WAND, CYANLOOTBAG},
+    {T13WAND, REDLOOTBAG},
+    {T14WAND, REDLOOTBAG},
     {T0ATTRING, BROWNLOOTBAG},
     {T1ATTRING, BROWNLOOTBAG},
     {T2ATTRING, PURPLELOOTBAG},
@@ -2709,8 +2753,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10LIGHTARMOR, CYANLOOTBAG},
     {T11LIGHTARMOR, CYANLOOTBAG},
     {T12LIGHTARMOR, CYANLOOTBAG},
-    {T13LIGHTARMOR, CYANLOOTBAG},
-    {T14LIGHTARMOR, CYANLOOTBAG},
+    {T13LIGHTARMOR, REDLOOTBAG},
+    {T14LIGHTARMOR, REDLOOTBAG},
     {T0HEAVYARMOR, BROWNLOOTBAG},
     {T1HEAVYARMOR, BROWNLOOTBAG},
     {T2HEAVYARMOR, BROWNLOOTBAG},
@@ -2724,8 +2768,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10HEAVYARMOR, CYANLOOTBAG},
     {T11HEAVYARMOR, CYANLOOTBAG},
     {T12HEAVYARMOR, CYANLOOTBAG},
-    {T13HEAVYARMOR, CYANLOOTBAG},
-    {T14HEAVYARMOR, CYANLOOTBAG},
+    {T13HEAVYARMOR, REDLOOTBAG},
+    {T14HEAVYARMOR, REDLOOTBAG},
     {T0ROBE, BROWNLOOTBAG},
     {T1ROBE, BROWNLOOTBAG},
     {T2ROBE, BROWNLOOTBAG},
@@ -2739,8 +2783,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T10ROBE, CYANLOOTBAG},
     {T11ROBE, CYANLOOTBAG},
     {T12ROBE, CYANLOOTBAG},
-    {T13ROBE, CYANLOOTBAG},
-    {T14ROBE, CYANLOOTBAG},
+    {T13ROBE, REDLOOTBAG},
+    {T14ROBE, REDLOOTBAG},
     {T0QUIVER, BROWNLOOTBAG},
     {T1QUIVER, BROWNLOOTBAG},
     {DOOMQUIVER, WHITELOOTBAG},
@@ -2750,8 +2794,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4QUIVER, PURPLELOOTBAG},
     {T5QUIVER, CYANLOOTBAG},
     {T6QUIVER, CYANLOOTBAG},
-    {T7QUIVER, CYANLOOTBAG},
-    {T8QUIVER, CYANLOOTBAG},
+    {T7QUIVER, REDLOOTBAG},
+    {T8QUIVER, REDLOOTBAG},
     {T0TOME, BROWNLOOTBAG},
     {T1TOME, BROWNLOOTBAG},
     {T2TOME, BROWNLOOTBAG},
@@ -2759,8 +2803,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4TOME, PURPLELOOTBAG},
     {T5TOME, CYANLOOTBAG},
     {T6TOME, CYANLOOTBAG},
-    {T7TOME, CYANLOOTBAG},
-    {T8TOME, CYANLOOTBAG},
+    {T7TOME, REDLOOTBAG},
+    {T8TOME, REDLOOTBAG},
     {T0HELM, BROWNLOOTBAG},
     {T1HELM, BROWNLOOTBAG},
     {T2HELM, BROWNLOOTBAG},
@@ -2768,8 +2812,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T4HELM, PURPLELOOTBAG},
     {T5HELM, CYANLOOTBAG},
     {T6HELM, CYANLOOTBAG},
-    {T7HELM, CYANLOOTBAG},
-    {T8HELM, CYANLOOTBAG},
+    {T7HELM, REDLOOTBAG},
+    {T8HELM, REDLOOTBAG},
     {ATTACKPENDANT, CYANLOOTBAG},
     {HPPOT, BROWNLOOTBAG},
     {MPPOT, BROWNLOOTBAG},
@@ -2791,9 +2835,14 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {CHRONUSDIRK, WHITELOOTBAG},
     {JUGGHELM, WHITELOOTBAG},
     {CRYSTALWAND, WHITELOOTBAG},
-    {EPSTAFF, WHITELOOTBAG}
-
-};
+    {EPSTAFF, WHITELOOTBAG},
+    {MINORHPPOT, BROWNLOOTBAG},
+    {MINORMPPOT, BROWNLOOTBAG},
+    {CUBEJUICE, PURPLELOOTBAG},
+    {FLAMINGFLASK, PURPLELOOTBAG},
+    {GORDONINCANTATION, REDLOOTBAG},
+    {ADMINSWORD, WHITELOOTBAG},
+};  
 
 // DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
 std::unordered_map<items, spritedata> itemEnumTospriteData = {
@@ -2858,6 +2907,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {ARCWAND, {LOFIOBJ2, 8, 8, {8*7, 8*11, 8, 8}, 12, true, false}},
     {ARCTOME, {LOFIOBJ3, 8, 8, {8*5, 8*2, 8, 8}, 12, true, false}},
     {T0SWORD, {LOFIOBJ5, 8, 8, {8*0, 8*3, 8, 8}, 12, true, false}},
+    {ADMINSWORD, {LOFIOBJ5, 8, 8, {8*0, 8*3, 8, 8}, 12, true, false}},
     {T1SWORD, {LOFIOBJ5, 8, 8, {8*1, 8*3, 8, 8}, 12, true, false}},
     {T2SWORD, {LOFIOBJ5, 8, 8, {8*2, 8*3, 8, 8}, 12, true, false}},
     {T3SWORD, {LOFIOBJ5, 8, 8, {8*3, 8*3, 8, 8}, 12, true, false}},
@@ -3041,11 +3091,17 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {JUGGHELM, {LOFIOBJ2, 8, 8, {8*2, 8*5, 8, 8}, 12, true, false}},
     {CHRONUSDIRK, {LOFIOBJ2, 8, 8, {8*4, 8*5, 8, 8}, 12, true, false}},
     {EPSTAFF, {LOFIOBJ2, 8, 8, {8*11, 8*6, 8, 8}, 12, true, false}},
-    
+    {MINORHPPOT, {LOFIOBJ2, 8, 8 ,{8*6, 8*15, 8, 8}, 12, true, false}},
+    {MINORMPPOT, {LOFIOBJ2, 8, 8 ,{8*7, 8*15, 8, 8}, 12, true, false}},
+    {CUBEJUICE, {LOFIOBJ2, 8, 8 ,{8*2, 8*11, 8, 8}, 12, true, false}},
+    {FLAMINGFLASK, {LOFIOBJ2, 8, 8 ,{8*1, 8*14, 8, 8}, 12, true, false}},
+    {GORDONINCANTATION, {LOFIOBJ2, 8, 8 ,{8*11, 8*11, 8, 8}, 12, true, false}}    
 };
 
 //PECbools = piercing, diagonal, inflictsSE, ignoresdef, oscillates
 std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
+    //                  duration, speed, mindmg, maxdmg, shots, arcgap
+    {ADMINSWORD, {BITS_NONE,1500, 640, 5000, 10000, 1, 0.0f, BLADE}},
     {T0SWORD, {BITS_NONE,350, 640, 45, 90, 1, 0.0f, BLADE}},
     {T1SWORD, {BITS_NONE,350, 640, 60, 105, 1, 0.0f, BLADE}},
     {T2SWORD, {BITS_NONE,350, 640, 75, 105, 1, 0.0f, BLADE}},
@@ -3410,20 +3466,6 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
 
 // GIVEN A SPRITE ENUM, RETURNS THE ASSOCIATE SPRITE COMPONENT DATA
 std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
-    // {REDMAGIC,{LOFIOBJ, 3, 6, {4*8+3, 8*13+1, 3, 6}, 3, false, false}},
-    // {BLUEMAGIC,{LOFIOBJ, 3, 6, {4*8+3, 8*14, 3, 6}, 3, false, false}},
-    // {GREENMAGIC,{LOFIOBJ, 3, 6, {12*8+3, 8*13+1, 3, 6}, 3, false, false}},
-    // {PURPLEMAGIC,{LOFIOBJ, 3, 6, {12*8+3, 8*14, 3, 6}, 3,false, false}},
-    // {DEFAULTBLADE,{LOFIOBJ, 1, 6, {4*8+4, 8*15, 1, 6}, 3, false, false}},
-    // {WHITEBOLT,{LOFIOBJ, 8, 8, {10*8, 8*8, 8, 8}, 3, false, true}},
-    // {REDBOLT,{LOFIOBJ, 8, 8, {10*8, 8*9, 8, 8}, 3,false, true}},
-    // {GREENBOLT,{LOFIOBJ, 8, 8, {10*8, 8*10, 8, 8}, 3,false, true}},
-    // {BLUEBOLT,{LOFIOBJ, 8, 8, {10*8, 8*11, 8, 8}, 3,false, true}},
-    // {PURPLEBOLT,{LOFIOBJ, 8, 8, {10*8, 8*12, 8, 8}, 3,false, true}},
-    // {GREENARROW,{LOFIPROJS, 8, 8, {8, 8*7, 8, 8}, 3,false, true}},
-    // {REDARROW,{LOFIPROJS, 8, 8, {8*2, 8*7, 8, 8}, 3,false, true}},
-    // {BLUEARROW,{LOFIPROJS, 8, 8, {8*3, 8*7, 8, 8}, 3,false, true}},
-    // {GOLDARROW,{LOFIPROJS, 8, 8, {8*4, 8*7, 8, 8}, 3,false, true}},
     {SKELETON0,{CHAR8X8RHERO1, 8,8, {0,8*1,8,8}, 4, false, false}},
     {SKELETON1,{CHAR8X8RHERO1, 8,8, {0,8*2,8,8}, 4, false, false}},
     {SKELETON2,{CHAR8X8RHERO1, 8,8, {0,8*3,8,8}, 4, false, false}},
@@ -3432,25 +3474,15 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {BLACKSLIME,{LOFICHAR, 8,8, {0,8*11,8,8}, 4, false, false}},
     {BROWNSLIME,{LOFICHAR, 8,8, {8*1,8*11,8,8}, 4, false, false}},
     {GREENSLIME,{LOFICHAR, 8,8, {8*2,8*11,8,8}, 4, false, false}},
-    // {BOBBY, {LOFICHAR, 7,7, {8*6,8*24+1,7,7}, 4, false, false}},
     {REDKNIGHT0, {LOFICHAR,8,8,{8*9,8*0,8,8},4,false,false}},
-    // {REDCIRCLEMAGIC,{LOFIOBJ,8,8,{8*1,8*9,8,8},3,false,false}},
     {SHATTERSBOMB, {LOFICHAR,8,8,{8*0,8*28,8,8},4,false,false}},
     {BROWNLOOTBAG, {LOFIOBJ4,8,8,{8*0,8*9,8,8},4,false,false}},
     {PURPLELOOTBAG, {LOFIOBJ4,8,8,{8*1,8*9,8,8},4,false,false}},
     {CYANLOOTBAG, {LOFIOBJ4,8,8,{8*2,8*9,8,8},4,false,false}},
     {BLUELOOTBAG, {LOFIOBJ4,8,8,{8*3,8*9,8,8},4,false,false}},
     {WHITELOOTBAG, {LOFIOBJ4,8,8,{8*4,8*9,8,8},4,false,false}},
+    {REDLOOTBAG, {LOFIOBJ4,8,8,{8*8,8*13,8,8},4,false,false}},
     {VAULTCHEST, {LOFIOBJ2,8,8,{8*14,8*0,8,8},4,false,false}},
-    // {REDSTAR, {LOFIOBJ,8,8,{8*0,8*6,8,8},4,false,false}}, // bleeding
-    // {WHITESTAR, {LOFIOBJ,8,8,{8*6,8*6,8,8},4,false,false}}, // piercing shot
-    // {BLUESTAR, {LOFIOBJ,8,8,{8*3,8*6,8,8},4,false,false}}, // confuse 
-    // {REDFIREBALL, {LOFIOBJ3,8,8,{8*1,8*22,8,8},4,false,false}},
-    // {GREENSTAR, {LOFIOBJ,8,8,{8*3,8*7,8,8},4,false,false}}, // quiet
-    // {PURPLESTAR, {LOFIOBJ,8,8,{8*0,8*7,8,8},4,false,false}}, // slowed
-    // {YELLOWSTAR, {LOFIOBJ,8,8,{8*6,8*7,8,8},4,false,false}}, // blind
-    // {ORYXTEAR, {LOFIOBJ2, 8, 8, {8*1, 8*4, 8,8},4,false,true}},
-    // {ORYXARROW, {LOFIOBJ3, 8, 8, {8*6, 8*47, 8,8},4,false,false}},
 
     {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
     {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},

@@ -191,8 +191,8 @@ void Game::ProcessInput(){
                                 auto& playerIC = player.GetComponent<PlayerItemsComponent>();
                                 if(inventory.find(inventoryNumber+1) != inventory.end()){
                                     const auto& itemEnum = inventory.at(inventoryNumber+1).GetComponent<ItemComponent>().itemEnum;
-                                    if(static_cast<int>(itemToGroup.at(itemEnum)) >= static_cast<int>(HPPOTGROUP)){ // magic number, start of end of group enums which contains consumable items
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, inventoryNumber+1);    
+                                    if(itemToGroup.at(itemEnum) == CONSUMABLE){ 
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, inventoryNumber+1);    
                                     } else {
                                         assetStore->PlaySound(ERROR);
                                     }
@@ -232,13 +232,13 @@ void Game::ProcessInput(){
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            factory->createItemInBag(registry, JUGGHELM, lootbag);
-                            factory->createItemInBag(registry, EPSTAFF, lootbag);
-                            factory->createItemInBag(registry, CHRONUSDIRK, lootbag);
-                            factory->createItemInBag(registry, T10SWORD, lootbag);
-                            factory->createItemInBag(registry, T10HEAVYARMOR, lootbag);
-                            factory->createItemInBag(registry, T4SHIELD, lootbag);
-                            factory->createItemInBag(registry, T4HPRING, lootbag);
+                            factory->createItemInBag(registry, CUBEJUICE, lootbag);
+                            factory->createItemInBag(registry, MINORHPPOT, lootbag);
+                            factory->createItemInBag(registry, MINORMPPOT, lootbag);
+                            factory->createItemInBag(registry, FLAMINGFLASK, lootbag);
+                            factory->createItemInBag(registry, T14BOW, lootbag);
+                            factory->createItemInBag(registry, ADMINSWORD, lootbag);
+                            factory->createItemInBag(registry, GORDONINCANTATION, lootbag);
                             player.GetComponent<BaseStatComponent>().xp += 20000;
                             factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
                         } break;
@@ -971,7 +971,7 @@ void Game::PopulateItemIconsInAssetStore(){
         std::string name = itemToName.at(itemEnum);
         std::string description = itemToDescription.at(itemEnum);
         std::vector<std::string> info; // keep pushing back new info lines as needed!
-        if(static_cast<int>(itemToGroup.at(itemEnum)) >= static_cast<int>(HPPOTGROUP)){ // magic number, start of end of group enums which contains consumable items
+        if(itemToGroup.at(itemEnum) == CONSUMABLE){ 
             std::string onConsumption = "On Consumption: ";
             onConsumption.append(consumableItemToInfo.at(itemEnum));
             info.push_back(onConsumption);
@@ -2550,9 +2550,9 @@ void Game::SpawnAreaEntities(wallTheme area){
             if(playerLevel < 20){
                 factory->spawnPortal(registry, glm::vec2(900,600), LOCKEDPORTALTHEME);
             } else {
-                factory->spawnPortal(registry, glm::vec2(900,600), GORDONSLAIRWALLTHEME); // todo spawn gordon's lair
+                factory->spawnPortal(registry, glm::vec2(900,600), GODLANDS); // todo spawn gordon's lair
             }
-            factory->spawnPortal(registry, glm::vec2(750,1350), GODLANDS);
+            // factory->spawnPortal(registry, glm::vec2(750,1350), GODLANDS);
         } break;
         case GORDONSLAIRWALLTHEME:{
             Entity boss = factory->spawnMonster(registry, glm::vec2(848,970), GORDON);

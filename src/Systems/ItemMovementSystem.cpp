@@ -49,29 +49,29 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                             if(my < 561){ 
                                 if(mx < 877){ 
                                     if(mx < 819){ //1
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1);    
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 1);    
                                     } else { //2
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 2);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 2);
                                     }
                                 } else { 
                                     if(mx < 934){ // 3 
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 3);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 3);
                                     } else { // 4
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 4);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 4);
                                     }
                                 }
                             } else { 
                                 if(mx < 877){ 
                                     if(mx < 819){ //5
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 5);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 5);
                                     } else { //6
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 6);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 6);
                                     }
                                 } else { 
                                     if(mx < 934){ // 7
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 7);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 7);
                                     } else { // 8
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 8);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 8);
                                     }
                                 }
                             }
@@ -79,29 +79,29 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                             if(my < 686){ // 1-4
                                 if(mx < 877){ 
                                     if(mx < 819){ //1
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 1, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 1, false);
                                     } else { //2
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 2, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 2, false);
                                     }
                                 } else { // 3-4
                                     if(mx < 934){ // 3 
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 3, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 3, false);
                                     } else { // 4
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 4, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 4, false);
                                     }
                                 }
                             } else { // 5-8
                                 if(mx < 877){ // 56
                                     if(mx < 819){ //5
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 5, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 5, false);
                                     } else { //6
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 6, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 6, false);
                                     }
                                 } else { // 3-4
                                     if(mx < 934){ // 7 
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 7, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 7, false);
                                     } else { // 8
-                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, 8, false);
+                                        eventBus->EmitEvent<DrinkConsumableEvent>(player, itemEnum, registry, assetStore, eventBus, factory, 8, false);
                                     }
                                 }
                             }

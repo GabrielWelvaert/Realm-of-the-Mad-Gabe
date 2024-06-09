@@ -10,39 +10,109 @@ void StatSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<DrinkConsumableEvent>(this, &StatSystem::onDrinkConsumablePot);
 }
 
+bool StatSystem::increaseHP(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, int amount){
+    auto& hpmp = player.GetComponent<HPMPComponent>();
+    if(hpmp.activehp == hpmp.maxhp){
+        assetstore->PlaySound(ERROR);
+        return false; // false indicates invalid consumption attempt; exit onDrinkConsumablePot event
+    }
+    hpmp.activehp += amount;
+    if(hpmp.activehp > hpmp.maxhp){
+        displayHealText(registry, player.GetComponent<TransformComponent>().position, amount - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), player);
+        hpmp.activehp = hpmp.maxhp;
+    } else {
+        displayHealText(registry, player.GetComponent<TransformComponent>().position, amount, player);
+    }
+    return true;
+}
+
+bool StatSystem::increaseMP(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetstore, int amount){
+    auto& hpmp = player.GetComponent<HPMPComponent>();
+    if(hpmp.activemp == hpmp.maxmp || player.GetComponent<StatusEffectComponent>().effects[QUIET]){
+        assetstore->PlaySound(ERROR);
+        return false;
+    }
+    hpmp.activemp += amount;
+    if(hpmp.activemp > hpmp.maxmp){
+        displayMpHealText(registry, player.GetComponent<TransformComponent>().position, amount - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), player);
+        hpmp.activemp = hpmp.maxmp;
+    } else {
+        displayMpHealText(registry, player.GetComponent<TransformComponent>().position, amount, player);
+    }
+    return true;
+}
+
 void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& player = event.player;
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     auto& inventory = playerIC.inventory;
     switch(event.itemEnum){
+        case GORDONINCANTATION:{
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, GORDONSLAIRWALLTHEME);
+        } break;
         case HPPOT:{
-            auto& hpmp = player.GetComponent<HPMPComponent>();
-            if(hpmp.activehp == hpmp.maxhp){
-                event.assetstore->PlaySound(ERROR);
-                return;
-            }
-            hpmp.activehp += 100;
-            if(hpmp.activehp > hpmp.maxhp){
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
-                hpmp.activehp = hpmp.maxhp;
-            } else {
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 100, event.player);
+            if(!increaseHP(player, event.registry, event.assetstore, 100)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
             }
         }break;
         case MPPOT: {
+            if(!increaseMP(player, event.registry, event.assetstore, 100)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
+            }
+        }break;
+        case CABERNET:{
+            if(!increaseHP(player, event.registry, event.assetstore, 150)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
+            }
+        }break;
+        case FIREWATER:{
+            if(!increaseHP(player, event.registry, event.assetstore, 230)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
+            }
+        }break;
+        case MINORHPPOT:{
+            if(!increaseHP(player, event.registry, event.assetstore, 50)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
+            }
+        } break;
+        case MINORMPPOT:{
+            if(!increaseMP(player, event.registry, event.assetstore, 50)){
+                return; // invalid consumption attempt; exit onDrinkConsumablePot event
+            }
+        } break;
+        case CUBEJUICE:{
             auto& hpmp = player.GetComponent<HPMPComponent>();
-            if(hpmp.activemp == hpmp.maxmp || player.GetComponent<StatusEffectComponent>().effects[QUIET]){
+            if(hpmp.activehp == hpmp.maxhp && hpmp.activemp == hpmp.maxmp){
                 event.assetstore->PlaySound(ERROR);
                 return;
             }
-            hpmp.activemp += 100;
+            hpmp.activehp += 120;
+            if(hpmp.activehp > hpmp.maxhp){
+                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 120 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), player);
+                hpmp.activehp = hpmp.maxhp;
+            } else {
+                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 120, player);
+            }
+            hpmp.activemp += 120;
             if(hpmp.activemp > hpmp.maxmp){
-                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), event.player);
+                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), player);
                 hpmp.activemp = hpmp.maxmp;
             } else {
-                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 100, event.player);
+                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120, player);
             }
-        }break;
+        } break;
+        case FLAMINGFLASK:{
+            auto& hpmp = player.GetComponent<HPMPComponent>();
+            if(hpmp.activehp <= 15){
+                displayDamgeText(event.registry, event.player.GetComponent<TransformComponent>().position, hpmp.activehp, player);
+                hpmp.activehp = 0.0;
+            } else{
+                displayDamgeText(event.registry, event.player.GetComponent<TransformComponent>().position, 15, player);
+                hpmp.activehp -= 15;
+            }
+            event.eventbus->EmitEvent<StatusEffectEvent>(player, INVISIBLE, event.eventbus, event.registry, 4000);
+            event.assetstore->PlaySound(RNG.randomFromVector(sounds));
+        } break;
         case ATTPOT:{
             auto& basestats = player.GetComponent<BaseStatComponent>();
             auto& offensestats = player.GetComponent<OffenseStatComponent>();
@@ -142,35 +212,6 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
             }
             event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
         }break;
-        case CABERNET:{
-            auto& hpmp = player.GetComponent<HPMPComponent>();
-            if(hpmp.activehp == hpmp.maxhp){
-                event.assetstore->PlaySound(ERROR);
-                return;
-            }
-            hpmp.activehp += 150;
-            if(hpmp.activehp > hpmp.maxhp){
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
-                hpmp.activehp = hpmp.maxhp;
-            } else {
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 150, event.player);
-            }
-        }break;
-        case FIREWATER:{
-            auto& hpmp = player.GetComponent<HPMPComponent>();
-            if(hpmp.activehp == hpmp.maxhp){
-                event.assetstore->PlaySound(ERROR);
-                return;
-            }
-            hpmp.activehp += 230;
-            if(hpmp.activehp > hpmp.maxhp){
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230 - (static_cast<int>(hpmp.activehp) - static_cast<int>(hpmp.maxhp)), event.player);
-                hpmp.activehp = hpmp.maxhp;
-            } else {
-                displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 230, event.player);
-            }
-        }break;
-
     }
     event.assetstore->PlaySound(POTION);
     playerIC.shiftblock = false;
