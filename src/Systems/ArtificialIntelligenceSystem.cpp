@@ -252,6 +252,7 @@ void AnimatedChaseAISystem::Update(const Entity& player){
                         ac.xmin = 0;
                         ac.numFrames = 1;
                     }
+                    playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
                 } else { // shoot, chase
                     if(chasePosition(position, playerPos, velocity) < 0){ // facing left
                         flip = SDL_FLIP_HORIZONTAL;
@@ -423,7 +424,12 @@ void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         const auto& engageRange = entity.GetComponent<OrbitShootMinionComponent>().shootRange;
-        distanceToPlayer < engageRange ? isShooting = true : isShooting = false;
+        const auto& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        if(distanceToPlayer < engageRange && !playerInvisible && !stunned){
+            isShooting = true;
+        } else {
+            isShooting = false;
+        }
         auto& oc = entity.GetComponent<OrbitalMovementComponent>();
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -477,7 +483,12 @@ void StandShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         const auto& ssmc = entity.GetComponent<StandShootMinionComponent>();
-        distanceToPlayer < ssmc.shootRange ? isShooting = true : isShooting = false;
+        const auto& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        if(distanceToPlayer < ssmc.shootRange && !playerInvisible && !stunned){
+            isShooting = true;
+        } else {
+            isShooting = false;
+        }
         auto& position = entity.GetComponent<TransformComponent>().position;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         if(!playerInvisible){
@@ -522,7 +533,7 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
         const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-        if(distanceToPlayer > 1500){
+        if(distanceToPlayer >= DISTANCE_TO_CONTINUE){
             velocity.x = velocity.y = 0;
             continue;
         }

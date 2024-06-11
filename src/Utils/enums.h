@@ -252,6 +252,8 @@ enum items{
     FLAMINGFLASK,
     GORDONINCANTATION,
     ADMINSWORD,
+    SPDTINCTURE,
+    DEFTINCTURE,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -338,7 +340,8 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     SCALED7,
     SCALED8,
     SCALED4,
-    BIGSCALED8
+    BIGSCALED8,
+    STANDARDFLOATING
 };
 
 // sprites enum act like primary keys for monsters, lootbags, and portals
@@ -413,7 +416,31 @@ enum sprites{
     GRANDSPHINX,
     HORRIDREAPER1,
     HORRIDREAPER2,
-    REDLOOTBAG
+    REDLOOTBAG,
+    DUCK,
+    GHOSTKING,
+    GHOSTARCHER,
+    GHOSTWARRIOR,
+    GHOSTWIZARD,
+    GHOSTASSASSIN,
+    GHOSTPALADIN,
+    GHOSTSTATUE,
+    REAPER,
+    CULTIST,
+    CHICKENEGG,
+    CRACKEDWHITEEGG,
+    BROWNSLIMESMALL,
+    BROWNSLIMEMEDIUM,
+    BROWNSLIMELARGE,
+    BLACKSLIMESMALL,
+    BLACKSLIMEMEDIUM,
+    BLACKSLIMELARGE,
+    GREYSPIRIT,
+    BLUESPIRIT,
+    WHITESPIRIT,
+    SHADE,
+    FLOATINGSKULL,
+    POTCHEST
 };
 
 enum soundEnums{
@@ -969,6 +996,8 @@ enum textureEnums{
     FLAMINGFLASKICON,
     GORDONINCANTATIONICON,
     ADMINSWORDICON,
+    SPDTINCTUREICON,
+    DEFTINCTUREICON
 };
 
 #endif

@@ -87,12 +87,17 @@ class SecondaryProjectileEmitSystem: public System{
         }
 
         inline void MedusaBomb(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry, sprites spriteEnum, int damage = 150){
-            glm::vec2 bigCenter = {monster.GetComponent<TransformComponent>().position.x + 32, monster.GetComponent<TransformComponent>().position.y + 32};
+            const auto& transform = monster.GetComponent<TransformComponent>();
+            const auto& sprite = monster.GetComponent<SpriteComponent>();
+            auto distance = glm::distance(playerPos, transform.position);
+            glm::vec2 center = {(transform.position.x + ((sprite.width * transform.scale.x) / 2) - 20), 
+                                transform.position.y + ((sprite.height * transform.scale.y) / 2) - 20};
             const SDL_Rect redsquare = {0,8*5,8,8};
             Entity square = registry->CreateEntity();
-            square.AddComponent<TransformComponent>(bigCenter, glm::vec2(5.0,5.0));
-            square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,5,false,false); // experimenting w/ zaxiz of 5 for this                           // height, speed
-            square.AddComponent<ParabolicMovementComponent>(glm::vec3(bigCenter.x, bigCenter.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, .8, PARABOLIC_MEDUSA_AOE_BOMB);
+            auto speed = 0.8 * std::exp((std::log(0.625) / 1000) * distance); // ranges between .8 and .6 so distant bombs take longer to arrive
+            square.AddComponent<TransformComponent>(center, glm::vec2(5.0,5.0));
+            square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,5,false,false); // experimenting w/ zaxiz of 5 for this                           // height, speed 
+            square.AddComponent<ParabolicMovementComponent>(glm::vec3(center.x, center.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, speed, PARABOLIC_MEDUSA_AOE_BOMB);
             square.AddComponent<ProjectileComponent>(damage,INT_MAX,0,monster, 0, spriteEnum); // bogus projectile component needed for damage event logic
         }
 
@@ -234,6 +239,44 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.Group(PROJECTILE);
         }   
 
+        inline void paralyzedStar(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
+            const auto& sprite = monster.GetComponent<SpriteComponent>();
+            const auto& transform = monster.GetComponent<TransformComponent>();
+            glm::vec2 center = {(transform.position.x + ((sprite.width * transform.scale.x) / 2) - 20), 
+                                transform.position.y + ((sprite.height * transform.scale.y) / 2) - 20};
+            glm::vec2 velocity;
+            float rotationDegrees = getRotationFromCoordiante(500, center.x, center.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            projectilePPD data = {BLACKSTAR};
+            Entity projectile = registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+            projectile.AddComponent<TransformComponent>(center, glm::vec2(5.0,5.0));
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.AddComponent<RotationComponent>();
+            projectile.AddComponent<ProjectileComponent>(15, 2700, false, monster, 0, SHADE, true, PARALYZE, 2000);
+            projectile.Group(PROJECTILE);
+        }  
+
+        inline void chicken(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
+            const auto& sprite = monster.GetComponent<SpriteComponent>();
+            const auto& transform = monster.GetComponent<TransformComponent>();
+            glm::vec2 center = {(transform.position.x + ((sprite.width * transform.scale.x) / 2) - 20), 
+                                transform.position.y + ((sprite.height * transform.scale.y) / 2) - 20};
+            glm::vec2 velocity;
+            float rotationDegrees = getRotationFromCoordiante(400, center.x, center.y, playerPos.x+20, playerPos.y+8, velocity, false);
+            projectilePPD data = {CHICKENBOLT};
+            Entity projectile = registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+            projectile.AddComponent<TransformComponent>(center, glm::vec2(5.0,5.0));
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.AddComponent<RotationComponent>();
+            projectile.AddComponent<ProjectileComponent>(30, 2700, false, monster, 0, BOSSCHICKEN, false);
+            projectile.Group(PROJECTILE);
+        }
+
         inline void fireBolt(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
             const auto& sprite = monster.GetComponent<SpriteComponent>();
             const auto& transform = monster.GetComponent<TransformComponent>();
@@ -251,6 +294,24 @@ class SecondaryProjectileEmitSystem: public System{
             projectile.AddComponent<ProjectileComponent>(100, 2500, false, monster, 0, ORANGECUBE);
             projectile.Group(PROJECTILE);
         }  
+
+        inline void bigArrow(Entity monster, const glm::vec2& playerPos, std::unique_ptr<Registry>& registry){
+            const auto& sprite = monster.GetComponent<SpriteComponent>();
+            const auto& transform = monster.GetComponent<TransformComponent>();
+            glm::vec2 center = {(transform.position.x + ((sprite.width * transform.scale.x) / 2) - 20), 
+                                transform.position.y + ((sprite.height * transform.scale.y) / 2) - 20};
+            glm::vec2 velocity;
+            float rotationDegrees = getRotationFromCoordiante(512, center.x, center.y, playerPos.x+20, playerPos.y+8, velocity, true);
+            projectilePPD data = {BLACKARROW};
+            Entity projectile = registry->CreateEntity();
+            projectile.AddComponent<RidigBodyComponent>(velocity);
+            projectile.AddComponent<SpriteComponent>(data.texture, data.rect);
+            projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
+            projectile.AddComponent<TransformComponent>(center, glm::vec2(5.0,5.0), rotationDegrees);
+            projectile.AddComponent<LinearProjectileComponent>();
+            projectile.AddComponent<ProjectileComponent>(100, 2500, false, monster, 0, GHOSTARCHER, true, SLOWED, 3000);
+            projectile.Group(PROJECTILE);
+        }
 
     public:
         SecondaryProjectileEmitSystem();

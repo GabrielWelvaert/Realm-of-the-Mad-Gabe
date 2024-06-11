@@ -4,6 +4,7 @@
 #include "../ECS/ECS.h"
 #include "../Components/TransformComponent.h"
 #include "../Components/DistanceToPlayerComponent.h"
+#include "../Components/BoxColliderComponent.h"
 
 class DistanceToPlayerSystem: public System{
     private:

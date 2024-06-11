@@ -16,17 +16,16 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
             auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
             auto numEventBosses = registry->numEntitiesPerMonsterSubGroup(EVENTBOSS);
             bool spawnedEventBossThisFrame = false;
+            bool spawnedPotChestThisFrame = false;
             esc.lastSpawnTime = time;
             int numMonstersSpawnedThisFrame = 0;
             switch(numEventBosses){
                 case 0:{
                     chanceOfEventBoss = 4; // 4/100 chance
                 } break;
-                case 1:{
-                    chanceOfEventBoss = 3; // 3/100 chance 
-                } break;
+                case 1:
                 case 2:{
-                    chanceOfEventBoss = 2; // 2/100 chance
+                    chanceOfEventBoss = 1; // 1/100 chance
                 } break;
             }
 
@@ -53,7 +52,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                 glm::vec2 spawnPosUnscaled = {(playerPos.x + offsetX)/64, (playerPos.y + offsetY)/64};
                 // spawn monster if its not outside of the room 
                 if(spawnPosUnscaled.x > room.x + 4 && spawnPosUnscaled.x < room.x + room.w - 4 && spawnPosUnscaled.y > room.y + 4 && spawnPosUnscaled.y < room.y + room.h - 4){
-                    if(RNG.randomFromRange(1,100) <= chanceOfEventBoss && !firstSpawn && !spawnedEventBossThisFrame && numEventBosses < 3){ // 1/25 chance to spawn event god
+                    if(RNG.randomFromRange(1,100) <= chanceOfEventBoss && !firstSpawn && !spawnedEventBossThisFrame && numEventBosses < 3){ // spawn event god
                         sprites eventBoss = eventBosses[RNG.randomFromRange(0, eventBosses.size()-1)];
                         Entity boss = factory->spawnMonster(registry, realSpawnPos, eventBoss);
                         if(eventBoss != PENTARACT){
@@ -61,7 +60,12 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                         }
                         spawnedEventBossThisFrame = true;
                     } else { // spawn regular god
-                        factory->spawnMonster(registry, realSpawnPos, gods[RNG.randomFromRange(0, gods.size()-1)]);    
+                        if(!spawnedPotChestThisFrame && RNG.randomFromRange(1,100) <= 2){ // 1/100 chance to spawn a pot chest instead of a god
+                            spawnedPotChestThisFrame = true;
+                            factory->spawnMonster(registry, realSpawnPos, POTCHEST);
+                        } else {
+                            factory->spawnMonster(registry, realSpawnPos, gods[RNG.randomFromRange(0, gods.size()-1)]);   
+                        }
                     }
                     numMonstersSpawnedThisFrame++;
                 }

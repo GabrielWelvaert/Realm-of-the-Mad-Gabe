@@ -52,6 +52,21 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                         case PENTARACTTOWER:{
                             MedusaBomb(entity, playerPos, registry, spriteEnum, 130);
                         } break;
+                        case GHOSTASSASSIN:{
+                            MedusaBomb(entity, playerPos, registry, spriteEnum, 25);
+                        } break;
+                        case GHOSTARCHER:{
+                            bigArrow(entity, playerPos, registry);
+                        } break;
+                        case BLUESPIRIT:{
+                            MedusaBomb(entity, playerPos, registry, spriteEnum, 35);
+                        } break;
+                        case SHADE:{
+                            paralyzedStar(entity, playerPos, registry);
+                        } break;
+                        case BOSSCHICKEN:{
+                            chicken(entity, playerPos, registry);
+                        } break;
                     }
                 }
             }

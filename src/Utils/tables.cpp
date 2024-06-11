@@ -17,7 +17,7 @@ std::unordered_map<int, SDL_Color> miniMapColors = {
 };
 
 std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMonsterSpawns = {
-    {CHICKENLAIR,
+    {CHICKENLAIR, // CHICKEN THEMED ENEMIES
     {
         {{1, TINYREDCHICKEN}, {1,TINYWHITECHICKEN}},
         {{.6, CYANTURKEY},{.6, YELLOWTURKEY},{.6, ORANGETURKEY}},
@@ -25,35 +25,37 @@ std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMo
         {{.6, BIGTURKEY}, {.5, ROOSTER}},
         {{.6, BIGROOSTER}, {.5, ROOSTER}},
         {{1, COCKATRICE}, {.3, WHITECHICKEN}},
-        {{.5, TINYREDCHICKEN}, {.5, TINYWHITECHICKEN}, {.5, WHITECHICKEN}},
+        {{.5, TINYREDCHICKEN}, {.5, TINYWHITECHICKEN}, {.5, WHITECHICKEN}, {.3, CHICKENEGG}},
         {{.5, ROOSTER}, {.5, CYANTURKEY}, {.5, WHITECHICKEN}, {.25, TINYREDCHICKEN}},
         {{1, COCKATRICE}, {.3, TINYREDCHICKEN}},
         {{.6, WHITECHICKEN}, {.5, ROOSTER}},
         {{.5, BIGTURKEY}, {.5, BIGROOSTER}},
-        {{.6, CYANTURKEY},{.6, YELLOWTURKEY},{.6, ORANGETURKEY},{.2, MOUSE0}},
-        {{.6, COCKATRICE}, {.3, WHITECHICKEN},{.2, MOUSE0}},
+        {{.6, CYANTURKEY},{.6, YELLOWTURKEY},{.6, ORANGETURKEY},{.2, MOUSE0},{.2, DUCK}},
+        {{.6, COCKATRICE}, {.3, WHITECHICKEN},{.2, MOUSE0},{.2, DUCK},{.1, CHICKENEGG}},
         {{.5, MOUSE0}, {.5, TINYWHITECHICKEN}},
-
-        
+        {{1.3, DUCK}},
+        {{2, CHICKENEGG}}
     }},
-    {UDL,
+    {UDL, // UNDEAD / DARK THEMED ENEMIES! no demons
     {
         {{.2, SKELETON0},{.2, SKELETON1},{.3, SKELETON2},{.4, SKELETON3},{.2, SKELETON4},{.2, SKELETON5}},
         {{.4, SKELETON0},{.4, SKELETON1},{.4, SKELETON2},{.2, SKELETON3},{.2, SKELETON4}},
-        {{.6, WHITEDEMON}, {.4, BAT0}},
-        {{.6, WHITEDEMON}, {.2, REDKNIGHT0}, {.2, BAT0}},
-        {{.4, IMP0},{.4, IMP1},{.4, IMP2},{.4, IMP3}},
-        {{.6, HELLHOUND}, {.4, BAT0}},
-        {{.3, SKELETON5}, {.2, BAT0}, {.4, SHATTERSBOMB}, {.2, SKELETON2}},
-        {{.3, SKELETON5}, {.2, HELLHOUND}, {.4, SHATTERSBOMB}, {.2, IMP0}},
-        {{.5, SHATTERSBOMB}, {.5, REDKNIGHT0}},
-        {{.2, IMP2},{.2, SKELETON1},{.2, WHITEDEMON},{.4, BAT0},{.2, IMP0},{.4, SHATTERSBOMB}},
-        {{.2, SKELETON0},{.2, SKELETON1},{.2, SKELETON2},{.2, IMP1},{.2, IMP2},{.2, IMP3}},
-        {{.4, IMP0},{.4, IMP1},{.2, SKELETON4},{.2, SKELETON5}},
-        {{.6, HELLHOUND}},
-        {{.8, BAT0}, {.6,SKELETON2}, {.2,IMP2}},
-        {{.4, HELLHOUND},{.4, WHITEDEMON}},
-
+        {{1, SHATTERSBOMB}, {.5, REDKNIGHT0}},
+        {{.2, GHOSTKING},{.2, GHOSTARCHER},{.2, GHOSTWARRIOR},{.2,GHOSTWIZARD},{.2, GHOSTASSASSIN},{.2, GHOSTPALADIN},{.2, GHOSTSTATUE}},
+        {{0.0,CULTIST}},
+        {{.5, SKELETON3}, {.5, GHOSTASSASSIN}, {.5, GHOSTARCHER}},
+        {{1.5, BAT0}},
+        {{.5,BROWNSLIMELARGE}, {.5,BLACKSLIMELARGE}},
+        {{.5, SKELETON4}, {.2, SKELETON5}, {.5, GHOSTKING}},
+        {{.2, GHOSTSTATUE}, {.2, GHOSTPALADIN}, {.2, SKELETON1}, {.2, SKELETON0}, {.2, GHOSTKING}},
+        {{.4, BLUESPIRIT}, {.4, GREYSPIRIT}, {.4, WHITESPIRIT}},
+        {{0.0,SHADE}},
+        {{.4, WHITESPIRIT}, {.5, GHOSTASSASSIN}, {.5, SHATTERSBOMB}},
+        {{.5, REDKNIGHT0}, {.5, GHOSTSTATUE}, {.5, GHOSTWIZARD}},
+        {{.4, BLUESPIRIT}, {.5, GHOSTASSASSIN}},
+        {{.2, SKELETON0},{.2, SKELETON1},{.3, SKELETON2},{.2, GHOSTWARRIOR},{.2, GHOSTKING}},
+        {{.2,BROWNSLIMELARGE}, {.2,BLACKSLIMELARGE},{.2, BAT0},{.2, SHATTERSBOMB}},
+        {{.4, WHITESPIRIT}, {.2, GHOSTGOD}}
     }},
 };
 
@@ -72,9 +74,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON0,
         {
             {
-                {10, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {11, {T4BOW, T4SWORD, T4WAND}},
-                {20, {HPPOT, MPPOT}}
+                {2, T4WEAPONS},
+                {2, T2ABILITIES},
+                {2, T3ARMOR},
+                {1, T4ARMOR},
+                {1, T5WEAPONS},
+                {4, T1RING},
+                {5, HPMPPOT}
             }
         }
     },
@@ -82,10 +88,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON1,
         {
             {
-                {14, {T2TOME, T2QUIVER, T2HELM}},
-                {19, {T3BOW, T3SWORD, T3WAND}},
-                {18, {HPPOT, MPPOT}},
-                {15, {T3HEAVYARMOR, T3ROBE, T3LIGHTARMOR}},
+                {2, T4WEAPONS},
+                {2, T2ABILITIES},
+                {2, T3ARMOR},
+                {4, T4ARMOR},
+                {1, T5WEAPONS},
+                {2, T1RING},
+                {5, HPMPPOT}
             }
         }
     },
@@ -93,9 +102,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON2,
         {
             {
-                {15, {T4HEAVYARMOR, T4ROBE, T4LIGHTARMOR}},
-                {16, {T4BOW, T4SWORD, T4WAND}},
-                {17, {HPPOT, MPPOT}}
+                {4, T4WEAPONS},
+                {2, T2ABILITIES},
+                {2, T3ARMOR},
+                {1, T4ARMOR},
+                {1, T5WEAPONS},
+                {2, T1RING},
+                {5, HPMPPOT}
             }
         }
     },
@@ -103,9 +116,14 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON3,
         {
             {
-                {15, {T5WAND, T5ROBE}},
-                {14, {T3TOME}},
-                {20, {HPPOT, MPPOT}}
+                {4, T7WEAPONS},
+                {2, T2ABILITIES},
+                {4, T3ARMOR},
+                {2, T4ARMOR},
+                {1, T5WEAPONS},
+                {2, T1RING},
+                {1, T4WEAPONS},
+                {5, HPMPPOT}
             }
         }
     },
@@ -113,11 +131,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON4,
         {
             {
-                {15, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {17, {T6SWORD, T6BOW, T6WAND}},
-                {18, {HPPOT, MPPOT}},
-                {15, {T3HEAVYARMOR, T3ROBE, T3LIGHTARMOR}},
-                {15, {T2HEAVYARMOR, T2ROBE, T2LIGHTARMOR}},
+                {4, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T4ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T2RING},
+                {5, HPMPPOT}
             }
         }
     },
@@ -125,10 +145,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         REDKNIGHT0,
         {
             {
-                {25, {FIREWATER, CABERNET}},
-                {14, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {17, {T5SWORD, T5WAND, T5BOW}},
-                {10, {T6BOW,T6WAND,T6SWORD}}
+                {3, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T5ARMOR},
+                {1, T6ARMOR},
+                {4, T6WEAPONS},
+                {1, T2RING},
+                {5, {FIREWATER, CABERNET}}
             }
         }
     },
@@ -136,9 +159,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         TINYWHITECHICKEN,
         {
             {
-                {20, {HPPOT, MPPOT}},
-                {8, {T0ATTRING, T0WISRING, T0DEFRING, T0DEXRING, T0VITRING, T0HPRING, T0MPRING}},
-                {99, T1WEAPONS},
+                {3, T1WEAPONS},
+                {2, T1ABILITIES},
+                {2, T0ARMOR},
+                {4, T0RING},
+                {3, T2WEAPONS},
+                {9, MINORHPMPPOT}
             }
         }
     },
@@ -146,8 +172,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         TINYREDCHICKEN,
         {
             {
-                {20, {HPPOT, MPPOT}},
-                {7, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {4, T1WEAPONS},
+                {2, T1ABILITIES},
+                {2, T0ARMOR},
+                {1, T1ARMOR},
+                {2, T0RING},
+                {2, T2WEAPONS},
+                {9, MINORHPMPPOT}
             }
         }
     },
@@ -155,10 +186,14 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         COCKATRICE,
         {
             {
-                {19, {T2SWORD, T2BOW, T2WAND}},
-                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {11, {T2TOME, T2HELM, T2QUIVER}},
-                {16, {HPPOT, MPPOT}},
+                {5, T2WEAPONS},
+                {2, T1ABILITIES},
+                {2, T2ARMOR},
+                {1, T3ARMOR},
+                {2, T1RING},
+                {1, T3WEAPONS},
+                {5, HPMPPOT},
+                {3, {SPDTINCTURE}},
                 {2, {SNAKESKINARMOR}}
             }
         }
@@ -167,10 +202,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         WHITECHICKEN,
         {
             {
-                {19, {T1SWORD, T1BOW, T1WAND}},
-                {11, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT, MPPOT}},
-                {15, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {4, T1WEAPONS},
+                {2, T1ABILITIES},
+                {4, T1ARMOR},
+                {2, T0RING},
+                {3, T2WEAPONS},
+                {5, HPMPPOT}
             }
         }
     },
@@ -178,11 +215,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ROOSTER,
         {
             {
-                {15, {T1SWORD, T1BOW, T1WAND}},
-                {4, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {15, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT, MPPOT}},
-                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {4, T1WEAPONS},
+                {2, T1ABILITIES},
+                {3, T1ARMOR},
+                {2, T0RING},
+                {3, T2WEAPONS},
+                {9, HPMPPOT}
             }
         }
     },
@@ -190,11 +228,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BIGROOSTER,
         {
             {
-                {15, {T3SWORD, T3BOW, T3WAND}},
-                {12, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {19, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
-                {18, {HPPOT, MPPOT}},
-                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {3, T2WEAPONS},
+                {2, T1ABILITIES},
+                {2, T2ARMOR},
+                {1, T3ARMOR},
+                {2, T1RING},
+                {1, T3WEAPONS},
+                {5, HPMPPOT},
             }
         }
     },
@@ -202,12 +242,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BIGTURKEY,
         {
             {
-                {15, {T3SWORD, T3BOW, T3WAND}},
-                {4, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {15, {T2TOME, T2HELM, T2QUIVER}},
-                {14, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
-                {18, {HPPOT, MPPOT}},
-                {5, {T0HEAVYARMOR, T0LIGHTARMOR, T0ROBE}},
+                {4, T2WEAPONS},
+                {3, T1ABILITIES},
+                {4, T2ARMOR},
+                {1, T3ARMOR},
+                {2, T1RING},
+                {1, T3WEAPONS},
+                {9, HPMPPOT},
             }
         }
     },
@@ -215,14 +256,16 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BOSSCHICKEN,
         {
             {
-                {25, {SPDPOT, DEXPOT}},
+                {40, {SPDPOT, DEXPOT}},
                 {2, {CHICKENTOME, CHICKENSWORD}},
-                {50, {CABERNET, FIREWATER}},
-                {20, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {21, {T4SWORD, T4WAND, T4BOW}},
-                {22, {T4HEAVYARMOR, T4LIGHTARMOR, T4ROBE}},
-                {24, {T2TOME, T2HELM, T2QUIVER}},
-                {8, {T5HEAVYARMOR, T5LIGHTARMOR, T5ROBE}},
+                {50, T3WEAPONS},
+                {40, T4WEAPONS},
+                {19, T4ARMOR},
+                {50, T3ARMOR},
+                {38, T2ABILITIES},
+                {30, T1ABILITIES},
+                {45, T2RING},
+                {25, T1RING},
                 {5, {GORDONINCANTATION}},
             }
         }
@@ -231,10 +274,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ROBOTURKEY,
         {
             {
-                {20, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}},
-                {10, {HPPOT}},
-                {18, {T2SWORD, T2BOW, T2WAND}},
-                {19, {T1TOME, T1HELM, T1QUIVER}},
+                {3, T2WEAPONS},
+                {2, T1ABILITIES},
+                {2, T2ARMOR},
+                {1, T3ARMOR},
+                {4, T1RING},
+                {1, T3WEAPONS},
+                {9, HPMPPOT},
             }
         }
     },
@@ -242,9 +288,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ORANGETURKEY,
         {
             {
-                {19, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT}},
-                {17, {T2HEAVYARMOR, T2LIGHTARMOR, T2ROBE}}
+                {2, T1WEAPONS},
+                {2, T1ABILITIES},
+                {2, T1ARMOR},
+                {2, T1RING},
+                {4, T2WEAPONS},
+                {2, T2ARMOR},
+                {5, HPMPPOT}
             }
         }
     },
@@ -252,9 +302,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         YELLOWTURKEY,
         {
             {
-                {15, {T1SWORD, T1BOW, T1WAND}},
-                {19, {T1ATTRING, T1WISRING, T1DEFRING, T1DEXRING, T1VITRING, T1HPRING, T1MPRING}},
-                {16, {MPPOT}}
+                {3, T1WEAPONS},
+                {2, T1ABILITIES},
+                {3, T2ARMOR},
+                {2, T0RING},
+                {1, T2WEAPONS},
+                {2, T2ARMOR},
+                {9, HPMPPOT}
             }
         }
     },
@@ -262,10 +316,29 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         CYANTURKEY,
         {
             {
-                {15, {T1SWORD, T1BOW, T1WAND}},
-                {17, {T1TOME, T1HELM, T1QUIVER}},
-                {16, {HPPOT, MPPOT}},
-                {12, {T2TOME, T2HELM, T2QUIVER}},
+                {2, T1WEAPONS},
+                {2, T2ABILITIES},
+                {3, T1ARMOR},
+                {4, T3ARMOR},
+                {2, T0RING},
+                {1, T2WEAPONS},
+                {2, T2ARMOR},
+                {6, HPMPPOT}
+            }
+        }
+    },
+    {
+        DUCK,
+        {
+            {
+                {2, T1WEAPONS},
+                {1, T1ABILITIES},
+                {2, T2ABILITIES},
+                {2, T1ARMOR},
+                {4, T1RING},
+                {3, T2WEAPONS},
+                {2, T2ARMOR},
+                {5, HPMPPOT}
             }
         }
     },
@@ -273,20 +346,22 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ARCMAGE,
         {
             {
-                {24, {T3TOME, T3HELM, T3QUIVER}},
-                {2, {TWILIGHTGEMSTONE,ARCWAND,ARCTOME,ARCROBE}},
-                {1, {ARCWAND,ARCTOME,ARCROBE}},
-                {100, {LIFEPOT}},
-                {90, {DEFPOT, ATTPOT, WISPOT, VITPOT, MANAPOT}},
-                {21, {T4TOME, T4HELM, T4QUIVER}},
-                {20, {T4ATTRING, T4WISRING, T4DEFRING, T4DEXRING, T4VITRING, T4HPRING, T4MPRING, ATTACKPENDANT}},
-                {24, {T8HEAVYARMOR, T8ROBE, T8LIGHTARMOR}},
-                {27, {T8SWORD, T8BOW, T8WAND}},
-                {22, {T9HEAVYARMOR, T9ROBE, T9LIGHTARMOR}},
-                {29, {T9SWORD, T9BOW, T9WAND}},
-                {5, {T10SWORD, T10BOW, T10WAND}},
-                {4, {T10HEAVYARMOR, T10ROBE, T10LIGHTARMOR}},
+                {20, T7WEAPONS},
+                {18, T8WEAPONS},
+                {16, T9WEAPONS},
+                {20, T3ABILITIES},
+                {18, T4ABILITIES},
+                {3, T5ABILITIES},
+                {20, T8ARMOR},
+                {18, T9ARMOR},
+                {18, T10ARMOR},
+                {3, T11ARMOR},
+                {20, T2RING},
+                {18, T3RING},
+                {3, T4RING},
+                {2, {ARCTOME, ARCWAND, ARCROBE, TWILIGHTGEMSTONE}},
                 {9, {GORDONINCANTATION}},
+                {100, {LIFEPOT,MANAPOT}}
             }
         }
     },
@@ -294,10 +369,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         HELLHOUND,
         {
             {
-                {17, {T3TOME, T3HELM, T3QUIVER}},
-                {19, {T7SWORD, T7BOW, T7WAND}},
-                {10, {T3HPRING, T3MPRING, T3ATTRING, T3WISRING, T3DEFRING, T3DEXRING, T3VITRING}},
-                {15, {T6HEAVYARMOR, T6ROBE, T6LIGHTARMOR}},
+                
             }
         }
     },
@@ -305,9 +377,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         IMP0,
         {
             {
-                {9, {HPPOT, MPPOT}},
-                {15, {T5HEAVYARMOR, T5ROBE, T5LIGHTARMOR}},
-                {1, {IMPBLADE, CABERNET}},
+                
             }
         }
     },
@@ -315,10 +385,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         IMP1,
         {
             {
-                {9, {HPPOT, MPPOT}},
-                {17, {T2TOME, T2HELM, T2QUIVER}},
-                {19, {T5SWORD, T5BOW, T5WAND}},
-                {1, {IMPBLADE, CABERNET}},
+                
             }
         }
     },
@@ -326,9 +393,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         IMP2,
         {
             {
-                {9, {HPPOT}},
-                {10, {T2ATTRING, T2WISRING, T2DEFRING, T2DEXRING, T2VITRING, T2HPRING, T2MPRING}},
-                {1, {IMPBLADE, CABERNET}},
+                
             }
         }
     },
@@ -336,11 +401,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         IMP3,
         {
             {
-                {9, {HPPOT, MPPOT}},
-                {19, {T5SWORD, T5BOW, T5WAND}},
-                {15, {T5HEAVYARMOR, T5ROBE, T5LIGHTARMOR}},
-                {5, {T6HEAVYARMOR, T6ROBE, T6LIGHTARMOR}},
-                {1, {IMPBLADE, CABERNET}},
+                
             }
         }
     },
@@ -360,7 +421,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {SPDPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -368,10 +429,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON5,
         {
             {
-                {30, {HPPOT}},
-                {15, {T7HEAVYARMOR, T7ROBE, T7LIGHTARMOR}},
-                {17, {T8SWORD, T8BOW, T8WAND}},
-                {19, {T3TOME, T3HELM, T3QUIVER}},
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T4ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T2RING},
+                {5, HPMPPOT}
             }
         }
     },
@@ -380,6 +444,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {25, {MPPOT, HPPOT}},
+                {2, {T1ABILITIES}}
             }
         }
     },
@@ -387,10 +452,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BAT0,
         {
             {
-                {20, {HPPOT}},
-                {10, {MPPOT}},
-                {2, {CABERNET}},
-                {1, {FIREWATER}},
+                {25, {MPPOT, HPPOT}},
             }
         }
     },
@@ -452,7 +514,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {ATTPOT, DEXPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -472,7 +534,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {SPDPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -492,7 +554,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {SPDPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -512,7 +574,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {DEFPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -532,7 +594,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {DEFPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -552,7 +614,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {ATTPOT, DEXPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -572,7 +634,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {DEFPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -592,7 +654,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, T4ABILITIES},
                 {1, T3RING},
                 {5, {SPDPOT}},
-                {7, HPMPPOT},
+                {10, HPMPPOT},
             }
         }
     },
@@ -604,7 +666,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {22, T8ARMOR},
                 {22, T4ABILITIES},
                 {22, T9WEAPONS},
-                {20, T9ARMOR},
                 {20, T9ARMOR},
                 {20, T3RING},
                 {18, T10WEAPONS},
@@ -652,7 +713,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {HPPOT, MPPOT}},
-                {1, {HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, EPSTAFF}} // ~ 0.623% chance to get EP when killing 5 sprite minions 
+                {1, {HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, HPPOT, EPSTAFF}} 
             }
         }
     },
@@ -683,7 +744,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {22, T4ABILITIES},
                 {22, T9WEAPONS},
                 {20, T9ARMOR},
-                {20, T9ARMOR},
                 {20, T3RING},
                 {18, T10WEAPONS},
                 {18, T10ARMOR},
@@ -702,7 +762,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         PENTARACTEYE,
         {
             {
-                {3, {HPPOT, MPPOT}},
+                {5, {HPPOT, MPPOT}},
+                {1, {SPDTINCTURE}}
             }
         }
     },
@@ -714,7 +775,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {18, T8ARMOR},
                 {17, T4ABILITIES},
                 {17, T9WEAPONS},
-                {12, T9ARMOR},
                 {12, T9ARMOR},
                 {14, T3RING},
                 {12, T10WEAPONS},
@@ -747,6 +807,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {HPPOT, MPPOT}},
+                {1, {DEFTINCTURE}}
             }
         }
     },
@@ -758,7 +819,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {22, T8ARMOR},
                 {22, T4ABILITIES},
                 {22, T9WEAPONS},
-                {20, T9ARMOR},
                 {20, T9ARMOR},
                 {20, T3RING},
                 {18, T10WEAPONS},
@@ -778,6 +838,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {10, {HPPOT, MPPOT}},
+                {2, {DEFTINCTURE}}
             }
         }
     },
@@ -786,6 +847,261 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {10, {HPPOT, MPPOT}},
+                {2, {DEFTINCTURE}}
+            }
+        }
+    },
+        {
+        GHOSTKING,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T4ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {2, T1RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTARCHER,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T7ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTWARRIOR,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T3ABILITIES},
+                {2, T7ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTWIZARD,
+        {
+            {
+                {2, T7WEAPONS},
+                {2, T2ABILITIES},
+                {2, T7ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {2, T1RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTASSASSIN,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T3ABILITIES},
+                {2, T4ARMOR},
+                {1, T5ARMOR},
+                {2, T6WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTPALADIN,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T7ARMOR},
+                {1, T5ARMOR},
+                {1, T4WEAPONS},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        GHOSTSTATUE,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T7ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T4WEAPONS},
+                {2, T1RING},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        REAPER,
+        {
+            {
+                {4, T7WEAPONS},
+                {2, T7ARMOR},
+                {4, T3ABILITIES},
+                {3, T7ARMOR},
+                {3, T6ARMOR},
+                {3, T6WEAPONS},
+                {4, T5WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        CULTIST,
+        {
+            {
+                {2, T7WEAPONS},
+                {3, T7WEAPONS},
+                {4, T3ABILITIES},
+                {4, T2ABILITIES},
+                {3, T8ARMOR},
+                {4, T7ARMOR},
+                {3, T6WEAPONS},
+                {4, T2RING},
+                {1, T4WEAPONS},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        BLACKSLIMESMALL,
+        {
+            {
+                {1, T5WEAPONS},
+                {1, T2ABILITIES},
+                {1, T4ARMOR},
+                {2, T5ARMOR},
+                {1, T6WEAPONS},
+                {2, T2RING},
+                {10, HPMPPOT}
+            }
+        }
+    },
+        {
+        BROWNSLIMESMALL,
+        {
+            {
+                {1, T5WEAPONS},
+                {2, T2ABILITIES},
+                {1, T4ARMOR},
+                {1, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T4WEAPONS},
+                {2, T2RING},
+                {10, HPMPPOT}
+            }
+        }
+    },
+        {
+        GREYSPIRIT,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T3ABILITIES},
+                {2, T4ARMOR},
+                {3, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T7WEAPONS},
+                {2, T2RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        BLUESPIRIT,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T3ABILITIES},
+                {1, T6ARMOR},
+                {2, T5ARMOR},
+                {3, T6WEAPONS},
+                {2, T2RING},
+                {2, T1RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        WHITESPIRIT,
+        {
+            {
+                {2, T5WEAPONS},
+                {2, T2ABILITIES},
+                {2, T6ARMOR},
+                {3, T5ARMOR},
+                {1, T6WEAPONS},
+                {1, T7WEAPONS},
+                {2, T2RING},
+                {2, T1RING},
+                {5, HPMPPOT}
+            }
+        }
+    },
+        {
+        SHADE,
+        {
+            {
+                {4, T6WEAPONS},
+                {3, T2ABILITIES},
+                {3, T6ARMOR},
+                {4, T7ARMOR},
+                {5, T8ARMOR},
+                {4, T7WEAPONS},
+                {4, T2RING},
+                {2, T1RING},
+                {5, HPMPPOT},
+                {3, {DEFTINCTURE}}
+            }
+        }
+    },
+        {
+        FLOATINGSKULL,
+        {
+            {
+                {5, HPMPPOT},
+                {3, {SPDTINCTURE}}
+            }
+        }
+    },
+        {
+        POTCHEST,
+        {
+            {
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+                {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
             }
         }
     },
@@ -793,8 +1109,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
     
 };
 
-std::unordered_set<sprites> towers = {
-    PENTARACTTOWER, MYSTERIOUSCRYSTAL
+std::unordered_set<sprites> towers = { // towers have logic to stop them from changing horizontal flip to "look at" player
+    PENTARACTTOWER, MYSTERIOUSCRYSTAL, CHICKENEGG, POTCHEST
 };
 
 std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups = {
@@ -807,6 +1123,7 @@ std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups = {
     {SLIMEGOD, GODLANDSGOD},
     {GHOSTGOD, GODLANDSGOD},
     {CUBEGOD, EVENTBOSS},
+    {WHITEDEMON, GODLANDSGOD},
     {SKULLSHRINE, EVENTBOSS},
     {PENTARACT, EVENTBOSS},
     {MYSTERIOUSCRYSTAL, EVENTBOSS},
@@ -825,7 +1142,8 @@ std::vector<sprites> gods = {
     BEHOLDER,
     FLYINGBRAIN,
     SLIMEGOD,
-    GHOSTGOD
+    GHOSTGOD,
+    WHITEDEMON
 };
 
 std::vector<std::vector<int>> gordonLairOnlyFloors = {
@@ -1096,7 +1414,28 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {GRANDSPHINX, std::string{"Grand Sphinx"}},
     {HORRIDREAPER1, std::string{"Horrid Reaper"}},
     {HORRIDREAPER2, std::string{"Horrid Reaper"}},
-
+    {DUCK, std::string{"Duck"}},
+    {GHOSTKING, std::string{"Ghost King"}},
+    {GHOSTARCHER, std::string{"Ghost Arhcer"}},
+    {GHOSTWARRIOR, std::string{"Ghost Warrior"}},
+    {GHOSTWIZARD, std::string{"Ghost Wizard"}},
+    {GHOSTASSASSIN, std::string{"Ghost Assassin"}},
+    {GHOSTPALADIN, std::string{"Ghost Paladin"}},
+    {GHOSTSTATUE, std::string{"Ghost Statue"}},
+    {REAPER, std::string{"Reaper"}},
+    {CULTIST, std::string{"Cultist"}},
+    {CHICKENEGG, std::string{"Chicken Egg"}},
+    {BROWNSLIMESMALL, std::string{"Small Brown Slime"}},
+    {BROWNSLIMEMEDIUM, std::string{"Medium Brown Slime"}},
+    {BROWNSLIMELARGE, std::string{"Large Brown Slime"}},
+    {BLACKSLIMESMALL, std::string{"Small Black Slime"}},
+    {BLACKSLIMEMEDIUM, std::string{"Medium Black Slime"}},
+    {BLACKSLIMELARGE, std::string{"Large Black Slime"}},
+    {GREYSPIRIT, std::string{"Grey Spirit"}},
+    {BLUESPIRIT, std::string{"Blue Spirit"}},
+    {WHITESPIRIT, std::string{"White Spirit"}},
+    {SHADE, std::string{"Shade"}},
+    {FLOATINGSKULL, std::string{"Floating Skull"}}
 
 };
 
@@ -1177,7 +1516,9 @@ std::unordered_map<items, const char *> consumableItemToInfo = {
     {MINORMPPOT, "+50 MP"},
     {CUBEJUICE, "+120 HP, +120 MP"},
     {FLAMINGFLASK, "-15 HP, invisible for 4 seconds"},
-    {GORDONINCANTATION, "Summons a portal to Gordon's Lair"}
+    {GORDONINCANTATION, "Summons a portal to Gordon's Lair"},
+    {SPDTINCTURE, "Speedy on self for 4 seconds"},
+    {DEFTINCTURE, "Armored on self for 4 seconds"},
 };
 
 std::unordered_map<classes, startingEquipment> classesToStartingItems = {
@@ -1237,16 +1578,16 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T7HELM, {7000,90}},
     {T8HELM, {7500,95}},
     {CHICKENTOME, {500, 112}},
-    {T0SPELL, {500,20}},
-    {T1SPELL, {500,30}},
-    {T2SPELL, {500,40}},
-    {T3SPELL, {500,50}},
-    {T4SPELL, {500,60}},
-    {T5SPELL, {500,70}},
-    {T6SPELL, {500,80}},
-    {T7SPELL, {500,90}},
-    {T8SPELL, {500,100}},
-    {CURLYWHIRLYSPELL, {500,100}},
+    {T0SPELL, {500,35}},
+    {T1SPELL, {500,45}},
+    {T2SPELL, {500,55}},
+    {T3SPELL, {500,65}},
+    {T4SPELL, {500,75}},
+    {T5SPELL, {500,85}},
+    {T6SPELL, {500,95}},
+    {T7SPELL, {500,105}},
+    {T8SPELL, {500,125}},
+    {CURLYWHIRLYSPELL, {500,125}},
     {T0CLOAK, {3500,55}},
     {T1CLOAK, {4000,60}},
     {T2CLOAK, {4500,65}},
@@ -1308,16 +1649,16 @@ std::unordered_map<items, tomeData> itemEnumToTomeData = {
 
 //     int minDamage;int maxDamage;textureEnums texture;SDL_Rect srcRect;
 std::unordered_map<items, spellData> itemEnumToSpellData = {
-    {T0SPELL, {15,20,LOFIOBJ,{10*8, 8*9, 8, 8}}},
-    {T1SPELL, {30,40,LOFIOBJ,{10*8, 8*10, 8, 8}}},
-    {T2SPELL, {40,65,LOFIOBJ,{10*8, 8*11, 8, 8}}},
-    {T3SPELL, {50,90,LOFIOBJ,{10*8, 8*12, 8, 8}}},
-    {T4SPELL, {60,115,LOFIOBJ2,{8*1,8*7,8,8}}},
-    {T5SPELL, {70,140,LOFIOBJ5B,{8*13,8*9,8,8}}},
-    {T6SPELL, {80,165,LOFIOBJ2,{2*8, 8*7, 8, 8}}},
-    {T7SPELL, {95,185,LOFIOBJ,{10*8, 8*9, 8, 8}}},
-    {T8SPELL, {110,205,LOFIOBJ2,{8*1,8*7,8,8}}},
-    {CURLYWHIRLYSPELL, {75,150,LOFIPROJS,{8*6,8*7,8,8}}},
+    {T0SPELL, {1,5,LOFIOBJ,{10*8, 8*9, 8, 8}}},
+    {T1SPELL, {5,10,LOFIOBJ,{10*8, 8*10, 8, 8}}},
+    {T2SPELL, {10,15,LOFIOBJ,{10*8, 8*11, 8, 8}}},
+    {T3SPELL, {15,20,LOFIOBJ,{10*8, 8*12, 8, 8}}},
+    {T4SPELL, {20,25,LOFIOBJ2,{8*1,8*7,8,8}}},
+    {T5SPELL, {25,30,LOFIOBJ5B,{8*13,8*9,8,8}}},
+    {T6SPELL, {30,35,LOFIOBJ2,{2*8, 8*7, 8, 8}}},
+    {T7SPELL, {35,40,LOFIOBJ,{10*8, 8*9, 8, 8}}},
+    {T8SPELL, {40,45,LOFIOBJ2,{8*1,8*7,8,8}}},
+    {CURLYWHIRLYSPELL, {3,30,LOFIPROJS,{8*6,8*7,8,8}}},
 };
 
 //     statuses debuff; mindamange, maxdamagem, debuffDuration;  numshots
@@ -1357,7 +1698,7 @@ std::unordered_map<classes, BaseStatData> classToBaseStats = { // starting stats
 //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {TWILIGHTGEMSTONE, {0,110,0,6,6,0,0,0}},
-    {SNAKESKINARMOR, {0,0,0,13,3,4,0,0}},
+    {SNAKESKINARMOR, {0,0,0,7,3,3,0,0}},
     {CHICKENTOME, {0,0,0,5,5,0,0,0}},
     {ARCTOME, {0,0,3,0,0,3,0,0}},
     {ARCROBE, {0,35,4,13,0,4,0,0}},
@@ -1573,6 +1914,29 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {GRANDSPHINX, GRANDSPHINXAI},
     {HORRIDREAPER1, RANDOMCHASEMINION},
     {HORRIDREAPER2, RANDOMCHASEMINION},
+    {DUCK, ASC},
+    {GHOSTKING, ASC},
+    {GHOSTARCHER, AS},
+    {GHOSTWARRIOR, ASC},
+    {GHOSTWIZARD, ASC},
+    {GHOSTASSASSIN, ASC},
+    {GHOSTPALADIN, ASC},
+    {GHOSTSTATUE, ASC},
+    {REAPER, RANDOMCHASEMINION},
+    {CULTIST, AS},
+    {CHICKENEGG, NEUTRAL},
+    {BROWNSLIMESMALL,SC},
+    {BROWNSLIMEMEDIUM, SC},
+    {BROWNSLIMELARGE, NEUTRAL},
+    {BLACKSLIMESMALL, SC},
+    {BLACKSLIMEMEDIUM, SC},
+    {BLACKSLIMELARGE, NEUTRAL},
+    {GREYSPIRIT, NEUTRAL},
+    {BLUESPIRIT, NEUTRAL},
+    {WHITESPIRIT, NEUTRAL},
+    {SHADE, AS},
+    {FLOATINGSKULL, ORBITMINION},
+    {POTCHEST, NEUTRAL}
 };  
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -1825,7 +2189,9 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {CUBEJUICE, CUBEJUICEICON},
     {FLAMINGFLASK, FLAMINGFLASKICON},
     {GORDONINCANTATION, GORDONINCANTATIONICON},
-    {ADMINSWORD, ADMINSWORDICON}
+    {ADMINSWORD, ADMINSWORDICON},
+    {SPDTINCTURE, SPDTINCTUREICON},
+    {DEFTINCTURE, DEFTINCTUREICON},
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -2078,7 +2444,9 @@ std::unordered_map<items, const char *> itemToName = {
     {CUBEJUICE, "Cube Juice"},
     {FLAMINGFLASK, "Flaming Flask"},
     {GORDONINCANTATION, "Gordon's Lair Incantation"},
-    {ADMINSWORD, "Admin Sword"}
+    {ADMINSWORD, "Admin Sword"},
+    {SPDTINCTURE, "Speed Tincture"},
+    {DEFTINCTURE, "Defense Tincture"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -2331,7 +2699,9 @@ std::unordered_map<items, const char *> itemToDescription = {
     {CUBEJUICE, "A sweet potion made from the fluid-gel of a gelatinous cube's core"},
     {FLAMINGFLASK, "A scorching potion infused with the fire magic of a skull shrine"},
     {GORDONINCANTATION, "A single-use incantation which summons Gordon's Lair"},
-    {ADMINSWORD, "A sword used by the admins"}
+    {ADMINSWORD, "A sword used by the admins"},
+    {SPDTINCTURE, "A tincture that temporarily increases speed"},
+    {DEFTINCTURE, "A tincture that temporarily increases defense"},
 };
 
 std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
@@ -2587,7 +2957,9 @@ std::unordered_map<items, groups> itemToGroup = {
     {CUBEJUICE, CONSUMABLE},
     {FLAMINGFLASK, CONSUMABLE},
     {GORDONINCANTATION, CONSUMABLE},
-    {ADMINSWORD, SWORD}
+    {ADMINSWORD, SWORD},
+    {SPDTINCTURE, CONSUMABLE},
+    {DEFTINCTURE, CONSUMABLE},
 };
 
 std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
@@ -2650,7 +3022,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T12DAGGER, CYANLOOTBAG},
     {T13DAGGER, REDLOOTBAG},
     {T14DAGGER, REDLOOTBAG},
-    {SNAKESKINARMOR, CYANLOOTBAG},
+    {SNAKESKINARMOR, PURPLELOOTBAG},
     {CHICKENTOME, WHITELOOTBAG},
     {ADMINCROWN, BROWNLOOTBAG},
     {T0SWORD, BROWNLOOTBAG},
@@ -2842,6 +3214,8 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {FLAMINGFLASK, PURPLELOOTBAG},
     {GORDONINCANTATION, REDLOOTBAG},
     {ADMINSWORD, WHITELOOTBAG},
+    {SPDTINCTURE, PURPLELOOTBAG},
+    {DEFTINCTURE, PURPLELOOTBAG},
 };  
 
 // DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
@@ -3095,7 +3469,9 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {MINORMPPOT, {LOFIOBJ2, 8, 8 ,{8*7, 8*15, 8, 8}, 12, true, false}},
     {CUBEJUICE, {LOFIOBJ2, 8, 8 ,{8*2, 8*11, 8, 8}, 12, true, false}},
     {FLAMINGFLASK, {LOFIOBJ2, 8, 8 ,{8*1, 8*14, 8, 8}, 12, true, false}},
-    {GORDONINCANTATION, {LOFIOBJ2, 8, 8 ,{8*11, 8*11, 8, 8}, 12, true, false}}    
+    {GORDONINCANTATION, {LOFIOBJ2, 8, 8 ,{8*11, 8*11, 8, 8}, 12, true, false}},
+    {SPDTINCTURE, {LOFIOBJ2, 8, 8 ,{8*6, 8*12, 8, 8}, 12, true, false}},
+    {DEFTINCTURE, {LOFIOBJ2, 8, 8 ,{8*5, 8*12, 8, 8}, 12, true, false}},    
 };
 
 //PECbools = piercing, diagonal, inflictsSE, ignoresdef, oscillates
@@ -3123,12 +3499,12 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
 
     {T0BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 10, 40, 1, 0.0f, GREENARROW}},
     {T1BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 15, 45, 1, 0.0f, GREENARROW}},
-    {T2BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 20, 50, 1, 0.0f, LIGHTBOLT}},
+    {T2BOW, {BITS_PIERCING,440, 1024, 20, 50, 1, 0.0f, LIGHTBOLT}},
     {T3BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 25, 55, 1, 0.0f, GREENARROW}},
     {T4BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 35, 65, 1, 0.0f, GREENARROW}},
     {T5BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 45, 65, 1, 0.0f, REDMAGIC}},
     {T6BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 30, 50, 2, 12.0f, BLUEARROW}},
-    {T7BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 50, 70, 1, 0.0f, HEAVYBOLT}},
+    {T7BOW, {BITS_PIERCING,440, 1024, 50, 70, 1, 0.0f, HEAVYBOLT}},
     {T8BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 40, 60, 3, 24.0f, GOLDARROW}},
     {T9BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 40, 65, 3, 24.0f, GREENARROW}},
     {T10BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 45, 65, 3, 24.0f, BLUEARROW}},
@@ -3233,6 +3609,7 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {SKELETON4, {0}},
     {SKELETON5, {0}},
     {WHITECHICKEN, {0}},
+    {DUCK, {0}},
     {ROOSTER, {0}},
     {BIGROOSTER, {0}},
     {BIGTURKEY, {0}},
@@ -3264,48 +3641,26 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {CRYSTALSTEED, {0}},
     {GRANDSPHINX, {0}},
     {HORRIDREAPER1, {0}},
-    {HORRIDREAPER2, {0}}
+    {HORRIDREAPER2, {0}},
+    {GHOSTKING, {4}},
+    {GHOSTARCHER, {0}},
+    {GHOSTWARRIOR, {4}},
+    {GHOSTWIZARD, {3}},
+    {GHOSTASSASSIN, {2}},
+    {GHOSTPALADIN, {4}},
+    {GHOSTSTATUE, {3}},
+    {REAPER, {0}},
+    {CULTIST, {0}},
+    {SHADE, {0}},
 
 };
-
-/*  
-    unsigned short repeatFrequency; // ms per shot 
-    unsigned short duration; // ms until death of projectile
-    unsigned short damage; 
-    unsigned short projectileSpeed;
-    bool piercing;
-    unsigned char shots; // dont use odd number of shots with 360, 720, etc
-    float arcgap; 
-
-    textureEnums spriteassetId; // sprite info for projectile
-    unsigned char spritewidth;
-    unsigned char spriteheight;
-    SDL_Rect spritesrcRect;
-    unsigned char spritezIndex;
-    bool spriteisFixed; // fixed sprites stay in same spot on screen 
-    bool spritediagonalSprite;
-
-    unsigned short boxwidth; // box info for projectile
-    unsigned short boxheight;
-    glm::vec2 boxoffset; 
-
-    bool inflictsStatusEffect;
-    statuses statusEffect;
-    unsigned short durationMS;
-
-    bool ignoresDefense;
-
-    bool oscillation;
-    float amplitude;
-    float frequency;
-*/
 
 // GIVEN A MONSTER SPRITE, RETURNS PROJECTILE EMITTER COMPONENT
                             //RF, speed, duration, damage
 std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
-    {SKELETON0, {BITS_NONE, 500, 500, 400, 5, 1, 0.0f, BLADE}},
-    {SKELETON1, {BITS_NONE, 1000, 500, 400, 10, 1, 0.0f, BLADE}},
-    {SKELETON2, {BITS_NONE, 1000, 500, 400, 15, 1, 0.0f, BLADE}},
+    {SKELETON0, {BITS_NONE, 500, 600, 400, 15, 1, 0.0f, BLADE}},
+    {SKELETON1, {BITS_NONE, 500, 600, 400, 17, 1, 0.0f, BLADE}},
+    {SKELETON2, {BITS_NONE, 500, 600, 400, 18, 1, 0.0f, BLADE}},
     {SKELETON3, {BITS_DIAGONAL, 1000, 750, 1000, 20, 3, 18.0f, PINKBOLT}},
     {SKELETON4, {BITS_DIAGONAL, 150, 500, 500, 25, 1, 0.0f, REDBOLT}},
 
@@ -3315,6 +3670,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {TINYREDCHICKEN, {BITS_NONE, 500, 500, 450, 8, 1, 0.0f, BLADE}},
     {COCKATRICE, {BITS_NONE, 500, 600, 350, 15, 3, 24.0f, REDMAGIC}},
     {WHITECHICKEN, {BITS_NONE, 500, 600, 400, 12, 1, 0.0f, REDMAGIC}},
+    {DUCK, {BITS_NONE, 500, 500, 450, 10, 1, 0.0f, BLUEMAGIC}},
 
     {ROOSTER, {BITS_NONE, 500, 600, 750, 15, 1, 0.0f, REDMAGIC}},
     {BIGROOSTER, {BITS_DIAGONAL, 500, 500, 450, 12, 3, 18.0f, REDBOLT}},
@@ -3334,7 +3690,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {IMP3, {BITS_OSCILLATING_DIAGONAL, 500, 600, 750, 15, 2, 0.0f, YELLOWMISSILE, NULL_STATUS_EFFECT, 0, 24.0f, .004f}},
     {WHITEDEMON, {BUTS_IGNOREDEF_ROTATE, 500, 600, 750, 45, 5, 60.0f, WHITESTAR}},
     {SKELETON5, {BITS_ROTATING, 1000, 600, 750, 15, 1, 0.0f, BLUEBOOMERANG}},
-    {MOUSE0, {BITS_ROTATE_INFLICTSE, 1000, 500, 666, 5, 1, 0.0f, GREENSTAR, QUIET, 1000}},
+    {MOUSE0, {BITS_NONE, 500, 450, 400, 10, 1, 0.0f, BLADE}},
     {BAT0, {BITS_ROTATE_INFLICTSE, 1000, 600, 666, 15, 1, 0.0f, PURPLESTAR, SLOWED, 3000}},
     {SHEEP, {BITS_NONE, 250, 0, 0, 0, 0, 0.0f, BLADE}},
 
@@ -3369,6 +3725,33 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {GRANDSPHINX, {BITS_NONE, 500, 428, 1600, 120, 1, 0.0f, LONGFIREBOLT}},
     {HORRIDREAPER1, {BITS_DIAGONAL, 1000, 448, 1550, 60, 5, 360.0f, REDMISSILE}},
     {HORRIDREAPER2, {BITS_DIAGONAL, 1000, 576, 1400, 70, 1, 0.0f, BLACKMISSILE}},
+                             //RF, speed, duration, damage, numshots, arcgap
+    {GHOSTKING, {BITS_DIAGONAL, 500, 550, 750, 25, 1, 0.0f, BLUEBOLT}},
+    {GHOSTARCHER, {BITS_DIAGONAL, 500, 600, 700, 15, 3, 18.0f, BLUEARROW}},
+    {GHOSTWARRIOR, {BITS_DIAGONAL, 500, 500, 600, 25, 1, 0.0f, BLUEBOLT}},
+    {GHOSTWIZARD, {BITS_OSCILLATING_DIAGONAL, 500, 600, 750, 18, 2, 0.0f, BLUEMISSILE, NULL_STATUS_EFFECT, 0, 24.0f, .004f}},
+    {GHOSTASSASSIN, {BITS_DIAGONAL, 500, 500, 550, 20, 1, 0.0f, BLUEBOLT}},
+    {GHOSTPALADIN, {BITS_DIAGONAL, 500, 550, 550, 25, 1, 0.0f, BLUEBOLT}},
+    {GHOSTSTATUE, {BITS_NONE, 500, 550, 400, 18, 3, 18.0f, DARKBLUEMAGIC}},
+
+    {REAPER, {BITS_ROTATING, 1000, 550, 750, 40, 9, 360.0f, WHITECROSS}},
+    {CULTIST, {BITS_DIAGONAL, 500, 550, 1250, 30, 3, 30.0f, CULTMISSILE}},
+
+    {CHICKENEGG, {BITS_NONE, 0, 0, 0, 0, 0, 0.0f, DARKBLUEMAGIC}},
+
+    {BROWNSLIMESMALL, {BITS_NONE, 500, 512, 1000, 5, 1, 0.0f, BROWNMAGIC}},
+    {BROWNSLIMEMEDIUM, {BITS_NONE, 500, 512, 1000, 15, 1, 0.0f, BROWNMAGIC}},
+    {BROWNSLIMELARGE, {BITS_NONE, 1000, 400, 1100, 30, 3, 30.0f, BROWNMAGIC}},
+    {BLACKSLIMESMALL, {BITS_NONE, 500, 512, 1000, 5, 1, 0.0f, BLACKMAGIC}},
+    {BLACKSLIMEMEDIUM, {BITS_NONE, 500, 512, 1000, 15, 1, 0.0f, BLACKMAGIC}},
+    {BLACKSLIMELARGE, {BITS_NONE, 1000, 400, 1100, 30, 3, 30.0f, BLACKMAGIC}},
+
+    {GREYSPIRIT, {BITS_DIAGONAL, 1000, 384, 1300, 40, 1, 0.0f, GREYSPIRITBOLT}},
+    {BLUESPIRIT, {BITS_DIAGONAL, 1000, 384, 1300, 40, 1, 0.0f, BLUESPIRITBOLT}},
+    {WHITESPIRIT, {BITS_DIAGONAL, 1000, 384, 1300, 40, 1, 0.0f, WHITEBOLT}},
+
+    {SHADE, {BITS_DIAGONAL, 1000, 400, 2000, 50, 19, 360.0f, BLACKMISSILE}},
+    {POTCHEST, {BITS_NONE, 0, 0, 0, 0, 0, 0.0f, DARKBLUEMAGIC}},
 };
 
 
@@ -3387,6 +3770,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {TINYWHITECHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {TINYREDCHICKEN, {80,0,0,3,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {WHITECHICKEN, {120,0,0,6,15,0,0,0,CHICKENHIT,CHICKENDEATH}},
+    {DUCK, {100,0,0,5,12,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {COCKATRICE, {280,0,0,5,20,0,0,0,GREATERPITSNAKESHIT,GREATERPITSNAKESDEATH}},
     {ROOSTER, {150,0,0,5,10,0,0,0,CHICKENHIT,CHICKENDEATH}},
     {BIGROOSTER, {300,0,0,6,17,0,0,0,CHICKENHIT,CHICKENDEATH}},
@@ -3409,6 +3793,14 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {BAT0,{250,0,0,5,28,0,20,0,BATSHIT,BATSDEATH}},
     {SHEEP, {3500,0,0,10,35,0,50,0,DEFAULTHIT,DEFAULTDEATH}},
     {GIGASHEEP, {3000,0,0,20,40,0,50,0,SKULLSHRINEHIT,SKULLSHRINEDEATH}},
+            //hp,mp,att,def,spd,dex,vit,wis
+    {GHOSTKING, {650,0,0,12,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTARCHER, {550,0,0,16,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTWARRIOR, {580,0,0,17,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTWIZARD, {400,0,0,12,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTASSASSIN, {400,0,0,16,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTPALADIN, {400,0,0,20,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
+    {GHOSTSTATUE, {800,0,0,35,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
 
     {GORDON, {65535,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}},
             //hp,mp,att,def,spd,dex,vit,wis
@@ -3436,12 +3828,30 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
 
     {MYSTERIOUSCRYSTAL, {50000,0,0,0,0,0,0,0, STONEWALLSHIT, STONEWALLSDEATH}},
     {CRYSTALPRISONER, {25000,0,0,0,25,0,0,0, GHOSTGODHIT, GHOSTGODDEATH}},
-    {CRYSTALSTEED, {6000,0,0,0,35,0,0,0, LIZARDGODHIT, LIZARDGODDEATH}},
+    {CRYSTALSTEED, {5000,0,0,0,35,0,0,0, LIZARDGODHIT, LIZARDGODDEATH}},
     {GRANDSPHINX, {25000,0,0,25,35,0,0,0, GHOSTGODHIT, GHOSTGODDEATH}},
 
-    {HORRIDREAPER1, {6000,0,0,0,30,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
-    {HORRIDREAPER2, {6000,0,0,0,30,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {HORRIDREAPER1, {4500,0,0,0,30,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {HORRIDREAPER2, {4500,0,0,0,30,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
 
+    {REAPER, {2500,0,0,15,15,0,0,0, DEFAULTHIT, GHOSTSDEATH}},
+    {CULTIST, {2000,0,0,20,20,0,0,0, DARKELVESHIT, DEMONSDEATH}},
+    {CHICKENEGG, {100,0,0,0,1,0,0,0, EGGSHIT, EGGSDEATH}},
+
+    {BROWNSLIMESMALL, {200,0,0,0,10,0,0,0, SLIMESHIT, SLIMESDEATH}},
+    {BROWNSLIMEMEDIUM, {400,0,0,0,15,0,0,0, SLIMESHIT, SLIMESDEATH}},
+    {BROWNSLIMELARGE, {800,0,0,0,25,0,0,0, SLIMESHIT, SLIMESDEATH}},
+    {BLACKSLIMESMALL, {200,0,0,0,10,0,0,0, SLIMESHIT, SLIMESDEATH}},
+    {BLACKSLIMEMEDIUM, {400,0,0,0,15,0,0,0, SLIMESHIT, SLIMESDEATH}},
+    {BLACKSLIMELARGE, {800,0,0,0,25,0,0,0, SLIMESHIT, SLIMESDEATH}},
+
+    {GREYSPIRIT, {750,0,0,18,20,0,0,0, GHOSTSHIT, GHOSTSDEATH}},
+    {BLUESPIRIT, {750,0,0,15,20,0,0,0, GHOSTSHIT, GHOSTSDEATH}},
+    {WHITESPIRIT, {750,0,0,18,20,0,0,0, GHOSTSHIT, GHOSTSDEATH}},
+
+    {SHADE, {1800,0,0,55,0,0,0,0, SKELETONSHIT, SKELETONSDEATH}},
+    {FLOATINGSKULL, {50,0,0,20,20,0,0,0, SKELETONSHIT,SKELETONSDEATH}},
+    {POTCHEST, {100,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}}
 
 };
 
@@ -3461,6 +3871,7 @@ std::unordered_map<boxColliders, boxColliderData> bcEnumToData = {
     {SCALED8, {52,24,{6,36}}},
     {SCALED4, {38,18,{2,22}}},
     {BIGSCALED8, {120, 64, {8,64}}}, // for 16x16 monsters with a scale of 8
+    {STANDARDFLOATING, {38,18,{6,10}}}
 
 };
 
@@ -3484,10 +3895,19 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {REDLOOTBAG, {LOFIOBJ4,8,8,{8*8,8*13,8,8},4,false,false}},
     {VAULTCHEST, {LOFIOBJ2,8,8,{8*14,8*0,8,8},4,false,false}},
 
+    {GHOSTKING, {CHAR8X8RHERO1, 8,8, {0,8*10,8,8}, 4, false, false}},
+    {GHOSTARCHER, {CHAR8X8RHERO1, 8,8, {0,8*11,8,8}, 4, false, false}},
+    {GHOSTWARRIOR, {CHAR8X8RHERO1, 8,8, {0,8*12,8,8}, 4, false, false}},
+    {GHOSTWIZARD, {CHAR8X8RHERO1, 8,8, {0,8*13,8,8}, 4, false, false}},
+    {GHOSTASSASSIN, {CHAR8X8RHERO1, 8,8, {0,8*14,8,8}, 4, false, false}},
+    {GHOSTPALADIN, {CHAR8X8RHERO1, 8,8, {0,8*15,8,8}, 4, false, false}},
+    {GHOSTSTATUE, {CHAR8X8RHERO1, 8,8, {0,8*16,8,8}, 4, false, false}},
+
     {TINYWHITECHICKEN,{LOFICHAR, 8,8, {8*7,8*27,8,8}, 4, false, false}},
     {TINYREDCHICKEN,{LOFICHAR, 8,8, {8*6,8*27,8,8}, 4, false, false}},
     {COCKATRICE,{LOFICHAR, 16,8, {8*12,8*15,16,8}, 4, false, false}},
     {WHITECHICKEN,{CHARS8X8ENCOUNTERS, 8,8, {0,8*29,8,8}, 4, false, false}},
+    {DUCK,{CHARS8X8ENCOUNTERS, 8,8, {0,8*147,8,8}, 4, false, false}},
     {ROOSTER,{CHARS8X8BEACH, 8,8, {0,8*9,8,8}, 4, false, false}},
     {BIGROOSTER,{CHARS16X16ENCOUNTERS, 16,16, {0,16*2,16,16}, 4, false, false}},
     {BIGTURKEY,{CHARS16X16ENCOUNTERS, 16,16, {0,16*125,16,16}, 4, false, false}},
@@ -3542,6 +3962,27 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {HORRIDREAPER1, {CHARS8X8BEACH, 8,8, {8*0,8*15,8,8}, 4, false, false}},
     {HORRIDREAPER2, {CHARS8X8BEACH, 8,8, {8*0,8*15,8,8}, 4, false, false}},
 
+    {REAPER, {LOSTHALLS16X16, 16,16, {16*0,16*1,16,16}, 4, false, false}},
+    {CULTIST, {LOSTHALLS16X16, 16,16, {16*0,16*13,16,16}, 4, false, false}},
+
+    {CHICKENEGG, {LOFICHAR, 8, 8, {8*5, 8*14,8,8},4,false,false}},
+
+    {BROWNSLIMESMALL,{LOFICHAR, 8, 8, {8*1, 8*11,8,8},4,false,false}},
+    {BROWNSLIMEMEDIUM, {LOFICHAR, 8, 8, {8*1, 8*11,8,8},4,false,false}},
+    {BROWNSLIMELARGE, {LOFICHAR, 8, 8, {8*1, 8*11,8,8},4,false,false}},
+    {BLACKSLIMESMALL, {LOFICHAR, 8, 8, {8*0, 8*11,8,8},4,false,false}},
+    {BLACKSLIMEMEDIUM, {LOFICHAR, 8, 8, {8*0, 8*11,8,8},4,false,false}},
+    {BLACKSLIMELARGE, {LOFICHAR, 8, 8, {8*0, 8*11,8,8},4,false,false}},
+
+    {GREYSPIRIT, {LOFICHAR, 8, 8, {8*6, 8*7,8,8},4,false,false}},
+    {BLUESPIRIT, {LOFICHAR, 8, 8, {8*7, 8*7,8,8},4,false,false}},
+    {WHITESPIRIT, {LOFICHAR, 8, 8, {8*8, 8*7,8,8},4,false,false}},
+
+    {SHADE, {CHAR8X8RHERO1,8,8,{8*0, 8*23,8,8},4,false,false}},
+    {FLOATINGSKULL, {LOFICHAR,8,8,{8*15, 8*9,8,8},4,false,false}},
+
+    {POTCHEST, {LOFIOBJ,8,8,{8*2, 8*0,8,8},4,false,false}},
+
 };
 
 std::unordered_map<classes, spritedata> classToSpriteData = {
@@ -3566,6 +4007,7 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {TINYREDCHICKEN, STANDARD},
     {COCKATRICE, WIDE},
     {WHITECHICKEN, STANDARD},
+    {DUCK, STANDARD},
     {ROOSTER, STANDARD},
     {BIGROOSTER, BIG},
     {BIGTURKEY, BIG},
@@ -3611,10 +4053,31 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {GRANDSPHINX, BIGSCALED8},
     {HORRIDREAPER1, STANDARD},
     {HORRIDREAPER2, STANDARD},
-
+    {GHOSTKING, STANDARD},
+    {GHOSTARCHER, STANDARD},
+    {GHOSTWARRIOR, STANDARD},
+    {GHOSTWIZARD, STANDARD},
+    {GHOSTASSASSIN, STANDARD},
+    {GHOSTPALADIN, STANDARD},
+    {GHOSTSTATUE, STANDARD},
+    {REAPER, BIGSCALED8},
+    {CULTIST, BIG},
+    {CHICKENEGG, STANDARD},
+    {BROWNSLIMESMALL,SCALED4},
+    {BROWNSLIMEMEDIUM, STANDARD},
+    {BROWNSLIMELARGE, SCALED8},
+    {BLACKSLIMESMALL, SCALED4},
+    {BLACKSLIMEMEDIUM, STANDARD},
+    {BLACKSLIMELARGE, SCALED8},
+    {GREYSPIRIT, SCALED8},
+    {BLUESPIRIT, SCALED8},
+    {WHITESPIRIT, SCALED8},
+    {SHADE, STANDARD},
+    {FLOATINGSKULL, STANDARDFLOATING},
+    {POTCHEST, STANDARD}
 };
 
-/*    unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
+/*  unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
     unsigned short engageRange; // distance where monster will further engage if possible (ex: shoot)
     unsigned short maxDistance; */
 std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
@@ -3630,6 +4093,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {TINYREDCHICKEN, {400,0,105}},
     {COCKATRICE, {600,0,100}},
     {WHITECHICKEN, {400,0,50}},
+    {DUCK, {400,0,50}},
     {ROOSTER, {600,0,80}},
     {BIGROOSTER, {600,0,120}},
     {BIGTURKEY, {600,0,100}},
@@ -3659,7 +4123,23 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {FLYINGBRAIN, {300, 0, 200}},
     {SLIMEGOD, {300, 0, 220}},
     {GHOSTGOD, {300, 0, 180}},
-    {CUBEGOD, {0,0,0}}
+    {CUBEGOD, {0,0,0}},
+    {GHOSTKING, {600, 0, 50}},
+    {GHOSTARCHER, {550, 0, 100}},
+    {GHOSTWARRIOR, {600, 0, 150}},
+    {GHOSTWIZARD, {600, 0, 220}},
+    {GHOSTASSASSIN, {400, 0, 200}},
+    {GHOSTPALADIN, {600, 0, 175}},
+    {GHOSTSTATUE, {400, 0, 125}},
+    {CULTIST, {400,0,100}},
+    {BROWNSLIMESMALL, {600,0,100}},
+    {BROWNSLIMEMEDIUM, {600,0,200}},
+    {BLACKSLIMESMALL, {600,0,100}},
+    {BLACKSLIMEMEDIUM, {600,0,200}},
+    {GREYSPIRIT, {600,0,200}},
+    {BLUESPIRIT, {600,0,200}},
+    {WHITESPIRIT, {600,0,200}},
+    {SHADE, {600,0,200}},
 
 };
 
@@ -3680,6 +4160,7 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {TINYREDCHICKEN, {3,0,0}},
     {COCKATRICE, {3,0,0}},
     {WHITECHICKEN, {3,0,0}},
+    {DUCK, {3,0,0}},
     {ROOSTER, {3,0,0}},
     {BIGROOSTER, {3,0,0}},
     {BIGTURKEY, {3,0,0}},
@@ -3712,7 +4193,17 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {CRYSTALSTEED, {3,0,0}},
     {GRANDSPHINX, {3,0,0}},
     {HORRIDREAPER1, {3,0,0}},
-    {HORRIDREAPER2, {3,0,0}}
+    {HORRIDREAPER2, {3,0,0}},
+    {GHOSTKING, {3,0,0}},
+    {GHOSTARCHER, {3,0,0}},
+    {GHOSTWARRIOR, {3,0,0}},
+    {GHOSTWIZARD, {3,0,0}},
+    {GHOSTASSASSIN, {3,0,0}},
+    {GHOSTPALADIN, {3,0,0}},
+    {GHOSTSTATUE, {3,0,0}},
+    {REAPER, {3,0,0}},
+    {CULTIST, {3,0,0}},
+    {SHADE, {3,0,0}},
 
 };
 
@@ -3726,19 +4217,26 @@ std::unordered_map<sprites, secondaryPECdata> spriteToSPECRepeatFreq = {
     {ORANGECUBE, {5000, 3.0}},
     {SKELETON5, {5000, 1.0}},
     {PENTARACTTOWER, {5000, 1.0}},
+    {GHOSTASSASSIN, {5000, 1.0}},
+    {GHOSTARCHER, {5000, 1.0}},
+    {BLUESPIRIT, {5000, 1.0}},
+    {SHADE, {5000, 1.0}},
+    {BOSSCHICKEN, {10000, 1.0}}
 };
 
 std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData = {
     // monsterToSpawn, maxMinions, respawnInterval
-    {SPRITEGOD, {{SPRITEMINION}, 5, 10000}}, // change back to 5, 10000
-    {CUBEGOD, {{ORANGECUBE}, 3, 30000}}, // should respawn every 30,000 for production
-    {ORANGECUBE, {{YELLOWCUBE}, 2, 30000}},
-    {YELLOWCUBE, {{CYANCUBE}, 3, 30000}},
-    {SKULLSHRINE, {{REDFLAMINGSKULL,BLUEFLAMINGSKULL}, 25, 30000}}, 
-    {PENTARACTTOWER, {{PENTARACTEYE}, 5, 20000}},
-    {PENTARACT, {{PENTARACTTOWER}, 5, 30000}},
-    {CRYSTALPRISONER, {{CRYSTALSTEED}, 3, 20000}}, 
-    {GRANDSPHINX, {{HORRIDREAPER1, HORRIDREAPER2}, 5, 20000}}, 
+    {SPRITEGOD, {{SPRITEMINION}, 5, 10000, false}}, // change back to 5, 10000
+    {CUBEGOD, {{ORANGECUBE}, 3, 30000, false}}, // should respawn every 30,000 for production
+    {ORANGECUBE, {{YELLOWCUBE}, 2, 30000, false}},
+    {YELLOWCUBE, {{CYANCUBE}, 3, 30000, false}},
+    {SKULLSHRINE, {{REDFLAMINGSKULL,BLUEFLAMINGSKULL}, 25, 30000, false}}, 
+    {PENTARACTTOWER, {{PENTARACTEYE}, 5, 20000, false}},
+    {PENTARACT, {{PENTARACTTOWER}, 5, 30000, false}},
+    {CRYSTALPRISONER, {{CRYSTALSTEED}, 3, 20000, false}}, 
+    {GRANDSPHINX, {{HORRIDREAPER1, HORRIDREAPER2}, 5, 20000, false}}, 
+    {CULTIST, {{REAPER}, 1, 1, true}},
+    {SHADE, {{FLOATINGSKULL}, 3, 10000, false}}
 };
 
 std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData = {
@@ -3750,8 +4248,13 @@ std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData
     {BLUEFLAMINGSKULL, {100, 5}},
     {REDFLAMINGSKULL, {100, 5}},
     {PENTARACTEYE, {75, 1.4}},
+    {FLOATINGSKULL, {75, 1.5}},
 };
 
 std::unordered_set<sprites> hasDeathAction = {
-    PENTARACT, MYSTERIOUSCRYSTAL
+    PENTARACT, MYSTERIOUSCRYSTAL, CHICKENEGG, BROWNSLIMELARGE, BROWNSLIMEMEDIUM, BLACKSLIMELARGE, BLACKSLIMEMEDIUM
+};
+
+std::vector<sprites> chickens = {
+    TINYWHITECHICKEN, TINYREDCHICKEN, WHITECHICKEN, DUCK
 };

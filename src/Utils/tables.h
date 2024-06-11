@@ -61,8 +61,8 @@
 #define T13ARMOR {T13HEAVYARMOR, T13ROBE, T13LIGHTARMOR}
 #define T14ARMOR {T14HEAVYARMOR, T14ROBE, T14LIGHTARMOR}
 
-#define HPMPPOT {HPPOT, MPPOT}
-#define MINORHPMPPOT {MINORHPPOT, MINORMPPOT}
+#define HPMPPOT {HPPOT, HPPOT, HPPOT, MPPOT}
+#define MINORHPMPPOT {MINORHPPOT,MINORHPPOT,MINORHPPOT, MINORMPPOT}
 
 #define BLADE LOFIOBJ, {4*8+4, 8*15, 1, 6}, 8,8,{0,10}
 
@@ -74,6 +74,8 @@
 #define BLACKBOLT LOFIOBJ2, {8*1,8*7,8,8}, 10,10,{14,14}
 #define PURPLEBOLT LOFIOBJ2, {8*2,8*7,8,8}, 10,10,{14,14}
 #define CHICKENBOLT LOFIOBJ2, {8*6,8*11,8,8}, 32,32,{4,4}
+#define BLUESPIRITBOLT LOFICHAR, {8*8,8*26,8,8}, 32,32,{4,4}
+#define GREYSPIRITBOLT LOFICHAR, {8*7,8*26,8,8}, 32,32,{4,4}
 
 #define REDMAGIC LOFIOBJ, {4*8+3, 8*13+1, 3, 6}, 12,12,{0,8}
 #define BLUEMAGIC LOFIOBJ, {4*8+3, 8*14, 3, 6}, 12,12,{0,8} 
@@ -86,6 +88,7 @@
 #define CYANMAGIC LOFIOBJ2, {8*0+3, 8*10+1, 3, 6}, 12,12,{0,8}
 #define DARKBLUEMAGIC LOFIOBJ2, {8*3+3, 8*10+1, 3, 6}, 12,12,{0,8}
 #define CHRONUSMAGIC LOFIPROJS, {8*14+3, 8*2+1, 3, 6}, 12,12,{0,8}
+#define BROWNMAGIC LOFIOBJ2, {4*8+3, 8*10+1, 3, 6}, 12,12,{0,8}
 
 #define GREENARROW LOFIPROJS, {8, 8*7, 8, 8}, 8,8,{16,16}
 #define REDARROW LOFIPROJS, {8*2, 8*7, 8, 8}, 8,8,{16,16}
@@ -104,6 +107,7 @@
 #define PURPLESTAR LOFIOBJ, {8*0,8*7,8,8}, 10, 10, {14,14} // slowed
 #define YELLOWSTAR LOFIOBJ, {8*6,8*7,8,8}, 10, 10, {14,14} // blind
 #define ORANGESTAR LOFIOBJ, {8*9,8*7,8,8}, 10, 10, {14,14} // stunned
+#define BLACKSTAR LOFIOBJ,  {8*10,8*7,8,8}, 10, 10, {14,14} // paralyzed
 
 #define REDCIRCLEMAGIC LOFIOBJ, {8*1,8*9,8,8}, 32,32,{4,4}
 #define ARCMAGIC LOFIOBJ3, {8*1,8*22,8,8}, 32,32,{4,4}
@@ -117,6 +121,7 @@
 #define FIREBALL LOFICHAR2, {8*8, 8*3, 8, 8}, 32, 32, {4,4}
 #define LONGFIREBOLT LOFICHAR2, {8*10, 8*2, 8, 16}, 32, 32, {4,24}
 #define ZSHOT LOFIOBJ4, {8*0, 8*12, 8, 8}, 32, 32, {4,4} 
+#define WHITECROSS LOFIOBJ, {8*8,8*8,8,8}, 32,32,{4,4}
 
 #define WHITEMISSILE LOFIOBJ2, {12*8+2, 9*8+1, 5,5}, 8,8,{12,12}
 #define REDMISSILE LOFIOBJ2, {8*10+2, 8*8+1, 5,5}, 8,8,{12,12}
@@ -127,6 +132,7 @@
 #define BLUEMISSILE LOFIOBJ, {8*5+2, 8*14+1, 5,5}, 8,8,{12,12}
 #define AQUAMISSILE LOFIOBJ2, {12*8+2, 8*8+1, 5,5}, 8,8,{12,12}
 #define ORANGEMISSILE LOFIOBJ2, {4*8+2, 8*7+1, 5,5}, 8,8,{12,12}
+#define CULTMISSILE LOFIPROJS, {8*15, 8*3, 8,8}, 8,8,{16,16}
 
 #define NULL_PEC 0, 0, 0, 0, 0, 0.0f // pentaract tower uses this. fake PEC 
 
@@ -334,6 +340,7 @@ struct minionSpawnerData{
     std::vector<sprites> minions;
     unsigned char maxMinions;
     Uint32 respawnInterval;
+    bool spawnOnlyOnce;
 };
 
 struct travelDistanceData{
@@ -346,6 +353,7 @@ struct secondaryPECdata{
     float RFmaxmod;
 };
 
+extern std::vector<sprites> chickens;
 extern std::unordered_set<sprites> hasDeathAction;
 extern std::unordered_set<sprites> towers;
 extern std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData;

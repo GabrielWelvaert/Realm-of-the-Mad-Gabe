@@ -47,6 +47,12 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     auto& inventory = playerIC.inventory;
     switch(event.itemEnum){
+        case SPDTINCTURE:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(player, SPEEDY, event.eventbus, event.registry, 4000);
+        } break;
+        case DEFTINCTURE:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(player, ARMORED, event.eventbus, event.registry, 4000);
+        } break;
         case GORDONINCANTATION:{
             event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, GORDONSLAIRWALLTHEME);
         } break;

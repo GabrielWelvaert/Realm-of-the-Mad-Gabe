@@ -22,17 +22,22 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 
     // very few monsters will requrie non-default (6.0) scaling
     switch(spriteEnum){
+        case BROWNSLIMELARGE:
+        case BLACKSLIMELARGE:
+        case REAPER:
         case GRANDSPHINX:
-        case ORANGECUBE:{
+        case ORANGECUBE:{ 
             enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(8.0));
         } break;
         case YELLOWCUBE:{
             enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(7.0));
         } break;
-        case CYANCUBE: {
+        case BLACKSLIMESMALL:
+        case BROWNSLIMESMALL:
+        case CYANCUBE: { 
             enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0));
         } break;
-        default:{
+        default:{ 
             enemy.AddComponent<TransformComponent>(spawnpoint); // default = 6.0
         } break;
     }
@@ -61,7 +66,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     // if this monster should be able to spawn minions
     if(spriteToMinionSpawnerData.find(spriteEnum) != spriteToMinionSpawnerData.end()){
         const auto& msd = spriteToMinionSpawnerData.at(spriteEnum);
-        enemy.AddComponent<MinionSpawnerComponent>(msd.minions, msd.maxMinions, msd.respawnInterval);
+        enemy.AddComponent<MinionSpawnerComponent>(msd.minions, msd.maxMinions, msd.respawnInterval, msd.spawnOnlyOnce);
     }
 
     // if this monster should be able to drop loot
@@ -78,6 +83,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
             enemy.AddComponent<RidigBodyComponent>();
             switch(spriteEnum){
+                case REAPER:
                 case HORRIDREAPER1:
                 case HORRIDREAPER2:{
                     enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
@@ -153,7 +159,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 300, 700);
+            enemy.AddComponent<BossAIComponent>(BOSSCHICKEN, spawnpoint, 2000, 200, 700);
             enemy.GetComponent<TransformComponent>().position = enemy.GetComponent<BossAIComponent>().phaseOnePositions[0]; // for chicken circle
             enemy.AddComponent<isShootingComponent>();
         } break;
@@ -210,6 +216,16 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
     return enemy;
 }
 
+void Factory::spawnDecoration(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
+    Entity decoration = registry->CreateEntity();
+    switch(spriteEnum){
+        case CRACKEDWHITEEGG:{
+            decoration.AddComponent<SpriteComponent>(LOFICHAR,8,8,4,8*6,8*14,false);
+            decoration.AddComponent<TransformComponent>(spawnpoint);
+        } break;
+    }
+}
+
 Factory::Factory(){
     for(int i = 0; i < 12; i++){ // destination positions for partcile velocity calculations
         particleAngles[i] = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(12);
@@ -256,7 +272,7 @@ void Factory::spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
     for(const auto& room: dungeonRooms){
-        if(room.id == 0){
+        if(room.id == 0){ // spawn room
             continue;
         } else if(room.id == bossRoomId){ // spawn boss in boss room
             glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
@@ -277,19 +293,24 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         int maxX = room.x + room.w - 2;
         int maxY = room.y + room.h - 2;
         const auto& possibleRoomSpawns = wallThemeToMonsterSpawns.at(dungeonType); // the table that had possible room spawns; ex tiny red and white chickens together
-        const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)];
+        const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)]; // select random from wallThemeToMonsterSpawns
         int roomQuantifier = (room.w + room.h) / 4; // ex 10x10 room will spawn 10 monsters per spawn type in selectedRoomSpawns
         std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;
         for(const auto& enemySpawn: selectedRoomSpawns){
-            int numToSpawn = enemySpawn.modifier * roomQuantifier;
-            for(int i = 0; i <= numToSpawn; i++){
-                // multiply spawnPos by 64 to convert from tile location to pixel location
-                glm::vec2 spawnPos;
-                do {
-                    spawnPos = {RNG.randomFromRange(minX, maxX) * 64, RNG.randomFromRange(minY, maxY) * 64};
-                } while (usedSpawnPoints.find(spawnPos) != usedSpawnPoints.end());
-                usedSpawnPoints.insert(spawnPos);
+            if(enemySpawn.modifier == 0.0){ // flag to spawn just one monster at room center
+                glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
                 spawnMonster(registry, spawnPos, enemySpawn.monster);
+            } else {
+                int numToSpawn = enemySpawn.modifier * roomQuantifier;
+                for(int i = 0; i <= numToSpawn; i++){
+                    // multiply spawnPos by 64 to convert from tile location to pixel location
+                    glm::vec2 spawnPos;
+                    do {
+                        spawnPos = {RNG.randomFromRange(minX, maxX) * 64, RNG.randomFromRange(minY, maxY) * 64};
+                    } while (usedSpawnPoints.find(spawnPos) != usedSpawnPoints.end());
+                    usedSpawnPoints.insert(spawnPos);
+                    spawnMonster(registry, spawnPos, enemySpawn.monster);
+                }
             }
         }
     }
