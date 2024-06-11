@@ -10,32 +10,6 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<StatusEffectEvent>(this, &StatusEffectSystem::onStatusEnable);
 }
 
-// no longer used. status effect icons are allocated as they are needed.
-// void StatusEffectSystem::GenerateStatusIcons(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore){
-//     SDL_Texture* texture;
-//     SDL_Rect dstRect;
-//     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
-//     const int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
-// 	for(unsigned int i = 1; i < (1 << totalNumberStatusEffects); i++){ // incrementation of bitset starting at 00000001
-//         std::bitset<totalNumberStatusEffects> bits(i);
-//         int numIconsToRender = bits.count();
-//         int iconDimension = 16;
-//         int width = (iconDimension*numIconsToRender) + numIconsToRender - 1;
-//         texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
-//         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-//         SDL_SetRenderTarget(renderer, texture);
-//         int iconsRendered = 0;
-//         for(int i = 0; i < totalNumberStatusEffects; i++){
-//             if(bits[i]){
-//                 dstRect = {iconsRendered*iconDimension + 1 * (iconsRendered!=0),0,iconDimension,iconDimension};
-//                 SDL_RenderCopy(renderer, spriteAtlasTexture, &icons[i], &dstRect); //src, dest
-//                 iconsRendered++;
-//             }
-//         }
-//         iconSets.push_back(texture); // private vector used by this system
-//     }
-// }
-
 void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits){
     SDL_Rect dstRect;
     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);

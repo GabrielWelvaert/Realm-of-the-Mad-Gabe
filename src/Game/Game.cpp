@@ -231,16 +231,16 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            factory->createItemInBag(registry, CUBEJUICE, lootbag);
-                            factory->createItemInBag(registry, MINORHPPOT, lootbag);
-                            factory->createItemInBag(registry, MINORMPPOT, lootbag);
-                            factory->createItemInBag(registry, FLAMINGFLASK, lootbag);
+                            factory->createItemInBag(registry, T2ATTRING, lootbag);
+                            factory->createItemInBag(registry, T7LIGHTARMOR, lootbag);
+                            factory->createItemInBag(registry, T2CLOAK, lootbag);
+                            factory->createItemInBag(registry, T6DAGGER, lootbag);
+                            factory->createItemInBag(registry, SPDTINCTURE, lootbag);
                             factory->createItemInBag(registry, T14BOW, lootbag);
                             factory->createItemInBag(registry, ADMINSWORD, lootbag);
                             factory->createItemInBag(registry, GORDONINCANTATION, lootbag);
                             player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
+                            factory->spawnMonster(registry, spawnpoint, POTCHEST);
                         } break;
                         case SDLK_0:{
                             // std::vector<sprites> gods = {WHITEDEMON, SPRITEGOD, MEDUSA, DJINN, ENTGOD, BEHOLDER, FLYINGBRAIN, SLIMEGOD, GHOSTGOD};
@@ -257,7 +257,9 @@ void Game::ProcessInput(){
                             // }
                             // player.GetComponent<TransformComponent>().position = glm::vec2(-600,-600);
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, GRANDSPHINX, player.GetId());
+                            std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
+                            auto sprite = RNG.randomFromVector(slimes);
+                            factory->spawnMonster(registry, playerPos, MEDUSA);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -1093,7 +1095,7 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SPELL:{
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
                     auto spelldata = itemEnumToSpellData.at(itemEnum);
-                    std::string onUse = "On Use: Emits a damaging spell at target ";
+                    std::string onUse = "On Use: Emits 20 projectiles at target ";
                     std::string damage = "Damage: " + std::to_string(spelldata.minDamage) + " - " + std::to_string(spelldata.maxDamage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     info.push_back(onUse);
@@ -2104,8 +2106,10 @@ void Game::Background(){
 std::vector<Entity> Game::loadMenuOne(){ // main menu where all you can do is press play
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     Entity oryxIcon = registry->CreateEntity();
-    SDL_Rect srcRect = {8*8,8*20,16,16};
-    oryxIcon.AddComponent<SpriteComponent>(LOFICHAR, 16, 16, srcRect, 10, true, false);
+    // SDL_Rect srcRect = {8*8,8*20,16,16};
+    // oryxIcon.AddComponent<SpriteComponent>(LOFICHAR, 16, 16, srcRect, 10, true, false);
+    SDL_Rect srcRect = {0,16*58,16,16};
+    oryxIcon.AddComponent<SpriteComponent>(CHARS16X16ENCOUNTERS, 16, 16, srcRect, 10, true, false);
     oryxIcon.AddComponent<TransformComponent>(glm::vec2(340.0,50.0), glm::vec2(20.0,20.0));
     Entity rot = registry->CreateEntity();
     rot.AddComponent<TextLabelComponent>("REALM OF THE", "mpb", titleRed, true, 1,0,0);

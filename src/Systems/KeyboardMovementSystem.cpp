@@ -19,6 +19,7 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
     const auto& statusEffects = player.GetComponent<StatusEffectComponent>().effects;
     const auto& confused = statusEffects[CONFUSED];
     const auto& stunned = statusEffects[STUNNED];
+    const auto& paralyzed = statusEffects[PARALYZE];
     int move;
     
     if(stunned){
@@ -205,6 +206,11 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
             animation.frameSpeedRate = activespeed/10;    
         }
         asc.animatedShooting = false;
+    }
+
+    if(paralyzed){
+        rigidbody.velocity.x = 0.0;
+        rigidbody.velocity.y = 0.0;
     }
 
 }

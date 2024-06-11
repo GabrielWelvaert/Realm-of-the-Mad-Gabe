@@ -20,32 +20,23 @@ void CollisionSystem::onAOEBomb(AOEBombEvent& event){
     } else { // monster emitted, is player within radius? 
         const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
         if(glm::distance(playerPos, event.epicenter) <= event.radius){
-            event.eventBus->EmitEvent<ProjectileDamageEvent>(event.projectile,
-                                                            event.player,
-                                                            event.eventBus,
-                                                            event.registry,
-                                                            event.assetStore,
-                                                            event.factory,
-                                                            event.Setup,
-                                                            event.dp,
-                                                            event.activeCharacterID,
-                                                            event.characterManager);
+            event.eventBus->EmitEvent<ProjectileDamageEvent>(event.projectile,event.player,event.eventBus,event.registry,event.assetStore,event.factory,event.Setup,event.dp,event.activeCharacterID,event.characterManager);
         }
     }
 }
 
 void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
     auto& entities = GetSystemEntities();
-    const int x = 500; // 500 pixels off camera is around 8 tiles past the bounds of the camera
+    constexpr int distanceOffScreen = 1250; // distanceOffScreen + 375 = rough distance from player where all collision is ignored
     for(auto i = entities.begin(); i != entities.end(); i++){
         Entity& a = *i;
         auto& aTransform = a.GetComponent<TransformComponent>();
         auto& aCollider = a.GetComponent<BoxColliderComponent>();
-        // skip entities which are X pixels off-screen
-        if((aTransform.position.x + aCollider.width < camera.x - x|| 
-            aTransform.position.y + aCollider.height < camera.y - x|| 
-            aTransform.position.x > camera.x + camera.w + x|| 
-            aTransform.position.y > camera.y + camera.h + x)){    
+        // skip entities which are X pixels off-screen; this causes huge FPS boost!
+        if((aTransform.position.x + aCollider.width < camera.x - distanceOffScreen|| 
+            aTransform.position.y + aCollider.height < camera.y - distanceOffScreen|| 
+            aTransform.position.x > camera.x + camera.w + distanceOffScreen|| 
+            aTransform.position.y > camera.y + camera.h + distanceOffScreen)){    
             continue;
         }
         // for all entities to the right of i (sliding window algorithm)

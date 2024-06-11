@@ -3,6 +3,7 @@
 DistanceToPlayerSystem::DistanceToPlayerSystem(){
     RequireComponent<DistanceToPlayerComponent>();
     RequireComponent<TransformComponent>();
+    RequireComponent<BoxColliderComponent>();
 }
 
 void DistanceToPlayerSystem::Update(const glm::vec2& playerPos){
