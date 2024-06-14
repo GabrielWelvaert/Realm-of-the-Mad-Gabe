@@ -181,6 +181,7 @@ enum items{
     ARCTOME,
     ARCROBE,
     ARCWAND,
+    /*all items below are from release v2*/
     T0STAFF,
     T1STAFF,
     T2STAFF,
@@ -254,6 +255,33 @@ enum items{
     ADMINSWORD,
     SPDTINCTURE,
     DEFTINCTURE,
+    T0SCEPTER,
+    T1SCEPTER,
+    T2SCEPTER,
+    T3SCEPTER,
+    T4SCEPTER,
+    T5SCEPTER,
+    T6SCEPTER,
+    T7SCEPTER,
+    T8SCEPTER,
+    T0SKULL,
+    T1SKULL,
+    T2SKULL,
+    T3SKULL,
+    T4SKULL,
+    T5SKULL,
+    T6SKULL,
+    T7SKULL,
+    T8SKULL,
+    T0SEAL,
+    T1SEAL,
+    T2SEAL,
+    T3SEAL,
+    T4SEAL,
+    T5SEAL,
+    T6SEAL,
+    T7SEAL,
+    T8SEAL,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -354,7 +382,7 @@ enum sprites{
     BLACKSLIME,
     GREENSLIME,
     BROWNSLIME,
-    BOBBY,
+    // BOBBY,
     REDKNIGHT0,
     SHATTERSBOMB,
     BROWNLOOTBAG,
@@ -384,7 +412,7 @@ enum sprites{
     IMP3,
     WHITEDEMON,
     SKELETON5,
-    REDSTAR,
+    // REDSTAR,
     MOUSE0,
     BAT0,
     GORDON,
@@ -440,7 +468,8 @@ enum sprites{
     WHITESPIRIT,
     SHADE,
     FLOATINGSKULL,
-    POTCHEST
+    POTCHEST,
+    BARREL
 };
 
 enum soundEnums{
@@ -667,7 +696,8 @@ enum groups{
     PORTAL,
     CONSUMABLE,
     SKULL,
-    SCEPTER
+    SCEPTER,
+    SEAL
 };
 
 enum statuses{
@@ -683,6 +713,8 @@ enum statuses{
     INVISIBLE,
     BLIND,
     ARMORED,
+    HEALING,
+    DAMAGING,
     /* entries must be made above*/
     TOTAL_NUMBER_OF_STATUS_EFFECTS,
     NULL_STATUS_EFFECT
@@ -997,7 +1029,37 @@ enum textureEnums{
     GORDONINCANTATIONICON,
     ADMINSWORDICON,
     SPDTINCTUREICON,
-    DEFTINCTUREICON
+    DEFTINCTUREICON,
+    STATICHUDNECROMANCER,
+    STATICHUDSORCERER,
+    STATICHUDPALADIN,
+    T0SCEPTERICON,
+    T1SCEPTERICON,
+    T2SCEPTERICON,
+    T3SCEPTERICON,
+    T4SCEPTERICON,
+    T5SCEPTERICON,
+    T6SCEPTERICON,
+    T7SCEPTERICON,
+    T8SCEPTERICON,
+    T0SKULLICON,
+    T1SKULLICON,
+    T2SKULLICON,
+    T3SKULLICON,
+    T4SKULLICON,
+    T5SKULLICON,
+    T6SKULLICON,
+    T7SKULLICON,
+    T8SKULLICON,
+    T0SEALICON,
+    T1SEALICON,
+    T2SEALICON,
+    T3SEALICON,
+    T4SEALICON,
+    T5SEALICON,
+    T6SEALICON,
+    T7SEALICON,
+    T8SEALICON,
 };
 
 #endif

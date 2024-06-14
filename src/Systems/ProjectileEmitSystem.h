@@ -33,7 +33,7 @@ class ProjectileEmitSystem: public System{
     private:
         Xoshiro256 RNG;
 
-        const soundEnums playerSounds[12] = {BLADESWING, ARROWSHOOT, MAGICSHOOT, MAGICSHOOT, BLADESWING, BLADESWING, BLADESWING, BLADESWING, MAGICSHOOT, ARROWSHOOT, MAGICSHOOT, BLADESWING};
+        const std::vector<soundEnums> playerSounds = {BLADESWING, ARROWSHOOT, MAGICSHOOT, MAGICSHOOT, BLADESWING, BLADESWING, BLADESWING, BLADESWING, MAGICSHOOT, ARROWSHOOT, MAGICSHOOT, BLADESWING,MAGICSHOOT};
         const int projectilescale = 5;
         
         // given projectile origin and destination coordiantes and ProjectileEmitterComponent.velocity reference

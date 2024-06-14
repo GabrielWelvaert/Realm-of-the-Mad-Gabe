@@ -231,14 +231,14 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, T2ATTRING, lootbag);
-                            factory->createItemInBag(registry, T7LIGHTARMOR, lootbag);
-                            factory->createItemInBag(registry, T2CLOAK, lootbag);
-                            factory->createItemInBag(registry, T6DAGGER, lootbag);
-                            factory->createItemInBag(registry, SPDTINCTURE, lootbag);
-                            factory->createItemInBag(registry, T14BOW, lootbag);
-                            factory->createItemInBag(registry, ADMINSWORD, lootbag);
-                            factory->createItemInBag(registry, GORDONINCANTATION, lootbag);
+                            factory->createItemInBag(registry, T2SWORD, lootbag);
+                            factory->createItemInBag(registry, T8SWORD, lootbag);
+                            factory->createItemInBag(registry, T14SWORD, lootbag);
+                            factory->createItemInBag(registry, T7SWORD, lootbag);
+                            factory->createItemInBag(registry, T14WAND, lootbag);
+                            factory->createItemInBag(registry, T8SCEPTER, lootbag);
+                            factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            factory->createItemInBag(registry, T14STAFF, lootbag);
                             player.GetComponent<BaseStatComponent>().xp += 20000;
                             factory->spawnMonster(registry, spawnpoint, POTCHEST);
                         } break;
@@ -256,10 +256,11 @@ void Game::ProcessInput(){
                             //     factory->spawnMonster(registry, spawnPoints[i], gods[i]);
                             // }
                             // player.GetComponent<TransformComponent>().position = glm::vec2(-600,-600);
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
-                            auto sprite = RNG.randomFromVector(slimes);
-                            factory->spawnMonster(registry, playerPos, MEDUSA);
+                            player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
+                            // auto sprite = RNG.randomFromVector(slimes);
+                            // factory->spawnMonster(registry, playerPos, MEDUSA);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -272,21 +273,25 @@ void Game::ProcessInput(){
                             // auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
                             // std::cout << "there are currently " << numGodLandsGods << " gods" << '\n';
                             // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, PENTARACT, player.GetId());
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // factory->spawnMonster(registry, playerPos, PENTARACT, player.GetId());
                             // factory->spawnMonster(registry, playerPos, PENTARACTEYE, player.GetId());
                             // factory->spawnMonster(registry, glm::vec2(-400,200), MEDUSA);
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
+                            // auto sprite = RNG.randomFromVector(slimes);
+                            factory->spawnMonster(registry, playerPos, GHOSTWARRIOR);
                         } break;
                         case SDLK_p:{
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
                         } break;
                         case SDLK_BACKSPACE:{
                             // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
-                            player.GetComponent<HPMPComponent>().activehp += 10000;
-                            player.GetComponent<BaseStatComponent>().xp += 20000;
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            factory->spawnMonster(registry, playerPos, SKULLSHRINE, player.GetId());
+                            // player.GetComponent<HPMPComponent>().activehp += 10000;
+                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // factory->spawnMonster(registry, playerPos, SKULLSHRINE, player.GetId());
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
                             // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                         } break;
@@ -368,7 +373,7 @@ void Game::ProcessInput(){
                     player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
                     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
-                    Setup(false, true, NEXUS);
+                    Setup(false, true, NEXUS, true);
                 } break;
                 default:{ // portal is actually a door to another area (vault, dungeon)
                     Setup(false, false, area);
@@ -1022,10 +1027,10 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string onUse = "On Use: Heal self for " + std::to_string(tomeData.hp) + " HP";
                     switch(itemEnum){ // switch/case for extra info (UTs)
                         case CHICKENTOME:{
-                            onUse += ", Speedy for 5 seconds, Invulnerable for 1.2 seconds. ";
+                            onUse += ", Speedy for 5 seconds";
                         } break;
                         case ARCTOME:{
-                            onUse += ", emit a high-damage piercing projectile. ";
+                            onUse += ", emit a high-damage piercing projectile";
                         } break; 
                     }
                     info.push_back(onUse);
@@ -1113,6 +1118,51 @@ void Game::PopulateItemIconsInAssetStore(){
                     info.push_back(damage);
                     info.push_back(shots);
                     info.push_back(cost);
+                } break;
+                case SCEPTER:{
+                    auto scepterData = itemToScepterData.at(itemEnum);
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum);
+                    std::string onUse = "On Use: Shoots chain lightning at target";
+                    std::string damage = "Damage: " + std::to_string(scepterData.damage) + " (-" + std::to_string(scepterData.DamageReductionPerTarget) + " per successive target)";
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    std::string shots = "Max Targets: " + std::to_string(scepterData.maxNumberTargets);
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back(shots);
+                    info.push_back(cost);
+                } break;
+                case SKULL:{
+                    auto skullData = itemToSkullData.at(itemEnum);
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum);
+                    std::string onUse = "On Use: Steals HP from enemies at target";
+                    std::string damage = "Damage: " + std::to_string(skullData.damage);
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    std::string radius = std::to_string(skullData.radius);
+                    while(radius.back() == '0' || radius.back() == '.'){
+                        radius.pop_back();
+                    }
+                    info.push_back(onUse);
+                    info.push_back(damage);
+                    info.push_back("Radius: " + radius + " tiles");
+                    info.push_back(cost);
+                } break;
+                case SEAL:{
+                    auto sealData = itemEnumToHelmData.at(itemEnum);
+                    auto abilityData = itemEnumToAbilityData.at(itemEnum);
+                    std::string onUse = "On Use: Healing and Damaging on self for ";
+                    std::string duration = std::to_string(static_cast<float>(sealData.duration)/1000);
+                    while(duration.back() == '0' || duration.back() == '.'){
+                        duration.pop_back();
+                    }
+                    info.push_back(onUse + duration + " seconds");
+                    std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
+                    info.push_back(cost);
+                    std::string cooldownSeconds = std::to_string(static_cast<float>(abilityData.cooldown)/1000);
+                    while(cooldownSeconds.back() == '0' || cooldownSeconds.back() == '.'){
+                        cooldownSeconds.pop_back();
+                    }
+                    std::string cooldown = "Cooldown: " + cooldownSeconds + " seconds";
+                    info.push_back(cooldown);
                 } break;
             }
         }
@@ -1265,6 +1315,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, LOFIOBJ5, "./assets/images/lofiObj5.png");
     assetStore->AddTexture(renderer, LOFIOBJ2, "./assets/images/lofiObj2.png");
     assetStore->AddTexture(renderer, LOFIENVIRONMENT, "./assets/images/lofiEnvironment.png");
+    assetStore->AddTexture(renderer, LOFIENVIRONMENT2, "./assets/images/lofiEnvironment2.png");
     assetStore->AddTexture(renderer, LOFIOBJ5B, "./assets/images/lofiObj5b.png");
     assetStore->AddTexture(renderer, LOFIOBJ6, "./assets/images/lofiObj6.png");
     assetStore->AddTexture(renderer, PLAYBAR, "./assets/images/playbar.png");
@@ -1580,11 +1631,11 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, MAINMENUBG, menubgtexture); // this texture is now managed by assetStore and will deleted at assetStore destruction
 
     // HUDs
-    std::vector<textureEnums> statichuds = {STATICHUDARCHER, STATICHUDPRIEST, STATICHUDWARRIOR, STATICHUDWIZARD, STATICHUDKNIGHT, STATICHUDROGUE};
-    std::vector<int> staticchudoffsets = {1,3,4,2,5,0};
+    std::vector<textureEnums> statichuds = {STATICHUDARCHER, STATICHUDPRIEST, STATICHUDWARRIOR, STATICHUDWIZARD, STATICHUDKNIGHT, STATICHUDROGUE,STATICHUDNECROMANCER, STATICHUDSORCERER, STATICHUDPALADIN};
+    std::vector<int> staticchudoffsets = {1,3,4,2,5,0,8,12,6};
     SDL_Texture * staticHUD = nullptr;
     int invSlotDimension = static_cast<int>(44 * 1.25);
-    for(int i = 0; i <= 5; i++){
+    for(int i = 0; i <= 8; i++){
         staticHUD = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
         SDL_SetTextureBlendMode(staticHUD, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(renderer, staticHUD);
@@ -1781,6 +1832,15 @@ void Game::LoadGui(){
         case ROGUE:{
             texture = STATICHUDROGUE;
         } break;
+        case NECROMANCER:{
+            texture = STATICHUDNECROMANCER;
+        } break;
+        case SORCERER:{
+            texture = STATICHUDSORCERER;
+        } break;
+        case PALADIN:{
+            texture = STATICHUDPALADIN;
+        } break;
         
     }
 
@@ -1884,6 +1944,7 @@ void Game::LoadGui(){
     Entity weaponSlot = registry->CreateEntity();
     weaponSlot.AddComponent<TransformComponent>(glm::vec2(765+5, 450+5), glm::vec2(1.25,1.25)); 
     switch(classname){
+        case PALADIN:   
         case KNIGHT:
         case WARRIOR:{
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*6+4, 0+4, true);
@@ -1894,9 +1955,11 @@ void Game::LoadGui(){
         case ROGUE:{
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*1+4, 44*1+4, true); 
         } break;
+        case NECROMANCER:
         case WIZARD:{
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*4+4, 44*1+4, true); 
         } break;
+        case SORCERER:
         case PRIEST:{
             weaponSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 0+4, true);
         } break;
@@ -1916,13 +1979,22 @@ void Game::LoadGui(){
             abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*7+4, 0+4, true);
         } break;
         case WIZARD:{
-            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 44*1+4, true); // TODO
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 44*1+4, true); 
         } break;
         case KNIGHT:{
-            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*5+4, 44*1+4, true); // TODO
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*5+4, 44*1+4, true); 
         } break;
         case ROGUE:{
-            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 44*1+4, true); // TODO
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 44*1+4, true); 
+        } break;
+        case NECROMANCER:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*6+4, 44*1+4, true); 
+        } break;
+        case SORCERER:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*7+4, 44*1+4, true); 
+        } break;
+        case PALADIN:{
+            abilitySlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*8+4, 44*1+4, true); 
         } break;
         
     }
@@ -1931,6 +2003,7 @@ void Game::LoadGui(){
     Entity armorSlot = registry->CreateEntity();
     armorSlot.AddComponent<TransformComponent>(glm::vec2(765+44*2+12*2+1 +5, 450+5), glm::vec2(1.25,1.25));
     switch(classname){
+        case PALADIN:  
         case KNIGHT:
         case WARRIOR:{
             armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*2+4, 0+4, true);
@@ -1939,6 +2012,8 @@ void Game::LoadGui(){
         case ROGUE:{
             armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS, 44-8, 44-8, 11, 44*3+4, 0+4, true);
         } break;
+        case NECROMANCER:
+        case SORCERER:
         case WIZARD:
         case PRIEST:{
             armorSlot.AddComponent<SpriteComponent>(INVENTORYICONS,44-8, 44-8, 11, 44*5+4, 0+4, true);
@@ -1995,28 +2070,31 @@ void Game::LoadPlayer(){
     switch(classname){
         case ARCHER:{
             player.AddComponent<QuiverComponent>();
-            break;
-        }
+        } break;
         case PRIEST: {
             player.AddComponent<TomeComponent>();
-            break;
-        }
+        } break;
         case WARRIOR: {
             player.AddComponent<HelmComponent>();
-            break;
-        }
+        } break;
         case KNIGHT: {
             player.AddComponent<ShieldComponent>();
-            break;
-        } 
+        } break;
         case ROGUE: {
             player.AddComponent<CloakComponent>();
-            break;
-        }
+        } break;
         case WIZARD: {
             player.AddComponent<SpellComponent>();
-            break;
-        }
+        } break;
+        case NECROMANCER:{
+            player.AddComponent<SkullComponent>();
+        } break;
+        case PALADIN:{
+            player.AddComponent<SealComponent>();
+        } break;
+        case SORCERER:{
+            player.AddComponent<ScepterComponent>();
+        } break;
     }
 }
 
@@ -2191,19 +2269,20 @@ std::vector<Entity> Game::loadMenuTwo(int numcharacters){
     Entity loadCharacter = registry->CreateEntity();
     loadCharacter.AddComponent<TextLabelComponent>("Load Character", "damagefont2", white, true, 1,0,0 );
     loadCharacter.AddComponent<TransformComponent>(glm::vec2(500-(314/2),25));
-    int ypos = 100;
+    int ypos = 75;
+    constexpr int buttonHeight = 60;
     std::vector<Entity> disposables = {loadCharacter};
-    SDL_Rect rect = {0,0,400,75};
+    SDL_Rect rect = {0,0,400,buttonHeight};
     SDL_Rect iconrect;
     std::vector<std::string> characterIDs = characterManager->GetAllCharacterValuesAtLineNumber(1);
     std::vector<std::string> classNames = characterManager->GetAllCharacterValuesAtLineNumber(2);
     std::vector<std::string> levels = characterManager->GetAllCharacterValuesAtLineNumber(3);
 
-    for(int i = 0; i < numcharacters; i++){
+    for(int i = 0; i < numcharacters; i++){ // for each existing character, generate a button to load it
         // todo derive classname and level
         Entity characterSlot = registry->CreateEntity();
-        characterSlot.AddComponent<SpriteComponent>(PLAYBAR, 400, 75, rect, 10, true, false);
-        characterSlot.AddComponent<TransformComponent>(glm::vec2(300,(75*i)+ypos), glm::vec2(1.0,1.0));
+        characterSlot.AddComponent<SpriteComponent>(PLAYBAR, 400, buttonHeight, rect, 10, true, false);
+        characterSlot.AddComponent<TransformComponent>(glm::vec2(300,(buttonHeight*i)+ypos), glm::vec2(1.0,1.0));
         Entity characterSlotText = registry->CreateEntity();
         std::string str = classesToString.at(static_cast<classes>(stoi(classNames[i])));
         str.push_back(' ');
@@ -2214,31 +2293,31 @@ std::vector<Entity> Game::loadMenuTwo(int numcharacters){
         characterSlotText.AddComponent<TextLabelComponent>(str, "damagefont", white, true, 1,0,0);
         auto& textlabel = characterSlotText.GetComponent<TextLabelComponent>();
         TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
-        characterSlotText.AddComponent<TransformComponent>(glm::vec2(400, (75*i)+ypos+21.5));
+        characterSlotText.AddComponent<TransformComponent>(glm::vec2(400, (buttonHeight*i)+ypos+21.5-4));
         Entity icon = registry->CreateEntity();
         iconrect = {0,24*stoi(classNames[i]),8,8};
         icon.AddComponent<SpriteComponent>(PLAYERS, 8, 8, iconrect, 11, true, false);
-        icon.AddComponent<TransformComponent>(glm::vec2(330, (75*i)+ypos+16.5), glm::vec2(5.0,5.0));
+        icon.AddComponent<TransformComponent>(glm::vec2(330, (buttonHeight*i)+ypos+16.5 - 4), glm::vec2(5.0,5.0));
         disposables.push_back(characterSlotText);
         disposables.push_back(characterSlot);
         disposables.push_back(icon);
-        ypos += 25;
+        ypos += 10;
     }
-    if(numcharacters < 6){
+    if(numcharacters < 9){ // after loading buttons for existing characters, add button to create new character if at least 1 empty character slot exists
         int iconx = RNG.randomFromRange(0,15);
         int icony = RNG.randomFromRange(0,14);
         Entity makeCharacter = registry->CreateEntity();
-        makeCharacter.AddComponent<SpriteComponent>(PLAYBAR, 400, 75, rect, 10, true, false);
-        makeCharacter.AddComponent<TransformComponent>(glm::vec2(300,(75*numcharacters)+ypos), glm::vec2(1.0,1.0));
+        makeCharacter.AddComponent<SpriteComponent>(PLAYBAR, 400, buttonHeight, rect, 10, true, false);
+        makeCharacter.AddComponent<TransformComponent>(glm::vec2(300,(buttonHeight*numcharacters)+ypos), glm::vec2(1.0,1.0));
         Entity makeCharacterText = registry->CreateEntity();
         makeCharacterText.AddComponent<TextLabelComponent>("New Character", "damagefont", white, true, 1, 0, 0);
         auto& textlabel = makeCharacterText.GetComponent<TextLabelComponent>();
         TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
-        makeCharacterText.AddComponent<TransformComponent>(glm::vec2(400, (75*numcharacters)+ypos+21.5));
+        makeCharacterText.AddComponent<TransformComponent>(glm::vec2(400, (buttonHeight*numcharacters)+ypos+21.5-4));
         Entity icon = registry->CreateEntity();
         iconrect = {iconx*8, icony*8,8,8};
         icon.AddComponent<SpriteComponent>(LOFICHAR, 8, 8, iconrect, 11, true, false);
-        icon.AddComponent<TransformComponent>(glm::vec2(330, (75*numcharacters)+ypos+16.5), glm::vec2(5.0,5.0));
+        icon.AddComponent<TransformComponent>(glm::vec2(330, (buttonHeight*numcharacters)+ypos+16.5 - 4), glm::vec2(5.0,5.0));
         disposables.push_back(icon); 
         disposables.push_back(makeCharacter);
         disposables.push_back(makeCharacterText);
@@ -2252,11 +2331,11 @@ std::vector<Entity> Game::loadMenuThree(){
     SDL_Rect rect = {50,20,10,10};
     SDL_Rect playerRect = {0, 0, 8, 8};
     int xpos = 100;
-    int ypos = 100 + 50;
-    int buttonIconYpos = 180 + 50;
-    int classtextypos = 140 + 50;
-    std::vector<classes> classesVector = {ARCHER, PRIEST, WARRIOR, WIZARD, KNIGHT, ROGUE};
-    for(int i = 0; i < 6; i++){
+    int ypos = 20;
+    int buttonIconYpos = 100;
+    int classtextypos = 60;
+    std::vector<classes> classesVector = {ARCHER, PRIEST, WARRIOR, WIZARD, KNIGHT, ROGUE, NECROMANCER, SORCERER, PALADIN};
+    for(int i = 0; i < 9; i++){
         Entity buttonbg = registry->CreateEntity();
         buttonbg.AddComponent<SpriteComponent>(PLAYBAR, 200, 200, rect, 10, true, false);
         buttonbg.AddComponent<TransformComponent>(glm::vec2(xpos,ypos), glm::vec2(1.0,1.0));    
@@ -2273,7 +2352,7 @@ std::vector<Entity> Game::loadMenuThree(){
         disposables.push_back(buttonIcon);
         disposables.push_back(buttonbg);
         disposables.push_back(buttonClassName);
-        if(i == 2){ // new row of buttons
+        if(i == 2 || i == 5){ // new row of buttons
             xpos = 100;
             ypos += 250;
             classtextypos += 250;
@@ -2284,7 +2363,7 @@ std::vector<Entity> Game::loadMenuThree(){
     return disposables;
 }
 
-void Game::MainMenus(){ // could take bool args to load just menu 2 for example
+void Game::MainMenus(bool changeChar){ // could take bool args to load just menu 2 for example
     std::vector<Entity> menuonedisposables = {};
     std::vector<Entity> menutwodisposables = {};
     std::vector<Entity> menuthreedisposables = {};
@@ -2300,6 +2379,11 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
     bool mainmenuone = true;
     bool softreset = false;
 
+    if(changeChar){
+        mainmenuone = false;
+        mainmenutwo = true;
+    }
+
     characterManager->KillInvalidCharacterFiles();
     characterManager->KillExcessCharacterFiles();
 
@@ -2310,8 +2394,10 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
         menuonedisposables = loadDeathMenu();
         keyboardinput->movementKeys.reset();
         keyboardinput->utilityKeys.reset();
-    } else{
+    } else if(!changeChar){
         menuonedisposables = loadMenuOne();
+    } else {
+        menutwodisposables = loadMenuTwo(numcharacters);
     }
     
 
@@ -2384,6 +2470,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                     softreset = true;
                 }
                 SDL_GetMouseState(&Game::mouseX, &Game::mouseY);
+                // std::cout << mouseX << ", " << mouseY << '\n';
                 if(mainmenuone){ // first main menu: title art and select character
                     if(mouseX > 400 && mouseX < 600 && mouseY > 660 && mouseY < 716){ // clicked play
                         killMenuOne = true;
@@ -2391,68 +2478,83 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                     }
                 } else if(mainmenutwo){ // second main menu: selecting character (or opt to make new one)
                     if(mouseX > 300 && mouseX < 700 && mouseY){
-                        if(mouseY > 100 && mouseY < 175){ // clicked top button 
+                        if(mouseY > 75 && mouseY < 135){ // clicked top button 
                             if(numcharacters == 0){ // no characters; must be create new character button
                                 mainmenuthree = true;
                             } else {
-                                // std::cout << "load character " << characterIDs[0] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[0]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[0];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[0] << std::endl;
                                 proceed = true;  
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 200 && mouseY < 275 && numcharacters >= 1){ // clicked middle button and it exists
+                        } else if(mouseY > 145 && mouseY < 205 && numcharacters >= 1){ // clicked middle button and it exists
                             if(numcharacters == 1){ // one existing character; middle button must be create new character button
                                 mainmenuthree = true;
                             } else{
-                                // std::cout << "load character " << characterIDs[1] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[1]))) << ")" << std::endl;   
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[1];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[1] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 300 && mouseY < 375 && numcharacters >= 2){ // clicked lower button and it exists
+                        } else if(mouseY > 215 && mouseY < 275 && numcharacters >= 2){ // clicked lower button and it exists
                             if(numcharacters == 2){// two existing characters; lower button must be create new character button
                                 mainmenuthree = true;
                             }else{
-                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[2];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 400 && mouseY < 475 && numcharacters >= 3){ // clicked lower button and it exists
+                        } else if(mouseY > 285 && mouseY < 345 && numcharacters >= 3){ // clicked lower button and it exists
                             if(numcharacters == 3){// three existing characters; lower button must be create new character button
                                 mainmenuthree = true;
                             }else{
-                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[3];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 500 && mouseY < 575 && numcharacters >= 4){ // clicked lower button and it exists
+                        } else if(mouseY > 355 && mouseY < 415 && numcharacters >= 4){ // clicked lower button and it exists
                             if(numcharacters == 4){// 4 existing characters; lower button must be create new character button
                                 mainmenuthree = true;
                             }else{
-                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[4];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
                                 proceed = true;
                             }
                             killMenuTwo = true;
                             assetStore->PlaySound(BUTTON);
-                        } else if(mouseY > 600 && mouseY < 675 && numcharacters >= 5){ // clicked lower button and it exists
+                        } else if(mouseY > 425 && mouseY < 485 && numcharacters >= 5){ // clicked lower button and it exists
                             if(numcharacters == 5){// 4 existing characters; lower button must be create new character button
                                 mainmenuthree = true;
                             }else{
-                                // std::cout << "load character " << characterIDs[2] << " (" << classesToString.at(static_cast<classes>(stoi(classNames[2]))) << ")" << std::endl; 
                                 selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[5];
-                                // std::cout << characterManager->GetAllCharacterValuesAtLineNumber(1)[2] << std::endl;
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 495 && mouseY < 555 && numcharacters >= 6){ // clicked lower button and it exists
+                            if(numcharacters == 6){// 4 existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[6];
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 565 && mouseY < 625 && numcharacters >= 7){ // clicked lower button and it exists
+                            if(numcharacters == 7){// 4 existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[7];
+                                proceed = true;
+                            }
+                            killMenuTwo = true;
+                            assetStore->PlaySound(BUTTON);
+                        } else if(mouseY > 635 && mouseY < 695 && numcharacters >= 8){ // clicked lower button and it exists
+                            if(numcharacters == 8){// 4 existing characters; lower button must be create new character button
+                                mainmenuthree = true;
+                            }else{
+                                selectedCharacterID = characterManager->GetAllCharacterValuesAtLineNumber(1)[8];
                                 proceed = true;
                             }
                             killMenuTwo = true;
@@ -2460,9 +2562,9 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                         }
                     }
                 } else if(mainmenuthree){ // third main menu (optional): select class for new character
-                    if(mouseX >= 100 && mouseX <= 900 && mouseY >= 150 && mouseY <= 600){ // clicked some button probably
+                    if(mouseX >= 100 && mouseX <= 900 && mouseY >= 20 && mouseY <= 720){ // clicked some button probably
 
-                        if(mouseY <= 350){ // top 3 buttons
+                        if(mouseY <= 220){ // top 3 buttons
                             if(mouseX >= 100 && mouseX <= 300){
                                 selectedCharacterID = characterManager->CreateNewCharacterFile(ARCHER);
                                 proceed = true;
@@ -2473,7 +2575,7 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                                 selectedCharacterID = characterManager->CreateNewCharacterFile(WARRIOR);
                                 proceed = true;
                             }
-                        } else if(mouseY >= 400){ // bottom 3 buttons
+                        } else if(mouseY >= 270 && mouseY <= 470){ // bottom 3 buttons
                             if(mouseX >= 100 && mouseX <= 300){
                                 selectedCharacterID = characterManager->CreateNewCharacterFile(WIZARD);
                                 proceed = true;
@@ -2482,6 +2584,17 @@ void Game::MainMenus(){ // could take bool args to load just menu 2 for example
                                 proceed = true;
                             } else if(mouseX >= 700 && mouseX <= 900){
                                 selectedCharacterID = characterManager->CreateNewCharacterFile(ROGUE);
+                                proceed = true;
+                            }
+                        } else if(mouseY >= 520 && mouseY <= 720){ // bottom 3 buttons
+                            if(mouseX >= 100 && mouseX <= 300){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(NECROMANCER);
+                                proceed = true;
+                            } else if(mouseX >= 400 && mouseX <= 600){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(SORCERER);
+                                proceed = true;
+                            } else if(mouseX >= 700 && mouseX <= 900){
+                                selectedCharacterID = characterManager->CreateNewCharacterFile(PALADIN);
                                 proceed = true;
                             }
                         }
@@ -2529,6 +2642,7 @@ void Game::PopulateEventBus(){
     registry->GetSystem<ItemIconSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<DisplayNameSystem>().SubscribeToEvents(eventBus);
     registry->GetSystem<CollisionSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<DistanceToPlayerSystem>().SubscribeToEvents(eventBus);
 }
 
 
@@ -2571,7 +2685,7 @@ void Game::SpawnAreaEntities(wallTheme area){
     }
 }
 
-void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initialize and before actual game loop starts
+void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar){ // after initialize and before actual game loop starts
     keyboardinput->utilityKeys[T] = false; // autofire button reset when changing areas
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
@@ -2583,11 +2697,10 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area){ // after initia
         PopulateRegistry();
         PopulateEventBus();
         PopulateItemIconsInAssetStore();
-        // registry->GetSystem<StatusEffectSystem>().GenerateStatusIcons(renderer, assetStore);        
     }
     if(mainmenus){
         Background();
-        MainMenus();        
+        MainMenus(changeChar);        
     }
     registry->Update();
     LoadPlayer();
@@ -2647,9 +2760,8 @@ void Game::Update(){
 
     registry->Update();
     const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry);
-    // registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); // must go before AI systems
-    registry->GetSystem<DistanceToPlayerSystem>().Update(playerpos);
+    registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry, factory);
+    registry->GetSystem<DistanceToPlayerSystem>().Update(player);
     registry->GetSystem<ChaseAISystem>().Update(player);
     registry->GetSystem<NeutralAISystem>().Update(player);
     registry->GetSystem<TrapAISystem>().Update(player, assetStore);
@@ -2683,7 +2795,7 @@ void Game::Update(){
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
     registry->GetSystem<EnemySpawnSystem>().Update(player, registry, factory, bosses);
-    registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); // must go before AI systems
+    registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); 
 }
 
 void Game::Render(){

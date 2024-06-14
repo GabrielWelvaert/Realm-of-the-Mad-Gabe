@@ -5,7 +5,7 @@ KeyboardMovementSystem::KeyboardMovementSystem(){
     RequireComponent<KeyboardControlledComponent>(); //only the player has this.
 }
 
-void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry){
+void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory){
     if(GetSystemEntities().size() == 0){return;}
     const auto& player = GetSystemEntities()[0]; //asumes this system has 1 entity: the player
     auto& sprite = player.GetComponent<SpriteComponent>();
@@ -89,6 +89,22 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
                         ac.timeLastUsed = time;
                         eventbus->EmitEvent<CloakUseEvent>(player, eventbus, registry);
                         break;}
+                    case NECROMANCER:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<SkullUseEvent>(player, registry, factory, mouseX, mouseY, camera, eventbus, assetStore);
+                        break;}
+                    case PALADIN:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<SealUseEvent>(player, eventbus, registry);
+                        break;}
+                    case SORCERER:{
+                        activemp -= ac.mpRequired;
+                        ac.timeLastUsed = time;
+                        eventbus->EmitEvent<ScepterUseEvent>(player, registry, factory, mouseX, mouseY, camera, eventbus, assetStore);
+                        break;}
+
                 }
             }
         }

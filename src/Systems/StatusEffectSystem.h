@@ -74,6 +74,8 @@ class StatusEffectSystem: public System{
             {2*8, 1*8, 8, 8}, // invisible
             {8*9, 2*8, 8, 8}, // blind
             {0, 1*8, 8, 8}, // armored
+            {15*8, 2*8, 8, 8}, // healing
+            {1*8, 3*8, 8, 8}, // damaging
         };
 
         std::unordered_map<unsigned long, SDL_Texture*> effectTextures;

@@ -118,21 +118,21 @@ void CharacterManager::SaveVaults(std::unique_ptr<Registry>& registry){
     }
 }
 
-// ensures we will only have 3 valid vault files
+// ensures we will only have X valid vault files
 void CharacterManager::KillInvalidVaultFiles(){
     dirItr = std::filesystem::directory_iterator(vaultFolderPath);
     std::set<std::string> filesToKeep;
+    std::unordered_set<std::string> files = {"1.txt", "2.txt", "3.txt","4.txt", "5.txt", "6.txt"};
     // kill files that are of invalid format
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
         if(!VaultFileHasValidLineCount(fileName) || !ValidateVaultFileHash(fileName)){ // delete invalid file
             std::filesystem::remove(file.path());
-        } else if(fileName == "1.txt" || fileName == "2.txt" || fileName == "3.txt"){
+        } else if(files.find(fileName) != files.end()){
             filesToKeep.insert(fileName);
         }
     }
     // create missing vault files
-    std::vector<std::string> files = {"1.txt", "2.txt", "3.txt"};
     for(auto& x: files){
         if(filesToKeep.find(x) == filesToKeep.end()){
             CreateNewVaultFile(x.substr(0,1));
@@ -141,9 +141,9 @@ void CharacterManager::KillInvalidVaultFiles(){
 
 }
 
-// kills youngest files in character directory until 3 remain regardless of validity
+// kills youngest files in character directory until maxNumCharacters remain regardless of validity
 void CharacterManager::KillExcessCharacterFiles(){
-    const int maxNumCharacters = 6;
+    const int maxNumCharacters = 9;
     while(GetFileCountInCharacterDirectory() > maxNumCharacters){
         std::filesystem::path youngestFile;
         std::filesystem::file_time_type youngestTime = std::filesystem::file_time_type::min(); // Initialize with the minimum possible time

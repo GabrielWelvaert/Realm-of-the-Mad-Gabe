@@ -109,7 +109,7 @@ class Game{
         Game();
         void Initialize();
         void Run(bool populate);
-        void Setup(bool populate, bool mainmenus, wallTheme area);
+        void Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar = false);
         void ProcessInput();
         void Update();
         void Render();
@@ -122,7 +122,7 @@ class Game{
         void PopulateRegistry();
         void PopulatePlayerInventoryAndEquipment(const wallTheme& wallTheme);
         void PopulateEventBus();
-        void MainMenus();
+        void MainMenus(bool changeChar = false);
         void Background();
         void PopulateItemIconsInAssetStore();
         void SpawnAreaEntities(wallTheme area);

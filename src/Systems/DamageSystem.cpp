@@ -73,12 +73,18 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
         event.assetStore->PlaySound(hitSoundId);
         if(realdamage > 0){
             displayDamgeText(event,victimPosition,realdamage);
+            if(event.skullTracker){
+                (*event.skullTracker) += realdamage;
+            }
         }
     } else { // hp has gone below 0
         switch(groupOfVictim){
             case MONSTER:{ // death of a monster 
                 event.victim.Kill(); 
                 event.assetStore->PlaySound(deathSoundId);  
+                if(event.skullTracker){
+                    (*event.skullTracker) += realdamage + victimHPMPComponent.activehp; // activehp is negative, effectively subtracting "extra" damage
+                }
                 const auto& projectileParent = projectileComponent.parent;
                 auto& playerBaseStats = projectileParent.GetComponent<BaseStatComponent>();
                 int xp = victimHPMPComponent.maxhp / 10;
@@ -101,10 +107,10 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                 }
             } break;
             case PLAYER:{ // death of player 
-                event.dp.className = event.victim.GetComponent<ClassNameComponent>().classname;
-                event.dp.level = event.victim.GetComponent<BaseStatComponent>().level;
-                event.dp.xp = event.victim.GetComponent<BaseStatComponent>().xp;
-                event.dp.murderer = projectileComponent.spriteOfParent;
+                event.dp->className = event.victim.GetComponent<ClassNameComponent>().classname;
+                event.dp->level = event.victim.GetComponent<BaseStatComponent>().level;
+                event.dp->xp = event.victim.GetComponent<BaseStatComponent>().xp;
+                event.dp->murderer = projectileComponent.spriteOfParent;
                 event.characterManager->KillCharacter(event.activeCharacterID);
                 event.registry->killAllEntities();
                 event.assetStore->PlaySound(DEATH);

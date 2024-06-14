@@ -26,7 +26,9 @@
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/OscillatingProjectileComponent.h"
 #include "../Components/RotationComponent.h"
-
+#include "../Events/SealUseEvent.h"
+#include "../Events/ScepterUseEvent.h"
+#include "../Events/SkullUseEvent.h"
 /*
 This system is responsible for being the event handler for equipping abilities and using them!
 */
@@ -83,9 +85,10 @@ class AbilitySystem: public System{
         void onSpellUse(SpellUseEvent& event);
         void onCloakUse(CloakUseEvent& event);
         void onShieldUse(ShieldUseEvent& event);
-        
 
-
+        void onSealUse(SealUseEvent& event);
+        // onSkullUse is in DistanceToPlayerSystem
+        // onScepterUse is in DistanceToPlayerSystem
 };
 
 #endif

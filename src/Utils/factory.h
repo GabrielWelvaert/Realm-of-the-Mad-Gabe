@@ -62,6 +62,7 @@
 #include "../Components/NeutralAIComponent.h"
 #include "../Components/RandomChaseMinionComponent.h"
 #include "../Components/DeathActionComponent.h"
+#include "../Components/ProjectileComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -108,9 +109,15 @@ class Factory{
 
         void spawnNumberEntity(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, std::string&& number);
 
-        void spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint);
+        void spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, float speed = 500);
 
         void spawnDecoration(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
+
+        Entity spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, int damage);
+
+        void spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint);
+
+        void spawnNecromancerParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
 };
 
 #endif

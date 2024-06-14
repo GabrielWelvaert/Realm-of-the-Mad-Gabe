@@ -14,6 +14,7 @@ struct StatusEffectComponent{
     std::vector<Uint32> endTimes = std::vector<Uint32>(TOTAL_NUMBER_OF_STATUS_EFFECTS - 1);
     std::vector<int> modifications = std::vector<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS - 1);
     Uint32 lastBleedTime = 0; // floating point precision problems w/ -= .02hp * deltaTime, so this is solution (bleed every 250ms)
+    Uint32 lastHealTime = 0;
 
     inline StatusEffectComponent() = default;
 

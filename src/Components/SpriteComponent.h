@@ -33,18 +33,16 @@ struct SpriteComponent {
         this->flip = SDL_FLIP_NONE;
     }
 
-    // used by player
-    inline SpriteComponent(classes cn){
-        spritedata data = classToSpriteData.at(cn);
-        this->assetId = data.assetId;
-        this->width = data.width;
-        this->height = data.height;
-        this->zIndex = data.zIndex;
-        this->srcRect = data.srcRect;
-        this->isFixed = data.isFixed;
-        this->diagonalSprite = data.diagonalSprite;
-        this->flip = SDL_FLIP_NONE;
-    }
+    // used to load player
+    inline SpriteComponent(classes cn):
+        assetId(PLAYERS),
+        width(8),
+        height(8),
+        zIndex(4),
+        srcRect({8*0,cn*24,8,8}),
+        isFixed(false),
+        diagonalSprite(false),
+        flip(SDL_FLIP_NONE) {}
 
     // used by monsters 
     inline SpriteComponent(sprites spriteEnum){

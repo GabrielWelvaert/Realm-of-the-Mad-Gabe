@@ -256,18 +256,87 @@ void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::
     }
 }
 
-void Factory::spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint){
+void Factory::spawnNecromancerParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius){
+    // these particles will need their own system & component for movement & elimintaion
+    const SDL_Rect redsquare = {0,8*5,8,8};
+    const SDL_Rect purplesquare = {8*2,8*5,8,8};
+    glm::vec2 velocity;
+    auto time = SDL_GetTicks();
+    for(int i = 0; i < 12; i++){
+        Entity particle = registry->CreateEntity();
+        glm::vec2 destPos = {spawnpoint.x + 5 * std::cos(particleAngles[i]), spawnpoint.y + 5 * std::sin(particleAngles[i])};
+        float rotationDegrees = getRotationFromCoordiante(1000, spawnpoint.x, spawnpoint.y, destPos.x, destPos.y, velocity);
+        particle.AddComponent<RidigBodyComponent>(velocity);
+        if(i%2==0){
+            particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,purplesquare,3,false,false); 
+        } else {
+            particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,3,false,false);     
+        }
+        particle.AddComponent<TransformComponent>(glm::vec2(spawnpoint.x, spawnpoint.y) + RNG.randomFromRange(-5.0f,5.0f), glm::vec2(6.0,6.0), rotationDegrees);
+        float timeToReachDestination = radius / glm::length(velocity) * 1000.0f;
+        particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
+    }
+}
+
+void Factory::spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, float speed){
     const SDL_Rect redsquare = {0,8*5,8,8};
     glm::vec2 velocity;
     auto time = SDL_GetTicks();
     Entity particle = registry->CreateEntity();
     float scale = RNG.randomFromRange(5.0,8.0);
-    float rotationDegrees = getRotationFromCoordiante(500, spawnpoint.x, spawnpoint.y, endpoint.x, endpoint.y, velocity);
+    float rotationDegrees = getRotationFromCoordiante(speed, spawnpoint.x, spawnpoint.y, endpoint.x, endpoint.y, velocity);
     particle.AddComponent<RidigBodyComponent>(velocity);
     particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,5,false,false); // these are floating particles, z-axis = 5?
     particle.AddComponent<TransformComponent>(glm::vec2(spawnpoint.x, spawnpoint.y), glm::vec2(scale), rotationDegrees);
     float timeToReachDestination = glm::distance(spawnpoint, endpoint) / glm::length(velocity) * 1000.0f;
     particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
+}
+
+// spawns 10 particles along path of travel
+Entity Factory::spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, int damage){
+    constexpr int numParticles = 10;
+    const SDL_Rect pinksquare = {8*1,8*5,8,8};
+    constexpr float startingScale = 10.0f;
+    constexpr int spriteDimension = 2;
+    auto time = SDL_GetTicks();
+    std::vector<glm::vec2> points(numParticles);
+    glm::vec2 step = (endpoint - spawnpoint) / static_cast<float>(numParticles - 1);
+    Entity particle;
+    for(int i = 0; i < numParticles; i++){
+        float currentScale = startingScale * std::exp(std::log(4.0) / 10.0 * i); // exponential scale from 10 to 26 for scale value
+        particle = registry->CreateEntity();
+        particle.AddComponent<RidigBodyComponent>();
+        particle.AddComponent<SpriteComponent>(LOFIOBJ, spriteDimension,spriteDimension,pinksquare,5,false,false); 
+        particle.AddComponent<TransformComponent>(spawnpoint + (step * static_cast<float>(i)) - ((currentScale * spriteDimension)/2), glm::vec2(currentScale));
+        particle.AddComponent<ParticleComponent>(0-1, true);
+    }
+    particle.AddComponent<ProjectileComponent>(damage,INT_MAX,false,player, 4,NONESPRITE); // bogus projectile component 
+    return particle;
+}
+
+void Factory::spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint){
+    constexpr int numParticles = 20;
+    // constexpr float angleOffset = glm::radians(10.0f); // 10 degrees in radians
+    constexpr float distance = 500.0f; // static distance of 1000 units
+    constexpr float angleOffset = 15.0f;
+    const SDL_Rect pinksquare = {8*1,8*5,8,8};
+    constexpr int spriteDimension = 2;
+    constexpr glm::vec2 scale(8.0);
+    auto time = SDL_GetTicks();
+    float angleDegrees = std::atan2(endpoint.y - spawnpoint.y, endpoint.x - spawnpoint.x) * (180.0 / M_PI);   
+    for(int i = -1; i <= 1; i++){
+        float angleRadians = glm::radians(angleDegrees + i * angleOffset);
+        glm::vec2 destination = spawnpoint + glm::vec2({distance * std::cos(angleRadians), distance * std::sin(angleRadians)});
+        glm::vec2 step = (destination - spawnpoint) / static_cast<float>(numParticles - 1);
+        for(int j = 0; j < numParticles; j++){
+            glm::vec2 position = spawnpoint + (step * static_cast<float>(j)) - ((scale.x * spriteDimension)/2) + RNG.randomFromRange(-10.0f, 10.0f);
+            Entity particle = registry->CreateEntity();
+            particle.AddComponent<RidigBodyComponent>();
+            particle.AddComponent<SpriteComponent>(LOFIOBJ, spriteDimension,spriteDimension,pinksquare,3,false,false); 
+            particle.AddComponent<TransformComponent>(position, scale);
+            particle.AddComponent<ParticleComponent>(0-1, true);
+        }
+    }
 }
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
@@ -408,7 +477,7 @@ void Factory::spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpo
 
 void Factory::spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager){
     CharacterManager->KillInvalidVaultFiles();
-    for(int i = 0; i <= 2; i++){
+    for(int i = 0; i <= 5; i++){
         std::vector<int> itemInts = CharacterManager->GetItemsFromVault(i+1);
         glm::vec2 spawn = vaultSpawns[i];
         Entity vaultChest = creatLootBag(registry, spawn, VAULTCHEST);

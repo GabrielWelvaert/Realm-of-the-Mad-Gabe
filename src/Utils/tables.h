@@ -30,14 +30,14 @@
 #define T13WEAPONS {T13SWORD, T13DAGGER, T13BOW, T13WAND, T13STAFF}
 #define T14WEAPONS {T14SWORD, T14DAGGER, T14BOW, T14WAND, T14STAFF}
 
-#define T1ABILITIES {T1HELM, T1SHIELD, T1SPELL, T1CLOAK, T1TOME, T1QUIVER}
-#define T2ABILITIES {T2HELM, T2SHIELD, T2SPELL, T2CLOAK, T2TOME, T2QUIVER}
-#define T3ABILITIES {T3HELM, T3SHIELD, T3SPELL, T3CLOAK, T3TOME, T3QUIVER}
-#define T4ABILITIES {T4HELM, T4SHIELD, T4SPELL, T4CLOAK, T4TOME, T4QUIVER}
-#define T5ABILITIES {T5HELM, T5SHIELD, T5SPELL, T5CLOAK, T5TOME, T5QUIVER}
-#define T6ABILITIES {T6HELM, T6SHIELD, T6SPELL, T6CLOAK, T6TOME, T6QUIVER}
-#define T7ABILITIES {T7HELM, T7SHIELD, T7SPELL, T7CLOAK, T7TOME, T7QUIVER}
-#define T8ABILITIES {T8HELM, T8SHIELD, T8SPELL, T8CLOAK, T8TOME, T8QUIVER}
+#define T1ABILITIES {T1HELM, T1SHIELD, T1SPELL, T1CLOAK, T1TOME, T1QUIVER, T1SCEPTER, T1SKULL, T1SEAL}
+#define T2ABILITIES {T2HELM, T2SHIELD, T2SPELL, T2CLOAK, T2TOME, T2QUIVER, T2SCEPTER, T2SKULL, T2SEAL}
+#define T3ABILITIES {T3HELM, T3SHIELD, T3SPELL, T3CLOAK, T3TOME, T3QUIVER, T3SCEPTER, T3SKULL, T3SEAL}
+#define T4ABILITIES {T4HELM, T4SHIELD, T4SPELL, T4CLOAK, T4TOME, T4QUIVER, T4SCEPTER, T4SKULL, T4SEAL}
+#define T5ABILITIES {T5HELM, T5SHIELD, T5SPELL, T5CLOAK, T5TOME, T5QUIVER, T5SCEPTER, T5SKULL, T5SEAL}
+#define T6ABILITIES {T6HELM, T6SHIELD, T6SPELL, T6CLOAK, T6TOME, T6QUIVER, T6SCEPTER, T6SKULL, T6SEAL}
+#define T7ABILITIES {T7HELM, T7SHIELD, T7SPELL, T7CLOAK, T7TOME, T7QUIVER, T7SCEPTER, T7SKULL, T7SEAL}
+#define T8ABILITIES {T8HELM, T8SHIELD, T8SPELL, T8CLOAK, T8TOME, T8QUIVER, T8SCEPTER, T8SKULL, T8SEAL}
 
 #define T0RING {T0DEFRING, T0ATTRING, T0SPDRING, T0WISRING, T0VITRING, T0DEXRING, T0HPRING, T0MPRING}
 #define T1RING {T1DEFRING, T1ATTRING, T1SPDRING, T1WISRING, T1VITRING, T1DEXRING, T1HPRING, T1MPRING}
@@ -321,6 +321,17 @@ struct helmData{
     Uint32 duration;
 };
 
+struct scepterData{
+    int maxNumberTargets;
+    int damage;
+    int DamageReductionPerTarget;
+};
+
+struct skullData{
+    int damage;
+    float radius;
+};
+
 struct spellData{
     int minDamage;
     int maxDamage;
@@ -353,6 +364,8 @@ struct secondaryPECdata{
     float RFmaxmod;
 };
 
+extern std::unordered_map<items, skullData> itemToSkullData;
+extern std::unordered_map<items, scepterData> itemToScepterData;
 extern std::vector<sprites> chickens;
 extern std::unordered_set<sprites> hasDeathAction;
 extern std::unordered_set<sprites> towers;
@@ -411,7 +424,6 @@ extern std::unordered_map<sprites, enemyPECData> spriteEnumToPEC;
 extern std::unordered_map<sprites, statData> spriteEnumToStatData;
 extern std::unordered_map<boxColliders, boxColliderData> bcEnumToData;
 extern std::unordered_map<sprites, spritedata> enumToSpriteComponent;
-extern std::unordered_map<classes, spritedata> classToSpriteData;
 extern std::unordered_map<sprites, boxColliders> spriteToBC;
 extern std::unordered_map<sprites, aiChaseData> spritesToaiChaseData;
 extern std::unordered_map<sprites, trapaidata> spritetotrap;

@@ -16,6 +16,7 @@ void AbilitySystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<SpellUseEvent>(this, &AbilitySystem::onSpellUse);
     eventBus->SubscribeToEvent<CloakUseEvent>(this, &AbilitySystem::onCloakUse);
     eventBus->SubscribeToEvent<ShieldUseEvent>(this, &AbilitySystem::onShieldUse);
+    eventBus->SubscribeToEvent<SealUseEvent>(this, &AbilitySystem::onSealUse);
 }
 
 void AbilitySystem::onTomeUse(TomeUseEvent& event){
@@ -31,7 +32,6 @@ void AbilitySystem::onTomeUse(TomeUseEvent& event){
     switch(tome.tomeEnum){
         case CHICKENTOME:{
             event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SPEEDY, event.eventbus, event.registry, 5000);
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 1200);
         } break;
         case ARCTOME:{
             const auto& player = event.player;
@@ -239,6 +239,16 @@ void AbilitySystem::onCloakUse(CloakUseEvent& event){
     }
 }
 
+void AbilitySystem::onSealUse(SealUseEvent& event){
+    const auto& seal = event.player.GetComponent<SealComponent>();
+    switch(seal.itemEnum){
+        default:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, HEALING, event.eventbus, event.registry, seal.duration);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, DAMAGING, event.eventbus, event.registry, seal.duration);
+        } break; 
+    };
+}
+
 // updates ability data. doesnt do anything for stats
 void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){ 
     auto& player = event.player;
@@ -303,6 +313,25 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             cloak.itemEnum = event.itemEnum;
             break;
         }
+        case NECROMANCER:{
+            auto& skull = player.GetComponent<SkullComponent>();
+            auto data = itemToSkullData.at(event.itemEnum);
+            skull.damage = data.damage;
+            skull.radius = data.radius;
+        } break;
+        case PALADIN:{
+            auto& seal = player.GetComponent<SealComponent>();
+            auto data = itemEnumToHelmData.at(event.itemEnum);
+            seal.duration = data.duration;
+            seal.itemEnum = event.itemEnum;
+        } break;
+        case SORCERER:{ 
+            auto& scepter = player.GetComponent<ScepterComponent>();
+            auto data = itemToScepterData.at(event.itemEnum);
+            scepter.damage = data.damage;
+            scepter.damageReductionPerTarget = data.DamageReductionPerTarget;
+            scepter.maxNumberTargets = data.maxNumberTargets;
+        } break;
     }
 
 }

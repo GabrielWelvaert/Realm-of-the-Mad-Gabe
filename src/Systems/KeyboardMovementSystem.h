@@ -29,6 +29,9 @@
 #include "../Events/CloakUseEvent.h"
 #include "../Events/ShieldUseEvent.h"
 #include "../Utils/KeyBoardInput.h"
+#include "../Events/SkullUseEvent.h"
+#include "../Events/ScepterUseEvent.h"
+#include "../Events/SealUseEvent.h"
 
 /*
 This system is responsible for updating the player velocity-direction, sprite, animation, flags, and ability use based off of keyboard input
@@ -135,7 +138,7 @@ class KeyboardMovementSystem: public System {
     public:
         KeyboardMovementSystem();
 
-        void Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry);
+        void Update(std::unique_ptr<KeyBoardInput>& keyboardinput, int mouseX, int mouseY, SDL_Rect camera, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<EventBus>& eventbus, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory);
         
 };
 
