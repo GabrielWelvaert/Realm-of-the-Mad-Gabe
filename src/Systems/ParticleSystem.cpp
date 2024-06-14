@@ -10,16 +10,25 @@ ParticleSystem::ParticleSystem(){
 void ParticleSystem::Update(const double& deltaTime){
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){
-        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& transform = entity.GetComponent<TransformComponent>();
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-        const auto& deathTime = entity.GetComponent<ParticleComponent>().deathTime;
+        auto& pc = entity.GetComponent<ParticleComponent>();
+        constexpr int shrinkinternval = 200;
+        constexpr float minimumParticleScale = 3.0f;
+        constexpr float shrinkFactor = 1.0f/1.5f;
 
-        if(time >= deathTime){
+        if(pc.shrinking && time >= pc.timeOflastShrink + shrinkinternval){ // time to shrink
+            const auto& sprite = entity.GetComponent<SpriteComponent>();
+            pc.timeOflastShrink = time; 
+            auto oldsize = sprite.width * transform.scale.x;
+            transform.scale *= shrinkFactor;
+            transform.position += (oldsize - (sprite.width * transform.scale.x))/2.0f;
+
+        } 
+        transform.position.x += velocity.x * deltaTime;
+        transform.position.y += velocity.y * deltaTime;
+        if(time >= pc.deathTime || transform.scale.x <= minimumParticleScale){
             entity.Kill();
-        } else {
-            position.x += velocity.x * deltaTime;
-            position.y += velocity.y * deltaTime;
         }
-        
     }
 }

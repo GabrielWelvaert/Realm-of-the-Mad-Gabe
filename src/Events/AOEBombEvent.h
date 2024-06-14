@@ -19,7 +19,7 @@ class AOEBombEvent: public Event {
         glm::vec2 epicenter;
         std::unique_ptr<EventBus>& eventBus;
         float radius;
-
+        // of this extra data is to account for possbility of player death
         std::unique_ptr<Registry>& registry;
         std::unique_ptr<AssetStore>& assetStore; 
         std::unique_ptr<Factory>& factory;

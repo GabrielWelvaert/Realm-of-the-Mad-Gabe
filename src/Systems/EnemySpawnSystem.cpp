@@ -11,7 +11,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
     float chanceOfEventBoss = 4;
     for(auto& entity: GetSystemEntities()){
         auto& esc = entity.GetComponent<EnemySpawnerComponent>();
-        if(time >= 5000 + esc.lastSpawnTime){ // spawn monsters every X ms
+        if(time >= 3000 + esc.lastSpawnTime){ // spawn monsters every X ms
             // to expand for other areas add an enum to EnemySpawnerComponent that represents the area ex godlands and switch-case it
             auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
             auto numEventBosses = registry->numEntitiesPerMonsterSubGroup(EVENTBOSS);
@@ -31,7 +31,12 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
 
             /*temporary solution to rare, unresolved bug where playerPos returns uninitialized :(*/
             glm::vec2 playerPos;
+            int attempts = 0;
             do{
+                if(attempts > 0){
+                    std::cout << "Enemy spawn system did not recieve player position properly" << '\n';
+                }
+                attempts++;
                 playerPos = player.GetComponent<TransformComponent>().position;
             } while (playerPos.x > 100,000 || playerPos.x < 0 || playerPos.y > 100,000 || playerPos.y < 0);
             /**/

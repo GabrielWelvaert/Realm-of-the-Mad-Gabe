@@ -188,8 +188,6 @@ class Pool: public IPool { //pool of component, where each index represents enti
         void RemoveEntityFromPool(int entityId) override {
             if(entityIdToIndex.find(entityId) != entityIdToIndex.end()){
                 Remove(entityId);
-            } else {
-                // std::cout << "ATTEMPTED TO REMOVE NON-EXISTANT SPRITE COMP FOR ENTITY " << entityId << '\n';
             }
         }
 

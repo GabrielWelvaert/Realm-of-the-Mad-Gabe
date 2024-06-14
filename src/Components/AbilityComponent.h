@@ -89,4 +89,29 @@ struct QuiverComponent{
 
 };
 
+struct SealComponent{
+    int duration;
+    items itemEnum;
+    inline SealComponent() = default;
+    inline SealComponent(int duration, items itemEnum): duration(duration), itemEnum(itemEnum) {}
+};
+
+struct ScepterComponent{
+    int maxNumberTargets;
+    int damage;
+    int damageReductionPerTarget;
+    inline ScepterComponent() = default;
+    inline ScepterComponent(int maxNumberTargets,int damage,int damageReductionPerTarget):
+        maxNumberTargets(maxNumberTargets), damage(damage), damageReductionPerTarget(damageReductionPerTarget) {}
+};
+
+struct SkullComponent{
+    int damage;
+    float radius;
+    inline SkullComponent() = default;
+    inline SkullComponent(int damage, float radius):
+        damage(damage), radius(radius) {}
+};
+
+
 #endif

@@ -1562,7 +1562,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
                         aidata.timer1 = time;
                         // todo shoot red fireballs
-                        for(int i = 0; i < 5; i++){
+                        for(int i = 0; i < 8; i++){
                             aidata.phaseOneIndex = RNG.randomFromRange(0,35);
                             fireBall(entity, registry, aidata.phaseOnePositions[aidata.phaseOneIndex]);
                         }

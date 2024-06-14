@@ -110,6 +110,12 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
                 frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
             }
         }break;
+        case DAMAGING:{
+            const auto& basestats = entity.GetComponent<BaseStatComponent>();
+            auto& offensestats = entity.GetComponent<OffenseStatComponent>();
+            offensestats.activeattack += basestats.attack / 2;
+            sec.modifications[DAMAGING] = basestats.attack / 2;
+        } break;
         case CONFUSED:
         case BLEEDING:
         case STUNNED:
@@ -145,6 +151,10 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
             auto& activedef = recipient.GetComponent<HPMPComponent>().activedefense;
             activedef -= sec.modifications[ARMORED];
         }break;
+        case DAMAGING:{
+            auto& activeatt = recipient.GetComponent<OffenseStatComponent>().activeattack;
+            activeatt -= sec.modifications[DAMAGING];
+        } break;
         case BERSERK:{ //BERSERK
             if(recipient.BelongsToGroup(PLAYER)){ // ? 
                 const auto& basestats = recipient.GetComponent<BaseStatComponent>();
@@ -188,7 +198,14 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
                     if(i == BLEEDING && currentTime >= sec.lastBleedTime + 250){ // bleeding logic done here for cache-friendliness
                         auto& activehp = entity.GetComponent<HPMPComponent>().activehp;
                         if(activehp >= 5.0){ // player cannot die from bleeding
-                            activehp -= 5.0;    
+                            activehp -= 5.0;    // 20 per second
+                        }
+                        sec.lastBleedTime = currentTime;
+                    } else if(i == HEALING && currentTime >= sec.lastBleedTime + 250){
+                        auto& HPMP = entity.GetComponent<HPMPComponent>();
+                        HPMP.activehp += 10.0; // 40 per second
+                        if(HPMP.activehp > HPMP.maxhp){
+                            HPMP.activehp = HPMP.maxhp;
                         }
                         sec.lastBleedTime = currentTime;
                     }
