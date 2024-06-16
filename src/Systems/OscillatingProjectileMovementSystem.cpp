@@ -5,6 +5,7 @@ OscillatingProjectileMovementSystem::OscillatingProjectileMovementSystem(){
     RequireComponent<RidigBodyComponent>();
     RequireComponent<TransformComponent>();
     RequireComponent<OscillatingProjectileComponent>();
+    RequireComponent<SpriteComponent>();
 }
 
 void OscillatingProjectileMovementSystem::UpdateSimulatedPositions(const double& deltaTime){
@@ -18,31 +19,27 @@ void OscillatingProjectileMovementSystem::UpdateSimulatedPositions(const double&
 
 void OscillatingProjectileMovementSystem::UpdateRealPositions(std::unique_ptr<Registry>& registry){
     auto time = SDL_GetTicks();
-    // const SDL_Rect rect = {3,2,1,1};
-    // const SDL_Rect rect2 = {3,5*8,1,1};
     for(auto& entity: GetSystemEntities()){
         auto& opc = entity.GetComponent<OscillatingProjectileComponent>();
-        auto& realPosition = entity.GetComponent<TransformComponent>().position;
+        auto& transform = entity.GetComponent<TransformComponent>();
         auto& pc = entity.GetComponent<ProjectileComponent>();
-
         auto elapsedTime = time - pc.startTime;
+
+        // note on staff projectiles:
+        // I tried for hours to get it to be perfectly symmetrical for the regular-inverterd pair staff projectiles
+        // mathematically, the position inversion was perfect (inverted displacement is negative regular displacement)
+        // on screen, it is never perfectly symmetrical. I assumed this was becuase of how position is origin of sprite 
+        // but even when accounting for that, it never looked right. even 1x1 pixel projectiles looked asymmetrical
+        // modifying the position with respect to sprite dimensions and origins didnt change the fact that the "curve" was off! 
+
         auto offsetY = std::sin(M_PI * opc.frequency * elapsedTime);
         auto offsetX = std::cos(M_PI * opc.frequency * elapsedTime);
-        realPosition.y = opc.linearPosition.y + (offsetY * opc.amplitude);
-        realPosition.x = opc.linearPosition.x + (offsetX * opc.amplitude);
-
-        if(opc.inverse){ // this projectile is reflected about the origin
-            realPosition.x = opc.linearPosition.x - (realPosition.x - opc.linearPosition.x);
-            realPosition.y = opc.linearPosition.y - (realPosition.y - opc.linearPosition.y);
+        if(!opc.inverse){ 
+            transform.position.y = opc.linearPosition.y + (offsetY * opc.amplitude);
+            transform.position.x = opc.linearPosition.x + (offsetX * opc.amplitude);
+        } else { 
+            transform.position.y = opc.linearPosition.y - (offsetY * opc.amplitude);
+            transform.position.x = opc.linearPosition.x - (offsetX * opc.amplitude);
         }
-
-        // Entity e = registry->CreateEntity();
-        // e.AddComponent<TransformComponent>(realPosition);
-        // e.AddComponent<SpriteComponent>(LOFIOBJ, 1, 1, rect, 15, false, false);
-
-        // Entity l = registry->CreateEntity();
-        // l.AddComponent<TransformComponent>(opc.linearPosition);
-        // l.AddComponent<SpriteComponent>(LOFIOBJ, 1, 1, rect2, 15, false, false);
     }
-
 }

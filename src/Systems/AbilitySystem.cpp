@@ -241,11 +241,12 @@ void AbilitySystem::onCloakUse(CloakUseEvent& event){
 
 void AbilitySystem::onSealUse(SealUseEvent& event){
     const auto& seal = event.player.GetComponent<SealComponent>();
+    event.eventbus->EmitEvent<StatusEffectEvent>(event.player, HEALING, event.eventbus, event.registry, seal.duration);
+    event.eventbus->EmitEvent<StatusEffectEvent>(event.player, DAMAGING, event.eventbus, event.registry, seal.duration);
     switch(seal.itemEnum){
-        default:{
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, HEALING, event.eventbus, event.registry, seal.duration);
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, DAMAGING, event.eventbus, event.registry, seal.duration);
-        } break; 
+        case OREO:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 2000);
+        } break;
     };
 }
 

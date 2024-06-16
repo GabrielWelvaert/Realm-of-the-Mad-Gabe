@@ -24,6 +24,7 @@ void CollisionSystem::onAOEBomb(AOEBombEvent& event){
     }
 }
 
+// all-againts-all collision for entities within 1250 pixels of the player
 void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
     auto& entities = GetSystemEntities();
     constexpr int distanceOffScreen = 1250; // distanceOffScreen + 375 = rough distance from player where all collision is ignored

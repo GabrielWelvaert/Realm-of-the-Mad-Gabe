@@ -794,7 +794,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {3, T5ABILITIES},
                 {3, T4RING},
                 {33, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {1, {DOOMQUIVER}},
+                {1, {OREO}},
                 {2, {GORDONINCANTATION}},
             }
         }
@@ -1121,6 +1121,14 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {50, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
                 {5, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
                 {5, {HPPOT, HPPOT, HPPOT, MPPOT, MINORHPPOT, MINORMPPOT}},
+            }
+        }
+    },
+        {
+        DUCKLING,
+        {
+            {
+                {5, {HPPOT, MPPOT}},
             }
         }
     },
@@ -1660,6 +1668,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6SEAL, {5000,90}},
     {T7SEAL, {5500,95}},
     {T8SEAL, {6000,100}},
+    {OREO, {5000,100}}
 
 
 };
@@ -1719,6 +1728,7 @@ std::unordered_map<items, helmData> itemEnumToHelmData = { // also used for cloa
     {T6SEAL, {5000}},
     {T7SEAL, {5500}},
     {T8SEAL, {6000}},
+    {OREO, {5000}}
 };
 
 std::unordered_map<items, tomeData> itemEnumToTomeData = {
@@ -1794,7 +1804,7 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {CHICKENTOME, {0,0,0,0,5,0,0,0}},
     {ARCTOME, {0,0,3,0,0,3,0,0}},
     {ARCROBE, {0,35,4,13,0,4,0,0}},
-    {ADMINCROWN, {64000,64000,50,50,150,50,200,200}},
+    {ADMINCROWN, {64000,64000,50,50,150,50,50,50}},
     {T0ATTRING, {0,0,3,0,0,0,0,0}},
     {T1ATTRING, {0,0,5,0,0,0,0,0}},
     {T2ATTRING, {0,0,6,0,0,0,0,0}},
@@ -1970,6 +1980,7 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T6SEAL, {20,20,0,0,0,4,0,0}},
     {T7SEAL, {40,40,0,0,0,4,0,0}},
     {T8SEAL, {80,80,0,0,0,5,0,0}},
+    {OREO, {0,0,0,0,5,0,0,0}}
 
     //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 };
@@ -2060,7 +2071,8 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {SHADE, AS},
     {FLOATINGSKULL, ORBITMINION},
     {POTCHEST, NEUTRAL},
-    {BARREL, NEUTRAL}
+    {BARREL, NEUTRAL},
+    {DUCKLING, ORBITMINION}
 };  
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -2343,6 +2355,7 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T6SEAL, T6SEALICON},
     {T7SEAL, T7SEALICON},
     {T8SEAL, T8SEALICON},
+    {OREO, OREOICON}
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -2625,6 +2638,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T6SEAL, "Seal of the Blessed Champion (T6)"},
     {T7SEAL, "Seal of Invocation (T7)"},
     {T8SEAL, "Seal of Righteous Victory (T8)"},
+    {OREO, "Seal of Blasphemous Prayer (UT)"}
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -2907,6 +2921,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T6SEAL, "A holy seal of heavenly omnipotence, given to aid mortal warriors in their fight against chaos and darkness"},
     {T7SEAL, "A jubilant seal of celebration, granted to the most righteous crusaders as they challenge the evergrowing threat of demonic legions"},
     {T8SEAL, "A crimson seal that is granted phenomenal power through the spilled blood of martyrs who fought for the welfare of all mankind"},
+    {OREO, "A seal that is said to briefly borrow the power of the Gods themselves. Some Paladins shun its dark power, others embrace it"}
 };
 
 std::vector<std::string> defaultNames = {"Utanu", "Gharr", "Yimi", "Idrae", "Odaru", "Scheev", "Zhiar", "Itani", "Serl", "Oeti", "Tiar", "Issz", "Oshyu", "Deyst", "Oalei", "Vorv", "Iatho", "Uoro", "Urake", "Eashy", "Queq", "Rayr", "Tal", "Drac", "Yangu", "Eango", "Rilr", "Ehoni", "Risrr", "Sek", "Eati", "Laen", "Eendi", "Ril", "Darq", "Seus", "Radph", "Orothi", "Vorck", "Saylt", "Iawa", "Iri", "Lauk", "Lorz"};
@@ -3192,6 +3207,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T6SEAL, SEAL},
     {T7SEAL, SEAL},
     {T8SEAL, SEAL},
+    {OREO, SEAL}
 
 };
 
@@ -3476,6 +3492,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T6SEAL, CYANLOOTBAG},
     {T7SEAL, REDLOOTBAG},
     {T8SEAL, REDLOOTBAG}, 
+    {OREO, WHITELOOTBAG}
 };  
 
 // DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
@@ -3759,6 +3776,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {T6SEAL, {LOFIOBJ6, 8, 8, {8*6, 8*10, 8, 8}, 12, true, false}},
     {T7SEAL, {LOFIOBJ6, 8, 8, {8*7, 8*10, 8, 8}, 12, true, false}},
     {T8SEAL, {LOFIOBJ6, 8, 8, {8*8, 8*10, 8, 8}, 12, true, false}},
+    {OREO, {LOFIOBJ2, 8, 8, {8*14, 8*6, 8, 8}, 12, true, false}},
     
 };
 
@@ -3841,7 +3859,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T4STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 25, 45, 2, 0.0f, YELLOWMISSILE, 24, .004}}, // yellow missile
     {T5STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 35, 55, 2, 0.0f, REDMISSILE, 24, .004}}, // red missile
     {T6STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 40, 70, 2, 0.0f, PURPLEMISSILE, 24, .004}}, // purple
-    {T7STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 45, 85, 2, 0.0f, REDMISSILE, 24, .004}}, // red 
+    {T7STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 45, 85, 1, 0.0f, REDMISSILE, 24, .004}}, // red 
     {T8STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 50, 90, 2, 0.0f, BLUEMISSILE, 24, .004}}, // blue 
     {T9STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 50, 95, 2, 0.0f, WHITEMISSILE, 24, .004}}, // white
     {T10STAFF, {BITS_OSCILLATING_DIAGONAL, 475, 1152, 55, 95, 2, 0.0f, PURPLEMISSILE, 24, .004}}, // purple
@@ -4118,8 +4136,8 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {REDFLAMINGSKULL, {1000,0,0,0,20,0,0,0, FLAMINGSKULLSHIT, FLAMINGSKULLSDEATH}},
     {BLUEFLAMINGSKULL, {750,0,0,0,20,0,0,0, FLAMINGSKULLSHIT, FLAMINGSKULLSDEATH}},
 
-    {PENTARACTEYE, {750,0,0,0,55,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
-    {PENTARACTTOWER, {8000,0,0,0,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {PENTARACTEYE, {750,0,0,15,55,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {PENTARACTTOWER, {12500,0,0,35,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
 
     {MYSTERIOUSCRYSTAL, {50000,0,0,0,0,0,0,0, STONEWALLSHIT, STONEWALLSDEATH}},
     {CRYSTALPRISONER, {25000,0,0,40,25,0,0,0, GHOSTGODHIT, GHOSTGODDEATH}},
@@ -4147,7 +4165,8 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SHADE, {1800,0,0,55,0,0,0,0, SKELETONSHIT, SKELETONSDEATH}},
     {FLOATINGSKULL, {50,0,0,20,20,0,0,0, SKELETONSHIT,SKELETONSDEATH}},
     {POTCHEST, {100,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
-    {BARREL, {60000,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}}
+    {BARREL, {60000,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {DUCKLING, {25,0,0,0,12,0,0,0, DEFAULTHIT, DEFAULTDEATH}}
 
 };
 
@@ -4279,6 +4298,7 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
 
     {POTCHEST, {LOFIOBJ,8,8,{8*2, 8*0,8,8},4,false,false}},
     {BARREL , {LOFIENVIRONMENT2,8,8,{8*15, 8*0,8,8},4,false,false}},
+    {DUCKLING, {LOFIPROJS,8,8,{8*13, 8*5,8,8},4,false,false}},
 
 };
 
@@ -4363,7 +4383,8 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {SHADE, STANDARD},
     {FLOATINGSKULL, STANDARDFLOATING},
     {POTCHEST, STANDARD},
-    {BARREL, STANDARD}
+    {BARREL, STANDARD},
+    {DUCKLING, STANDARD}
 };
 
 /*  unsigned short detectRange; // distance in pixels where monster can detect player (ex: path to player)
@@ -4372,17 +4393,17 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
 std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     // not great, but 0 indicates unused variable or one that is derived later from somewhere else
     // monsters will ahve their engage range updated such that they will only shoot if they are close enough to hit target
-    {SKELETON0, {400, 0, 100}},
-    {SKELETON1, {400, 0, 100}},
-    {SKELETON2, {400, 0, 100}},
+    {SKELETON0, {425, 0, 100}},
+    {SKELETON1, {425, 0, 100}},
+    {SKELETON2, {425, 0, 100}},
     {SKELETON3, {0, 0, 0}},
-    {SKELETON4, {400, 0, 100}},
+    {SKELETON4, {425, 0, 100}},
     {REDKNIGHT0, {150, 0, 50}},
-    {TINYWHITECHICKEN, {400,0,95}},
-    {TINYREDCHICKEN, {400,0,105}},
+    {TINYWHITECHICKEN, {425,0,95}},
+    {TINYREDCHICKEN, {425,0,105}},
     {COCKATRICE, {600,0,100}},
-    {WHITECHICKEN, {400,0,50}},
-    {DUCK, {400,0,50}},
+    {WHITECHICKEN, {425,0,50}},
+    {DUCK, {425,0,50}},
     {ROOSTER, {600,0,80}},
     {BIGROOSTER, {600,0,120}},
     {BIGTURKEY, {600,0,100}},
@@ -4417,10 +4438,10 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {GHOSTARCHER, {550, 0, 100}},
     {GHOSTWARRIOR, {600, 0, 150}},
     {GHOSTWIZARD, {600, 0, 220}},
-    {GHOSTASSASSIN, {400, 0, 200}},
+    {GHOSTASSASSIN, {425, 0, 200}},
     {GHOSTPALADIN, {600, 0, 175}},
-    {GHOSTSTATUE, {400, 0, 125}},
-    {CULTIST, {400,0,100}},
+    {GHOSTSTATUE, {425, 0, 125}},
+    {CULTIST, {425,0,100}},
     {BROWNSLIMESMALL, {600,0,100}},
     {BROWNSLIMEMEDIUM, {600,0,200}},
     {BLACKSLIMESMALL, {600,0,100}},
@@ -4520,7 +4541,7 @@ std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData = {
     {ORANGECUBE, {{YELLOWCUBE}, 2, 30000, false}},
     {YELLOWCUBE, {{CYANCUBE}, 3, 30000, false}},
     {SKULLSHRINE, {{REDFLAMINGSKULL,BLUEFLAMINGSKULL}, 25, 30000, false}}, 
-    {PENTARACTTOWER, {{PENTARACTEYE}, 5, 20000, false}},
+    {PENTARACTTOWER, {{PENTARACTEYE}, 7, 20000, false}},
     {PENTARACT, {{PENTARACTTOWER}, 5, 30000, false}},
     {CRYSTALPRISONER, {{CRYSTALSTEED}, 3, 20000, false}}, 
     {GRANDSPHINX, {{HORRIDREAPER1, HORRIDREAPER2}, 5, 20000, false}}, 
@@ -4538,6 +4559,7 @@ std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData
     {REDFLAMINGSKULL, {100, 5}},
     {PENTARACTEYE, {75, 1.4}},
     {FLOATINGSKULL, {75, 1.5}},
+    {DUCKLING, {75,1.3}}
 };
 
 std::unordered_set<sprites> hasDeathAction = {

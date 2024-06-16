@@ -18,6 +18,7 @@ struct KeyBoardInput{
     std::bitset<8> utilityKeys; // SPACE,SHIFT,H,T
     std::bitset<8> inventoryUses; // keys 1-8
     Uint32 timeOfLastScroll = 0;
+    int mouseXOrigin = 0; // local coordinate where pressDown was first detected
 };
 
 #endif

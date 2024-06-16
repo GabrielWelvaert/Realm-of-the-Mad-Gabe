@@ -6,31 +6,65 @@ RenderSystem::RenderSystem(){
 }
 
 // assumes player is indeed the player and has HPMPComponent and StatusEffectComponent
-void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player){
-    auto& playerHPMP = player.GetComponent<HPMPComponent>();
-    auto percentHealth = playerHPMP.activehp / playerHPMP.maxhp;
+void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player, std::unique_ptr<AssetStore>& assetStore){
+    SDL_Rect screen = {0,0,750,750};
+    
+    // rendering red veil if player hp is low below lowHealth
+    auto& HPMP = player.GetComponent<HPMPComponent>();
+    auto percentHealth = HPMP.activehp / HPMP.maxhp;
     constexpr int maxalpha = 128;
-    if(percentHealth < .15){
+    constexpr float lowHealth = 0.15f;
+    if(percentHealth < lowHealth){
         auto alpha = static_cast<int>(maxalpha-(maxalpha * (1 - exp(-5 * percentHealth)))); // alpha value decreases as health decreases
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 150,0,0,alpha);
-        SDL_Rect screen = {0,0,750,750};
         SDL_RenderFillRect(renderer, &screen);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     }
 
+    // rendering grey veil if the player has been blinded
     if(player.GetComponent<StatusEffectComponent>().effects[BLIND]){
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 40,40,40,150);
-        SDL_Rect screen = {0,0,750,750};
         SDL_RenderFillRect(renderer, &screen);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     }
+
+    // equipment icon veil to indicate cooldown or insufficient mp
+    const auto& ac = player.GetComponent<AbilityComponent>();
+    const auto& ic = player.GetComponent<PlayerItemsComponent>();
+    if(!ac.abilityEquipped || (ic.holdingItemLastFrame && ic.equipment.at(2).GetId() == ic.IdOfHeldItem)){
+        return; // no ability or holding ability = no need to render veil
+    }
+    constexpr int x = 827 - 2;
+    constexpr int y = 455 - 2;
+    constexpr int dimension = 50;
+    auto time = SDL_GetTicks();
+    const SDL_Rect veilMaskSrc = {9*44,44*2,44,44}; // this is used to cover the borders of the square veil so its clean with the curved edges of the equipment inventory slot
+    const SDL_Rect veilMaskDst = {827-6,455-6,static_cast<int>(44*1.25),static_cast<int>(44*1.25)}; // strange values ensure nearly pixel-perfect appearance
+    if(HPMP.activemp >= ac.mpRequired){ // display shrinking cooldown veil
+        if(ac.timeLastUsed != 0 && time < ac.timeLastUsed + ac.coolDownMS){ // cooldown period has not completed
+            float percentCoolDownCompleted = std::max(((time - ac.timeLastUsed) / static_cast<float>(ac.coolDownMS)), .01f);
+            int height = dimension - (dimension * percentCoolDownCompleted); // height of veil depends on how much coolDown is left
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 40,40,40,150); // semi-transparent grey 
+            SDL_Rect rect = {x, static_cast<int>(y + dimension - height), dimension -1, static_cast<int>(height)};    
+            SDL_RenderFillRect(renderer, &rect);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+            SDL_RenderCopyEx(renderer,assetStore->GetTexture(INVENTORYICONS),&veilMaskSrc,&veilMaskDst,0.0,NULL,SDL_FLIP_NONE); // cover veil corners to match iventory slot's curved edges
+        }
+    } else { // even if not in cooldown, insufficient mana-- render full grey veil
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 40,40,40,150); // semi-transparent grey 
+        SDL_Rect rect = {x, y, dimension-1, dimension};  // fully filled in veil for insufficient mana
+        SDL_RenderFillRect(renderer, &rect);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        SDL_RenderCopyEx(renderer,assetStore->GetTexture(INVENTORYICONS),&veilMaskSrc,&veilMaskDst,0.0,NULL,SDL_FLIP_NONE); // cover veil corners to match iventory slot's curved edges
+    }
+
 }
 
 void RenderSystem::RenderHealthBars(SDL_Renderer* renderer, const SDL_Rect& camera, std::unique_ptr<Registry>& registry, Entity player, std::vector<BossIds>& bosses){
-    // todo: make this work with multiple bosses
-    // render boss health bar(s) for living bosses
     for(const auto& boss: bosses){
         auto idOfboss = boss.Id;
         auto creationIdOfBoss = boss.CreationId; 

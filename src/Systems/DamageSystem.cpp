@@ -90,12 +90,14 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                 int xp = victimHPMPComponent.maxhp / 10;
                 if(xp > 0){ 
                     playerBaseStats.xp += xp;  
-                    displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
-                    if(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){ // player level up
-                        while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
-                            event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
+                    if(playerBaseStats.level < 20){
+                        displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
+                        if(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){ // player level up
+                            while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
+                                event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
+                            }
+                            event.assetStore->PlaySound(LEVELUP);
                         }
-                        event.assetStore->PlaySound(LEVELUP);
                     }
                 }
                 if(event.victim.HasComponent<ItemTableComponent>()){
@@ -128,7 +130,7 @@ void DamageSystem::Update(double deltaTime, Entity player){
     auto& hpmp = player.GetComponent<HPMPComponent>();
     const auto& quiet = player.GetComponent<StatusEffectComponent>().effects[QUIET];
     if(!quiet && hpmp.activemp < hpmp.maxmp){
-        hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/150;
+        hpmp.activemp += .12 * (hpmp.activewisdom + 8.3) * deltaTime/150 * 4.0f;
         if(hpmp.activemp > hpmp.maxmp){
             hpmp.activemp = hpmp.maxmp;
         }
@@ -143,7 +145,7 @@ void DamageSystem::Update(double deltaTime, Entity player){
         const auto& maxhp = stats.maxhp;
 
         if((activehp < maxhp) && (activehp > 0)){
-            activehp += ((1 + .24 * activevitality)/250) * deltaTime;
+            activehp += ((1.0f + .24 * activevitality)/250) * deltaTime * 4.0f;
             if(activehp > maxhp){
                 activehp = maxhp;
             }
