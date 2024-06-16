@@ -60,7 +60,7 @@ class ChaseAISystem: public System{
 
         ChaseAISystem();
 
-        void Update(const Entity& player);
+        void Update(const Entity& player, const glm::vec2& playerPos);
 };
 
 // shoots, does not chase
@@ -68,7 +68,7 @@ class NeutralAISystem: public System{
     public:
 
         NeutralAISystem();
-        void Update(const Entity& player);
+        void Update(const Entity& player, const glm::vec2& playerPos);
 };
 
 class TrapAISystem: public System{
@@ -76,7 +76,7 @@ class TrapAISystem: public System{
 
         TrapAISystem();
 
-        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore);
+        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, const glm::vec2& playerPos);
 };
 
 // chases and shooots (animated)
@@ -85,7 +85,7 @@ class AnimatedChaseAISystem: public System{
 
         AnimatedChaseAISystem();
 
-        void Update(const Entity& player);
+        void Update(const Entity& player, const glm::vec2& playerPos);
 };
 
 // shoots, does not chase (animated)
@@ -94,7 +94,7 @@ class AnimatedNeutralAISystem: public System{
 
         AnimatedNeutralAISystem();
 
-        void Update(const Entity& player);
+        void Update(const Entity& player, const glm::vec2& playerPos);
 };
 
 class OrbitMinionAISystem: public System{
@@ -102,20 +102,20 @@ class OrbitMinionAISystem: public System{
         Xoshiro256 RNG;
     public:
         OrbitMinionAISystem();
-        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos);
 };
 
 class OrbitShootMinionAISystem: public System{
     public:
         OrbitShootMinionAISystem();
-        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos);
 
 };
 
 class StandShootMinionAISystem: public System{
     public:
         StandShootMinionAISystem();
-        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos);
 };
 
 class randomChaseMinionAISystem: public System{
@@ -124,7 +124,7 @@ class randomChaseMinionAISystem: public System{
 
     public:
         randomChaseMinionAISystem();
-        void Update(const Entity& player, std::unique_ptr<Registry>& registry);
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, const glm::vec2& playerPos);
 
 };
 
@@ -152,12 +152,16 @@ class InvisibleBossAISystem: public System{
 
     public: 
         InvisibleBossAISystem();
-        void Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom);
+        void Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom, const glm::vec2& playerPos);
 
 };
 
 class BossAISystem: public System{
     private:
+
+        inline glm::vec2 spriteCenter(const TransformComponent& t, const SpriteComponent& s){
+            return {(t.position.x + ((s.width * t.scale.x) / 2)), t.position.y + ((s.height * t.scale.y) / 2)};
+        }
 
         inline bool floatCompare(float a, float b, float tolerance){
             return std::fabs(a - b) <= tolerance;
@@ -469,7 +473,7 @@ class BossAISystem: public System{
 
     public:
         BossAISystem();
-        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom);
+        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos);
 };
 
 // class AnimatedPounceAISystem: public System{

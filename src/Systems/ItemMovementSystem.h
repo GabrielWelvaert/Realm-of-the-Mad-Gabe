@@ -29,6 +29,7 @@
 #include "../Events/WeaponEquipEvent.h"
 #include "../Events/KillItemIconEvent.h"
 #include "../Components/ItemComponent.h"
+#include "../Utils/KeyBoardInput.h"
 
 /*
 This system is responsible for allowing the player to move items between loot bags, their inventory, and their equipment slots
@@ -358,7 +359,7 @@ class ItemMovementSystem: public System{
             inventory[position] = item;
         }
 
-        void Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift);
+        void Update(int mx, int my, std::unique_ptr<KeyBoardInput>& keyboardinput, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, bool shift);
 
 };
 

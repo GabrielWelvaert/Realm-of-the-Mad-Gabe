@@ -24,7 +24,7 @@ void DeathActionSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
                 } break;
                 case CHICKENEGG:{
                     factory->spawnMonster(registry, transform.position, RNG.randomFromVector(chickens));
-                    factory->spawnDecoration(registry, transform.position, CRACKEDWHITEEGG);
+                    factory->spawnDecoration(registry, transform.position - 4.0f, CRACKEDWHITEEGG);
                 } break;
                 case BROWNSLIMELARGE:{
                     const auto& sprite = entity.GetComponent<SpriteComponent>();

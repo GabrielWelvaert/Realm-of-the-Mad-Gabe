@@ -282,6 +282,7 @@ enum items{
     T6SEAL,
     T7SEAL,
     T8SEAL,
+    OREO,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -469,7 +470,11 @@ enum sprites{
     SHADE,
     FLOATINGSKULL,
     POTCHEST,
-    BARREL
+    BARREL,
+    CROSSGRAVE,
+    FLOORBLOOD,
+    FLOORSKULL,
+    DUCKLING
 };
 
 enum soundEnums{
@@ -1060,6 +1065,7 @@ enum textureEnums{
     T6SEALICON,
     T7SEALICON,
     T8SEALICON,
+    OREOICON
 };
 
 #endif

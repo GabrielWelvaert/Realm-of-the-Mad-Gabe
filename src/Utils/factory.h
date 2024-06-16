@@ -118,6 +118,8 @@ class Factory{
         void spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint);
 
         void spawnNecromancerParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
+
+        void spawnTreasureRoomChest(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, wallTheme area);
 };
 
 #endif

@@ -17,7 +17,8 @@
 #include <unordered_map>
 #include "../../libs/SDL2/SDL.h"
 #include "../Components/OrbitalMovementComponent.h"
-
+#include "../Components/ChaseAIComponent.h"
+#include "../Components/AnimatedChaseAIComponent.h"
 
 /*
 This system is responsible for updating postion based off of velocity, deltatime, and flags. It also containts logic for collisionEvents. Projectiles do not move in this system!
@@ -67,7 +68,7 @@ class MovementSystem: public System {
         // wall collision event, emitted by movementSystem!
         void onCollision(CollisionEvent& event);
 
-        void Update(const double& deltaTime, std::unique_ptr<Registry>& registry);
+        void Update(const double& deltaTime, std::unique_ptr<Registry>& registry, const glm::vec2& playerCenter);
 
 
 };

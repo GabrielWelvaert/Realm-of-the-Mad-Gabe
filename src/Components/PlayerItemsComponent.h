@@ -7,8 +7,8 @@
 #include "../Components/ItemComponent.h"
 
 struct PlayerItemsComponent{
-    std::map<unsigned char, Entity> equipment;
-    std::map<unsigned char, Entity> inventory;
+    std::map<unsigned char, Entity> equipment; // indexed starting from 1...
+    std::map<unsigned char, Entity> inventory; // indexed starting from 1...
     int IdOfOpenBag = 0;
     bool viewingBag = false;
     bool holdingItemLastFrame = false;

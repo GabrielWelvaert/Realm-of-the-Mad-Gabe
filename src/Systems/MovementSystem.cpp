@@ -11,7 +11,7 @@ void MovementSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<CollisionEvent>(this, &MovementSystem::onCollision);
 }
 
-// legacy code
+// legacy code. its not good.
 void MovementSystem::onCollision(CollisionEvent& event){
     // WALL IS ALWAYS EVENT.A !!! if it isn't things are going to be very bad!
     auto& transform = event.b.GetComponent<TransformComponent>();
@@ -66,7 +66,7 @@ void MovementSystem::onCollision(CollisionEvent& event){
     }
 }
 
-void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& registry) {
+void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& registry, const glm::vec2& playerCenter) {
     for(auto& entity: GetSystemEntities()){
         if(entity.HasComponent<StatusEffectComponent>()){
             if(entity.GetComponent<StatusEffectComponent>().effects[PARALYZE]){
@@ -105,10 +105,9 @@ void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& 
                 bCollider.height);
 
             if(!nextMoveWillHitSameWall){ // will not hit same wall; release flag from double collision
-                // std::cout << "not gonna hit same wall " << std::endl;
                 flags.collisionFlag = NONESIDE;
             }
-            if(flags.idOfOldWallHit != flags.idOfWallHit && flags.idOfOldWallHit != -1){// registry->IdBelongsToGroup(flags.idOfOldWallHit, WALLBOX)){//flags.idOfOldWallHit != 0){ // check for corner collision, if re-hit, apply respective flag
+            if(flags.idOfOldWallHit != flags.idOfWallHit && flags.idOfOldWallHit != -1){ // check for corner collision, if re-hit, apply respective flag
                 const auto& cCollider = registry->GetComponent<BoxColliderComponent>(flags.idOfOldWallHit);
                 const auto& cTransform = registry->GetComponent<TransformComponent>(flags.idOfOldWallHit);
                 bool nextMoveWIllCauseCornerCollision = CheckAABBCollision(
@@ -136,20 +135,42 @@ void MovementSystem::Update(const double& deltaTime, std::unique_ptr<Registry>& 
                         transform.position.x += 1;
                     }
                 }
-            
             }
         }
 
-        // y not encompass this inside if flags.collisionFlag != NONESIDE ??
-        if (flags.collisionFlag == RIGHTSIDE && rigidbody.velocity.x < 0){ // moving left
-            rigidbody.velocity.x = 0.0;
-        } else if (flags.collisionFlag == LEFTSIDE && rigidbody.velocity.x > 0){ // moving right
-            rigidbody.velocity.x = 0.0;
-        } else if (flags.collisionFlag == TOPSIDE && rigidbody.velocity.y > 0){ // moving down
-            rigidbody.velocity.y = 0.0;
-        } else if (flags.collisionFlag == BOTTOMSIDE && rigidbody.velocity.y < 0) { // moving up
-            rigidbody.velocity.y = 0.0;
-        } 
+        // this logic can not exist within the previous if(flags.collisionFlag != NONESIDE && flags.idOfWallHit != -1) logic
+        // if (flags.collisionFlag == RIGHTSIDE && rigidbody.velocity.x < 0){ // moving left
+        //     rigidbody.velocity.x = 0.0;
+        // } else if (flags.collisionFlag == LEFTSIDE && rigidbody.velocity.x > 0){ // moving right
+        //     rigidbody.velocity.x = 0.0;
+        // } else if (flags.collisionFlag == TOPSIDE && rigidbody.velocity.y > 0){ // moving down
+        //     rigidbody.velocity.y = 0.0;
+        // } else if (flags.collisionFlag == BOTTOMSIDE && rigidbody.velocity.y < 0) { // moving up
+        //     rigidbody.velocity.y = 0.0;
+        // } 
+
+        switch(flags.collisionFlag){
+            case RIGHTSIDE:{
+                if(rigidbody.velocity.x < 0){
+                    rigidbody.velocity.x = 0.0;
+                }
+            } break;
+            case LEFTSIDE:{
+                if(rigidbody.velocity.x > 0){
+                    rigidbody.velocity.x = 0.0;
+                }
+            } break;
+            case TOPSIDE:{
+                if(rigidbody.velocity.y > 0){
+                    rigidbody.velocity.y = 0.0;
+                }
+            } break;
+            case BOTTOMSIDE:{
+                if(rigidbody.velocity.y < 0){
+                    rigidbody.velocity.y = 0.0;
+                }
+            } break;
+        }
         
         transform.position.x += rigidbody.velocity.x * deltaTime;
         transform.position.y += rigidbody.velocity.y * deltaTime;

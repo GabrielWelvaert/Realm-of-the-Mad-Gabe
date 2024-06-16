@@ -223,6 +223,19 @@ void Factory::spawnDecoration(std::unique_ptr<Registry>& registry, const glm::ve
             decoration.AddComponent<SpriteComponent>(LOFICHAR,8,8,4,8*6,8*14,false);
             decoration.AddComponent<TransformComponent>(spawnpoint);
         } break;
+        case CROSSGRAVE:{
+            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,4,8*4,8*1,false);
+            decoration.AddComponent<TransformComponent>(spawnpoint);
+        } break;
+        case FLOORBLOOD:{
+            auto xpos = RNG.randomFromRange(3,5);
+            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,1,xpos*8,8*5,false);
+            decoration.AddComponent<TransformComponent>(spawnpoint);
+        } break;
+        case FLOORSKULL:{
+            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,2,0,8,false);
+            decoration.AddComponent<TransformComponent>(spawnpoint);
+        } break;
     }
 }
 
@@ -340,6 +353,7 @@ void Factory::spawnScepterFailParticles(std::unique_ptr<Registry>& registry, con
 }
 
 void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
+    bool spawnedTroom = false;
     for(const auto& room: dungeonRooms){
         if(room.id == 0){ // spawn room
             continue;
@@ -357,6 +371,7 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
             }
             continue;
         }
+        // else, populate this room with monsters!
         int minX = room.x + 2; // these values are in tiles
         int minY = room.y + 2;
         int maxX = room.x + room.w - 2;
@@ -364,26 +379,80 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         const auto& possibleRoomSpawns = wallThemeToMonsterSpawns.at(dungeonType); // the table that had possible room spawns; ex tiny red and white chickens together
         const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)]; // select random from wallThemeToMonsterSpawns
         int roomQuantifier = (room.w + room.h) / 4; // ex 10x10 room will spawn 10 monsters per spawn type in selectedRoomSpawns
-        std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;
-        for(const auto& enemySpawn: selectedRoomSpawns){
-            if(enemySpawn.modifier == 0.0){ // flag to spawn just one monster at room center
-                glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
-                spawnMonster(registry, spawnPos, enemySpawn.monster);
-            } else {
-                int numToSpawn = enemySpawn.modifier * roomQuantifier;
-                for(int i = 0; i <= numToSpawn; i++){
-                    // multiply spawnPos by 64 to convert from tile location to pixel location
-                    glm::vec2 spawnPos;
-                    do {
-                        spawnPos = {RNG.randomFromRange(minX, maxX) * 64, RNG.randomFromRange(minY, maxY) * 64};
-                    } while (usedSpawnPoints.find(spawnPos) != usedSpawnPoints.end());
-                    usedSpawnPoints.insert(spawnPos);
+        if(RNG.randomFromRange(1,500) < 500){ // each room has 1/500 chance to be a treasure room; around 5% for a dugeon w/ 30 rooms to have a treasure room
+            glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-24, ((room.y + (room.h / 2)) * 64)-24);
+            spawnTreasureRoomChest(registry, spawnPos, dungeonType);
+        } else {
+            for(const auto& enemySpawn: selectedRoomSpawns){
+                std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;
+                if(enemySpawn.modifier == 0.0){ // flag to spawn just one monster at room center. ex: shade, cultist
+                    glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
                     spawnMonster(registry, spawnPos, enemySpawn.monster);
+                } else {
+                    int numToSpawn = enemySpawn.modifier * roomQuantifier;
+                    for(int i = 0; i <= numToSpawn; i++){
+                        // multiply spawnPos by 64 to convert from tile location to pixel location
+                        glm::vec2 spawnPos;
+                        do {
+                            spawnPos = {(RNG.randomFromRange(minX, maxX) * 64) - 32, (RNG.randomFromRange(minY, maxY) * 64) - 32};
+                        } while (usedSpawnPoints.find(spawnPos) != usedSpawnPoints.end());
+                        usedSpawnPoints.insert(spawnPos); // stores tile selected, ignores random offset that is about to be applied
+                        spawnPos.x += RNG.randomFromRange(-8.0f,8.0f);
+                        spawnPos.y += RNG.randomFromRange(-8.0f,8.0f);
+                        spawnMonster(registry, spawnPos, enemySpawn.monster);
+                    }
                 }
             }
         }
     }
     registry->Update();
+}
+
+void Factory::spawnTreasureRoomChest(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, wallTheme area){
+    Entity chest = registry->CreateEntity();
+    chest.Group(MONSTER);
+    switch(area){
+        case CHICKENLAIR:{
+            chest.AddComponent<ItemTableComponent>(BOSSCHICKEN);
+            for(int i = 0; i < 5; i++){
+                spawnMonster(registry, spawnpoint, DUCKLING, chest.GetId());
+            } break;
+        } break;
+        case UDL:{
+            chest.AddComponent<ItemTableComponent>(ARCMAGE);
+            for(int i = 0; i < 6; i++){
+                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                float offsetX = RNG.randomFromRange(50,75) * glm::cos(randomAngle); 
+                float offsetY = RNG.randomFromRange(50,75) * glm::sin(randomAngle);
+                glm::vec2 realSpawnPos = {(spawnpoint.x + offsetX), (spawnpoint.y + offsetY)};
+                switch(i){
+                    case 1:{
+                        spawnDecoration(registry, realSpawnPos, CROSSGRAVE);
+                    } break;
+                    case 2:{
+                        spawnDecoration(registry, realSpawnPos, FLOORSKULL);
+                    } break;
+                    default:{
+                        spawnDecoration(registry, realSpawnPos, FLOORBLOOD);
+                    }
+                }
+
+            }
+        } break;
+    }
+    chest.AddComponent<TransformComponent>(spawnpoint);
+    chest.AddComponent<HPMPComponent>(POTCHEST);
+    chest.AddComponent<SpriteComponent>(POTCHEST);
+    chest.GetComponent<SpriteComponent>().flip = flips[RNG.randomFromRange(0,1)]; // monsters spawns facing random direction
+    chest.AddComponent<BoxColliderComponent>(POTCHEST);
+    chest.AddComponent<CollisionFlagComponent>();
+    chest.AddComponent<StatusEffectComponent>();
+    chest.AddComponent<SpeedStatComponent>(POTCHEST, RNG); // stationary enemies still have their speedstatcomp taken when hit by quivers
+    chest.AddComponent<DistanceToPlayerComponent>();
+    chest.AddComponent<TowerComponent>();
+    chest.AddComponent<isShootingComponent>();
+    chest.AddComponent<ProjectileEmitterComponent>(POTCHEST, chest.GetId());
+    chest.AddComponent<NeutralAIComponent>(POTCHEST);
 
 }
 

@@ -13,7 +13,7 @@ It is extremely hard to read, debug, and develop. This is due to requirements de
 https://tinyurl.com/w825uujs
 */
 
-void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, const bool& shift){ // todo pass player inventory component and equipment component (use maps!)
+void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& keyboardinput, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry,std::unique_ptr<EventBus>& eventBus, Entity player, const std::vector<int>& inventoryIcons, const std::vector<int>& equipmentIcons, std::unique_ptr<Factory>& factory, bool shift){ // todo pass player inventory component and equipment component (use maps!)
     auto& playerInventory = player.GetComponent<PlayerItemsComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     bool& shiftblock = playerInventory.shiftblock;
@@ -37,13 +37,14 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
 
         //if mouse colliding with item
         if(mx > transform.position.x && mx < transform.position.x + mb.width && my > transform.position.y && my < transform.position.y + mb.width){
-            if(clicking && !playerInventory.holdingItemLastFrame){  
+            if(keyboardinput->movementKeys[MB] && !playerInventory.holdingItemLastFrame && keyboardinput->mouseXOrigin > 750){  
                 // std::cout << "first frame item hold detected; clicking and !holdingItemLastFrame" << std::endl;
                 if(shift && my > 506 && !shiftblock){ // player shift-clicked consumable item from inventory or lootbag! 
                     // some logic and flag to block shift until its released. doing this is important as to not flood eventbus
                     const auto& itemEnum = entity.GetComponent<ItemComponent>().itemEnum;
                     if(static_cast<int>(itemToGroup.at(itemEnum)) == CONSUMABLE){ // consumable item clicked from inventory or loot bag
                         shiftblock = true;
+                        keyboardinput->movementKeys[MB] = false; // this line of code was added to stop the "double-drink" thing
                         //binary search. wee
                         if(my < 627){ // inventory 
                             if(my < 561){ 
@@ -133,7 +134,7 @@ void ItemMovementSystem::Update(int mx, int my, bool clicking, std::unique_ptr<A
                     showIcon(registry, equipmentIcons[entity.GetComponent<ItemComponent>().lastPosition-1]);
                 }
                 return;    
-            } else if (!clicking){ // not clicking; item was dropped or mouse hovering over item
+            } else if (!keyboardinput->movementKeys[MB]){ // not clicking; item was dropped or mouse hovering over item
                 if(!playerInventory.holdingItemLastFrame){ // mouse hovering over item
                     if(!playerInventory.hoveringItemLastFrame){
                         // std::cout << "initial hover detected" << std::endl;
