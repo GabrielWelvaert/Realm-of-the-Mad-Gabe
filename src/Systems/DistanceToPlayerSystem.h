@@ -36,7 +36,7 @@ class DistanceToPlayerSystem: public System{
     public:
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
         DistanceToPlayerSystem();
-        void Update(const Entity& player);
+        void Update(const glm::vec2& playerCenter);
         void onSkullUse(SkullUseEvent& event);
         void onScepterUse(ScepterUseEvent& event);
         void ascendingSort();

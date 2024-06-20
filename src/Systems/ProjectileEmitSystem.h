@@ -14,8 +14,8 @@
 #include "../Components/BoxColliderComponent.h"
 #include "../Components/ProjectileComponent.h"
 #include <unordered_map>
-#include "../utils/enums.h"
-#include "../utils/Xoshiro256.h"
+#include "../Utils/enums.h"
+#include "../Utils/Xoshiro256.h"
 #include "../Events/WeaponEquipEvent.h"
 #include "../EventBus/EventBus.h"
 #include "../AssetStore/AssetStore.h"

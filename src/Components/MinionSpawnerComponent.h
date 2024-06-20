@@ -17,7 +17,7 @@ struct MinionSpawnerComponent{
     MinionSpawnerComponent() = default;
 
     MinionSpawnerComponent(std::vector<sprites> minions, int maxMinions, Uint32 respawnInterval, bool spawnOnlyOnce = false):
-        respawnInterval(respawnInterval), maxMinions(maxMinions), minions(minions), spawnOnlyOnce(spawnOnlyOnce) {}
+        timeOfLastRespawn(SDL_GetTicks() - respawnInterval), respawnInterval(respawnInterval), maxMinions(maxMinions), minions(minions), spawnOnlyOnce(spawnOnlyOnce) {}
 };
 
 #endif

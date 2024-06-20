@@ -47,7 +47,7 @@ void ChaseAISystem::Update(const Entity& player, const glm::vec2& playerPos){
         }
 
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
+        const auto& position = entity.GetComponent<TransformComponent>().center;
         auto& aidata = entity.GetComponent<ChaseAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -114,7 +114,7 @@ void NeutralAISystem::Update(const Entity& player, const glm::vec2& playerPos){
         }
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
+        const auto& position = entity.GetComponent<TransformComponent>().center;
         auto& aidata = entity.GetComponent<NeutralAIComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
 
@@ -163,7 +163,6 @@ void TrapAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
             continue;
         }
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& ac = entity.GetComponent<AnimationComponent>();
@@ -209,7 +208,7 @@ void AnimatedChaseAISystem::Update(const Entity& player, const glm::vec2& player
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
+        const auto& position = entity.GetComponent<TransformComponent>().center;
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         auto& aidata = entity.GetComponent<AnimatedChaseAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
@@ -317,7 +316,7 @@ void AnimatedNeutralAISystem::Update(const Entity& player, const glm::vec2& play
         }
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& position = entity.GetComponent<TransformComponent>().position;
+        const auto& position = entity.GetComponent<TransformComponent>().center;
         auto& aidata = entity.GetComponent<AnimatedNeutralAIComponent>();
         auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
         auto& asc = entity.GetComponent<AnimatedShootingComponent>();
@@ -369,7 +368,7 @@ void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>
     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
     for(auto& entity: GetSystemEntities()){
         const auto& mc = entity.GetComponent<MinionComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& position = entity.GetComponent<TransformComponent>().center;
         bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -431,7 +430,7 @@ void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
             isShooting = false;
         }
         auto& oc = entity.GetComponent<OrbitalMovementComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& position = entity.GetComponent<TransformComponent>().center;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         if(!playerInvisible){
             playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
@@ -489,7 +488,7 @@ void StandShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
         } else {
             isShooting = false;
         }
-        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& position = entity.GetComponent<TransformComponent>().center;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
         if(!playerInvisible){
             playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
@@ -527,29 +526,33 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const auto& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
     for(auto& entity: GetSystemEntities()){
-        auto& flip = entity.GetComponent<SpriteComponent>().flip;
+        auto& sprite = entity.GetComponent<SpriteComponent>();
         const auto& collisionFlag = entity.GetComponent<CollisionFlagComponent>().collisionFlag;
         const auto& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        const auto& transform = entity.GetComponent<TransformComponent>();
         if(distanceToPlayer >= DISTANCE_TO_CONTINUE){
             velocity.x = velocity.y = 0;
             continue;
         }
         auto& rcmc = entity.GetComponent<RandomChaseMinionComponent>();
         const auto& mc = entity.GetComponent<MinionComponent>();
-        const auto& position = entity.GetComponent<TransformComponent>().position;
         auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
         if(time >= rcmc.timeOfLastSwitch + rcmc.switchInterval || (velocity.x == 0 && velocity.y == 0) || collisionFlag != NONESIDE){
-            if(!registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent)){
-                entity.Kill();
-                continue;
+            bool parentIsDead = !registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
+            if(parentIsDead){ // for some monsters, death of parent means death of self
+                switch(mc.sprite){
+                    case PENTARACTEYE:{
+                        entity.Kill();
+                        continue;
+                    } break;
+                } 
             }
-            rcmc.timeOfLastSwitch = time;
-            if(RNG.randomFromRange(1,3) == 1 && distanceToPlayer < 300 && !playerInvisible){
+            if((parentIsDead || (RNG.randomFromRange(1,3) == 1 && distanceToPlayer < 300)) && !playerInvisible){
                 rcmc.state = CHASE_PLAYER;
-            } else {
+            } else { // chase random point near player
                 const auto& parentPos = registry->GetComponent<TransformComponent>(mc.idOfParent).position;
                 rcmc.state = CHASE_RANDOM_POINT_NEAR_PARENT;
                 double distance = RNG.randomFromRange(100.0,800.0);
@@ -558,22 +561,22 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
                 float offsetY = distance * glm::sin(randomAngle);
                 rcmc.destination = {(parentPos.x + offsetX), (parentPos.y + offsetY)};
             }
+            rcmc.timeOfLastSwitch = time;
         }
-
         if(!paralyzed){
             switch(rcmc.state){
                 case CHASE_PLAYER:{
-                    if(glm::distance(position, playerPos) < 50.0){
+                    if(distanceToPlayer < static_cast<float>(sprite.width) * transform.scale.x){
                         velocity = {0,0};
                     } else {
-                        chasePosition(position, playerPos, velocity);
+                        chasePosition(transform.center, playerPos, velocity);
                     }
                 } break;
                 case CHASE_RANDOM_POINT_NEAR_PARENT:{
-                    if(glm::distance(position, rcmc.destination) < 8.0){
+                    if(glm::distance(transform.center, rcmc.destination) < 8.0){
                         velocity = {0,0};
                     } else {
-                        chasePosition(position, rcmc.destination, velocity);    
+                        chasePosition(transform.center, rcmc.destination, velocity);    
                     }
                 } break;
             }
@@ -607,7 +610,7 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
         }
 
         if(!playerInvisible){
-            playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+            playerPos.x < transform.center.x ? sprite.flip = SDL_FLIP_HORIZONTAL : sprite.flip = SDL_FLIP_NONE;
         }
     }
 }
@@ -623,7 +626,7 @@ InvisibleBossAISystem::InvisibleBossAISystem(){
 void InvisibleBossAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){
-        auto& origin = entity.GetComponent<TransformComponent>().position;
+        auto& origin = entity.GetComponent<TransformComponent>().center;
         auto& aidata = entity.GetComponent<BossAIComponent>();
         auto& msc = entity.GetComponent<MinionSpawnerComponent>();
         int numLivingMinions = msc.minionIdToCreationId.size();
@@ -757,7 +760,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<DistanceToPlayerComponent>();
 }
 
-void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos){
+void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, RoomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos){
     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
 
@@ -768,7 +771,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         const auto& transform = entity.GetComponent<TransformComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().position;
+        auto& position = entity.GetComponent<TransformComponent>().center;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -1574,7 +1577,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         while(shotsEmitted < 10){
                             int index = RNG.randomFromRange(0,35);
                             if(usedIndeces.find(index) == usedIndeces.end()){
-                                fireBall(entity, registry, aidata.phaseOnePositions[aidata.phaseOneIndex]);
+                                fireBall(entity, registry, aidata.phaseOnePositions[index]);
                                 usedIndeces.insert(index);
                                 shotsEmitted++;
                             }

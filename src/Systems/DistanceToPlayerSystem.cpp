@@ -159,13 +159,11 @@ void DistanceToPlayerSystem::onSkullUse(SkullUseEvent& event){
 }
 
 // distanceToPlayer stores distance from center of sprite!
-void DistanceToPlayerSystem::Update(const Entity& player){
-    const auto& playerTransform = player.GetComponent<TransformComponent>();
-    const auto& playerSprite = player.GetComponent<SpriteComponent>();
-    auto playerCenter = spriteCenter(playerTransform, playerSprite);
+void DistanceToPlayerSystem::Update(const glm::vec2& playerCenter){
     for(auto& entity: GetSystemEntities()){
-        const auto& monsterTransform = entity.GetComponent<TransformComponent>();
+        auto& monsterTransform = entity.GetComponent<TransformComponent>();
         const auto& monsterSprite = entity.GetComponent<SpriteComponent>();
-        entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer = glm::distance(playerCenter, spriteCenter(monsterTransform, monsterSprite));
+        monsterTransform.center = spriteCenter(monsterTransform, monsterSprite);
+        entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer = glm::distance(playerCenter, monsterTransform.center);
     }
 }

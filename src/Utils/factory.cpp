@@ -80,7 +80,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<isShootingComponent>();
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RandomChaseMinionComponent>(RNG.randomFromRange(3000,10000));
-            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId));
+            enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId), spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
             switch(spriteEnum){
                 case REAPER:
@@ -379,9 +379,10 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         const auto& possibleRoomSpawns = wallThemeToMonsterSpawns.at(dungeonType); // the table that had possible room spawns; ex tiny red and white chickens together
         const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)]; // select random from wallThemeToMonsterSpawns
         int roomQuantifier = (room.w + room.h) / 4; // ex 10x10 room will spawn 10 monsters per spawn type in selectedRoomSpawns
-        if(RNG.randomFromRange(1,500) < 500){ // each room has 1/500 chance to be a treasure room; around 5% for a dugeon w/ 30 rooms to have a treasure room
+        if(!spawnedTroom && RNG.randomFromRange(1,250) == 1){ // each room has 1/500 chance to be a treasure room; around 10% for a dugeon w/ 30 rooms to have a treasure room
             glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-24, ((room.y + (room.h / 2)) * 64)-24);
             spawnTreasureRoomChest(registry, spawnPos, dungeonType);
+            spawnedTroom = true;
         } else {
             for(const auto& enemySpawn: selectedRoomSpawns){
                 std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;

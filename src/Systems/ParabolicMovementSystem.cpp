@@ -11,7 +11,7 @@ void ParabolicMovementSystem::Update(Entity player, const double& deltaTime,
                         std::unique_ptr<AssetStore>& assetStore, 
                         std::unique_ptr<Factory>& factory, 
                         std::function<void(bool, bool, wallTheme)> Setup, 
-                        deadPlayer& deadPlayer, 
+                        DeadPlayer& deadPlayer, 
                         std::string& activeCharacterID, 
                         std::unique_ptr<CharacterManager>& characterManager){
 

@@ -37,6 +37,10 @@ bool Entity::BelongsToGroup(const groups& group) const {
     return registry->EntityBelongsToGroup(*this, group);
 }
 
+bool Entity::BelongsToMonsterSubGroup(const monsterSubGroups& group) const {
+    return registry->EntityBelongsToMonsterSubGroup(*this, group);
+}
+
 void System::AddEntityToSystem(Entity entity){
     // auto before = entities.data();
     entities.push_back(entity);
@@ -218,6 +222,17 @@ bool Registry::IdBelongsToGroup(int Id, const groups& group) const {
         return false;
     } 
     return groupPerEntity.find(Id)->second == group;
+}
+
+bool Registry::EntityBelongsToMonsterSubGroup(Entity entity, const monsterSubGroups& group) const {
+    if(monsterSubGroupPerEntity.find(entity.GetId()) == monsterSubGroupPerEntity.end()){
+        return false;
+    }
+    return monsterSubGroupPerEntity.find(entity.GetId())->second == group;
+}
+
+std::unordered_set<int>& Registry::allEntitesFromMonsterSubGroup(monsterSubGroups g){
+    return entitiesPerMonsterSubGroup.at(g);
 }
 
 // std::vector<Entity> Registry::GetEntitiesByGroup(const groups& group) const {

@@ -12,7 +12,7 @@ void DeathActionSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
         if(registry->entityWasKilledThisFrame(entity)){
             const auto& spriteEnum = entity.GetComponent<DeathActionComponent>().spriteEnum;
             switch(spriteEnum){
-                case PENTARACT:{
+                case PENTARACT:{ // spawn loot and kill all eyes
                     for(int i = 0; i < 5; ++i) { // find first open socket for the towerPosition
                         glm::vec2 pos = towerDestination(glm::vec2(transform.position.x + 40.0f, transform.position.y + 80.0f), -90.0f + (72.0f * i), 600.0f); 
                         factory->createLootAtDeath(spriteEnum, pos, registry, assetstore);

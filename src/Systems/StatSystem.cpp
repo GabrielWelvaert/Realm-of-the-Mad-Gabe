@@ -253,7 +253,13 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     playerBaseStats.attack += attackincrease;
     if(playerBaseStats.attack > getMaxStat(classname, ATTACK)) playerBaseStats.attack = getMaxStat(classname, ATTACK);
     
-    // defense is not increased at level-up
+    unsigned char defincrease = getStatLevelUpAmount(classname, DEFENSE);
+    if(classname == KNIGHT){
+        playerBaseStats.defense += getStatLevelUpAmount(classname, DEFENSE);
+        if(playerBaseStats.defense > getMaxStat(classname, DEFENSE)){
+            playerBaseStats.defense = getMaxStat(classname, DEFENSE);
+        }
+    }
 
     unsigned char speedincrease = getStatLevelUpAmount(classname, SPEED); 
     playerBaseStats.speed += speedincrease;
@@ -286,27 +292,22 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
         sec.effects[QUIET] = false;
         sec.effects[BLEEDING] = false;
         sec.effects[STUNNED] = false;
+        sec.effects[BLIND] = false;
     }
 
-    // active stats need to match base stat (not visible to user, but in back-end it works like this)
-    if(HPMPstats.activehp < HPMPstats.maxhp) HPMPstats.activehp = HPMPstats.maxhp;
-    if(HPMPstats.activemp < HPMPstats.maxmp) HPMPstats.activemp = HPMPstats.maxmp;
-    if(HPMPstats.activewisdom < playerBaseStats.wisdom) HPMPstats.activewisdom = playerBaseStats.wisdom;
-    if(HPMPstats.activevitality < playerBaseStats.vitality) HPMPstats.activevitality = playerBaseStats.vitality;
-    if(offensestats.activeattack < playerBaseStats.attack) offensestats.activeattack = playerBaseStats.attack;
-    if(offensestats.activedexterity < playerBaseStats.dexterity) offensestats.activedexterity = playerBaseStats.dexterity;
-    if(speed.activespeed < playerBaseStats.speed) speed.activespeed = playerBaseStats.speed;
-
-    // if player is equipping item w/ stats, we need to reflect that increase as well
-    // def is not increased at level-up
-    // if(HPMPstats.activehp > playerBaseStats.hp) HPMPstats.activehp += hpincrease;
-    // if(HPMPstats.activemp > playerBaseStats.mp) HPMPstats.activemp += mpincrease;
-    if(HPMPstats.activewisdom > playerBaseStats.wisdom) HPMPstats.activewisdom += wisdomincrease;
-    if(HPMPstats.activevitality > playerBaseStats.vitality) HPMPstats.activevitality += vitalityincrease;
-    if(offensestats.activeattack > playerBaseStats.attack) offensestats.activeattack += attackincrease;
-    if(offensestats.activedexterity > playerBaseStats.dexterity) offensestats.activedexterity += dexterityincrease;
-    if(speed.activespeed > playerBaseStats.speed) speed.activespeed += speedincrease;
-
+    if(HPMPstats.activehp < HPMPstats.maxhp){
+        HPMPstats.activehp = HPMPstats.maxhp;
+    }
+    if(HPMPstats.activemp < HPMPstats.maxmp){
+        HPMPstats.activemp = HPMPstats.maxmp;
+    } 
+    HPMPstats.activewisdom += wisdomincrease;
+    HPMPstats.activevitality += vitalityincrease;
+    offensestats.activeattack += attackincrease;
+    offensestats.activedexterity += dexterityincrease;
+    speed.activespeed += speedincrease;
+    HPMPstats.activedefense += defincrease;
+    
     event.eventBus->EmitEvent<UpdateDisplayStatEvent>(event.player);
 
     // update PEC repeatfrequency

@@ -9,9 +9,9 @@
 #include "../Utils/enums.h"
 #include "../Utils/room.h"
 #include "../Utils/CharacterManager.h"
-#include "../Utils/deadPlayer.h"
+#include "../Utils/DeadPlayer.h"
 #include <string>
-#include "../Utils/roomShut.h"
+#include "../Utils/RoomShut.h"
 #include "../Utils/vechash.h"
 #include "../Utils/BossIds.h"
 #include "../../libs/SDL2/SDL_mixer.h"
@@ -53,7 +53,7 @@
 #include "../Utils/room.h"
 #include <queue>
 #include <ctime>
-#include "../Utils/roomShut.h"
+#include "../Utils/RoomShut.h"
 #include "../Systems/VaultItemKillSystem.h"
 #include "../Systems/OscillatingProjectileMovementSystem.h"
 #include "../Systems/SecondaryProjectileEmitSystem.h"
@@ -65,8 +65,9 @@
 #include "../Systems/EnemySpawnSystem.h"
 #include "../Systems/MinionSpawnSystem.h"
 #include "../Systems/OrbitalMovementSystem.h"
-#include "../Utils/KeyboardInput.h"
+#include "../Utils/KeyBoardInput.h"
 #include "../Systems/DeathActionSystem.h"
+#include <cstring>
 
 
 const int FPS = 60;
@@ -96,8 +97,8 @@ class Game{
         int bossRoomId;
         room bossRoom;
         bool successfulMapGen = false; 
-        deadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
-        roomShut roomShut;
+        DeadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
+        RoomShut roomShut;
         std::vector<BossIds> bosses;
         int idOfMiniMapEntity;
         int idOfMiniMapVeil;

@@ -33,6 +33,7 @@ void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player, std::uniqu
     // equipment icon veil to indicate cooldown or insufficient mp
     const auto& ac = player.GetComponent<AbilityComponent>();
     const auto& ic = player.GetComponent<PlayerItemsComponent>();
+    const auto& hpmp = player.GetComponent<HPMPComponent>();
     if(!ac.abilityEquipped || (ic.holdingItemLastFrame && ic.equipment.at(2).GetId() == ic.IdOfHeldItem)){
         return; // no ability or holding ability = no need to render veil
     }
@@ -42,9 +43,9 @@ void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player, std::uniqu
     auto time = SDL_GetTicks();
     const SDL_Rect veilMaskSrc = {9*44,44*2,44,44}; // this is used to cover the borders of the square veil so its clean with the curved edges of the equipment inventory slot
     const SDL_Rect veilMaskDst = {827-6,455-6,static_cast<int>(44*1.25),static_cast<int>(44*1.25)}; // strange values ensure nearly pixel-perfect appearance
-    if(HPMP.activemp >= ac.mpRequired){ // display shrinking cooldown veil
+    if(HPMP.activemp >= ac.mpRequired){ // player has sufficient mana, could use ability if cooldown has elapsed
         if(ac.timeLastUsed != 0 && time < ac.timeLastUsed + ac.coolDownMS){ // cooldown period has not completed
-            float percentCoolDownCompleted = std::max(((time - ac.timeLastUsed) / static_cast<float>(ac.coolDownMS)), .01f);
+            float percentCoolDownCompleted =((time - ac.timeLastUsed) / static_cast<float>(ac.coolDownMS));
             int height = dimension - (dimension * percentCoolDownCompleted); // height of veil depends on how much coolDown is left
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
             SDL_SetRenderDrawColor(renderer, 40,40,40,150); // semi-transparent grey 
@@ -53,13 +54,20 @@ void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player, std::uniqu
             SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
             SDL_RenderCopyEx(renderer,assetStore->GetTexture(INVENTORYICONS),&veilMaskSrc,&veilMaskDst,0.0,NULL,SDL_FLIP_NONE); // cover veil corners to match iventory slot's curved edges
         }
-    } else { // even if not in cooldown, insufficient mana-- render full grey veil
+    } else { // not enough mana. full black veil and indicator of required mp on mp bar
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 40,40,40,150); // semi-transparent grey 
         SDL_Rect rect = {x, y, dimension-1, dimension};  // fully filled in veil for insufficient mana
         SDL_RenderFillRect(renderer, &rect);
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
         SDL_RenderCopyEx(renderer,assetStore->GetTexture(INVENTORYICONS),&veilMaskSrc,&veilMaskDst,0.0,NULL,SDL_FLIP_NONE); // cover veil corners to match iventory slot's curved edges
+    
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0,0,0,128); 
+        int w = static_cast<float>(ac.mpRequired) / hpmp.maxmp * 225;
+        rect = {765 + w, 347,2,20};
+        SDL_RenderFillRect(renderer, &rect);
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
     }
 
 }

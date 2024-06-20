@@ -5,7 +5,7 @@
 #include <string>
 
 struct DisplayStatComponent{
-    std::string lastDisplayed;
+    std::string lastDisplayed = "";
     stats statEnum;
     inline DisplayStatComponent() = default;
 
