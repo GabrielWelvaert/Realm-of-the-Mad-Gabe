@@ -1,6 +1,6 @@
 #include "CollisionSystem.h"
 
-#define MS_ALLOW_PROJECTILE_WALL_COLLISION 60
+#define MS_ALLOW_PROJECTILE_WALL_COLLISION 45
 
 CollisionSystem::CollisionSystem(){
     RequireComponent<BoxColliderComponent>();
@@ -24,8 +24,8 @@ void CollisionSystem::onAOEBomb(AOEBombEvent& event){
     }
 }
 
-// all-againts-all collision for entities within 1250 pixels of the player
-void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, deadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
+// all-againts-all collision for entities within 1250 pixels of camera bounds
+void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_ptr<Registry>& registry, std::unique_ptr<AssetStore>& assetStore, const double& deltaTime, std::unique_ptr<Factory>& factory, const SDL_Rect& camera, std::function<void(bool, bool, wallTheme)> Setup, DeadPlayer& deadPlayer, std::string& activeCharacterID, std::unique_ptr<CharacterManager>& characterManager) {
     auto& entities = GetSystemEntities();
     constexpr int distanceOffScreen = 1250; // distanceOffScreen + 375 = rough distance from player where all collision is ignored
     for(auto i = entities.begin(); i != entities.end(); i++){
@@ -42,7 +42,6 @@ void CollisionSystem::Update(std::unique_ptr<EventBus>& eventBus, std::unique_pt
         // for all entities to the right of i (sliding window algorithm)
         for(auto j = i; j != entities.end(); j++){
             Entity& b = *j;
-            if(a==b){continue;}
             groups Agroup = registry->IdToGroup(a.GetId());
             groups Bgroup = registry->IdToGroup(b.GetId());
             

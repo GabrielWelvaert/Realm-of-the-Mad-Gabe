@@ -2,6 +2,8 @@
 
 UpdateDisplayStatTextSystem::UpdateDisplayStatTextSystem(){
     RequireComponent<DisplayStatComponent>();
+    RequireComponent<TextLabelComponent>();
+    RequireComponent<TransformComponent>();
 }
 
 void UpdateDisplayStatTextSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
@@ -123,8 +125,8 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
 }
 
 void UpdateDisplayStatTextSystem::checkMaxHPMP(Entity player){
-    auto& entities = GetSystemEntities();
-    if(entities.size() == 0){return;}
+    auto& entities = GetSystemEntities(); // can be indexed with enum stats to get respective entity
+    // if(entities.size() == 0){return;}
     const auto& pbs = player.GetComponent<BaseStatComponent>();
     const auto& classname = player.GetComponent<ClassNameComponent>().classname;
     auto& hpdisplay = entities[HP];
@@ -135,65 +137,215 @@ void UpdateDisplayStatTextSystem::checkMaxHPMP(Entity player){
     static_cast<int>(pbs.mp) == maxStats[classname][MP] ? mptext.color = maxstatcolor : mptext.color = white;
 }
 
-void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer){
-    auto& entities = GetSystemEntities();
-    if(entities.size() == 0){return;}
-    if (mx > 750 && mx < 1000 && my > 295 && my < 370){ // if mouse is hovering over the stat bars
-        auto& hpdisplay = entities[HP];
-        auto& mpdisplay = entities[MP];
-        auto& xpdisplay = entities[XP];
-        auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
-        auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
-        auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
-        hptext.invisible = mptext.invisible = xptext.invisible = false;
+void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventBus){
+    auto& entities = GetSystemEntities(); // can be indexed with enum stats to get respective entity
+    if(entities.size() == 0){
+        std::cout << "update display stat text system had 0 entities " << '\n';
+        return;
+    }
+    auto& hpdisplay = entities[HP];
+    auto& mpdisplay = entities[MP];
+    auto& xpdisplay = entities[XP];
+    auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
+    auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
+    auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
+    auto& lasthp = hpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+    auto& lastmp = mpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+    auto& lastxp = xpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+
+    auto& attackEntity = entities[ATTACK];
+    auto& attacktlc = attackEntity.GetComponent<TextLabelComponent>();
+    auto& attackDisplayStat = attackEntity.GetComponent<DisplayStatComponent>();
+
+    auto& defenseEntity = entities[DEFENSE];
+    auto& defensetlc = defenseEntity.GetComponent<TextLabelComponent>();
+    auto& defenseDisplayStat = defenseEntity.GetComponent<DisplayStatComponent>();
+
+    auto& dexterityEntity = entities[DEXTERITY];
+    auto& dexteritytlc = dexterityEntity.GetComponent<TextLabelComponent>();
+    auto& dexterityDisplayStat = dexterityEntity.GetComponent<DisplayStatComponent>();
+
+    auto& speedEntity = entities[SPEED];
+    auto& speedtlc = speedEntity.GetComponent<TextLabelComponent>();
+    auto& speedDisplayStat = speedEntity.GetComponent<DisplayStatComponent>();
+
+    auto& wisdomEntity = entities[WISDOM];
+    auto& wisdomtlc = wisdomEntity.GetComponent<TextLabelComponent>();
+    auto& wisdomDisplayStat = wisdomEntity.GetComponent<DisplayStatComponent>();
+
+    auto& vitalityEntity = entities[VITALITY];
+    auto& vitalitytlc = vitalityEntity.GetComponent<TextLabelComponent>();
+    auto& vitalityDisplayStat = vitalityEntity.GetComponent<DisplayStatComponent>();
+
+    if(mx > 750 && mx < 1000 && my < 450 && my > 295){ // mouse hovering in HP/MP/XP bars or ATT/DEF/SPD/DEX/VIT/WIS area
         const auto& pbs = player.GetComponent<BaseStatComponent>();
         const auto& hpmp = player.GetComponent<HPMPComponent>();
         const auto& classname = player.GetComponent<ClassNameComponent>().classname;
-        hptext.text = std::to_string(static_cast<int>(hpmp.activehp)) + "/" + std::to_string(hpmp.maxhp);
-        if(hpmp.maxhp > pbs.hp){
-            hptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxhp)-static_cast<int>(pbs.hp)) + ")");
-        }
-        mptext.text  = std::to_string(static_cast<int>(hpmp.activemp)) + "/" + std::to_string(hpmp.maxmp);
-        if(hpmp.maxmp > pbs.mp){
-            mptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxmp)-static_cast<int>(pbs.mp)) + ")");
-        }
-        if(pbs.level < 20){
-            xptext.text = std::to_string(pbs.xp - nextXPToLevelUp[pbs.level-1]) + "/" + std::to_string(nextXPToLevelUp[pbs.level] - nextXPToLevelUp[pbs.level-1]);
-        } else {
-            xptext.text = std::to_string(pbs.xp);
+        if(my < 370){ // mouse hovering over HP/MP/XP bars -- display active out of max
+            if(wasDisplayingPotsToMaxLastFrame){
+                wasDisplayingPotsToMaxLastFrame = false;
+                eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+
+                // must set att/def/... text.spawnFrame back to true so their sizes may be re-queried in renderTextSystem
+                attacktlc.spawnframe = true;
+            }
+            hptext.invisible = mptext.invisible = xptext.invisible = false;
+            hptext.text = std::to_string(static_cast<int>(hpmp.activehp)) + " / " + std::to_string(hpmp.maxhp);
+            if(hpmp.maxhp > pbs.hp){
+                hptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxhp)-static_cast<int>(pbs.hp)) + ")");
+            }
+            mptext.text  = std::to_string(static_cast<int>(hpmp.activemp)) + " / " + std::to_string(hpmp.maxmp);
+            if(hpmp.maxmp > pbs.mp){
+                mptext.text.append(" (+" + std::to_string(static_cast<int>(hpmp.maxmp)-static_cast<int>(pbs.mp)) + ")");
+            }
+            if(pbs.level < 20){
+                xptext.text = std::to_string(pbs.xp - nextXPToLevelUp[pbs.level-1]) + " / " + std::to_string(nextXPToLevelUp[pbs.level] - nextXPToLevelUp[pbs.level-1]);
+            } else {
+                xptext.text = std::to_string(pbs.xp);
+            }
+
+            auto& lasthp = hpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+            auto& lastmp = mpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+            auto& lastxp = xpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+
+            if(hptext.text != lasthp || mptext.text != lastmp || xptext.text != lastxp){
+                pbs.hp == maxStats[classname][HP] ? hptext.color = maxstatcolor : hptext.color = white;
+                pbs.mp == maxStats[classname][MP] ? mptext.color = maxstatcolor : mptext.color = white;
+
+                auto font = assetStore->GetFont(mptext.assetId);
+
+                TTF_SizeText(font, hptext.text.c_str(), &hptext.textwidth, NULL);
+                TTF_SizeText(font, mptext.text.c_str(), &mptext.textwidth, NULL);
+                TTF_SizeText(font, xptext.text.c_str(), &xptext.textwidth, NULL);
+                hpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * hptext.textwidth;
+                mpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * mptext.textwidth;
+                xpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * xptext.textwidth;
+                lasthp = hptext.text;
+                lastmp = mptext.text;
+                lastxp = xptext.text;
+            }
+        } else { // mouse hovering over ATT/DEF/SPD/DEX/VIT/WIS -- display base out of max possible base 
+            if(!wasDisplayingPotsToMaxLastFrame){
+                wasDisplayingPotsToMaxLastFrame = true;  
+                attackDisplayStat.lastDisplayed = ""; // ensure that we update display text
+                defenseDisplayStat.lastDisplayed = "";
+                speedDisplayStat.lastDisplayed = "";
+                dexterityDisplayStat.lastDisplayed = "";
+                wisdomDisplayStat.lastDisplayed = "";
+                vitalityDisplayStat.lastDisplayed = "";
+            }
+
+            hptext.invisible = mptext.invisible = false;
+            xptext.invisible = true;
+
+            std::string pbshpstr = std::to_string(pbs.hp);
+            if(lasthp != pbshpstr){
+                if(pbs.hp == maxStats[classname][HP]){
+                    hptext.color = maxstatcolor;
+                } else {
+                    hptext.color = white;
+                }
+                hptext.text = pbshpstr + " / " + std::to_string(maxStats[classname][HP]);
+                TTF_SizeText(assetStore->GetFont(hptext.assetId), hptext.text.c_str(), &hptext.textwidth, NULL);
+                hpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * hptext.textwidth;
+                lasthp = pbshpstr;
+            }
+
+            std::string pbsmpstr = std::to_string(pbs.mp);
+            if(lastmp != pbsmpstr){
+                if(pbs.mp == maxStats[classname][MP]){
+                    mptext.color = maxstatcolor;
+                } else {
+                    mptext.color = white;
+                }
+                mptext.text = pbsmpstr + " / " + std::to_string(maxStats[classname][MP]);
+                TTF_SizeText(assetStore->GetFont(mptext.assetId), mptext.text.c_str(), &mptext.textwidth, NULL);
+                mpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * mptext.textwidth;
+                lastmp = pbsmpstr;
+            }
+
+            std::string pbsAttackStr = std::to_string(pbs.attack);
+            if(attackDisplayStat.lastDisplayed != pbsAttackStr){
+                if(pbs.attack == maxStats[classname][ATTACK]){
+                    attacktlc.color = maxstatcolor; 
+                } else {
+                    attacktlc.color = grey;    
+                }
+                attacktlc.text = pbsAttackStr + " / " + std::to_string(maxStats[classname][ATTACK]);
+                attackDisplayStat.lastDisplayed = pbsAttackStr;
+                attacktlc.spawnframe = true; // so renderTextSystem can fix size
+            }
+
+            std::string pbsdefenseStr = std::to_string(pbs.defense);
+            if(defenseDisplayStat.lastDisplayed != pbsdefenseStr){
+                if(pbs.defense == maxStats[classname][DEFENSE]){
+                    defensetlc.color = maxstatcolor; 
+                } else {
+                    defensetlc.color = grey;    
+                }
+                defensetlc.text = pbsdefenseStr + " / " + std::to_string(maxStats[classname][DEFENSE]);
+                defenseDisplayStat.lastDisplayed = pbsdefenseStr;
+                defensetlc.spawnframe = true; // so renderTextSystem can fix size
+            }
+            
+            std::string pbsspeedStr = std::to_string(pbs.speed);
+            if(speedDisplayStat.lastDisplayed != pbsspeedStr){
+                if(pbs.speed == maxStats[classname][SPEED]){
+                    speedtlc.color = maxstatcolor; 
+                } else {
+                    speedtlc.color = grey;    
+                }
+                speedtlc.text = pbsspeedStr + " / " + std::to_string(maxStats[classname][SPEED]);
+                speedDisplayStat.lastDisplayed = pbsspeedStr;
+                speedtlc.spawnframe = true; // so renderTextSystem can fix size
+            }
+
+            std::string pbsdexterityStr = std::to_string(pbs.dexterity);
+            if(dexterityDisplayStat.lastDisplayed != pbsdexterityStr){
+                if(pbs.dexterity == maxStats[classname][DEXTERITY]){
+                    dexteritytlc.color = maxstatcolor; 
+                } else {
+                    dexteritytlc.color = grey;    
+                }
+                dexteritytlc.text = pbsdexterityStr + " / " + std::to_string(maxStats[classname][DEXTERITY]);
+                dexterityDisplayStat.lastDisplayed = pbsdexterityStr;
+                dexteritytlc.spawnframe = true; // so renderTextSystem can fix size
+            }
+
+            std::string pbswisdomStr = std::to_string(pbs.wisdom);
+            if(wisdomDisplayStat.lastDisplayed != pbswisdomStr){
+                if(pbs.wisdom == maxStats[classname][WISDOM]){
+                    wisdomtlc.color = maxstatcolor; 
+                } else {
+                    wisdomtlc.color = grey;    
+                }
+                wisdomtlc.text = pbswisdomStr + " / " + std::to_string(maxStats[classname][WISDOM]);
+                wisdomDisplayStat.lastDisplayed = pbswisdomStr;
+                wisdomtlc.spawnframe = true; // so renderTextSystem can fix size
+            }
+
+            std::string pbsvitalityStr = std::to_string(pbs.vitality);
+            if(vitalityDisplayStat.lastDisplayed != pbsvitalityStr){
+                if(pbs.vitality == maxStats[classname][VITALITY]){
+                    vitalitytlc.color = maxstatcolor; 
+                } else {
+                    vitalitytlc.color = grey;    
+                }
+                vitalitytlc.text = pbsvitalityStr + " / " + std::to_string(maxStats[classname][VITALITY]);
+                vitalityDisplayStat.lastDisplayed = pbsvitalityStr;
+                vitalitytlc.spawnframe = true; // so renderTextSystem can fix size
+            }
         }
 
-        auto& lasthp = hpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
-        auto& lastmp = mpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
-        auto& lastxp = xpdisplay.GetComponent<DisplayStatComponent>().lastDisplayed;
+    } else { 
+        hptext.invisible = mptext.invisible = xptext.invisible = true;
+        if(wasDisplayingPotsToMaxLastFrame){
+            wasDisplayingPotsToMaxLastFrame = false;
+            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
 
-        if(hptext.text != lasthp || mptext.text != lastmp || xptext.text != lastxp){
-            pbs.hp == maxStats[classname][HP] ? hptext.color = maxstatcolor : hptext.color = white;
-            pbs.mp == maxStats[classname][MP] ? mptext.color = maxstatcolor : mptext.color = white;
-
-            auto font = assetStore->GetFont(mptext.assetId);
-
-            TTF_SizeText(font, hptext.text.c_str(), &hptext.textwidth, NULL);
-            TTF_SizeText(font, mptext.text.c_str(), &mptext.textwidth, NULL);
-            TTF_SizeText(font, xptext.text.c_str(), &xptext.textwidth, NULL);
-            hpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * hptext.textwidth;
-            mpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * mptext.textwidth;
-            xpdisplay.GetComponent<TransformComponent>().position.x = 877.5 - 0.5 * xptext.textwidth;
-            lasthp = hptext.text;
-            lastmp = mptext.text;
-            lastxp = xptext.text;
+            // must set att/def/... text.spawnFrame back to true so their sizes may be re-queried in renderTextSystem
+            attacktlc.spawnframe = true;
         }
-    } else {
-        auto& hpdisplay = entities[HP];
-        auto& mpdisplay = entities[MP];
-        auto& xpdisplay = entities[XP];
-        auto& hptext = hpdisplay.GetComponent<TextLabelComponent>();
-        auto& mptext = mpdisplay.GetComponent<TextLabelComponent>();
-        auto& xptext = xpdisplay.GetComponent<TextLabelComponent>();
-        // std::cout << xptext.color.r << ", " << xptext.color.g << ", " << xptext.color.b << std::endl;
-        hptext.invisible = true;
-        mptext.invisible = true;
-        xptext.invisible = true;
-        return;
     }
+
 }

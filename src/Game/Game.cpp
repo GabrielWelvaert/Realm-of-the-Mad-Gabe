@@ -229,37 +229,39 @@ void Game::ProcessInput(){
                         } break;
                         /*ALL OTHER SDL_KEYDOWNS ARE USED FOR DEVELOPMENT PURPOSES AND SHOULD BE COMMENTED OUT FOR PRODUCTION!*/
                         case SDLK_9:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, OREO, lootbag);
-                            factory->createItemInBag(registry, ADMINSWORD, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            factory->createItemInBag(registry, VITPOT, lootbag);
-                            player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, spawnpoint, POTCHEST);
+                            player.GetComponent<HPMPComponent>().activemp -= 1;
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, OREO, lootbag);
+                            // factory->createItemInBag(registry, ADMINSWORD, lootbag);
+                            // factory->createItemInBag(registry, T14STAFF, lootbag);
+                            // factory->createItemInBag(registry, T8SPELL, lootbag);
+                            // factory->createItemInBag(registry, EPSTAFF, lootbag);
+                            // factory->createItemInBag(registry, T14ROBE, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, VITPOT, lootbag);
+                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
                         } break;
                         case SDLK_0:{
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            factory->createItemInBag(registry, WISPOT, lootbag);
-                            player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, spawnpoint, POTCHEST);
-                            player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
-                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            player.GetComponent<HPMPComponent>().activemp += 1;
+                            // const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
+                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // factory->spawnMonster(registry, spawnpoint - 64.0f, POTCHEST);
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            // factory->spawnMonster(registry, playerPos, MEDUSA);
+                            // factory->spawnMonster(registry, spawnpoint, GRANDSPHINX);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -276,10 +278,10 @@ void Game::ProcessInput(){
                             // factory->spawnMonster(registry, playerPos, PENTARACT, player.GetId());
                             // factory->spawnMonster(registry, playerPos, PENTARACTEYE, player.GetId());
                             // factory->spawnMonster(registry, glm::vec2(-400,200), MEDUSA);
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            factory->spawnMonster(registry, playerPos, BOSSCHICKEN);
+                            factory->spawnMonster(registry, spawnpoint, PENTARACT);
                         } break;
                         case SDLK_p:{
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
@@ -1088,7 +1090,7 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string onUse = "On Use: Invisible for " + duration + " seconds";
                     switch(itemEnum){
                         case RETRIBUTIONCLOAK:{
-                            onUse += ", Slowed for 6 seconds, Berzerk for 6 seconds";
+                            onUse += ", Slowed for 6 seconds, Damaging for 6 seconds";
                         } break;
                     }
                     info.push_back(onUse);
@@ -1103,8 +1105,8 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SPELL:{
                     auto abilityData = itemEnumToAbilityData.at(itemEnum); 
                     auto spelldata = itemEnumToSpellData.at(itemEnum);
-                    std::string onUse = "On Use: Emits 20 projectiles at target ";
-                    std::string damage = "Damage: " + std::to_string(spelldata.minDamage) + " - " + std::to_string(spelldata.maxDamage);
+                    std::string onUse = "On Use: Shoots 20 projectiles";
+                    std::string damage = "Damage: " + std::to_string(spelldata.minDamage) + " - " + std::to_string(spelldata.maxDamage) + " ("  + std::to_string(spelldata.minDamage * 20) + " - " + std::to_string(spelldata.maxDamage * 20) + ")";
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     info.push_back(onUse);
                     info.push_back(damage);
@@ -1113,7 +1115,7 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SHIELD:{
                     auto shieldData = itemEnumToShieldData.at(itemEnum);
                     auto abilityData = itemEnumToAbilityData.at(itemEnum);
-                    std::string onUse = "On Use: Fires a stunning arc";
+                    std::string onUse = "On Use: Emits a stunning arc";
                     std::string damage = "Damage: " + std::to_string(shieldData.minDamage) + " - " + std::to_string(shieldData.maxDamage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     std::string shots ="Shots: " + std::to_string(shieldData.numshots);
@@ -1125,7 +1127,7 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SCEPTER:{
                     auto scepterData = itemToScepterData.at(itemEnum);
                     auto abilityData = itemEnumToAbilityData.at(itemEnum);
-                    std::string onUse = "On Use: Shoots chain lightning at target";
+                    std::string onUse = "On Use: Emits chain lightning";
                     std::string damage = "Damage: " + std::to_string(scepterData.damage) + " (-" + std::to_string(scepterData.DamageReductionPerTarget) + " per successive target)";
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     std::string shots = "Max Targets: " + std::to_string(scepterData.maxNumberTargets);
@@ -1137,7 +1139,7 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SKULL:{
                     auto skullData = itemToSkullData.at(itemEnum);
                     auto abilityData = itemEnumToAbilityData.at(itemEnum);
-                    std::string onUse = "On Use: Steals HP from enemies at target";
+                    std::string onUse = "On Use: Steals HP from enemies";
                     std::string damage = "Damage: " + std::to_string(skullData.damage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     std::string radius = std::to_string(skullData.radius);
@@ -1159,7 +1161,7 @@ void Game::PopulateItemIconsInAssetStore(){
                     std::string onUse = "On Use: Healing and Damaging on self for " + duration + " seconds";
                     switch(itemEnum){
                         case OREO:{
-                            onUse += ", Invulnerable for 2 seconds";
+                            onUse += ", Invulnerable for 1.4 seconds";
                         } break;
                     }
                     info.push_back(onUse);
@@ -2398,7 +2400,7 @@ void Game::MainMenus(bool changeChar){ // could take bool args to load just menu
     int numcharacters = characterManager->GetFileCountInCharacterDirectory();
     std::string selectedCharacterID = "";
 
-    if(deadPlayer.level > 0){ // player has died
+    if(deadPlayer.level > 0 && !changeChar){ // player has died
         menuonedisposables = loadDeathMenu();
         keyboardinput->movementKeys.reset();
         keyboardinput->utilityKeys.reset();
@@ -2772,7 +2774,7 @@ void Game::Update(){
     const auto& s = player.GetComponent<SpriteComponent>();
     glm::vec2 playerCenter = {(t.position.x + ((s.width * t.scale.x) / 2)), t.position.y + ((s.height * t.scale.y) / 2)};
     registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry, factory);
-    registry->GetSystem<DistanceToPlayerSystem>().Update(player);
+    registry->GetSystem<DistanceToPlayerSystem>().Update(playerCenter);
     registry->GetSystem<ChaseAISystem>().Update(player, playerCenter);
     registry->GetSystem<NeutralAISystem>().Update(player, playerCenter);
     registry->GetSystem<TrapAISystem>().Update(player, assetStore, playerCenter);
@@ -2800,7 +2802,7 @@ void Game::Update(){
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<DeathActionSystem>().Update(factory, registry, assetStore, bosses);
-    registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer);
+    registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer, eventBus);
     registry->GetSystem<ItemMovementSystem>().Update(Game::mouseX, Game::mouseY, keyboardinput, assetStore, registry, eventBus, player, inventoryIconIds, equipmentIconIds, factory, keyboardinput->utilityKeys[SHIFT]);
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);

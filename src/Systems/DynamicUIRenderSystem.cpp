@@ -9,7 +9,7 @@ void DynamicUIRenderSystem::sortEntities(){
     std::sort(entities.begin(), entities.end(), [](const Entity& entity1, const Entity& entity2) {return entity1.GetComponent<DynamicUIEntityComponent>().statEnum < entity2.GetComponent<DynamicUIEntityComponent>().statEnum;});
 }
 
-void DynamicUIRenderSystem::Update(SDL_Renderer* renderer, Entity player){ // pass player stats by const &
+void DynamicUIRenderSystem::Update(SDL_Renderer* renderer, Entity player){ 
     auto& entities = GetSystemEntities();
     if(entities.size() == 0){return;}
 

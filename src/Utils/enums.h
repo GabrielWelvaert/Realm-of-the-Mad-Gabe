@@ -283,6 +283,7 @@ enum items{
     T7SEAL,
     T8SEAL,
     OREO,
+    ADMINWAND,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -474,7 +475,11 @@ enum sprites{
     CROSSGRAVE,
     FLOORBLOOD,
     FLOORSKULL,
-    DUCKLING
+    DUCKLING,
+    GREYNECRO,
+    MUMMY1,
+    MUMMY2,
+    MUMMY3,
 };
 
 enum soundEnums{
@@ -1065,7 +1070,8 @@ enum textureEnums{
     T6SEALICON,
     T7SEALICON,
     T8SEALICON,
-    OREOICON
+    OREOICON,
+    ADMINWANDICON
 };
 
 #endif

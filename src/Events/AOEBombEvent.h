@@ -9,7 +9,7 @@
 #include "../../libs/glm/glm.hpp"
 #include "../Utils/factory.h"
 #include "../AssetStore/AssetStore.h"
-#include "../Utils/deadPlayer.h"
+#include "../Utils/DeadPlayer.h"
 
 class AOEBombEvent: public Event {
     public:
@@ -24,7 +24,7 @@ class AOEBombEvent: public Event {
         std::unique_ptr<AssetStore>& assetStore; 
         std::unique_ptr<Factory>& factory;
         std::function<void(bool, bool, wallTheme)> Setup;
-        deadPlayer& dp;
+        DeadPlayer& dp;
         std::string& activeCharacterID;
         std::unique_ptr<CharacterManager>& characterManager;
 
@@ -38,7 +38,7 @@ class AOEBombEvent: public Event {
                     std::unique_ptr<AssetStore>& assetStore, 
                     std::unique_ptr<Factory>& factory,
                     std::function<void(bool, bool, wallTheme)> Setup, 
-                    deadPlayer& dp, 
+                    DeadPlayer& dp, 
                     std::string& activeCharacterID, 
                     std::unique_ptr<CharacterManager>& characterManager) 
                 : spriteOfEmitter(spriteOfEmitter),

@@ -27,6 +27,7 @@ They are rendered in RenderTextSystem
 
 class UpdateDisplayStatTextSystem: public System{
     private:
+        bool wasDisplayingPotsToMaxLastFrame = false;
         
     public:
         UpdateDisplayStatTextSystem();
@@ -43,7 +44,7 @@ class UpdateDisplayStatTextSystem: public System{
         void checkMaxHPMP(Entity player);
 
         // system update each frame if mousepos > 750 for xp, hp, mp display string
-        void Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer);
+        void Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventBus);
 
 
 };

@@ -3,7 +3,7 @@
 
 #include "../ECS/ECS.h"
 #include "../EventBus/Event.h"
-#include "../utils/enums.h"
+#include "../Utils/enums.h"
 
 class WeaponEquipEvent: public Event{
     public:

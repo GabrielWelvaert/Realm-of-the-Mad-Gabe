@@ -16,16 +16,6 @@
 #include "../Components/TransformComponent.h"
 #include <type_traits>
 
-
-template<typename T>
-struct is_specific_struct : std::false_type {};
-
-template<>
-struct is_specific_struct<SpriteComponent> : std::true_type {};
-
-// template<>
-// struct is_specific_struct<TransformComponent> : std::true_type {};
-
 const unsigned int MAX_COMPONENTS = 64; //max componenets for an entity
 typedef std::bitset<MAX_COMPONENTS> Signature; //32 0's or 1's representing component signature for an entity/system
 
@@ -76,6 +66,7 @@ class Entity {
 
         // monster sub grouping
         void monsterSubGroup(const monsterSubGroups& msg);
+        bool BelongsToMonsterSubGroup(const monsterSubGroups& group) const;
         
 
 };
@@ -311,6 +302,9 @@ class Registry {
         void monsterSubGroupEntity(Entity entity, const monsterSubGroups& msg);
         void removeEntityMonsterSubGroup(Entity entity);
         int numEntitiesPerMonsterSubGroup(const monsterSubGroups& msg);
+        bool EntityBelongsToMonsterSubGroup(Entity entity, const monsterSubGroups& group) const;
+        std::unordered_set<int>& allEntitesFromMonsterSubGroup(monsterSubGroups g);
+
 
         bool entityWasKilledThisFrame(Entity& entity){
             return entitiesToBeKilled.find(entity) != entitiesToBeKilled.end();

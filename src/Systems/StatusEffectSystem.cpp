@@ -212,6 +212,7 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
                     if(currentTime >= sec.endTimes[i]){ // status effect expired; revert changes if necessary
                         sec.effects[i] = false;
                         onStatusDisable(entity, static_cast<statuses>(i), eventbus);
+                        sec.modifications[i] = 0;
                     } 
                 }
             }    

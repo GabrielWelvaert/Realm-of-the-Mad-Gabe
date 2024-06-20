@@ -38,7 +38,6 @@ void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore
 
         if(textlabel.spawnframe){
             TTF_SizeText(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), &textlabel.textwidth, &textlabel.textheight);
-            // SDL_QueryTexture(texture, NULL, NULL, &textlabel.textwidth, &textlabel.textheight); // each char is 8 pixels wide it seems    
             if(textlabel.isFixed){textlabel.spawnframe = false;}
         }
 

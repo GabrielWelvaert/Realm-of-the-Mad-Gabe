@@ -10,6 +10,7 @@
 #include "../Components/TransformComponent.h"
 #include "../Utils/tables.h"
 #include "../Utils/factory.h"
+#include "../Systems/DistanceToPlayerSystem.h"
 
 class EnemySpawnSystem: public System{
 

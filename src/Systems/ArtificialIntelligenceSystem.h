@@ -24,7 +24,7 @@
 #include "../Components/BossAIComponent.h"
 #include "../Components/ProjectileComponent.h"
 #include "../Utils/factory.h"
-#include "../Utils/roomShut.h"
+#include "../Utils/RoomShut.h"
 #include "../Utils/room.h"
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/OscillatingProjectileComponent.h"
@@ -121,6 +121,9 @@ class StandShootMinionAISystem: public System{
 class randomChaseMinionAISystem: public System{
     private:
         Xoshiro256 RNG;
+        inline glm::vec2 spriteCenter(const TransformComponent& t, const SpriteComponent& s){
+            return {(t.position.x + ((s.width * t.scale.x) / 2)), t.position.y + ((s.height * t.scale.y) / 2)};
+        }
 
     public:
         randomChaseMinionAISystem();
@@ -473,7 +476,7 @@ class BossAISystem: public System{
 
     public:
         BossAISystem();
-        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, roomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos);
+        void Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, RoomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos);
 };
 
 // class AnimatedPounceAISystem: public System{

@@ -233,7 +233,7 @@ void AbilitySystem::onCloakUse(CloakUseEvent& event){
     event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVISIBLE, event.eventbus, event.registry, cloak.invisibilityDuration);
     switch(cloak.itemEnum){
         case RETRIBUTIONCLOAK:{
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, BERSERK, event.eventbus, event.registry, 6000);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, DAMAGING, event.eventbus, event.registry, 6000);
             event.eventbus->EmitEvent<StatusEffectEvent>(event.player, SLOWED, event.eventbus, event.registry, 6000);
         } break;
     }
@@ -245,7 +245,7 @@ void AbilitySystem::onSealUse(SealUseEvent& event){
     event.eventbus->EmitEvent<StatusEffectEvent>(event.player, DAMAGING, event.eventbus, event.registry, seal.duration);
     switch(seal.itemEnum){
         case OREO:{
-            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 2000);
+            event.eventbus->EmitEvent<StatusEffectEvent>(event.player, INVULNERABLE, event.eventbus, event.registry, 1400);
         } break;
     };
 }
