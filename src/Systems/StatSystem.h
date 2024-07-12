@@ -113,6 +113,8 @@ class StatSystem: public System{
     public:
         StatSystem();
 
+        int getNumberOfMaxStats(Entity player);
+
         void SubscribeToEvents(std::unique_ptr<EventBus>& eventBus);
         
         void onDrinkConsumablePot(DrinkConsumableEvent& event);
@@ -120,6 +122,8 @@ class StatSystem: public System{
         void onEquipItemWithStats(EquipItemWithStatsEvent& event);
 
         void onLevelUp(LevelUpEvent& event);
+
+        void maxStat(Entity player, stats stat);
 };
 
 #endif

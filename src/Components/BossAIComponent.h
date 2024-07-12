@@ -20,6 +20,7 @@ struct BossAIComponent{
     Uint32 timer2 = 0;
     Uint32 timer3 = 0;
     glm::vec2 positionflag;
+    aistates state = STANDING;
 
     // optional. used to give boss static movement patterns
     std::vector<glm::vec2> phaseOnePositions;

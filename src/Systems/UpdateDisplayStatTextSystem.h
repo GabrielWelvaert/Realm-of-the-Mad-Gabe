@@ -19,6 +19,7 @@
 #include "../Components/TransformComponent.h"
 #include "../AssetStore/AssetStore.h"
 #include <algorithm>
+#include "../Components/StatusEffectComponent.h"
 
 /*
 This system updates the display strings for xp, hp, and mp. They are only displayed and updated when mouse pos > 750

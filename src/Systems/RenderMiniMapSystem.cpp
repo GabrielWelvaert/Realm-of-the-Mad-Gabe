@@ -72,7 +72,6 @@ void RenderMiniMapSystem::Update(SDL_Renderer* renderer, Entity player, int idOf
     SDL_RenderCopy(renderer, veilTexture, &srcRect, &miniMapRect); // veil uses srcRect of mini map
 
     // render boss squares (allowed to be on top of veil)
-    // todo re-write this to work for multiple bosses!
     for(const auto& boss: bosses){
         auto idOfboss = boss.Id;
         auto creationIdOfBoss = boss.CreationId; 

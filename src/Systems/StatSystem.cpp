@@ -47,6 +47,13 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     auto& inventory = playerIC.inventory;
     switch(event.itemEnum){
+        case HPEFFUSION:{
+            increaseHP(player, event.registry, event.assetstore, 175);
+            event.eventbus->EmitEvent<StatusEffectEvent>(player, HEALING, event.eventbus, event.registry, 4000);
+        } break;
+        case SPDEFFUSION:{
+            event.eventbus->EmitEvent<StatusEffectEvent>(player, SPEEDY, event.eventbus, event.registry, 10000);
+        } break; 
         case SPDTINCTURE:{
             event.eventbus->EmitEvent<StatusEffectEvent>(player, SPEEDY, event.eventbus, event.registry, 4000);
         } break;
@@ -56,6 +63,10 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
         case GORDONINCANTATION:{
             event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, GORDONSLAIRWALLTHEME);
         } break;
+        case ABYSSKEY:{
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, ABYSS);
+        } break;
+        case COMPLETIONTROPHY:
         case HPPOT:{
             if(!increaseHP(player, event.registry, event.assetstore, 100)){
                 return; // invalid consumption attempt; exit onDrinkConsumablePot event
@@ -231,6 +242,36 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     }
 }
 
+int StatSystem::getNumberOfMaxStats(Entity player){
+    int numMaxStats = 0;
+    const auto& pbs = player.GetComponent<BaseStatComponent>();
+    const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+    if(pbs.attack == getMaxStat(classname, ATTACK)){
+        numMaxStats++;
+    }
+    if(pbs.defense == getMaxStat(classname, DEFENSE)){
+        numMaxStats++;
+    }
+    if(pbs.dexterity == getMaxStat(classname, DEXTERITY)){
+        numMaxStats++;
+    }
+    if(pbs.speed == getMaxStat(classname, SPEED)){
+        numMaxStats++;
+    }
+    if(pbs.wisdom == getMaxStat(classname, WISDOM)){
+        numMaxStats++;
+    }
+    if(pbs.vitality == getMaxStat(classname, VITALITY)){
+        numMaxStats++;
+    }
+    if(pbs.hp == getMaxStat(classname, HP)){
+        numMaxStats++;
+    }
+    if(pbs.mp == getMaxStat(classname, MP)){
+        numMaxStats++;
+    }
+    return numMaxStats;
+}
 
 void StatSystem::onLevelUp(LevelUpEvent& event){
     auto& playerBaseStats = event.player.GetComponent<BaseStatComponent>();
@@ -288,11 +329,16 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
             speed.activespeed += sec.modifications[SLOWED];
             sec.effects[SLOWED] = false;
         }
+        if(sec.effects[WEAKENED]){
+            offensestats.activeattack += sec.modifications[ATTACK];
+            sec.effects[WEAKENED] = false;
+        }
         sec.effects[PARALYZE] = false;
         sec.effects[QUIET] = false;
         sec.effects[BLEEDING] = false;
         sec.effects[STUNNED] = false;
         sec.effects[BLIND] = false;
+
     }
 
     if(HPMPstats.activehp < HPMPstats.maxhp){
@@ -319,7 +365,9 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
     auto& hpmp = event.player.GetComponent<HPMPComponent>();
     auto& offensestats = event.player.GetComponent<OffenseStatComponent>();
     auto& speed = event.player.GetComponent<SpeedStatComponent>().activespeed;
-    auto& newItemStats = itemEnumToStatData.at(event.newItem);
+    auto& sec = event.player.GetComponent<StatusEffectComponent>();
+    auto newItemStats = itemEnumToStatData.at(event.newItem);
+    auto oldItemStats = itemEnumToStatData.at(event.previousItem);
     if(event.unequip){
         auto& oldItemStats = itemEnumToStatData.at(event.previousItem);
         hpmp.maxhp -= oldItemStats.hp;
@@ -330,20 +378,36 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
         if(hpmp.activemp > hpmp.maxmp){
             hpmp.activemp = hpmp.maxmp;
         }
-        hpmp.activedefense -= oldItemStats.defense;
+        if(sec.effects[ARMORBROKEN]){
+            sec.modifications[ARMORBROKEN] -= oldItemStats.defense;
+        } else {
+            hpmp.activedefense -= oldItemStats.defense;    
+        }
         hpmp.activevitality -= oldItemStats.vitality;
         hpmp.activewisdom -= oldItemStats.wisdom;
-        speed -= oldItemStats.speed;
+        if(sec.effects[PARALYZE]){
+            sec.modifications[PARALYZE] -= oldItemStats.speed;
+        } else {
+            speed -= oldItemStats.speed;    
+        }
         offensestats.activeattack -= oldItemStats.attack;
         offensestats.activedexterity -= oldItemStats.dexterity;
     } 
     if(event.equip){
         hpmp.maxhp += newItemStats.hp;
         hpmp.maxmp += newItemStats.mp;
-        hpmp.activedefense += newItemStats.defense;
+        if(sec.effects[ARMORBROKEN]){
+            sec.modifications[ARMORBROKEN] += newItemStats.defense;
+        } else {
+            hpmp.activedefense += newItemStats.defense;    
+        }
         hpmp.activevitality += newItemStats.vitality;
         hpmp.activewisdom += newItemStats.wisdom;
-        speed += newItemStats.speed;
+        if(sec.effects[PARALYZE]){
+            sec.modifications[PARALYZE] += newItemStats.speed;
+        } else {
+            speed += newItemStats.speed;    
+        }
         offensestats.activeattack += newItemStats.attack;
         offensestats.activedexterity += newItemStats.dexterity;
     }
@@ -351,4 +415,55 @@ void StatSystem::onEquipItemWithStats(EquipItemWithStatsEvent& event){
     auto& frameSpeedRate = event.player.GetComponent<AnimationComponent>().frameSpeedRate;
     projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); //dex to shots per second / 1000
     frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; //dex to shorts per second * 2
+}
+
+void StatSystem::maxStat(Entity player, stats stat){
+    auto& playerBaseStats = player.GetComponent<BaseStatComponent>();
+    const auto& classname = player.GetComponent<ClassNameComponent>().classname;
+    auto& HPMPstats = player.GetComponent<HPMPComponent>();
+    auto& offensestats = player.GetComponent<OffenseStatComponent>();
+    auto& speed = player.GetComponent<SpeedStatComponent>();
+    auto& projectileRepeatFrequency = player.GetComponent<ProjectileEmitterComponent>().repeatFrequency;
+    auto& frameSpeedRate = player.GetComponent<AnimationComponent>().frameSpeedRate;
+
+    switch(stat){
+        case ATTACK:{
+            offensestats.activeattack += playerBaseStats.attack - getMaxStat(classname, ATTACK);
+            playerBaseStats.attack = getMaxStat(classname, ATTACK);
+        } break;
+        case DEFENSE:{
+            HPMPstats.activedefense += playerBaseStats.defense - getMaxStat(classname, DEFENSE);
+            playerBaseStats.defense = getMaxStat(classname, DEFENSE);
+        } break;
+        case SPEED:{
+            speed.activespeed += playerBaseStats.speed - getMaxStat(classname, SPEED);
+            playerBaseStats.speed = getMaxStat(classname, SPEED);
+        } break;
+        case DEXTERITY:{
+            offensestats.activedexterity += playerBaseStats.dexterity - getMaxStat(classname, DEXTERITY);
+            playerBaseStats.dexterity = getMaxStat(classname, DEXTERITY);
+        } break;
+        case WISDOM:{
+            HPMPstats.activewisdom += playerBaseStats.wisdom - getMaxStat(classname, WISDOM);
+            playerBaseStats.wisdom = getMaxStat(classname, WISDOM);
+        } break;
+        case VITALITY:{
+            HPMPstats.activevitality += playerBaseStats.vitality - getMaxStat(classname, VITALITY);
+            playerBaseStats.vitality = getMaxStat(classname, VITALITY);
+        } break;
+        case HP:{
+            HPMPstats.activehp += playerBaseStats.hp - getMaxStat(classname, HP);
+            playerBaseStats.hp = getMaxStat(classname, HP);
+            HPMPstats.maxhp += playerBaseStats.hp - getMaxStat(classname, HP);
+        } break;
+        case MP:{
+            HPMPstats.activemp += playerBaseStats.mp - getMaxStat(classname, MP);
+            playerBaseStats.mp = getMaxStat(classname, MP);
+            HPMPstats.maxmp += playerBaseStats.mp - getMaxStat(classname, MP);
+        } break;
+    }
+
+
+    projectileRepeatFrequency = 1000 / (.08666 * offensestats.activedexterity + 1.5); 
+    frameSpeedRate = (.08666 * offensestats.activedexterity + 1.5) * 2; 
 }

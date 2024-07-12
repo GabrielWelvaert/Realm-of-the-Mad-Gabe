@@ -17,7 +17,7 @@ enum PECBoolEnums{
     OSCILLATES,
     ROTATES,
     ORBITS,
-    UNUSED
+    BOOMERANG
 };
 
 struct ProjectileEmitterComponent{

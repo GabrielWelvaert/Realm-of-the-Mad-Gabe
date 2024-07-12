@@ -3,11 +3,7 @@
 
 #include "../../libs/SDL2/SDL.h"
 #include "../../libs/glm/glm.hpp"
-
-enum randomChaseStates{
-    CHASE_PLAYER,
-    CHASE_RANDOM_POINT_NEAR_PARENT,
-};
+#include "../Utils/enums.h"
 
 struct RandomChaseMinionComponent{
     Uint32 timeOfLastSwitch = 0;

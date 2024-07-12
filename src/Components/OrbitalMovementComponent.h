@@ -9,10 +9,12 @@ struct OrbitalMovementComponent{
     glm::vec2 origin;
     bool orbiting = false;
     bool inverse;
-    float angle = 0.0f; // angle used for orbital movement
+    float angle = 0.0f; // angle (radians) used for orbital movement
     OrbitalMovementComponent() = default;
     OrbitalMovementComponent(float distance, bool inverse, glm::vec2 origin = {0.0,0.0}):
         distance(distance), origin(origin), inverse(inverse) {}
+    OrbitalMovementComponent(float distance, bool inverse, float angle):
+        distance(distance), angle(angle), inverse(inverse) {}
     
 };
 

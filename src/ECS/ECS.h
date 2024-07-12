@@ -150,6 +150,37 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         void Remove(int entityId){
+            // if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+            //     std::cout << "entityIdToIndex does not contain passed entityId. it should because we're removing from this pool." << '\n'; 
+            // }
+            // int indexOfRemoved = entityIdToIndex[entityId];
+            // int indexOfLast = size-1;
+            // if(indexOfRemoved > size){
+            //     std::cout << "indexOfRemoved > pool's size member field" << '\n'; 
+            // }
+            // if(indexOfLast > size){
+            //     std::cout << "indexOfLast > pool's size member field" << '\n'; 
+            // }
+            // if(indexOfRemoved > data.size()){
+            //     std::cout << "indexOfRemoved > data.size()" << '\n'; 
+            // }
+            // if(indexOfLast > data.size()){
+            //     std::cout << "indexOfLast > data.size()" << '\n'; 
+            // }
+            // if(indexOfRemoved > data.capacity()){
+            //     std::cout << "indexOfRemoved > data.capacity()" << '\n'; 
+            // }
+            // if(indexOfLast > data.capacity()){
+            //     std::cout << "indexOfLast > data.capacity()" << '\n'; 
+            // }
+            // int idOfLast = indexToEntityId[indexOfLast];
+            // if(entityIdToIndex.find(idOfLast) == entityIdToIndex.end()){
+            //     std::cout << "entityIdToIndex does not contain idOfLast. it should because we're removing from this pool." << '\n'; 
+            // }
+            // if(indexToEntityId.find(indexOfRemoved) == entityIdToIndex.end()){
+            //     std::cout << "indexToEntityId does not contain indexOfRemoved. it should because we're removing from this pool." << '\n'; 
+            // }
+
             int indexOfRemoved = entityIdToIndex[entityId];
             int indexOfLast = size-1;
             data[indexOfRemoved] = data[indexOfLast];
@@ -159,9 +190,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
             entityIdToIndex.erase(entityId);
             indexToEntityId.erase(indexOfLast);
             size--;
-            // if(size > 4000000000){
-            //     std::cout << "overflow of some pool! " << std::endl;
-            // }
+            if(size > 4000000000){
+                std::cout << "overflow of some pool! " << std::endl;
+            }
             // if constexpr (is_specific_struct<T>::value) {
             //     if(entityId == 27){
             //         std::cout << "removing " << entityId <<  " from position " << indexOfRemoved << " in spritecomp pool" << '\n';

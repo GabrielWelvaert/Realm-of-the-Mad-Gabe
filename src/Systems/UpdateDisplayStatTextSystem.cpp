@@ -19,6 +19,11 @@ void UpdateDisplayStatTextSystem::sortEntities(){
 }
 
 void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& event){
+    const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
+    // if(playerPos.x > 100,000 || playerPos.x < 0 || playerPos.y > 100,000 || playerPos.y < 0){
+    //     std::cout << "uninitialized playerPos in UpdateDisplayStatTextSystem::onDisplayStatUpdate" << '\n';
+    // }
+
     auto& entities = GetSystemEntities();
     if(entities.size() == 0){return;}
     const auto& pbs = event.player.GetComponent<BaseStatComponent>();
@@ -26,6 +31,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     const auto& offenseStats = event.player.GetComponent<OffenseStatComponent>();
     const auto& activeSpeedStat = event.player.GetComponent<SpeedStatComponent>().activespeed;
     const auto& classname = event.player.GetComponent<ClassNameComponent>().classname;
+    const auto& sec = event.player.GetComponent<StatusEffectComponent>();
 
     SDL_Color color;
 
@@ -36,6 +42,9 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     if(offenseStats.activeattack > pbs.attack){
         attdisplayString += " (+" + std::to_string(offenseStats.activeattack - pbs.attack) + ")";
         color = statgreen;
+    } else if(offenseStats.activeattack < pbs.attack){
+        attdisplayString += " (-" + std::to_string(pbs.attack - offenseStats.activeattack) + ")";
+        color = titleRed;
     }
     if(pbs.attack == maxStats[classname][ATTACK]){
         color = maxstatcolor;
@@ -47,11 +56,22 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     // std::cout << "attDisplay text displaying " << attDisplayText.text << " at " << entities[ATTACK].GetComponent<TransformComponent>().position.x << ", " << entities[ATTACK].GetComponent<TransformComponent>().position.y << std::endl;
 
     auto& defDisplayText = entities[DEFENSE].GetComponent<TextLabelComponent>();
+    // std::cout << "defDisplayText text has id " << entities[DEFENSE].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
     std::string defdisplayString = std::to_string(hpmp.activedefense);
     color = grey;
     if(hpmp.activedefense > pbs.defense){
-        defdisplayString += " (+" + std::to_string(hpmp.activedefense - pbs.defense) + ")";
+        if(pbs.defense < 2 && sec.effects[ARMORED]){
+            defdisplayString += " (+2)";    
+        } else {
+            defdisplayString += " (+" + std::to_string(hpmp.activedefense - pbs.defense) + ")";
+        }
         color = statgreen;
+    } else if(hpmp.activedefense == 0 && sec.effects[ARMORBROKEN]){
+        if(sec.modifications[ARMORBROKEN] != 0){ // already have 0 def
+            defdisplayString += " (-" + std::to_string(sec.modifications[ARMORBROKEN]) +")";    
+        }
+        color = titleRed;    
+        // there is currently no debuff that halves defense. only armor broken exists so there is no active < base logic
     }
     if(pbs.defense == maxStats[classname][DEFENSE]){
         color = maxstatcolor;
@@ -61,13 +81,18 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     defDisplayText.spawnframe = true;
 
     auto& spdDisplayText = entities[SPEED].GetComponent<TextLabelComponent>();
+    // std::cout << "spdDisplayText text has id " << entities[SPEED].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
     std::string spddisplayString = std::to_string(activeSpeedStat);
     color = grey;
     if(activeSpeedStat > pbs.speed){
         spddisplayString += " (+" + std::to_string(activeSpeedStat - pbs.speed) + ")";
         color = statgreen;
-    } else if(activeSpeedStat < pbs.speed){
-        spddisplayString += " (-" + std::to_string(pbs.speed - activeSpeedStat) + ")";
+    } else if(activeSpeedStat < pbs.speed){ // slowed or paralyzed
+        if(sec.effects[PARALYZE]){
+            spddisplayString += " (-" + std::to_string(sec.modifications[PARALYZE]) +")";   
+        } else { // slowed
+            spddisplayString += " (-" + std::to_string(pbs.speed - activeSpeedStat) + ")";
+        }
         color = titleRed;
     }
     if(pbs.speed == maxStats[classname][SPEED]){
@@ -78,6 +103,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     spdDisplayText.spawnframe = true;
 
     auto& dexDisplayText = entities[DEXTERITY].GetComponent<TextLabelComponent>();
+    // std::cout << "dexDisplayText text has id " << entities[DEXTERITY].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
     std::string dexdisplayString = std::to_string(offenseStats.activedexterity);
     color = grey;
     if(offenseStats.activedexterity > pbs.dexterity){
@@ -92,6 +118,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     dexDisplayText.spawnframe = true;
 
     auto& vitDisplayText = entities[VITALITY].GetComponent<TextLabelComponent>();
+    // std::cout << "vitDisplayText text has id " << entities[VITALITY].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
     std::string vitdisplayString = std::to_string(hpmp.activevitality);
     color = grey;
     if(hpmp.activevitality > pbs.vitality){
@@ -106,6 +133,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     vitDisplayText.spawnframe = true;
 
     auto& wisDisplayText = entities[WISDOM].GetComponent<TextLabelComponent>();
+    // std::cout << "wisDisplayText text has id " << entities[WISDOM].GetId() << " in UpdateDisplayStatTextSystem" << std::endl;
     std::string wisdisplayString = std::to_string(hpmp.activewisdom);
     color = grey;
     if(hpmp.activewisdom > pbs.wisdom){
@@ -119,6 +147,7 @@ void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& ev
     wisDisplayText.color = color;
     wisDisplayText.spawnframe = true;
 
+    // std::cout << "lvl text has id " << entities[LVL].GetId() << " in UpdateDisplayStatTextSystem" << '\n' << '\n';
     entities[LVL].GetComponent<TextLabelComponent>().text = "Lvl " + std::to_string(static_cast<int>(pbs.level));
     entities[LVL].GetComponent<TextLabelComponent>().spawnframe = true;
 
@@ -139,10 +168,10 @@ void UpdateDisplayStatTextSystem::checkMaxHPMP(Entity player){
 
 void UpdateDisplayStatTextSystem::Update(int mx, int my, Entity player, std::unique_ptr<AssetStore>& assetStore, SDL_Renderer* renderer, std::unique_ptr<EventBus>& eventBus){
     auto& entities = GetSystemEntities(); // can be indexed with enum stats to get respective entity
-    if(entities.size() == 0){
-        std::cout << "update display stat text system had 0 entities " << '\n';
-        return;
-    }
+    // if(entities.size() == 0){
+    //     std::cout << "update display stat text system had 0 entities " << '\n';
+    //     return;
+    // }
     auto& hpdisplay = entities[HP];
     auto& mpdisplay = entities[MP];
     auto& xpdisplay = entities[XP];

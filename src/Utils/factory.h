@@ -63,6 +63,8 @@
 #include "../Components/RandomChaseMinionComponent.h"
 #include "../Components/DeathActionComponent.h"
 #include "../Components/ProjectileComponent.h"
+#include "../Components/PassiveAIComponent.h"
+#include "../Components/HealOtherComponent.h"
 
 /*
 The factory class contains methods for spawning entities that represent important things such as 
@@ -87,11 +89,11 @@ class Factory{
     
         Factory();
 
-        Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum, int parentId = 0);
+        Entity spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum, int parentId = -1);
 
         Entity spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const room& room, int maxMonsters);
 
-        void spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
+        void spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius, colors color);
 
         Entity creatLootBag(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
 
@@ -105,21 +107,25 @@ class Factory{
 
         void spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager);
 
-        void populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses);
+        void populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses, std::map<cardinalDirection, room>& cardinalRooms);
 
         void spawnNumberEntity(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, std::string&& number);
 
         void spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, float speed = 500);
 
-        void spawnDecoration(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum);
+        void spawnDecoration(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum = NONESPRITE);
 
-        Entity spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, int damage);
+        Entity spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint, int damage);
 
-        void spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint);
+        void spawnHealOtherPartiles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint);
+
+        void spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint);
 
         void spawnNecromancerParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius);
 
         void spawnTreasureRoomChest(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, wallTheme area);
+
+        void spawnAdminLootInNexus(std::unique_ptr<Registry>& registry);
 };
 
 #endif

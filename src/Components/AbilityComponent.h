@@ -108,9 +108,10 @@ struct ScepterComponent{
 struct SkullComponent{
     int damage;
     float radius;
+    items itemEnum;
     inline SkullComponent() = default;
-    inline SkullComponent(int damage, float radius):
-        damage(damage), radius(radius) {}
+    inline SkullComponent(int damage, float radius, items itemEnum):
+        damage(damage), radius(radius), itemEnum(itemEnum) {}
 };
 
 

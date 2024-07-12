@@ -12,9 +12,61 @@ inline float chasePosition(const glm::vec2& origin, const glm::vec2& dest, glm::
 
 PassiveAISystem::PassiveAISystem(){
     RequireComponent<PassiveAIComponent>();
+    RequireComponent<CollisionFlagComponent>();
+    RequireComponent<RidigBodyComponent>();
+    RequireComponent<TransformComponent>();
+    RequireComponent<SpriteComponent>();
+    RequireComponent<DistanceToPlayerComponent>();
+    RequireComponent<AnimationComponent>();
 }
 
-void PassiveAISystem::Update(const Entity& player){return;}
+void PassiveAISystem::Update(const glm::vec2& playerPos){ // hard coded for 1 entity
+    auto time = SDL_GetTicks();
+    for(auto& entity: GetSystemEntities()){
+        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
+        if(distanceToPlayer >= DISTANCE_TO_CONTINUE){
+            velocity.x = velocity.y = 0;
+            continue;
+        }
+        auto& ac = entity.GetComponent<AnimationComponent>();
+        auto& sprite = entity.GetComponent<SpriteComponent>();
+        auto& aidata = entity.GetComponent<PassiveAIComponent>();
+        const auto& collisionFlag = entity.GetComponent<CollisionFlagComponent>().collisionFlag;
+        const auto& transform = entity.GetComponent<TransformComponent>();
+        auto distanceFromDestination = glm::distance(aidata.destination, transform.center);
+        if(time >= aidata.timeOfLastSwitch + aidata.switchInterval || collisionFlag != NONESIDE){
+            if(distanceToPlayer < 150.0f){
+                aidata.destination = playerPos;
+            } else {
+                double distance = glm::linearRand(75.0f, 150.0f);
+                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                float offsetX = distance * glm::cos(randomAngle); 
+                float offsetY = distance * glm::sin(randomAngle);
+                aidata.destination = {(playerPos.x + offsetX), (playerPos.y + offsetY)};
+            }
+            aidata.timeOfLastSwitch = time;
+        }
+
+        if(glm::distance(aidata.destination, transform.center) > 75.0f){
+            chasePosition(transform.center, aidata.destination, velocity);
+            if(ac.numFrames != 3){
+                ac.currentFrame = 1;
+                ac.numFrames = 2;
+                ac.xmin = 0;
+            }
+        } else { // always sit near player
+            if(ac.numFrames != 1){
+                velocity.x = velocity.y = 0;
+                ac.currentFrame = 6;
+                ac.xmin = 5;
+                ac.numFrames = 1;
+            }
+        }
+
+        playerPos.x < transform.center.x ? sprite.flip = SDL_FLIP_HORIZONTAL : sprite.flip = SDL_FLIP_NONE;
+    }
+}
 
 ChaseAISystem::ChaseAISystem(){
     RequireComponent<ChaseAIComponent>();
@@ -66,11 +118,7 @@ void ChaseAISystem::Update(const Entity& player, const glm::vec2& playerPos){
                     velocity.x = 0;
                     velocity.y = 0;
                 } else { // shoot, chase 
-                    if(chasePosition(position, playerPos, velocity) < 0){ // facing left
-                        flip = SDL_FLIP_HORIZONTAL;
-                    } else { // facing right
-                        flip = SDL_FLIP_NONE;
-                    }
+                    chasePosition(position, playerPos, velocity);
                     if(stunned){
                         isShooting = false;
                     } else if(isShooting == false){
@@ -78,11 +126,7 @@ void ChaseAISystem::Update(const Entity& player, const glm::vec2& playerPos){
                     } 
                 }
             } else { // chase, dont shoot 
-                if(chasePosition(position, playerPos, velocity) < 0){ // facing left
-                    flip = SDL_FLIP_HORIZONTAL;
-                } else { // facing right
-                    flip = SDL_FLIP_NONE;
-                }
+                chasePosition(position, playerPos, velocity);
                 isShooting = false;
             }
 
@@ -91,6 +135,8 @@ void ChaseAISystem::Update(const Entity& player, const glm::vec2& playerPos){
             velocity.x = 0;
             velocity.y = 0; 
         }
+
+        playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
         
     }
 }
@@ -368,7 +414,7 @@ void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>
     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
     for(auto& entity: GetSystemEntities()){
         const auto& mc = entity.GetComponent<MinionComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().center;
+        auto& position = entity.GetComponent<TransformComponent>().position;
         bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -430,9 +476,9 @@ void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
             isShooting = false;
         }
         auto& oc = entity.GetComponent<OrbitalMovementComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().center;
+        auto& position = entity.GetComponent<TransformComponent>().position;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        if(!playerInvisible){
+        if(!playerInvisible && !entity.HasComponent<TowerComponent>()){
             playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
         }
         if(!parentIsAlive){
@@ -552,7 +598,7 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
             }
             if((parentIsDead || (RNG.randomFromRange(1,3) == 1 && distanceToPlayer < 300)) && !playerInvisible){
                 rcmc.state = CHASE_PLAYER;
-            } else { // chase random point near player
+            } else if (!parentIsDead) { // chase random point near parent
                 const auto& parentPos = registry->GetComponent<TransformComponent>(mc.idOfParent).position;
                 rcmc.state = CHASE_RANDOM_POINT_NEAR_PARENT;
                 double distance = RNG.randomFromRange(100.0,800.0);
@@ -560,6 +606,13 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
                 float offsetX = distance * glm::cos(randomAngle); 
                 float offsetY = distance * glm::sin(randomAngle);
                 rcmc.destination = {(parentPos.x + offsetX), (parentPos.y + offsetY)};
+            } else { // parent is dead, player is invisible, and at destination
+                if(entity.HasComponent<AnimationComponent>()){
+                    auto& ac = entity.GetComponent<AnimationComponent>();
+                    ac.xmin = 0;
+                    ac.numFrames = 1;
+                }
+                velocity.x = velocity.y = 0;
             }
             rcmc.timeOfLastSwitch = time;
         }
@@ -603,7 +656,6 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
                 auto& ac = entity.GetComponent<AnimationComponent>();
                 asc.animatedShooting = false;
                 ac.xmin = 0;
-                ac.numFrames = 1;
                 !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
             }
             isShooting = false;
@@ -760,7 +812,7 @@ BossAISystem::BossAISystem(){
     RequireComponent<DistanceToPlayerComponent>();
 }
 
-void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, RoomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos){
+void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& assetStore, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, RoomShut& roomToShut, const SDL_Rect& camera, const room& bossRoom, const glm::vec2& playerPos, const glm::vec2& playerSpawn){
     // const auto& playerPos = player.GetComponent<TransformComponent>().position;
     const bool& playerInvisible = player.GetComponent<StatusEffectComponent>().effects[INVISIBLE];
 
@@ -771,7 +823,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
         const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
         const auto& transform = entity.GetComponent<TransformComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().center;
+        auto& position = entity.GetComponent<TransformComponent>().position;
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& aidata = entity.GetComponent<BossAIComponent>();
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
@@ -1178,7 +1230,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         aidata.timer0 = SDL_GetTicks();
                         aidata.flags[0] = false;
                         if(!stunned){
-                            starShotgun(entity, registry, playerPos);
+                            gordonStarShotgun(entity, registry, playerPos);
                         }
                         // hp -= 20000;
                     }
@@ -1188,7 +1240,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         if(time > aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
                             if(!playerInvisible && !stunned){
                                 aidata.timer0 = time;
-                                starShotgun(entity, registry, playerPos);
+                                gordonStarShotgun(entity, registry, playerPos);
                             }
                         }
 
@@ -1262,7 +1314,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     pec.lastEmissionTime += pec.repeatFrequency / 2;
                                 }
                                 if(time - pec.lastEmissionTime > pec.repeatFrequency){
-                                    starShotgun(entity, registry, playerPos, true);
+                                    gordonStarShotgun(entity, registry, playerPos, true);
                                 }
                             }
 
@@ -1586,6 +1638,305 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                     }
                 }
 
+            } break;
+            case AMDUSCIAS: // nut
+            case ASTAROTH: // geb 
+            case ABIGOR:{ // bes
+                #define ENTERED_RAGE_PHASE aidata.flags[0]
+                #define CURRENTLY_HEALING_BENEFICIARY aidata.flags[1] // will become false again when boss has returned to regular spawn-orbit after it finishes its healing
+                #define HAS_ALREADY_HEALED_BENEFICIARY aidata.flags[2] // will become false again when boss is done healing. 
+                #define FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT aidata.flags[3]
+                auto& omc = entity.GetComponent<OrbitalMovementComponent>();
+                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
+                auto& ac = entity.GetComponent<AnimationComponent>();
+                auto& msc = entity.GetComponent<MinionSpawnerComponent>();
+                auto& hoc = entity.GetComponent<HealOtherComponent>();
+                const auto& center = entity.GetComponent<TransformComponent>().center;
+                auto time = SDL_GetTicks();
+                constexpr int amdusciasNumShots = 10; // nut inspired
+                constexpr int astarothNumShots = 5; // geb inspired
+                constexpr int abigorNumShots = 7; // bes inspired
+                constexpr float orbitalDistanceFromRoomCenter = 400.0f;
+                constexpr float orbitalDistanceFromBeneficiary = 150.0f;
+                if(!aidata.activated){  // logic for pre-activation and first frame of activation
+                    if(registry->numEntitiesPerMonsterSubGroup(ABYSSTOWERSUBGROUP) == 0){ // first frame of activation
+                        aidata.activated = true;
+                        sec.effects[INVULNERABLE] = false;
+                        omc.origin = playerSpawn - 128.0f; // center of spawn room
+                        omc.orbiting = true;
+                        aidata.state = WALKING;
+                    }
+                    continue;
+                } 
+                
+                if(!HAS_ALREADY_HEALED_BENEFICIARY && !CURRENTLY_HEALING_BENEFICIARY){
+                    bool someoneElseIsInHealSequence = (registry->entityIsAlive(aidata.idKeyOne, aidata.cIdKeyOne) && registry->GetComponent<BossAIComponent>(aidata.idKeyOne).flags[1]) || (registry->entityIsAlive(aidata.idKeyTwo, aidata.cIdKeyTwo) && registry->GetComponent<BossAIComponent>(aidata.idKeyTwo).flags[1]); 
+                    if(!someoneElseIsInHealSequence){
+                        if(registry->entityIsAlive(hoc.beneficiaryId, hoc.beneficiaryCreationId)){
+                            int hpOfBeneficiary = registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp;
+                            if(hpOfBeneficiary < 20000){
+                                CURRENTLY_HEALING_BENEFICIARY = true; 
+                                sec.effects[INVULNERABLE] = true;
+                                sec.endTimes[INVULNERABLE] = 0-1;
+                                aidata.positionflag = omc.origin; // store room-center origin in aidata.positionflag for later repurposing
+                                aidata.state = WALKING;
+                                pec.shots = 0;
+                                omc.orbiting = false;
+                                speed = 40;
+                            }
+                        }
+                    }
+                }
+
+                if(CURRENTLY_HEALING_BENEFICIARY){
+                    if(!HAS_ALREADY_HEALED_BENEFICIARY && (!registry->entityIsAlive(hoc.beneficiaryId, hoc.beneficiaryCreationId) || registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp >= 30000 || registry->GetComponent<BossAIComponent>(hoc.beneficiaryId).flags[0] || registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp < 10000)){
+                        HAS_ALREADY_HEALED_BENEFICIARY = true;
+                    }    
+                    if(HAS_ALREADY_HEALED_BENEFICIARY){ // path back to regular orbit, end healing sequence
+                        if(omc.orbiting){
+                            omc.orbiting = false;
+                            omc.origin = aidata.positionflag;
+                            hoc.beneficiaryIsDead = true;
+                            sec.effects[INVULNERABLE] = false;
+                            omc.distance = orbitalDistanceFromRoomCenter;
+                            speed = 40;
+                        }
+                        int numOtherBossesAlive = 0;
+                        std::vector<int> livingBossIds;
+                        if(registry->entityIsAlive(aidata.idKeyOne, aidata.cIdKeyOne) && !registry->GetComponent<BossAIComponent>(aidata.idKeyOne).flags[0]){ // flags[0] = in rage phase 
+                            numOtherBossesAlive++;
+                            livingBossIds.push_back(aidata.idKeyOne);
+                        }
+                        if(registry->entityIsAlive(aidata.idKeyTwo, aidata.cIdKeyTwo) && !registry->GetComponent<BossAIComponent>(aidata.idKeyTwo).flags[0]){ // flags[0] = in rage phase 
+                            numOtherBossesAlive++;
+                            livingBossIds.push_back(aidata.idKeyTwo);
+                        }
+                        switch(numOtherBossesAlive){ // get destination to re-enter orbit depending on remaining monsters
+                            case 0:{
+                                if(!FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT){
+                                    FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT = true;
+                                    float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                                    float offsetX = omc.distance * glm::cos(randomAngle); 
+                                    float offsetY = omc.distance * glm::sin(randomAngle);
+                                    aidata.positionflag = {(omc.origin.x + offsetX), (omc.origin.y + offsetY)};
+                                }
+                            } break;
+                            case 1:{
+                                const auto& livingbosspos = registry->GetComponent<TransformComponent>(livingBossIds[0]).position;
+                                aidata.positionflag = 2.0f * omc.origin - livingbosspos;
+                            } break;
+                            case 2:{
+                                const auto& p1 = registry->GetComponent<TransformComponent>(livingBossIds[0]).position;
+                                const auto& p2 = registry->GetComponent<TransformComponent>(livingBossIds[1]).position;
+                                glm::vec2 midpoint = (p1 + p2) / 2.0f;
+                                glm::vec2 direction = midpoint - omc.origin; // omc.origin = center of circle
+                                glm::vec2 unitDirection = glm::normalize(direction);
+                                aidata.positionflag = omc.origin - omc.distance * unitDirection; // omc.distance = radius
+                            } break;
+                        }
+                        chasePosition(position, aidata.positionflag, velocity);
+                        if(glm::distance(position, aidata.positionflag) < 3.0f){ // healing sequence has fully concluded
+                            velocity.x = velocity.y = 0.0f;
+                            omc.orbiting = true;
+                            omc.angle = std::atan2(position.y - omc.origin.y, position.x - omc.origin.x);
+                            CURRENTLY_HEALING_BENEFICIARY = false;
+                            sec.effects[INVULNERABLE] = false;
+                            speed = 5;
+                        }
+                    } else { // path to beneficiary and orbit them
+                        const auto& beneficiaryCenter = registry->GetComponent<TransformComponent>(hoc.beneficiaryId).center;
+                        if(!omc.orbiting && glm::distance(position, beneficiaryCenter) > orbitalDistanceFromBeneficiary){
+                            chasePosition(position, beneficiaryCenter, velocity);
+                        } else { // else we have arrived at beneficiary and can orbit
+                            if(!omc.orbiting){
+                                speed = 5;
+                                omc.orbiting = true;
+                                velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
+                                omc.angle = std::atan2(position.y - beneficiaryCenter.y, position.x - beneficiaryCenter.x);
+                                hoc.beneficiaryIsDead = false;
+                                omc.distance = orbitalDistanceFromBeneficiary;
+                            }
+                            if(sec.effects[PARALYZE]){
+                                speed = 40;
+                                omc.orbiting = false;
+                                aidata.state = WALKING;
+                            }
+                            omc.origin = beneficiaryCenter;
+                        }
+                    }
+                } else {
+                    // phases given hp. they start at 40000 hp 
+                    if(hp >= 38000 && hp < 39850){ // pre-phase, just weakened shots
+                        omc.orbiting = true;
+                        velocity.x = velocity.y = 0.0f;
+                        aidata.state = SHOOTING;
+                        if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            aidata.timer1 = time;
+                            AbyssWeakShots(entity, registry, playerPos, aidata.bossType);
+                        }
+                    } else if (hp < 38000){ // gradually adding more stuff as health decreases
+                        aidata.state = SHOOTING;
+                        omc.orbiting = true;
+                        velocity.x = velocity.y = 0.0f;
+                        if(pec.shots == 0){ // hp below 38k, permit their regular shots by updating pec.shots
+                            switch(aidata.bossType){
+                                case AMDUSCIAS: {
+                                    pec.shots = amdusciasNumShots;
+                                } break;
+                                case ASTAROTH: {
+                                    pec.shots = astarothNumShots;
+                                } break;
+                                case ABIGOR: {
+                                    pec.shots = abigorNumShots;
+                                } break;
+                            }
+                            asc.animatedShooting = true;
+                            isShooting = true;
+                            ac.xmin = 4;
+                            ac.numFrames = 2; 
+                            ac.currentFrame = 1;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        }
+                        int secondaryActionInterval = 2000;
+                        if(hp < 3000){
+                            if(!ENTERED_RAGE_PHASE){ // 
+                                ENTERED_RAGE_PHASE = true;
+                                speed = 35;
+                                auto& vitality = entity.GetComponent<HPMPComponent>().activevitality = 0;
+                            }
+                            secondaryActionInterval = 1000;
+                            omc.orbiting = false;
+                            chasePosition(position, playerPos, velocity);
+                        }
+                        if(time >= aidata.timer1 + secondaryActionInterval && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            aidata.timer1 = time;
+                            if(hp < 32000){ // permit boomerang shots
+                                switch(aidata.bossType){
+                                    case AMDUSCIAS:{
+                                        switch(RNG.randomFromRange(0,3)){
+                                            case 0:{
+                                                AbyssBoomerang<QUIET>(entity, registry, playerPos, aidata.bossType);
+                                            } break;
+                                            case 1:{
+                                                AbyssBoomerang<WEAKENED>(entity, registry, playerPos, aidata.bossType);
+                                            } break;
+                                            case 2:{
+                                                AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata.bossType);
+                                            } break;
+                                            case 3:{
+                                                AbyssBoomerang<BLIND>(entity, registry, playerPos, aidata.bossType);
+                                            } break;
+                                        }
+                                    } break;
+                                    case ASTAROTH:{
+                                        AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata.bossType, 6, 360);
+                                    } break;
+                                    case ABIGOR:{
+                                        AbyssBoomerang<ARMORBROKEN>(entity, registry, playerPos, aidata.bossType);
+                                    } break; 
+                                }    
+                            }
+                            if(hp < 26500){ // permit artifacts
+                                // MinionSpawnerComponent.maxMinions = 3;
+                                msc.maxMinions = 5;
+                            }
+                            // permit additional behavior at a lesser frequency
+                            if(hp < 16000 && time >= aidata.timer2 + secondaryActionInterval + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){ 
+                                aidata.timer2 = time;
+                                switch(aidata.bossType){
+                                    case AMDUSCIAS:{ // nut 
+                                        // spawn chasing eye or shoot paralyzing bolt
+                                        if(RNG.randomFromRange(0,4) == 0){
+                                            for(int i = 0; i < 3; i++){
+                                                double distance = RNG.randomFromRange(25.0,125.0);
+                                                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                                                float offsetX = distance * glm::cos(randomAngle); 
+                                                float offsetY = distance * glm::sin(randomAngle);
+                                                glm::vec2 spawnPos = {(center.x + offsetX), (center.y + offsetY)};
+                                                factory->spawnMonster(registry, spawnPos, ABYSSALSTARCHASE);
+                                            }
+                                        } else {
+                                            nutshot(entity, registry, playerPos, aidata.bossType);
+                                        }
+                                    }  break;
+                                    case ASTAROTH:{ // geb
+                                        // bombs at 3 random angles or targeting high damage bolt
+                                        if(RNG.randomBool()){
+                                            for(int i = 0; i < 5; i++){ 
+                                                glm::vec2 spawnPos, spawnPosUnscaled;
+                                                double distance = RNG.randomFromRange(100.0,500.0);
+                                                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                                                float offsetX = distance * glm::cos(randomAngle); 
+                                                float offsetY = distance * glm::sin(randomAngle);
+                                                glm::vec2 target = {(center.x + offsetX), (center.y + offsetY)}; 
+                                                gebBomb(entity, target, registry, aidata.bossType, 80);
+                                            }
+                                        } else {
+                                            gebshot(entity, registry, playerPos, aidata.bossType);
+                                            starShotgun<QUIET>(entity, registry, playerPos, aidata.bossType);
+                                        }
+                                    }  break;
+                                    case ABIGOR:{ // bes 
+                                        // bleeding star or spawn 2-5 brutes
+                                        constexpr std::array<sprites, 2> brutes = {BRUTE0, BRUTE1};
+                                        if(RNG.randomFromRange(0,4) == 0){
+                                            for(int i = 0; i < 3; i++){
+                                                double distance = RNG.randomFromRange(25.0,125.0);
+                                                float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                                                float offsetX = distance * glm::cos(randomAngle); 
+                                                float offsetY = distance * glm::sin(randomAngle);
+                                                glm::vec2 spawnPos = {(center.x + offsetX), (center.y + offsetY)};
+                                                factory->spawnMonster(registry, spawnPos, brutes[RNG.randomFromRange(0,1)]);
+                                            }
+                                        } else {
+                                            starShotgun<BLEEDING>(entity, registry, playerPos, aidata.bossType);
+                                        }
+                                    }  break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // state-machine approach for updating animation/isShooting for if shooting, standing, walking
+
+                if(aidata.state == SHOOTING && (playerInvisible || stunned)){
+                    aidata.state = WALKING;
+                    if(playerInvisible && ENTERED_RAGE_PHASE){
+                        aidata.state = STANDING;
+                    }
+                }
+
+                switch(aidata.state){
+                    case STANDING:{
+                        if(velocity.x != 0.0 && velocity.y != 0.0){
+                            asc.animatedShooting = false;
+                            isShooting = false;
+                            ac.xmin = 0;
+                            ac.numFrames = 1;
+                            velocity = {0.0,0.0};     
+                        }
+                    } break;
+                    case WALKING:{
+                        if(ac.xmin != 0 || (velocity.x == 0.0 && velocity.y == 0.0)){
+                            asc.animatedShooting = false;
+                            isShooting = false;
+                            ac.xmin = 0;
+                        }
+                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+                    } break;
+                    case SHOOTING:{
+                        if(!isShooting){ // detect if first frame of this state
+                            asc.animatedShooting = true;
+                            isShooting = true;
+                            ac.xmin = 4;
+                            ac.numFrames = 2; 
+                            ac.currentFrame = 1;
+                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        }
+                    } break;
+                }
             } break;
         }
         if(!playerInvisible){

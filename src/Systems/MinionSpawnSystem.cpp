@@ -9,7 +9,7 @@ void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){ // monster that spawns minions
         auto& msc = entity.GetComponent<MinionSpawnerComponent>();
-        if(time > msc.timeOfLastRespawn + msc.respawnInterval && (msc.neverSpawnedMinions || !msc.spawnOnlyOnce)){ // spawn minions every msc.respawnInterval MS
+        if(msc.maxMinions > 0 && time > msc.timeOfLastRespawn + msc.respawnInterval && (msc.neverSpawnedMinions || !msc.spawnOnlyOnce)){ // spawn minions every msc.respawnInterval MS
 
             // if this entity is a minion itself, and its parent has died, do not spawn more minions
             if(entity.HasComponent<MinionComponent>()){
@@ -38,8 +38,7 @@ void MinionSpawnSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
             const auto& pt = entity.GetComponent<TransformComponent>();
             glm::vec2 center;
             if(entity.HasComponent<SpriteComponent>()){
-                const auto& ps = entity.GetComponent<SpriteComponent>();
-                center = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+                center = pt.center;
             } else {
                 center = pt.position;
             }

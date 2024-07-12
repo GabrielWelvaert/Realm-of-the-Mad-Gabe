@@ -319,6 +319,7 @@ void AbilitySystem::onAbilityEquip(EquipAbilityEvent& event){
             auto data = itemToSkullData.at(event.itemEnum);
             skull.damage = data.damage;
             skull.radius = data.radius;
+            skull.itemEnum = event.itemEnum;
         } break;
         case PALADIN:{
             auto& seal = player.GetComponent<SealComponent>();

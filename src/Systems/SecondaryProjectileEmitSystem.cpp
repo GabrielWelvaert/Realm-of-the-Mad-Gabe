@@ -21,6 +21,9 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                     const auto& monsterPos = entity.GetComponent<TransformComponent>().position;
                     SPEC.lastEmissionTime = time; 
                     switch(spriteEnum){
+                        case HENCHDEMON0:{
+                            henchmanblueshotgun(entity, playerPos, registry);
+                        } break;
                         case SLIMEGOD:{
                             slimeGodSlow(entity, playerPos, registry);
                         } break;
@@ -58,6 +61,7 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                         case GHOSTARCHER:{
                             bigArrow(entity, playerPos, registry);
                         } break;
+                        case CRUSADER3:
                         case BLUESPIRIT:{
                             MedusaBomb(entity, playerPos, registry, spriteEnum, 35);
                         } break;
@@ -66,6 +70,16 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                         } break;
                         case BOSSCHICKEN:{
                             chicken(entity, playerPos, registry);
+                        } break;
+                        case ABYSSTOWER:{
+                            blackTowerBomb(entity, playerPos, registry, spriteEnum);
+                        } break;
+                        case LEVIATHAN:{
+                            LeviathanShotGun(entity, playerPos, registry);
+                        } break;
+                        case HELLGOLEM:{
+                            blackTowerBomb(entity, playerPos, registry, spriteEnum);
+                            hellgolemshotgun(entity, playerPos, registry);
                         } break;
                     }
                 }
