@@ -12,6 +12,16 @@ void DeathActionSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
         if(registry->entityWasKilledThisFrame(entity)){
             const auto& spriteEnum = entity.GetComponent<DeathActionComponent>().spriteEnum;
             switch(spriteEnum){
+                case DRAGONEGG:{
+                    factory->spawnMonster(registry, transform.position, SMALLDRAGON);
+                    factory->spawnDecoration(registry, transform.position - 4.0f, CRACKEDDRAGONEGG);
+                } break;
+                case SMALLDRAGON:{
+                    factory->spawnMonster(registry, transform.position, MEDIUMDRAGON);
+                } break;
+                case MEDIUMDRAGON:{
+                    factory->spawnMonster(registry, transform.position, LARGEDRAGON);
+                } break;
                 case PENTARACT:{ // spawn loot and kill all eyes
                     for(int i = 0; i < 5; ++i) { // find first open socket for the towerPosition
                         glm::vec2 pos = towerDestination(glm::vec2(transform.position.x + 40.0f, transform.position.y + 80.0f), -90.0f + (72.0f * i), 600.0f); 
@@ -57,6 +67,21 @@ void DeathActionSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
                         glm::vec2 pos = towerDestination(center, -90.0f + ((360.0/3.0) * i), RNG.randomFromRange(0.0,15.0)) - 16.0f;
                         factory->spawnMonster(registry, pos, BLACKSLIMESMALL);
                     }
+                } break;
+                case SIMBA:{
+                    const auto& center = entity.GetComponent<TransformComponent>().center;
+                    factory->spawnMonster(registry, center, SIMBA);
+                } break;
+                case MALPHAS:{
+                    const auto& center = entity.GetComponent<TransformComponent>().center;
+                    factory->spawnMonster(registry, center + 20.0f, MALPHASBABY);
+                    factory->spawnMonster(registry, center - 20.0f, MALPHASBABY);
+                } break;
+                case ABYSSTOWER:{
+                    const auto& t = entity.GetComponent<TransformComponent>();
+                    const auto& s = entity.GetComponent<SpriteComponent>();
+                    glm::vec2 spawnpoint = {(t.position.x + (s.width * t.scale.x / 2) - 20), (t.position.y + (s.height * t.scale.y / 2) - 20) + 64.0f};
+                    factory->spawnPortal(registry, spawnpoint, SPAWNTELEPORT);
                 } break;
             }
         }

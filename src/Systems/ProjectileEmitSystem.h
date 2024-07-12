@@ -23,6 +23,7 @@
 #include "../Components/LinearProjectileComponent.h"
 #include "../Components/isShootingComponent.h"
 #include "../Components/RotationComponent.h"
+#include "../Components/BoomerangComponent.h"
 
 /*
 This system is responsible for emitting projectiles when enough time has passed for successive shot(s) to be fired

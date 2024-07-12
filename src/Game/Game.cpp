@@ -2,7 +2,9 @@
 
 #define SCROLLDELAYMS 100
 #define MS_READ_INPUT 1
-
+#define MAIN_MENU_FPS_LIMIT (1000 / 60) // 60fps
+#define GAME_FPS_LIMIT (1000 / 500) // 500fps
+ 
 int Game::windowWidth = 1000;
 int Game::windowHeight = 750;
 int Game::mapWidth; //in pixels, initialized when loading level
@@ -231,22 +233,24 @@ void Game::ProcessInput(){
                         case SDLK_9:{
                             player.GetComponent<HPMPComponent>().activemp -= 1;
                             // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            // factory->createItemInBag(registry, OREO, lootbag);
-                            // factory->createItemInBag(registry, ADMINSWORD, lootbag);
-                            // factory->createItemInBag(registry, T14STAFF, lootbag);
-                            // factory->createItemInBag(registry, T8SPELL, lootbag);
-                            // factory->createItemInBag(registry, EPSTAFF, lootbag);
-                            // factory->createItemInBag(registry, T14ROBE, lootbag);
-                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
-                            // factory->createItemInBag(registry, VITPOT, lootbag);
+                            const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            factory->createItemInBag(registry, DEFPOT, lootbag);
+                            factory->createItemInBag(registry, RINGOFABIGOR, lootbag);
+                            factory->createItemInBag(registry, TRIPLESCEPTER, lootbag);
+                            factory->createItemInBag(registry, BOOMERANGWAND, lootbag);
+                            factory->createItemInBag(registry, BULWARK, lootbag);
+                            factory->createItemInBag(registry, T14DAGGER, lootbag);
+                            factory->createItemInBag(registry, T14ROBE, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
                         } break;
                         case SDLK_0:{
-                            player.GetComponent<HPMPComponent>().activemp += 1;
-                            // const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
-                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // player.GetComponent<HPMPComponent>().activemp += 1;
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
@@ -258,10 +262,14 @@ void Game::ProcessInput(){
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint - 64.0f, POTCHEST);
-                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // for(int i = 0; i < 20; i++){ // destination positions for spell velocity calculations
+                            //     auto angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(20);
+                            //     glm::vec2 destPos = {playerpos.x + 264 * std::cos(angle), playerpos.y + 264 * std::sin(angle)};
+                            //     factory->spawnMonster(registry, destPos, BARREL);
+                            // }
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            // factory->spawnMonster(registry, spawnpoint, GRANDSPHINX);
+                            eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -281,21 +289,23 @@ void Game::ProcessInput(){
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            factory->spawnMonster(registry, spawnpoint, PENTARACT);
+                            eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
                         } break;
-                        case SDLK_p:{
+                        case SDLK_EQUALS:{
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, CUBEGOD, player.GetId());
-                            eventBus->EmitEvent<StatusEffectEvent>(player, INVISIBLE, eventBus, registry, 100000000);
+                            // factory->spawnMonster(registry, playerPos, MYSTERIOUSCRYSTAL);
+                            // eventBus->EmitEvent<StatusEffectEvent>(player, INVISIBLE, eventBus, registry, 100000000);
+                            eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
                         } break;
                         case SDLK_BACKSPACE:{
-                            // player.GetComponent<StatusEffectComponent>().set(BLIND, 3000);
-                            // player.GetComponent<HPMPComponent>().activehp += 10000;
-                            // player.GetComponent<BaseStatComponent>().xp += 20000;
-                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, SKULLSHRINE, player.GetId());
-                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            player.GetComponent<BaseStatComponent>().xp += 20000;
+                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            registry->GetSystem<StatSystem>().maxStat(player, SPEED);
+                            registry->GetSystem<StatSystem>().maxStat(player, DEXTERITY);
+                            // registry->GetSystem<StatSystem>().maxStat(player, ATTACK);
+                            registry->GetSystem<StatSystem>().maxStat(player, DEFENSE);
+                            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
                         } break;
                         default:
                             break;
@@ -381,6 +391,19 @@ void Game::ProcessInput(){
                     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
                     Setup(false, true, NEXUS, true);
                 } break;
+                case EASTEREGG:{
+                    auto& t = player.GetComponent<TransformComponent>();
+                    t.position.x += 750.0f;
+                    float randomAngle = glm::linearRand(0.0f, 6.2831855f);
+                    float offsetX = 100 * glm::cos(randomAngle); 
+                    float offsetY = 100 * glm::sin(randomAngle);
+                    glm::vec2 dest(t.position.x + offsetX, t.position.y + offsetY);
+                    factory->spawnMonster(registry, dest, SIMBA);
+                } break;
+                case SPAWNTELEPORT:{
+                    auto& t = player.GetComponent<TransformComponent>();
+                    t.position = playerSpawn;
+                } break;
                 default:{ // portal is actually a door to another area (vault, dungeon)
                     Setup(false, false, area);
                 } break;
@@ -410,10 +433,13 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     mapSizeTiles = 750; 
     if(wallTheme == GODLANDS){
         numRooms = 1;
-        w = h = 200;
-    } else {
+        w = h = 200; // genesis room
+    } else if (wallTheme == ABYSS) {
+        numRooms = 50;
+        w = h = 30; // genesis room
+    } else { // necropolis and chicken lair
         numRooms = RNG.randomFromRange(25,35);
-        w = h = RNG.randomFromRange(10,15);
+        w = h = RNG.randomFromRange(10,15); // genesis room
     }
     x = mapSizeTiles / 2;
     y = mapSizeTiles / 2;
@@ -435,7 +461,16 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     // step 2: generate all children rooms
     while(numRoomsCreated < numRooms){
         bool lastRoom = (numRoomsCreated == numRooms - 1);
-        roomSizeTiles = RNG.randomFromRange(9,15);
+        
+        switch(wallTheme){
+            case ABYSS:{
+                roomSizeTiles = RNG.randomFromRange(12,18);
+            } break;
+            default:{
+                roomSizeTiles = RNG.randomFromRange(9,15);
+            } break;
+        }
+        
 
         // 2.1 && 2.2) select room as parent room; initiailize width, height, distance
         int IdOfParentRoom;
@@ -527,18 +562,22 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         if(room.x + room.w > valueOfMaxX){ // furthest east room
             valueOfMaxX = room.x + room.w;
             idOfMaxX = room.id;
+            cardinalRooms.insert_or_assign(EAST, room);
         }
         if(room.x < valueOfMinX){ // furthest west room
             valueOfMinX = room.x;
             idOfMinX = room.id;
+            cardinalRooms.insert_or_assign(WEST, room);
         }
         if(room.y + room.h > valueOfMaxY){ // furthest south room
             valueOfMaxY = room.y + room.h;
             idOfMaxY = room.y + room.h;
+            cardinalRooms.insert_or_assign(SOUTH, room);
         }
         if(room.y < valueOfMinY){ // furthest north room
             valueOfMinY = room.y;
             idOfMinY = room.id;
+            cardinalRooms.insert_or_assign(NORTH, room);
         }
 
         // 2.6) add a hallway to connect child room to parent room
@@ -649,7 +688,7 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         }
     }
 
-    MiniMap(wallTheme, map);
+    MiniMap(wallTheme, map); // calling before we add the walls and ceilings to the map
     // step 6: add walls and ceilings around perimeter of map
     glm::ivec2 endPos = {rooms[idOfMinX].x-1, rooms[idOfMinX].y}; // tile one left of top left tile of top left room's floorarea 
     glm::ivec2 mapItr = endPos; 
@@ -733,12 +772,14 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 for(auto& m: map){m.clear();}
                 map.clear();
                 dungeonRooms.clear();
-                successfulMapGen = GenerateMap(wallTheme, map); //MiniMap called within GenerateMap for generated areas
-                if(map.size() == 0 || 
+                successfulMapGen = GenerateMap(wallTheme, map); // MiniMap called within GenerateMap for generated areas 
+                if(map.size() == 0 || // map size will be 0 if GenerateMap() did not assign a map due to failed gen
                    std::max(map[0].size(), map.size()) * 64 >= rendererMaxTextureDimension ||
                    std::max(map[0].size(), map.size()) > 240){
-                    // map size will be 0 if GenerateMap() did not assign a map due to failed gen
+                    // std::cout << "map was too big! " << '\n';
                     successfulMapGen = false;
+                    minimapfloor.Kill(); // so we dont have multiple mini map entities when we re-gen
+                    registry->Update();
                 }
             }
         }break;
@@ -830,7 +871,11 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 if(wallTheme == CHICKENLAIR && currentCoord.x == 1 && currentCoord.y == 6){ // random floor tile 
                     srcRect.x = RNG.randomFromRange(1,5) * tileSize;
                     // srcRect.y = 6 * tileSize;
-                } else if(wallTheme == UDL  && currentCoord.x == 5 && currentCoord.y == 0){
+                } else if(wallTheme == ABYSS && currentCoord.x == 5 && currentCoord.y == 3){
+                    if(RNG.randomFromRange(0,25) == 20){
+                        srcRect.x += 1 * tileSize; // cracked tile
+                    }
+                } else if(wallTheme == UDL && currentCoord.x == 5 && currentCoord.y == 0 ){
                     if(RNG.randomFromRange(0,25) == 20){
                         srcRect.x += 1 * tileSize; // cracked tile
                     }
@@ -851,7 +896,7 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
                 // if floor is grass, 1/16 chance to add render decoration (like flowers) on top of it
-                if(srcRect.x == grass.x && srcRect.y == grass.y){
+                if(srcRect.x == grass.x && srcRect.y == grass.y && wallTheme != VAULT){
                     if(RNG.randomFromRange(1,16) == 1){
                         SDL_SetRenderTarget(renderer, nullptr);
                         SDL_SetRenderTarget(renderer, bigFloorTexture);
@@ -1009,7 +1054,15 @@ void Game::PopulateItemIconsInAssetStore(){
                     auto pec = itemEnumToPECdata.at(itemEnum);
                     std::string damage = std::to_string(pec.minDamage) + " - " + std::to_string(pec.maxDamage);
                     std::string shots = std::to_string(pec.shots);
-                    std::string range = std::to_string(static_cast<float>(pec.duration) * static_cast<float>(pec.projectileSpeed) / 64 / 1000);
+                    std::string range;
+                    switch(itemEnum){
+                        case BOOMERANGWAND:{
+                            range = std::to_string(static_cast<float>(pec.duration/2) * static_cast<float>(pec.projectileSpeed) / 64 / 1000);
+                        } break;
+                        default:{
+                            range = std::to_string(static_cast<float>(pec.duration) * static_cast<float>(pec.projectileSpeed) / 64 / 1000);
+                        } break;
+                    }
                     if(range.size() > 4){ // if its more than xx.x, trim it down
                         while(range.size() > 4){
                             range.pop_back();
@@ -1140,6 +1193,11 @@ void Game::PopulateItemIconsInAssetStore(){
                     auto skullData = itemToSkullData.at(itemEnum);
                     auto abilityData = itemEnumToAbilityData.at(itemEnum);
                     std::string onUse = "On Use: Steals HP from enemies";
+                    switch(itemEnum){
+                        case ELECTRICSKULL:{
+                            onUse += ", inflicts slowed for 4 seconds";
+                        } break;
+                    }
                     std::string damage = "Damage: " + std::to_string(skullData.damage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     std::string radius = std::to_string(skullData.radius);
@@ -1340,6 +1398,9 @@ void Game::PopulateAssetStore(){
     assetStore->AddTexture(renderer, CHARS16X16DENCOUNTERS, "./assets/images/chars16x16dEncounters.png");
     assetStore->AddTexture(renderer, CHARS16X16DENCOUNTERS2, "./assets/images/chars16x16dEncounters2.png");
     assetStore->AddTexture(renderer, LOSTHALLS16X16, "./assets/images/lostHallsChars16x16.png");
+    assetStore->AddTexture(renderer, CHARS8X8RPETS1, "./assets/images/chars8x8rPets1.png");
+    assetStore->AddTexture(renderer, CHARS8X8RMID, "./assets/images/chars8x8rMid.png");
+    assetStore->AddTexture(renderer, CHARS8X8RHIGH, "./assets/images/chars8x8rHigh.png");
 
     assetStore->AddSound(MAGICSHOOT, "./assets/sounds/weapon_sounds/magicShoot.wav");
     assetStore->AddSound(ARROWSHOOT, "./assets/sounds/weapon_sounds/arrowShoot.wav");
@@ -1495,6 +1556,7 @@ void Game::PopulateAssetStore(){
     assetStore->AddSound(MNOVA, "./assets/sounds/events/Magic_nova.wav");
     assetStore->AddSound(VOIDHIT, "./assets/sounds/events/Wand_of_dark_magic.wav");
 
+
     assetStore->AddFont("damagefont", "./assets/fonts/myriadprosemibold.ttf", 32);
     assetStore->AddFont("namefont","./assets/fonts/myriadprosemibold.ttf", 26);
     assetStore->AddFont("namefonttiny","./assets/fonts/myriadprosemibold.ttf", 12);
@@ -1555,7 +1617,7 @@ void Game::PopulateAssetStore(){
     SDL_Surface* ttfSurface;
     SDL_Texture* ttfTextureFromSurface;
     SDL_Rect dstRect, srcRect;
-    std::vector<std::string> portalTitles = {"Chicken Lair", "Vault", "Nexus", "Change Name", "Change Character", "Castle", "Gordon's Chamber", "???", "GodLands"};
+    std::vector<std::string> portalTitles = {"Chicken Den", "Vault", "Nexus", "Change Name", "Change Character", "Undead Lair", "Gordon's Chamber", "???", "God Lands", "Abyss", "", "Spawn Room"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1575,6 +1637,8 @@ void Game::PopulateAssetStore(){
             buttonText = "Click";
         } else if (title == "???"){
             buttonText = "Locked";
+        } else if (title == "" || title == "Spawn Room") {
+            buttonText = "Teleport";
         } else {
             buttonText = "Enter";
         }
@@ -1811,11 +1875,11 @@ void Game::MiniMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& ma
         xpos = -1;
     }
     assetStore->AddTexture(renderer, MINIMAPFLOOR, miniMapFloor);
-    Entity tempMiniMap = registry->CreateEntity();
-    tempMiniMap.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
-    tempMiniMap.AddComponent<SpriteComponent>(MINIMAPFLOOR, 240, 240, 11, 0, 0, true); 
+    minimapfloor = registry->CreateEntity();
+    minimapfloor.AddComponent<TransformComponent>(glm::vec2(755,5),glm::vec2(1.0,1.0));
+    minimapfloor.AddComponent<SpriteComponent>(MINIMAPFLOOR, 240, 240, 11, 0, 0, true); 
     SDL_SetRenderTarget(renderer, NULL);
-    idOfMiniMapEntity = tempMiniMap.GetId();
+    idOfMiniMapEntity = minimapfloor.GetId();
 }
 
 void Game::LoadGui(){ 
@@ -2175,6 +2239,8 @@ void Game::PopulateRegistry(){
     registry->AddSystem<InvisibleBossAISystem>();
     registry->AddSystem<randomChaseMinionAISystem>();
     registry->AddSystem<DeathActionSystem>();
+    registry->AddSystem<HealOtherSystem>();
+    registry->AddSystem<BoomerangSystem>();
     if(debug){
         registry->AddSystem<RenderMouseBoxSystem>();
         registry->AddSystem<RenderColliderSystem>();
@@ -2621,7 +2687,7 @@ void Game::MainMenus(bool changeChar){ // could take bool args to load just menu
 
         // moving the background. must enforce FPS limit otherwise deltatime is near 0 due to FPS around 7000
         double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
-        int timeToWait = MILLISECONDS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame); 
+        int timeToWait = MAIN_MENU_FPS_LIMIT - (SDL_GetTicks() - millisecsPreviousFrame); 
         if (timeToWait > 0){ // need to enforce FPS limit of 60 because it runs too fast
             SDL_Delay(timeToWait); 
             deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
@@ -2655,7 +2721,6 @@ void Game::PopulateEventBus(){
     registry->GetSystem<DistanceToPlayerSystem>().SubscribeToEvents(eventBus);
 }
 
-
 void Game::SpawnAreaEntities(wallTheme area){
     bosses.clear();
     switch(area){
@@ -2663,6 +2728,7 @@ void Game::SpawnAreaEntities(wallTheme area){
             factory->spawnVaultChests(registry, characterManager);
             factory->spawnPortal(registry, glm::vec2(600, 700), NEXUS);
             factory->spawnPortal(registry, glm::vec2(900, 700), NEXUS);
+            factory->spawnPortal(registry, glm::vec2(750, 800), EASTEREGG);
         } break;
         case NEXUS: {
             const auto& playerLevel = player.GetComponent<BaseStatComponent>().level;
@@ -2680,17 +2746,19 @@ void Game::SpawnAreaEntities(wallTheme area){
             } else {
                 factory->spawnPortal(registry, glm::vec2(900,600), GODLANDS); // todo spawn gordon's lair
             }
-            // factory->spawnPortal(registry, glm::vec2(750,1350), GODLANDS);
+            factory->spawnPortal(registry, glm::vec2(750,1350), ABYSS);
+            factory->spawnAdminLootInNexus(registry);
+
         } break;
         case GORDONSLAIRWALLTHEME:{
             Entity boss = factory->spawnMonster(registry, glm::vec2(848,970), GORDON);
             bosses.push_back({boss.GetId(), boss.GetCreationId()});
         } break;
         case GODLANDS:{
-            factory->spawnGodLandsSpawner(registry, bossRoom, 50);
+            factory->spawnGodLandsSpawner(registry, bossRoom, 50); // spawn the invisible entity that spawns gods
         } break;
         default:{ // all other areas assumed to have a boss
-            factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId, bosses); // bosses are spawned in this function
+            factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId, bosses, cardinalRooms); // bosses are spawned in this function
         } break;
     }
 }
@@ -2761,7 +2829,12 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
 void Game::Update(){
     
     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;    
-    millisecsPreviousFrame = SDL_GetTicks(); 
+    // int timeToWait = GAME_FPS_LIMIT - (SDL_GetTicks() - millisecsPreviousFrame); 
+    // if(timeToWait > 0 && timeToWait <= GAME_FPS_LIMIT){ // enforcing fps limit
+    //     SDL_Delay(timeToWait); 
+    //     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;   
+    // }
+    millisecsPreviousFrame = SDL_GetTicks(); // must be recorded after calculating deltaTime and optionally SDL_Delay()
     if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
         deltaTime = 0.0;
         keyboardinput->movementKeys.reset();
@@ -2778,7 +2851,7 @@ void Game::Update(){
     registry->GetSystem<ChaseAISystem>().Update(player, playerCenter);
     registry->GetSystem<NeutralAISystem>().Update(player, playerCenter);
     registry->GetSystem<TrapAISystem>().Update(player, assetStore, playerCenter);
-    registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom, playerCenter);
+    registry->GetSystem<BossAISystem>().Update(player, assetStore, registry, factory, roomShut, camera, bossRoom, playerCenter, playerSpawn);
     registry->GetSystem<InvisibleBossAISystem>().Update(player, registry, factory, bossRoom, playerCenter);
     registry->GetSystem<AnimatedChaseAISystem>().Update(player, playerCenter);
     registry->GetSystem<AnimatedNeutralAISystem>().Update(player, playerCenter);
@@ -2786,7 +2859,9 @@ void Game::Update(){
     registry->GetSystem<OrbitShootMinionAISystem>().Update(player, registry, playerCenter);
     registry->GetSystem<StandShootMinionAISystem>().Update(player, registry, playerCenter);
     registry->GetSystem<randomChaseMinionAISystem>().Update(player, registry, playerCenter);
+    registry->GetSystem<PassiveAISystem>().Update(playerCenter);
     /*AI updates must occur before movement*/
+    registry->GetSystem<BoomerangSystem>().Update();
     registry->GetSystem<MovementSystem>().Update(deltaTime, registry, playerCenter);
     registry->GetSystem<ProjectileMovementSystem>().Update(deltaTime, registry);
     registry->GetSystem<OscillatingProjectileMovementSystem>().UpdateSimulatedPositions(deltaTime);
@@ -2800,6 +2875,7 @@ void Game::Update(){
     registry->GetSystem<SecondaryProjectileEmitSystem>().Update(t.position, registry); // must go before ProjectileEmitSystem // these dont need playerCenter, they correct for this already
     registry->GetSystem<ProjectileEmitSystem>().Update(registry, camera, Game::mouseX, Game::mouseY, t.position, assetStore);
     registry->GetSystem<ProjectileLifeCycleSystem>().Update();
+    registry->GetSystem<HealOtherSystem>().Update(registry, factory);
     registry->GetSystem<DamageSystem>().Update(deltaTime, player);
     registry->GetSystem<DeathActionSystem>().Update(factory, registry, assetStore, bosses);
     registry->GetSystem<UpdateDisplayStatTextSystem>().Update(Game::mouseX, Game::mouseY, player, assetStore, renderer, eventBus);

@@ -31,8 +31,12 @@ void ParabolicMovementSystem::Update(Entity player, const double& deltaTime,
             switch(pmc.identifier){ // what happens when this entity finishes its path of travel
                 case PARABOLIC_MEDUSA_AOE_BOMB:{ // ex, medusa bomb, hitboxes exist for 1 frame only 
                     eventBus->EmitEvent<AOEBombEvent>(MEDUSA, player, entity, position, 192.0, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager);
-                    factory->spawnAOEParticles(registry, position, 192.0);
+                    factory->spawnAOEParticles(registry, position, 192.0, RED);
 ;                } break;
+                case PARABOLIC_BLACK_AOE_BOMB:{
+                    eventBus->EmitEvent<AOEBombEvent>(ABYSSTOWER, player, entity, position, 192.0, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager);
+                    factory->spawnAOEParticles(registry, position, 192.0, BLACK);
+                } break;
                 case PARABOLIC_TRAP:{ // ex huntress trap, spawn lingering hitbox. not implemented
                 } break;
                 case PARABOLIC_BULLET:{ // don't do anything, entity was a real bullet!  

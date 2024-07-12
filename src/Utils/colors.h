@@ -22,5 +22,6 @@ static const SDL_Color miniMapPlayerBlue = {4,4,252};
 static const SDL_Color gordonLairFloor = {50,74,101};
 static const SDL_Color hpbarcolor = {239,68,46};
 static const SDL_Color godlandsfloor = {50,50,50};
+static const SDL_Color abyssfloor = {112,28,32};
 
 #endif

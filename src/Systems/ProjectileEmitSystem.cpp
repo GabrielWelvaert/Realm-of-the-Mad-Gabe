@@ -51,6 +51,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                     bool oscillates = PEC.PECbools[OSCILLATES];
                     bool rotates = PEC.PECbools[ROTATES];
                     bool ignoresDefense = PEC.PECbools[IGNORESDEFENSE];
+                    bool boomerang = PEC.PECbools[BOOMERANG];
                     auto spritewidth = PEC.spritesrcRect.w;
                     auto spriteheight = PEC.spritesrcRect.h;
                     auto projSpawnX = transform.position.x + ((parentSprite.width * transform.scale.x) / 2) - spritewidth * projectilescale / 2; 
@@ -107,6 +108,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                             projectile.AddComponent<LinearProjectileComponent>();
                         }
                         if(rotates){projectile.AddComponent<RotationComponent>();}
+                        if(boomerang){projectile.AddComponent<BoomerangComponent>(duration/2);}
                         projectile.Group(PROJECTILE);
                         numShotsEmitted++;
                         if(shots == 1){ // only one shot just shoot and origin and exit
@@ -131,6 +133,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                             projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.emitterSprite, inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, ignoresDefense);
                             projectile.AddComponent<LinearProjectileComponent>(); // OSCILLATING SHOTS MAY ONLY EXIST AS 1 OR 2 SHOTS; IT SHOULD NEVER HAPPEN HERE!
                             if(rotates){projectile.AddComponent<RotationComponent>();}
+                            if(boomerang){projectile.AddComponent<BoomerangComponent>(duration/2);}
                             projectile.Group(PROJECTILE);
                             numShotsEmitted++;
                             
@@ -145,6 +148,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                             projectile.AddComponent<ProjectileComponent>(damage, duration, piercing, entity, parentGroupEnumInt, PEC.emitterSprite, inflictsStatusEffect, PEC.statusEffect, PEC.durationMS, ignoresDefense);
                             projectile.AddComponent<LinearProjectileComponent>(); // OSCILLATING SHOTS MAY ONLY EXIST AS 1 OR 2 SHOTS; IT SHOULD NEVER HAPPEN HERE!
                             if(rotates){projectile.AddComponent<RotationComponent>();}
+                            if(boomerang){projectile.AddComponent<BoomerangComponent>(duration/2);}
                             projectile.Group(PROJECTILE);
                             numShotsEmitted++;
                         }
@@ -168,6 +172,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                                 projectile.AddComponent<LinearProjectileComponent>();
                             }
                             if(rotates){projectile.AddComponent<RotationComponent>();}
+                            if(boomerang){projectile.AddComponent<BoomerangComponent>(duration/2);}
                             projectile.Group(PROJECTILE);
                             numShotsEmitted++;
 
@@ -185,6 +190,7 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                                 projectile.AddComponent<LinearProjectileComponent>();
                             }
                             if(rotates){projectile.AddComponent<RotationComponent>();}
+                            if(boomerang){projectile.AddComponent<BoomerangComponent>(duration/2);}
                             projectile.Group(PROJECTILE);
                             numShotsEmitted++;
                         }

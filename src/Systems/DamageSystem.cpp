@@ -15,7 +15,9 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     auto& victimHPMPComponent = event.victim.GetComponent<HPMPComponent>();
     auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
     const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
-    const auto& invulnerable = event.victim.GetComponent<StatusEffectComponent>().effects[INVULNERABLE];
+    const auto& effects = event.victim.GetComponent<StatusEffectComponent>().effects;
+    const auto& invulnerable = effects[INVULNERABLE];
+    const auto& armorbroken = effects[ARMORBROKEN];
     soundEnums hitSoundId,deathSoundId;
     groups groupOfVictim = event.registry->IdToGroup(event.victim.GetId());
     unsigned short realdamage = projectileComponent.damage; // local copy of damage
@@ -40,7 +42,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     // defense & damage calculation
     if(invulnerable){
         realdamage = 0; // only case where 0 damage is permitted is when entity is invulnerable
-    } else if(!projectileComponent.ignoresDefense){ // armor piercing shots skip this logic to do flat damage
+    } else if(!projectileComponent.ignoresDefense && !armorbroken){ // armor piercing shots skip this logic to do flat damage
         unsigned short projectileBaseDamage = realdamage;
         if(projectileBaseDamage >= victimHPMPComponent.activedefense){
             realdamage = projectileBaseDamage - victimHPMPComponent.activedefense;
@@ -72,7 +74,13 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     if(victimHPMPComponent.activehp >= 0){ // victim hit but not dead (player or monster)
         event.assetStore->PlaySound(hitSoundId);
         if(realdamage > 0){
-            displayDamgeText(event,victimPosition,realdamage);
+            Entity dmgText = event.registry->CreateEntity();
+            if(projectileComponent.ignoresDefense || armorbroken){
+                dmgText.AddComponent<TextLabelComponent>("-" + std::to_string(realdamage),"damagefont",armorPiercePurple,false,350,event.victim.GetId(),event.victim.GetCreationId());
+            } else {
+                dmgText.AddComponent<TextLabelComponent>("-" + std::to_string(realdamage),"damagefont",damagered,false,350,event.victim.GetId(),event.victim.GetCreationId());
+            }
+            dmgText.AddComponent<TransformComponent>(victimPosition);
             if(event.skullTracker){
                 (*event.skullTracker) += realdamage;
             }

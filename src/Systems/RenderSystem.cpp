@@ -63,7 +63,7 @@ void RenderSystem::RenderVeils(SDL_Renderer* renderer, Entity player, std::uniqu
         SDL_RenderCopyEx(renderer,assetStore->GetTexture(INVENTORYICONS),&veilMaskSrc,&veilMaskDst,0.0,NULL,SDL_FLIP_NONE); // cover veil corners to match iventory slot's curved edges
     
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0,0,0,128); 
+        SDL_SetRenderDrawColor(renderer, 0,0,0,64); 
         int w = static_cast<float>(ac.mpRequired) / hpmp.maxmp * 225;
         rect = {765 + w, 347,2,20};
         SDL_RenderFillRect(renderer, &rect);

@@ -8,6 +8,9 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<BossAIComponent>(PENTARACT, spawnpoint, 0,0,0);
             enemy.AddComponent<InvisibleBossComponent>();
         } break;
+        case ABYSSALSTARPARENT:{
+            enemy.AddComponent<SpriteComponent>(LOFICHAR, 8,8,SDL_Rect({0,8*22,8,8}),4,false,false); // invisible sprite 
+        } break;
         default:{
             enemy.AddComponent<HPMPComponent>(spriteEnum);
             enemy.AddComponent<SpriteComponent>(spriteEnum);
@@ -22,6 +25,10 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 
     // very few monsters will requrie non-default (6.0) scaling
     switch(spriteEnum){
+        case AMDUSCIAS:
+        case ASTAROTH:
+        case ABIGOR:
+        case ABYSSTOWER:
         case BROWNSLIMELARGE:
         case BLACKSLIMELARGE:
         case REAPER:
@@ -37,12 +44,46 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
         case CYANCUBE: { 
             enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(5.0));
         } break;
+        case MALPHASBABY:
+        case TRIPDEMON:{
+            enemy.AddComponent<TransformComponent>(spawnpoint, glm::vec2(4.0));
+        } break;
         default:{ 
             enemy.AddComponent<TransformComponent>(spawnpoint); // default = 6.0
         } break;
     }
 
-    if(towers.find(spriteEnum) != towers.end()){
+    if(healsOther.find(spriteEnum) != healsOther.end()){
+        int interval, amount;
+        switch(spriteEnum){
+            case TRIPDEMON:{
+                interval = RNG.randomFromRange(2500,5000);
+                amount = RNG.randomFromRange(100,500);
+            } break;
+            case CRUSADER4:{
+                interval = RNG.randomFromRange(1000,2000);
+                amount = RNG.randomFromRange(50,200);
+            } break;
+            case MYSTERIOUSCRYSTAL:
+            case REAPER:{
+                interval = 1000;
+                amount = 50;
+            } break;
+            case AMDUSCIAS:
+            case ASTAROTH:
+            case ABIGOR:{
+                interval = 1000;
+                amount = 200;
+            } break;
+        } 
+        if(parentId == -1){
+            enemy.AddComponent<HealOtherComponent>(enemy.GetId(), registry->GetCreationIdFromEntityId(enemy.GetId()), interval, amount);
+        } else {
+            enemy.AddComponent<HealOtherComponent>(parentId, registry->GetCreationIdFromEntityId(parentId), interval, amount);    
+        }
+    }
+
+    if(towers.find(spriteEnum) != towers.end()){ // towers dont flip their sprites, ever
         enemy.AddComponent<TowerComponent>();
     }
 
@@ -76,6 +117,9 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 
     enemyCategory enemyCat = spriteToEnemyCategory.at(spriteEnum);
     switch(enemyCat){
+        case INVISIBLEENEMY:{
+            return enemy;
+        } break;
         case RANDOMCHASEMINION:{
             enemy.AddComponent<isShootingComponent>();
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
@@ -83,6 +127,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<MinionComponent>(parentId, registry->GetCreationIdFromEntityId(parentId), spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
             switch(spriteEnum){
+                case TRIPDEMON:
                 case REAPER:
                 case HORRIDREAPER1:
                 case HORRIDREAPER2:{
@@ -90,6 +135,11 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
                     enemy.AddComponent<AnimationComponent>(spriteEnum);
                 } break;
             }
+        } break;
+        case PASSIVE:{
+            enemy.AddComponent<PassiveAIComponent>(1000);
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimationComponent>(1,3);
         } break;
         case NEUTRAL:{
             enemy.AddComponent<isShootingComponent>();
@@ -123,7 +173,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<isShootingComponent>();
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
         } break;
-        case KEY:{ // keys are not minion-like because they dont shoot or anything
+        case KEY:{ // keys are a legacy monster category
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
         } break;
@@ -182,7 +232,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
             enemy.AddComponent<RidigBodyComponent>();
             enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
-            enemy.AddComponent<BossAIComponent>(GORDON, spawnpoint, 45000, 10000, 2000);
+            enemy.AddComponent<BossAIComponent>(GORDON, spawnpoint, 35000, 10000, 2000);
             auto& sec = enemy.GetComponent<StatusEffectComponent>();
             sec.effects[INVULNERABLE] = true;
             sec.endTimes[INVULNERABLE] = 0-1;
@@ -211,6 +261,54 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             enemy.AddComponent<BossAIComponent>(GRANDSPHINX, spawnpoint, 0, 0, 0);
             enemy.AddComponent<isShootingComponent>();
         } break;
+        case ASTAROTHAI:{
+            enemy.AddComponent<OrbitalMovementComponent>(400.0f, false, 2.09f);
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(spriteEnum, spawnpoint, 0, 0, 0);
+            enemy.AddComponent<isShootingComponent>();
+            enemy.GetComponent<SpeedStatComponent>().activespeed = spriteEnumToStatData.at(spriteEnum).activespeed; // override random small change
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+        } break;
+        case AMDUSCIASAI:{
+            enemy.AddComponent<OrbitalMovementComponent>(400.0f, false, 2.09f * 2.0f);
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(spriteEnum, spawnpoint, 0, 0, 0);
+            enemy.AddComponent<isShootingComponent>();
+            enemy.GetComponent<SpeedStatComponent>().activespeed = spriteEnumToStatData.at(spriteEnum).activespeed; // override random small change
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+        } break;
+        case ABIGORAI:{
+            enemy.AddComponent<OrbitalMovementComponent>(400.0f, false, 2.09f * 3.0f);
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(spriteEnum, spawnpoint, 0, 0, 0);
+            enemy.AddComponent<isShootingComponent>();
+            enemy.GetComponent<SpeedStatComponent>().activespeed = spriteEnumToStatData.at(spriteEnum).activespeed; // override random small change
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+        } break;
     }
 
     return enemy;
@@ -236,6 +334,10 @@ void Factory::spawnDecoration(std::unique_ptr<Registry>& registry, const glm::ve
             decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,2,0,8,false);
             decoration.AddComponent<TransformComponent>(spawnpoint);
         } break;
+        case CRACKEDDRAGONEGG:{
+            decoration.AddComponent<SpriteComponent>(LOFICHAR,8,8,4,8*8,8*14,false);
+            decoration.AddComponent<TransformComponent>(spawnpoint);
+        } break;
     }
 }
 
@@ -251,9 +353,17 @@ Entity Factory::spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const 
     return spawner;
 }
 
-void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius){
+void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius, colors color){
     // these particles will need their own system & component for movement & elimintaion
-    const SDL_Rect redsquare = {0,8*5,8,8};
+    SDL_Rect square = {0,8*5,8,8};
+    switch(color){
+        case RED:{
+            square = {0,8*5,8,8};
+        } break;
+        case BLACK:{
+            square = {8*2,8*4,8,8};   
+        } break;
+    }
     glm::vec2 velocity;
     glm::vec2 spawnPointCenter = {spawnpoint.x + 20, spawnpoint.y + 20};
     auto time = SDL_GetTicks();
@@ -262,7 +372,7 @@ void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::
         glm::vec2 destPos = {spawnPointCenter.x + 5 * std::cos(particleAngles[i]), spawnPointCenter.y + 5 * std::sin(particleAngles[i])};
         float rotationDegrees = getRotationFromCoordiante(2000, spawnPointCenter.x, spawnPointCenter.y, destPos.x, destPos.y, velocity);
         particle.AddComponent<RidigBodyComponent>(velocity);
-        particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,redsquare,3,false,false); // ground particle should be below monsters, so zaxis = 3
+        particle.AddComponent<SpriteComponent>(LOFIOBJ, 2,2,square,3,false,false); // ground particle should be below monsters, so zaxis = 3
         particle.AddComponent<TransformComponent>(glm::vec2(spawnPointCenter.x, spawnPointCenter.y), glm::vec2(5.0,5.0), rotationDegrees);
         float timeToReachDestination = radius / glm::length(velocity) * 1000.0f;
         particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
@@ -305,8 +415,23 @@ void Factory::spawnLinearParticle(std::unique_ptr<Registry>& registry, const glm
     particle.AddComponent<ParticleComponent>(time + timeToReachDestination);
 }
 
+void Factory::spawnHealOtherPartiles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint){
+    constexpr int numParticles = 10;
+    const SDL_Rect pinksquare = {8*3,8*4,8,8};
+    constexpr int spriteDimension = 2;
+    glm::vec2 step = (endpoint - spawnpoint) / static_cast<float>(numParticles - 1);
+    Entity particle;
+    for(int i = 0; i < numParticles; i++){
+        particle = registry->CreateEntity();
+        particle.AddComponent<RidigBodyComponent>();
+        particle.AddComponent<SpriteComponent>(LOFIOBJ, spriteDimension,spriteDimension,pinksquare,5,false,false); 
+        particle.AddComponent<TransformComponent>(spawnpoint + (step * static_cast<float>(i)) - ((10.0f * spriteDimension)/2), glm::vec2(10.0f));
+        particle.AddComponent<ParticleComponent>(0-1, true);
+    }
+}
+
 // spawns 10 particles along path of travel
-Entity Factory::spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint, int damage){
+Entity Factory::spawnScepterParticles(Entity player, std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint, int damage){
     constexpr int numParticles = 10;
     const SDL_Rect pinksquare = {8*1,8*5,8,8};
     constexpr float startingScale = 10.0f;
@@ -327,7 +452,7 @@ Entity Factory::spawnScepterParticles(Entity player, std::unique_ptr<Registry>& 
     return particle;
 }
 
-void Factory::spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2 endpoint){
+void Factory::spawnScepterFailParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const glm::vec2& endpoint){
     constexpr int numParticles = 20;
     // constexpr float angleOffset = glm::radians(10.0f); // 10 degrees in radians
     constexpr float distance = 500.0f; // static distance of 1000 units
@@ -352,23 +477,88 @@ void Factory::spawnScepterFailParticles(std::unique_ptr<Registry>& registry, con
     }
 }
 
-void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses){
+void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, std::vector<room>& dungeonRooms, wallTheme dungeonType, int bossRoomId, std::vector<BossIds>& bosses, std::map<cardinalDirection, room>& cardinalRooms){
     bool spawnedTroom = false;
+    int denominatorTRoom;
+    std::unordered_set<int> cardinalRoomIds;
+    switch(dungeonType){
+        case ABYSS:{
+            denominatorTRoom = 400;
+            for(auto& pair: cardinalRooms){
+                cardinalRoomIds.insert(pair.second.id);
+            }
+        } break;
+        default:{
+            denominatorTRoom = 250;
+        } break;
+    }
     for(const auto& room: dungeonRooms){
+        glm::vec2 roomCenter = glm::vec2(((room.x + (room.w / 2)) * 64), ((room.y + (room.h / 2)) * 64));
         if(room.id == 0){ // spawn room
+            if(dungeonType == ABYSS){ // bosses spawn in spawn room of abyss
+                constexpr float distance = 350.0f;
+                constexpr std::array<sprites, 3> bossdemons = {ASTAROTH, AMDUSCIAS, ABIGOR};
+                std::vector<Entity> abyssBosses; // will be {astaroth, amduscias, abigor}
+                float angleRadians = 2.09f;
+                for(int i = 0; i < 3; i++){
+                    glm::vec2 spawnPos((roomCenter.x + distance * glm::cos(angleRadians)) - 124.0f, (roomCenter.y + distance * glm::sin(angleRadians)) - 64.0f);
+                    Entity boss = spawnMonster(registry, spawnPos, bossdemons[i]);
+                    abyssBosses.push_back(boss);
+                    bosses.push_back({boss.GetId(), boss.GetCreationId()});
+                    if(i == 2){ // abigor spawns to the right of player, flip his sprite
+                        auto& flip = boss.GetComponent<SpriteComponent>().flip;
+                        flip = SDL_FLIP_HORIZONTAL;
+                    }
+                    angleRadians += 2.09f;
+                }
+                auto& astaroth = abyssBosses[0];
+                auto& amduscias = abyssBosses[1];
+                auto& abigor = abyssBosses[2];
+                auto& astarothHOC = astaroth.GetComponent<HealOtherComponent>();
+                auto& amdusciasHOC = amduscias.GetComponent<HealOtherComponent>();
+                auto& abigorHOC = abigor.GetComponent<HealOtherComponent>();
+                astarothHOC.beneficiaryId = amduscias.GetId(); // astaroth heals amduscias
+                astarothHOC.beneficiaryCreationId = amduscias.GetCreationId();
+                astarothHOC.beneficiaryIsDead = true;
+                amdusciasHOC.beneficiaryId = abigor.GetId(); // amduscias heals abigor
+                amdusciasHOC.beneficiaryCreationId = abigor.GetCreationId();
+                amdusciasHOC.beneficiaryIsDead = true;
+                abigorHOC.beneficiaryId = astaroth.GetId(); // abigor heals astaroth
+                abigorHOC.beneficiaryCreationId = astaroth.GetCreationId();
+                abigorHOC.beneficiaryIsDead = true;
+                auto& astarothBAI = astaroth.GetComponent<BossAIComponent>();
+                astarothBAI.idKeyOne = amduscias.GetId();
+                astarothBAI.cIdKeyOne = amduscias.GetCreationId();
+                astarothBAI.idKeyTwo = abigor.GetId();
+                astarothBAI.cIdKeyTwo = abigor.GetCreationId();
+                auto& amdusciasBAI = amduscias.GetComponent<BossAIComponent>();
+                amdusciasBAI.idKeyOne = abigor.GetId();
+                amdusciasBAI.cIdKeyOne = abigor.GetCreationId();
+                amdusciasBAI.idKeyTwo = astaroth.GetId();
+                amdusciasBAI.cIdKeyTwo = astaroth.GetCreationId();
+                auto& abigorBAI = abigor.GetComponent<BossAIComponent>();
+                abigorBAI.idKeyOne = astaroth.GetId();
+                abigorBAI.cIdKeyOne = astaroth.GetCreationId();
+                abigorBAI.idKeyTwo = amduscias.GetId();
+                abigorBAI.cIdKeyTwo = amduscias.GetCreationId();
+
+            }
             continue;
-        } else if(room.id == bossRoomId){ // spawn boss in boss room
-            glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
+        } else if(room.id == bossRoomId && dungeonType != ABYSS){ // spawn boss in boss room
             switch(dungeonType){
                 case CHICKENLAIR:{
-                    Entity boss = spawnMonster(registry, spawnPos, BOSSCHICKEN);
+                    Entity boss = spawnMonster(registry, roomCenter - 48.0f, BOSSCHICKEN);
                     bosses.push_back({boss.GetId(), boss.GetCreationId()});
                 } break;
                 case UDL:{
-                    Entity boss = spawnMonster(registry, spawnPos, ARCMAGE);          
+                    Entity boss = spawnMonster(registry, roomCenter - 48.0f, ARCMAGE);          
                     bosses.push_back({boss.GetId(), boss.GetCreationId()});
-                } 
+                } break;
             }
+            continue;
+        } else if(dungeonType == ABYSS && cardinalRoomIds.find(room.id) != cardinalRoomIds.end()){ // corner room for towers
+            Entity boss = spawnMonster(registry, roomCenter - 64.0f, ABYSSTOWER);
+            bosses.push_back({boss.GetId(), boss.GetCreationId()});
             continue;
         }
         // else, populate this room with monsters!
@@ -379,16 +569,14 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         const auto& possibleRoomSpawns = wallThemeToMonsterSpawns.at(dungeonType); // the table that had possible room spawns; ex tiny red and white chickens together
         const auto& selectedRoomSpawns = possibleRoomSpawns[RNG.randomFromRange(0, possibleRoomSpawns.size()-1)]; // select random from wallThemeToMonsterSpawns
         int roomQuantifier = (room.w + room.h) / 4; // ex 10x10 room will spawn 10 monsters per spawn type in selectedRoomSpawns
-        if(!spawnedTroom && RNG.randomFromRange(1,250) == 1){ // each room has 1/500 chance to be a treasure room; around 10% for a dugeon w/ 30 rooms to have a treasure room
-            glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-24, ((room.y + (room.h / 2)) * 64)-24);
-            spawnTreasureRoomChest(registry, spawnPos, dungeonType);
+        if(!spawnedTroom && RNG.randomFromRange(1, denominatorTRoom) == 1){ // each room has 1/250 chance to be a treasure room; around 10% for a dugeon w/ 30 rooms to have a treasure room
+            spawnTreasureRoomChest(registry, roomCenter - 24.0f, dungeonType);
             spawnedTroom = true;
         } else {
             for(const auto& enemySpawn: selectedRoomSpawns){
                 std::unordered_set<glm::vec2, Vec2Hash> usedSpawnPoints;
                 if(enemySpawn.modifier == 0.0){ // flag to spawn just one monster at room center. ex: shade, cultist
-                    glm::vec2 spawnPos = glm::vec2( ((room.x + (room.w / 2)) * 64)-48, ((room.y + (room.h / 2)) * 64)-48);
-                    spawnMonster(registry, spawnPos, enemySpawn.monster);
+                    spawnMonster(registry, roomCenter - 48.0f, enemySpawn.monster);
                 } else {
                     int numToSpawn = enemySpawn.modifier * roomQuantifier;
                     for(int i = 0; i <= numToSpawn; i++){
@@ -438,6 +626,16 @@ void Factory::spawnTreasureRoomChest(std::unique_ptr<Registry>& registry, const 
                     }
                 }
 
+            }
+        } break;
+        case ABYSS:{
+            constexpr std::array<sprites, 3> abyssbosses = {ABIGOR, AMDUSCIAS, ASTAROTH};
+            int bossIndex = RNG.randomFromRange(0, abyssbosses.size());
+            chest.AddComponent<ItemTableComponent>(abyssbosses[bossIndex]);
+            constexpr std::array<sprites, 2> greenbrutes = {GREENBRUTE0, GREENBRUTE1};
+            for(int i = 0; i < 6; i++){
+                int bruteIndex = RNG.randomFromRange(0,1);
+                spawnMonster(registry, spawnpoint, greenbrutes[bruteIndex], chest.GetId());
             }
         } break;
     }
@@ -567,7 +765,27 @@ void Factory::spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_
             }
         }
     }
+}
 
+void Factory::spawnAdminLootInNexus(std::unique_ptr<Registry>& registry){
+    constexpr std::array<items, 8> warriorKnight = {T10SWORD, T4HELM, T10HEAVYARMOR, T4HPRING, T10SWORD, T4SHIELD, T10HEAVYARMOR, T4HPRING};
+    constexpr std::array<items, 8> priestNecro = {T10WAND, T4TOME, T10ROBE, T4HPRING, T10STAFF, T4SKULL, T10ROBE, T4HPRING};
+    constexpr std::array<items, 8> sorcPaladin = {T10WAND, T4SCEPTER, T10ROBE, T4HPRING, T10SWORD, T4SEAL, T10HEAVYARMOR, T4HPRING};
+    constexpr std::array<items, 8> wizardArcher = {T10STAFF, T4SPELL, T10ROBE, T4HPRING, T10BOW, T4QUIVER, T10LIGHTARMOR, T4HPRING};
+    constexpr std::array<items, 8> rogue = {T10DAGGER, T4CLOAK, T10HEAVYARMOR, T4HPRING, T14DAGGER, T14SWORD, T14STAFF, T14WAND};
+    std::vector<std::array<items, 8>> bags = {warriorKnight, priestNecro, sorcPaladin, wizardArcher, rogue};
+    glm::vec2 bagSpawn(750,1350);
+    for(auto& bag: bags){
+        bagSpawn.y -= 64.0f;    
+        Entity lootbag = creatLootBag(registry, bagSpawn, BROWNLOOTBAG);
+        for(auto& item: bag){
+            createItemInBag(registry, item, lootbag);
+        }
+    }
+    for(int i = 0; i < 3; i++){
+        bagSpawn.y -= 64.0f; 
+        spawnMonster(registry, bagSpawn, POTCHEST);
+    }
 }
 
 void Factory::spawnNumberEntity(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, std::string&& number){

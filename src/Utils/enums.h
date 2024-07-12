@@ -1,6 +1,17 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
+enum aistates{
+    STANDING,
+    WALKING,
+    SHOOTING,
+};
+
+enum colors{
+    RED,
+    BLACK
+};
+
 enum items{
     T0SWORD,
     T1SWORD,
@@ -284,6 +295,17 @@ enum items{
     T8SEAL,
     OREO,
     ADMINWAND,
+    RINGOFAMDUSCIAS,
+    RINGOFASTAROTH,
+    RINGOFABIGOR,
+    ABYSSKEY,
+    COMPLETIONTROPHY,
+    SPDEFFUSION,
+    HPEFFUSION,
+    ELECTRICSKULL,
+    TRIPLESCEPTER,
+    BOOMERANGWAND,
+    BULWARK,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -309,13 +331,19 @@ enum enemyCategory{
     PENTARACTAI,
     RANDOMCHASEMINION,
     CRYSTALPRISONERAI,
-    GRANDSPHINXAI
+    GRANDSPHINXAI,
+    AMDUSCIASAI,
+    ABIGORAI,
+    ASTAROTHAI,
+    PASSIVE,
+    INVISIBLEENEMY
 };
 
 enum parabolicCompletion{
     PARABOLIC_BULLET, //entity is a bullet
     PARABOLIC_MEDUSA_AOE_BOMB, // entity will spawn AOE damage at end of lerp
     PARABOLIC_TRAP,
+    PARABOLIC_BLACK_AOE_BOMB
 };
 
 // an incredibly messy and semantically ambiguous enum
@@ -332,6 +360,9 @@ enum wallTheme{ //wall themes are used as primary keys for areas/dungeons
     GORDONSLAIRWALLTHEME, // ACTUAL DUNGEON: GORDONS LAIR
     LOCKEDPORTALTHEME,
     GODLANDS,
+    ABYSS,
+    EASTEREGG,
+    SPAWNTELEPORT,
 };
 
 enum itemPositions{
@@ -369,7 +400,8 @@ enum boxColliders{ //ALSO USED FOR MAKING SPRITECOMPONENTS
     PORTALBOX,
     SCALED7,
     SCALED8,
-    SCALED4,
+    SCALED5,
+    TRIPDEMONBOX, // 16x16 with a scale of 4.0
     BIGSCALED8,
     STANDARDFLOATING
 };
@@ -480,6 +512,42 @@ enum sprites{
     MUMMY1,
     MUMMY2,
     MUMMY3,
+    ABYSSTOWER,
+    TRIPDEMON,
+    AMDUSCIAS,
+    ASTAROTH,
+    ABIGOR,
+    REDDEMON,
+    LEVIATHAN,
+    SIMBA,
+    IMP4,
+    BRUTE0,
+    BRUTE1,
+    GREENBRUTE0,
+    GREENBRUTE1,
+    HELLGOLEM,
+    ABYSSALSTAR,
+    ABYSSALSTARPARENT,
+    DRAGONEGG,
+    SMALLDRAGON,
+    MEDIUMDRAGON,
+    LARGEDRAGON,
+    CRACKEDDRAGONEGG,
+    BRUTECRUSADER,
+    CRUSADER0,
+    CRUSADER1,
+    CRUSADER2,
+    CRUSADER3,
+    CRUSADER4,
+    MALPHAS,
+    MALPHASBABY,
+    HENCHDEMON0,
+    HENCHDEMON1,
+    HENCHDEMON2,
+    AMDUSCIASARTIFACT,
+    ASTAROTHARTIFACT,
+    ABIGORARTIFACT,
+    ABYSSALSTARCHASE,
 };
 
 enum soundEnums{
@@ -680,6 +748,7 @@ enum tags{
 enum monsterSubGroups{
     GODLANDSGOD,
     EVENTBOSS,
+    ABYSSTOWERSUBGROUP
 };
 enum groups{
     MONSTER,
@@ -725,6 +794,8 @@ enum statuses{
     ARMORED,
     HEALING,
     DAMAGING,
+    WEAKENED,
+    ARMORBROKEN,
     /* entries must be made above*/
     TOTAL_NUMBER_OF_STATUS_EFFECTS,
     NULL_STATUS_EFFECT
@@ -1071,7 +1142,29 @@ enum textureEnums{
     T7SEALICON,
     T8SEALICON,
     OREOICON,
-    ADMINWANDICON
+    ADMINWANDICON,
+    ABYSSPORTAL,
+    RINGOFAMDUSCIASICON,
+    RINGOFASTAROTHICON,
+    RINGOFABIGORICON,
+    ABYSSKEYICON,
+    COMPLETIONTROPHYICON,
+    SPDEFFUSIONICON,
+    HPEFFUSIONICON,
+    ELECTRICSKULLICON,
+    TRIPLESCEPTERICON,
+    CHARS8X8RPETS1,
+    EASTEREGGPORTAL,
+    CHARS8X8RMID,
+    CHARS8X8RHIGH,
+    BOOMERANGWANDICON,
+    BULWARKICON,
+    SPAWNTELEPORTPORTAL
+};
+
+enum randomChaseStates{
+    CHASE_PLAYER,
+    CHASE_RANDOM_POINT_NEAR_PARENT,
 };
 
 #endif

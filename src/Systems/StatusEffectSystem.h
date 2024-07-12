@@ -53,6 +53,12 @@ class StatusEffectSystem: public System{
                 case BLIND:{
                     text = "BLIND";
                 } break;
+                case WEAKENED:{
+                    text = "WEAKENED";
+                } break;
+                case ARMORBROKEN:{
+                    text = "ARMOR BROKEN";
+                } break;
                 default:{
                     return;
                 }break;
@@ -76,6 +82,8 @@ class StatusEffectSystem: public System{
             {0, 1*8, 8, 8}, // armored
             {15*8, 2*8, 8, 8}, // healing
             {1*8, 3*8, 8, 8}, // damaging
+            {2*8, 2*8, 8, 8}, // WEAKENED 
+            {7*8, 3*8, 8, 8}, // armor broken
         };
 
         std::unordered_map<unsigned long, SDL_Texture*> effectTextures;

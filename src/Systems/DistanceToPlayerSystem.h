@@ -30,7 +30,7 @@ class DistanceToPlayerSystem: public System{
         }
 
         inline glm::vec2 spriteCenter(const TransformComponent& t, const SpriteComponent& s){
-            return {(t.position.x + ((s.width * t.scale.x) / 2)), t.position.y + ((s.height * t.scale.y) / 2)};
+            return {(t.position.x + ((s.width * t.scale.x) / 2.0f)), t.position.y + ((s.height * t.scale.y) / 2.0f)};
         }
 
     public:

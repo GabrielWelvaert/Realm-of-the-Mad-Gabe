@@ -136,8 +136,16 @@ void DistanceToPlayerSystem::onSkullUse(SkullUseEvent& event){
         glm::vec2 monsterCenter = spriteCenter(monsterTransform, monsterSprite); 
         if(glm::distance(monsterCenter, target) <= radius){
             Entity simulatedProjectile = event.registry->CreateEntity();
-            simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,INT_MAX,false,event.player, 4,NONESPRITE);
-            event.eventBus->EmitEvent<ProjectileDamageEvent>(simulatedProjectile,entity,event.eventBus,event.registry,event.assetStore,event.factory,&skullTracker);
+            switch(skullData.itemEnum){
+                case ELECTRICSKULL:{
+                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,INT_MAX,false,event.player, 4,NONESPRITE, true, SLOWED, 4000, false);
+                    event.eventBus->EmitEvent<ProjectileDamageEvent>(simulatedProjectile,entity,event.eventBus,event.registry,event.assetStore,event.factory,&skullTracker);
+                } break;
+                default:{
+                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,INT_MAX,false,event.player, 4,NONESPRITE);
+                    event.eventBus->EmitEvent<ProjectileDamageEvent>(simulatedProjectile,entity,event.eventBus,event.registry,event.assetStore,event.factory,&skullTracker);
+                } break;
+            }
         }
 
     }

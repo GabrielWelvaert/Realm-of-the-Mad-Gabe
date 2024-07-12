@@ -57,6 +57,10 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             displayStatusEffectText(event.registry, statusEnum, entity);
         }break;
         case SLOWED:{
+            if(sec.effects[PARALYZE]){
+                sec.effects[SLOWED] = false;
+                return; // block slowed if paralyzed
+            }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -69,7 +73,49 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             }
             displayStatusEffectText(event.registry, statusEnum, entity);
         }break;
+        case WEAKENED:{
+            auto& activeattack = entity.GetComponent<OffenseStatComponent>().activeattack;
+            if(entity.BelongsToGroup(PLAYER)){
+                const auto& basestats = entity.GetComponent<BaseStatComponent>();
+                activeattack -= basestats.attack / 2;
+                sec.modifications[WEAKENED] = basestats.attack / 2;
+            } else {
+                // for monsters (no base stat) you MUST save modification amount before modifying!
+                sec.modifications[WEAKENED] = activeattack / 2;
+                activeattack -= activeattack / 2;
+            }
+            displayStatusEffectText(event.registry, statusEnum, entity); 
+        } break;
+        case ARMORBROKEN:{
+            if(sec.effects[ARMORED]){
+                sec.effects[ARMORED] = false;
+                onStatusDisable(entity, ARMORED, event.eventbus);
+            }
+
+            auto& activedef = entity.GetComponent<HPMPComponent>().activedefense;
+            sec.modifications[ARMORBROKEN] = activedef;
+            activedef = 0;
+            displayStatusEffectText(event.registry, statusEnum, entity);
+        } break;
+        case PARALYZE:{
+            if(sec.effects[SLOWED]){
+                sec.effects[SLOWED] = false;
+                onStatusDisable(entity, SLOWED, event.eventbus);
+            }
+            if(sec.effects[SPEEDY]){
+                sec.effects[SPEEDY] = false;
+                onStatusDisable(entity, SPEEDY, event.eventbus);
+            }
+            auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
+            sec.modifications[PARALYZE] = activespeed;
+            activespeed = 0;
+            displayStatusEffectText(event.registry, statusEnum, entity);
+        } break;
         case SPEEDY:{
+            if(sec.effects[PARALYZE]){
+                sec.effects[SPEEDY] = false;
+                return; // block slowed if paralyzed
+            }
             auto& activespeed = entity.GetComponent<SpeedStatComponent>().activespeed;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
@@ -82,10 +128,14 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
             }
         }break;
         case ARMORED:{
+            if(sec.effects[ARMORBROKEN]){
+                sec.effects[ARMORED] = false;
+                return; // block armored if entity is armor broken
+            }
             auto& activedef = entity.GetComponent<HPMPComponent>().activedefense;
             if(entity.BelongsToGroup(PLAYER)){
                 const auto& basestats = entity.GetComponent<BaseStatComponent>();
-                if(basestats.defense == 0){
+                if(basestats.defense < 2){
                     activedef += 2;
                     sec.modifications[ARMORED] = 2;
                 } else {
@@ -119,8 +169,7 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
         case CONFUSED:
         case BLEEDING:
         case STUNNED:
-        case BLIND:
-        case PARALYZE: {
+        case BLIND: {
             displayStatusEffectText(event.registry, statusEnum, entity); 
         } break;
         case INVISIBLE:{
@@ -132,7 +181,11 @@ void StatusEffectSystem::onStatusEnable(StatusEffectEvent& event){ // modify sta
         }break;
     }
     if(entity.BelongsToGroup(PLAYER)){
-        event.eventbus->EmitEvent<UpdateDisplayStatEvent>(entity);    
+        int mx,my;
+        SDL_GetMouseState(&mx, &my);
+        if(!(mx > 750 && mx < 1000 && my > 370 && my < 450)){ // player was not viewing stats to max...
+            event.eventbus->EmitEvent<UpdateDisplayStatEvent>(entity);        
+        }
     }
 }
 
@@ -147,6 +200,10 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
             auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
             activespeed -= sec.modifications[SPEEDY];
         }break;
+        case WEAKENED:{
+            auto& activeattack = recipient.GetComponent<OffenseStatComponent>().activeattack;
+            activeattack += sec.modifications[WEAKENED];
+        } break;
         case ARMORED:{ //
             auto& activedef = recipient.GetComponent<HPMPComponent>().activedefense;
             activedef -= sec.modifications[ARMORED];
@@ -173,12 +230,24 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
                 // todo monster invisibility if it exists
             }
         } break;
+        case PARALYZE:{
+            auto& activespeed = recipient.GetComponent<SpeedStatComponent>().activespeed;
+            activespeed += sec.modifications[PARALYZE];
+        } break;
+        case ARMORBROKEN:{
+            auto& activedef = recipient.GetComponent<HPMPComponent>().activedefense;
+            activedef += sec.modifications[ARMORBROKEN];
+        } break;
         default:{ // some status effects do not require anything to be reverted
         }break;
         
     }
     if(recipient.BelongsToGroup(PLAYER)){
-        eventbus->EmitEvent<UpdateDisplayStatEvent>(recipient);    
+        int mx,my;
+        SDL_GetMouseState(&mx, &my);
+        if(!(mx > 750 && mx < 1000 && my > 370 && my < 450)){ // player was not viewing stats to max...
+            eventbus->EmitEvent<UpdateDisplayStatEvent>(recipient);        
+        }  
     }
 }
 

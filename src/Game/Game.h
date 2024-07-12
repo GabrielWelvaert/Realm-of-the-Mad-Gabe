@@ -68,7 +68,9 @@
 #include "../Utils/KeyBoardInput.h"
 #include "../Systems/DeathActionSystem.h"
 #include <cstring>
-
+#include <utility>
+#include "../Systems/HealOtherSystem.h"
+#include "../Systems/BoomerangSystem.h"
 
 const int FPS = 60;
 const int MILLISECONDS_PER_FRAME = 1000 / FPS;
@@ -96,6 +98,7 @@ class Game{
         std::vector<room> dungeonRooms;
         int bossRoomId;
         room bossRoom;
+        std::map<cardinalDirection, room> cardinalRooms; // used for the abyss dungeon
         bool successfulMapGen = false; 
         DeadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         RoomShut roomShut;
@@ -103,6 +106,7 @@ class Game{
         int idOfMiniMapEntity;
         int idOfMiniMapVeil;
         int rendererMaxTextureDimension;
+        Entity minimapfloor;
         SDL_Texture * mapveilptr = nullptr;
         
 
