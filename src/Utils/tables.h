@@ -44,6 +44,7 @@
 #define T2RING T2DEFRING, T2ATTRING, T2SPDRING, T2WISRING, T2VITRING, T2DEXRING, T2HPRING, T2MPRING
 #define T3RING T3DEFRING, T3ATTRING, T3SPDRING, T3WISRING, T3VITRING, T3DEXRING, T3HPRING, T3MPRING
 #define T4RING T4DEFRING, T4ATTRING, T4SPDRING, T4WISRING, T4VITRING, T4DEXRING, T4HPRING, T4MPRING
+#define T5RING T5DEFRING, T5ATTRING, T5SPDRING, T5WISRING, T5VITRING, T5DEXRING, T5HPRING, T5MPRING
 
 #define T0ARMOR T0HEAVYARMOR, T0ROBE, T0LIGHTARMOR
 #define T1ARMOR T1HEAVYARMOR, T1ROBE, T1LIGHTARMOR
@@ -108,6 +109,7 @@
 #define YELLOWSTAR LOFIOBJ, {8*6,8*7,8,8}, 10, 10, {14,14} // blind
 #define ORANGESTAR LOFIOBJ, {8*9,8*7,8,8}, 10, 10, {14,14} // stunned
 #define BLACKSTAR LOFIOBJ,  {8*10,8*7,8,8}, 10, 10, {14,14} // paralyzed
+#define GORDONSTAR LOFIOBJ, {8*14,8*5,8,8}, 10, 10, {14,14}
 
 #define REDCIRCLEMAGIC LOFIOBJ, {8*1,8*9,8,8}, 32,32,{4,4}
 #define ARCMAGIC LOFIOBJ3, {8*1,8*22,8,8}, 32,32,{4,4}
@@ -157,7 +159,7 @@
 #define BITS_OSCILLATING_DIAGONAL 0b00010010
 #define BITS_ROTATING 0b00100000
 #define BITS_IGNOREDEF 0b00001000
-#define BUTS_IGNOREDEF_ROTATE 0b00101000
+#define BITS_IGNOREDEF_ROTATE 0b00101000
 #define BITS_ROTATE_INFLICTSE 0b00100100
 #define BITS_OSCILLATING 0b00010000
 #define BITS_INFLICTSE 0b00000100
@@ -396,6 +398,8 @@ extern std::unordered_map<items, shieldData> itemEnumToShieldData;
 extern std::unordered_map<items, spellData> itemEnumToSpellData;
 extern std::vector<std::vector<int>> gordonLairOnlyFloors;
 extern std::vector<std::vector<int>> gordonLair;
+extern std::vector<std::vector<int>> gordonLair2OnlyFloors;
+extern std::vector<std::vector<int>> gordonLair2;
 extern std::unordered_map<int, SDL_Color> miniMapColors;
 extern std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture;
 extern std::vector<std::string> defaultNames;

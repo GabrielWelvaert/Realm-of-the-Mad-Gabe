@@ -6,7 +6,7 @@ EnemySpawnSystem::EnemySpawnSystem(){
 
 // this system continuously spawns monsters in the world. they are not minions. see minionSpawnSystem for that behavior
 // currently only works for godlands, because it is the only place it is used
-void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses){
+void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
     float chanceOfEventBoss = 2;
     for(auto& entity: GetSystemEntities()){
@@ -20,18 +20,6 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
             if(numGodLandsGods + numEventBosses >= esc.maxMonsters){ // at monster capacity, exit function
                 return; 
             }
-
-            /*temporary solution to rare, unresolved bug where playerPos returns uninitialized :(*/
-            glm::vec2 playerPos;
-            int attempts = 0;
-            do{
-                if(attempts > 0){
-                    std::cout << "Enemy spawn system did not recieve player position properly" << '\n';
-                }
-                attempts++;
-                playerPos = player.GetComponent<TransformComponent>().position;
-            } while (playerPos.x > 100,000 || playerPos.x < 0 || playerPos.y > 100,000 || playerPos.y < 0);
-            /**/
 
             // if there are any gods, move 0-3 far ones closer to player
             int numToMove = RNG.randomFromRange(0,3);

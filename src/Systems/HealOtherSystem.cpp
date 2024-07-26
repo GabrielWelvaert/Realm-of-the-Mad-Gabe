@@ -22,13 +22,15 @@ void HealOtherSystem::Update(std::unique_ptr<Registry>& registry, std::unique_pt
                             continue;
                         }
                     }
-                    const auto& transform = entity.GetComponent<TransformComponent>();
-                    const auto& beneficiaryTransform = registry->GetComponent<TransformComponent>(hoc.beneficiaryId);
+                    auto * transform = &entity.GetComponent<TransformComponent>();
+                    auto * beneficiaryTransform = &registry->GetComponent<TransformComponent>(hoc.beneficiaryId);
                     Entity healtext = registry->CreateEntity();
                     healtext.AddComponent<TextLabelComponent>("+" + std::to_string(amountHealed),"damagefont",xpgreen,false,350,hoc.beneficiaryId,hoc.beneficiaryCreationId);
-                    healtext.AddComponent<TransformComponent>(beneficiaryTransform.position);
+                    healtext.AddComponent<TransformComponent>(beneficiaryTransform->position);
+                    beneficiaryTransform = &registry->GetComponent<TransformComponent>(hoc.beneficiaryId);
+                    transform = &entity.GetComponent<TransformComponent>();
                     if(hoc.beneficiaryId != entity.GetId()){ // only spawn green partiles if beneficiary is not self!
-                        factory->spawnHealOtherPartiles(registry,transform.center, beneficiaryTransform.center);    
+                        factory->spawnHealOtherPartiles(registry,transform->center, beneficiaryTransform->center);    
                     }
                 }
 

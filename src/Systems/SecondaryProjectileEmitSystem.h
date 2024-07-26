@@ -17,6 +17,7 @@
 #include "../Components/RotationComponent.h"
 #include "../Components/ParabolicMovementComponent.h"
 #include "../Utils/Xoshiro256.h"
+#include "../Components/StatusEffectComponent.h"
 
 
 class SecondaryProjectileEmitSystem: public System{
@@ -95,7 +96,7 @@ class SecondaryProjectileEmitSystem: public System{
             auto speed = 0.8 * std::exp((std::log(0.625) / 1000) * distance); // ranges between .8 and .6 so distant bombs take longer to arrive
             square.AddComponent<TransformComponent>(transform.center, glm::vec2(5.0,5.0));
             square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, redsquare,5,false,false); // experimenting w/ zaxiz of 5 for this                           // height, speed 
-            square.AddComponent<ParabolicMovementComponent>(glm::vec3(transform.center.x, transform.center.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, speed, PARABOLIC_MEDUSA_AOE_BOMB);
+            square.AddComponent<ParabolicMovementComponent>(glm::vec3(transform.center.x, transform.center.y, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, speed, PARABOLIC_MEDUSA_AOE_BOMB, spriteEnum);
             square.AddComponent<ProjectileComponent>(damage,INT_MAX,0,monster, 0, spriteEnum); // bogus projectile component needed for damage event logic
         }
 
@@ -108,7 +109,7 @@ class SecondaryProjectileEmitSystem: public System{
             auto speed = 0.8 * std::exp((std::log(0.625) / 1000) * distance); // ranges between .8 and .6 so distant bombs take longer to arrive
             square.AddComponent<TransformComponent>(transform.center - 20.0f, glm::vec2(5.0,5.0));
             square.AddComponent<SpriteComponent>(LOFIOBJ, 8, 8, blacksquare,5,false,false); // experimenting w/ zaxiz of 5 for this                           // height, speed 
-            square.AddComponent<ParabolicMovementComponent>(glm::vec3(transform.center.x - 20.0f, transform.center.y - 20.0f, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, speed, PARABOLIC_BLACK_AOE_BOMB);
+            square.AddComponent<ParabolicMovementComponent>(glm::vec3(transform.center.x - 20.0f, transform.center.y - 20.0f, 0.0f), glm::vec3(playerPos.x + 24.0, playerPos.y + 24.0, 0.0f), 120.0, speed, PARABOLIC_BLACK_AOE_BOMB, spriteEnum);
             square.AddComponent<ProjectileComponent>(damage,INT_MAX,false,monster,0, spriteEnum, true, SLOWED, 3000, false); // bogus projectile component needed for damage event logic
         }
 

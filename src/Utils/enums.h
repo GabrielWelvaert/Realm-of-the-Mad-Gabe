@@ -5,6 +5,8 @@ enum aistates{
     STANDING,
     WALKING,
     SHOOTING,
+    VULNERABLE,
+    RAZED,
 };
 
 enum colors{
@@ -306,6 +308,15 @@ enum items{
     TRIPLESCEPTER,
     BOOMERANGWAND,
     BULWARK,
+    OGMUR,
+    T5HPRING,
+    T5MPRING,
+    T5ATTRING,
+    T5DEFRING,
+    T5SPDRING,
+    T5DEXRING,
+    T5WISRING,
+    T5VITRING,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -336,14 +347,16 @@ enum enemyCategory{
     ABIGORAI,
     ASTAROTHAI,
     PASSIVE,
-    INVISIBLEENEMY
+    INVISIBLEENEMY,
+    GORDONBOSSAI2
 };
 
 enum parabolicCompletion{
     PARABOLIC_BULLET, //entity is a bullet
     PARABOLIC_MEDUSA_AOE_BOMB, // entity will spawn AOE damage at end of lerp
     PARABOLIC_TRAP,
-    PARABOLIC_BLACK_AOE_BOMB
+    PARABOLIC_BLACK_AOE_BOMB,
+    GORDON_SLOW_BOMB,
 };
 
 // an incredibly messy and semantically ambiguous enum
@@ -363,6 +376,7 @@ enum wallTheme{ //wall themes are used as primary keys for areas/dungeons
     ABYSS,
     EASTEREGG,
     SPAWNTELEPORT,
+    GORDONSLAIR2
 };
 
 enum itemPositions{
@@ -416,13 +430,13 @@ enum sprites{
     BLACKSLIME,
     GREENSLIME,
     BROWNSLIME,
-    // BOBBY,
     REDKNIGHT0,
     SHATTERSBOMB,
     BROWNLOOTBAG,
     PURPLELOOTBAG,
-    CYANLOOTBAG,
     BLUELOOTBAG,
+    CYANLOOTBAG,
+    REDLOOTBAG,
     WHITELOOTBAG,
     VAULTCHEST,
     TINYWHITECHICKEN,
@@ -478,7 +492,6 @@ enum sprites{
     GRANDSPHINX,
     HORRIDREAPER1,
     HORRIDREAPER2,
-    REDLOOTBAG,
     DUCK,
     GHOSTKING,
     GHOSTARCHER,
@@ -548,6 +561,10 @@ enum sprites{
     ASTAROTHARTIFACT,
     ABIGORARTIFACT,
     ABYSSALSTARCHASE,
+    GORDON2,
+    SOMMELIER,
+    BUTCHER,
+    BABYBUTCHER,
 };
 
 enum soundEnums{
@@ -748,7 +765,8 @@ enum tags{
 enum monsterSubGroups{
     GODLANDSGOD,
     EVENTBOSS,
-    ABYSSTOWERSUBGROUP
+    ABYSSTOWERSUBGROUP,
+    GORODNSENTIEL,
 };
 enum groups{
     MONSTER,
@@ -1013,6 +1031,7 @@ enum textureEnums{
     CHARS16X16MOUNTAINS1,
     CASTLEPORTAL,
     GORDONSCHAMBERPORTAL,
+    GORDONSCHAMBERPORTAL2,
     HORIZONTALROOMBLOCKWALLS,
     HORIZONTALROOMBLOCKCEILINGS,
     VERTICALROOMBLOCKCEILINGS,
@@ -1159,7 +1178,16 @@ enum textureEnums{
     CHARS8X8RHIGH,
     BOOMERANGWANDICON,
     BULWARKICON,
-    SPAWNTELEPORTPORTAL
+    SPAWNTELEPORTPORTAL,
+    OGMURICON,
+    T5HPRINGICON,
+    T5MPRINGICON,
+    T5ATTRINGICON,
+    T5DEFRINGICON,
+    T5SPDRINGICON,
+    T5DEXRINGICON,
+    T5WISRINGICON,
+    T5VITRINGICON,
 };
 
 enum randomChaseStates{

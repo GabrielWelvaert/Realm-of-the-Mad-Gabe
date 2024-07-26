@@ -11,9 +11,10 @@ struct ParabolicMovementComponent{
     float speed;
     parabolicCompletion identifier;
     float finalLerp;
+    sprites sprite;
     ParabolicMovementComponent() = default;
-    ParabolicMovementComponent(glm::vec3 startPos, glm::vec3 endPos, float height, float speed, parabolicCompletion identifier, float finalLerp = 1.0): 
-        startPos(startPos), endPos(endPos), height(height), speed(speed), identifier(identifier), finalLerp(finalLerp){}
+    ParabolicMovementComponent(glm::vec3 startPos, glm::vec3 endPos, float height, float speed, parabolicCompletion identifier, sprites sprite = MEDUSA): 
+        startPos(startPos), endPos(endPos), height(height), speed(speed), identifier(identifier), finalLerp(1.0), sprite(sprite){}
 };
 
 

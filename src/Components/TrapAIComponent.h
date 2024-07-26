@@ -6,7 +6,7 @@
 
 struct TrapAIComponent{
     unsigned short engageRange;
-    bool igntied;
+    bool igntied = false;
     unsigned char iginitionFrame; 
 
     inline TrapAIComponent() = default;

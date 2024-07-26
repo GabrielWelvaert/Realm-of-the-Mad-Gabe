@@ -86,12 +86,14 @@ std::unordered_map<wallTheme, std::vector<std::vector<roomSpawn>>> wallThemeToMo
 std::unordered_map<wallTheme, glm::vec2> wallThemeToSpawnPoint = {
     {NEXUS, {750,1575}},
     {VAULT, {750,700}},
-    {GORDONSLAIRWALLTHEME, {515, 1040}}
+    {GORDONSLAIRWALLTHEME, {515, 1040}},
+    {GORDONSLAIR2, {515, 1296}}
 };
 
 std::vector<glm::vec2> vaultSpawns = {
     {600,525}, {750,525}, {900,525},
     {600,600}, {750,600}, {900,600},
+    {600,450}, {750,450}, {900,450},
 };
 
 std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableComponentData = {
@@ -103,8 +105,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ABILITIES}},
                 {2, {T3ARMOR}},
                 {1, {T4ARMOR}},
-                {1, {T5WEAPONS}},
-                {1, {T3WEAPONS}},
+                {4, {T5WEAPONS}},
+                {2, {T3WEAPONS}},
                 {4, {T1RING}},
                 {5, {HPMPPOT}}
             }
@@ -118,7 +120,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ABILITIES}},
                 {2, {T3ARMOR}},
                 {4, {T4ARMOR}},
-                {1, {T5WEAPONS}},
+                {2, {T5WEAPONS}},
                 {2, {T1RING}},
                 {5, {HPMPPOT}},
                 {1, {T3WEAPONS}},
@@ -133,7 +135,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ABILITIES}},
                 {2, {T3ARMOR}},
                 {1, {T4ARMOR}},
-                {1, {T5WEAPONS}},
+                {3, {T5WEAPONS}},
                 {2, {T1RING}},
                 {5, {HPMPPOT}},
                 {1, {T3WEAPONS}},
@@ -148,7 +150,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ABILITIES}},
                 {4, {T3ARMOR}},
                 {2, {T4ARMOR}},
-                {1, {T5WEAPONS}},
+                {3, {T5WEAPONS}},
                 {2, {T1RING}},
                 {1, {T4WEAPONS}},
                 {5, {HPMPPOT}},
@@ -175,13 +177,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         REDKNIGHT0,
         {
             {
-                {3, {T5WEAPONS}},
-                {2, {T2ABILITIES}},
-                {2, {T5ARMOR}},
-                {1, {T6ARMOR}},
-                {4, {T6WEAPONS}},
-                {1, {T2RING}},
-                {5, {FIREWATER, CABERNET}}
+                {15, {FIREWATER, CABERNET}}
             }
         }
     },
@@ -291,13 +287,15 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {40, {SPDPOT, DEXPOT}},
                 {2, {CHICKENTOME, CHICKENSWORD}},
-                {5, {GORDONINCANTATION}},
+                {3, {GORDONINCANTATION}},
+                {90, {T1WEAPONS}},
+                {75, {T2WEAPONS}},
                 {75, {T3WEAPONS}},
                 {40, {T4WEAPONS}},
                 {19, {T4ARMOR}},
                 {50, {T3ARMOR}},
                 {38, {T2ABILITIES}},
-                {30, {T1ABILITIES}},
+                {75, {T1ABILITIES}},
                 {45, {T2RING}},
                 {25, {T1RING}},
             }
@@ -310,9 +308,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {3, {T2WEAPONS}},
                 {3, {T1ABILITIES}},
                 {2, {T2ARMOR}},
-                {1, {T3ARMOR}},
+                {2, {T3ARMOR}},
                 {4, {T1RING}},
-                {1, {T3WEAPONS}},
+                {2, {T3WEAPONS}},
                 {9, {HPMPPOT}},
             }
         }
@@ -380,7 +378,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {2, {ARCTOME, ARCWAND, ARCROBE, TWILIGHTGEMSTONE}},
-                {7, {GORDONINCANTATION}},
+                {5, {GORDONINCANTATION}},
                 {100, {DEFPOT,SPDPOT,WISPOT,VITPOT,DEXPOT,ATTPOT}},
                 {20, {T7WEAPONS}},
                 {18, {T8WEAPONS}},
@@ -423,7 +421,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SKELETON5,
         {
             {
-                {2, {T5WEAPONS}},
+                {3, {T5WEAPONS}},
                 {2, {T2ABILITIES}},
                 {2, {T4ARMOR}},
                 {1, {T5ARMOR}},
@@ -457,16 +455,34 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {100, {LIFEPOT}},
                 {100, {MANAPOT}},
-                {25, {GORDONINCANTATION}},
-                {75, {DEFPOT,SPDPOT,DEXPOT,VITPOT,WISPOT,ATTPOT}},
-                {26, {T14WAND, T14BOW, T14SWORD}},
-                {27, {T13WAND, T13BOW, T13SWORD}},
-                {25, {T14LIGHTARMOR, T14HEAVYARMOR, T14ROBE}},
-                {23, {T13LIGHTARMOR, T13HEAVYARMOR, T13ROBE}},
-                {24, {T8QUIVER, T8TOME, T8HELM}},
-                {20, {T7QUIVER, T7TOME, T7HELM}},
-                {76, {T6HELM, T6TOME, T6TOME, T12WAND, T12BOW, T12SWORD, T12LIGHTARMOR, T12HEAVYARMOR, T12ROBE}},
-                {77, {T5HELM, T5TOME, T5TOME, T11WAND, T11BOW, T11SWORD, T11LIGHTARMOR, T11HEAVYARMOR, T11ROBE}},
+                {33, {DEFPOT,ATTPOT,SPDPOT,DEXPOT,VITPOT,WISPOT}},
+                {1, {OGMUR}}, 
+                {35, {T11ARMOR, T10WEAPONS, T5ABILITIES}}, // o1 tops 
+                {10, {T11ARMOR, T10WEAPONS, T5ABILITIES}}, // o1 tops 
+                {25, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops
+                {2, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops
+                {20, {T4RING}},
+                {45, {T10ARMOR, T10WEAPONS}},
+
+            }
+        }
+    },
+        {
+        GORDON2,
+        {
+            {
+                {100, {COMPLETIONTROPHY}},
+                {100, {LIFEPOT}},
+                {100, {MANAPOT}},
+                {100, {MANAPOT}},
+                {2, {OGMUR}},
+                {20, {T5RING}},
+                {10, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best 
+                {1, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best
+                {15, {T13ARMOR, T13WEAPONS, T7ABILITIES}},  // best-1
+                {2, {T13ARMOR, T13WEAPONS, T7ABILITIES}}, // best-1
+                {35, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops 
+                {3, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops 
             }
         }
     },
@@ -474,10 +490,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         SHEEP,
         {
             {
-                {99, {HPPOT}},
-                {10, {MPPOT}},
-                {2, {CABERNET}},
-                {1, {FIREWATER}},
+                {75, {HPMPPOT}},
+                {10, {DEFTINCTURE}},
+                {5, {HPMPPOT}},
             }
         }
     },
@@ -485,10 +500,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         GIGASHEEP,
         {
             {
-                {99, {HPPOT}},
-                {20, {MPPOT}},
-                {15, {CABERNET}},
-                {5, {FIREWATER}},
+                {25, {HPEFFUSION}},
+                {75, {HPMPPOT}},
+                {5, {HPMPPOT}},
             }
         }
     },
@@ -800,12 +814,13 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {20, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {10, {MITHRILSWORD, BOOMERANGWAND}},
+                {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
+                {10, {MITHRILSWORD}},
+                {10, {BOOMERANGWAND}},
                 {8, {ATTACKPENDANT}},
                 {2, {CRYSTALWAND}},
-                {5, {GORDONINCANTATION}},
-                {8, {ABYSSKEY}}
+                {4, {GORDONINCANTATION}},
+                {4, {ABYSSKEY}}
             }
         }
     },
@@ -925,7 +940,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         GHOSTASSASSIN,
         {
             {
-                {2, {T5WEAPONS}},
+                {4, {T5WEAPONS}},
                 {2, {T2ABILITIES}},
                 {2, {T3ABILITIES}},
                 {2, {T4ARMOR}},
@@ -941,7 +956,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         GHOSTPALADIN,
         {
             {
-                {2, {T5WEAPONS}},
+                {4, {T5WEAPONS}},
                 {2, {T2ABILITIES}},
                 {2, {T7ARMOR}},
                 {1, {T5ARMOR}},
@@ -957,7 +972,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         GHOSTSTATUE,
         {
             {
-                {2, {T5WEAPONS}},
+                {4, {T5WEAPONS}},
                 {2, {T2ABILITIES}},
                 {2, {T7ARMOR}},
                 {1, {T5ARMOR}},
@@ -998,7 +1013,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {4, {T7ARMOR}},
                 {3, {T6WEAPONS}},
                 {4, {T2RING}},
-                {1, {T4WEAPONS}},
+                {7, {T4WEAPONS}},
                 {5, {HPMPPOT}}
             }
         }
@@ -1007,7 +1022,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BLACKSLIMESMALL,
         {
             {
-                {1, {T5WEAPONS}},
+                {3, {T5WEAPONS}},
                 {1, {T2ABILITIES}},
                 {1, {T4ARMOR}},
                 {2, {T5ARMOR}},
@@ -1021,7 +1036,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BROWNSLIMESMALL,
         {
             {
-                {1, {T5WEAPONS}},
+                {2, {T5WEAPONS}},
                 {2, {T2ABILITIES}},
                 {1, {T4ARMOR}},
                 {1, {T5ARMOR}},
@@ -1246,7 +1261,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {GORDONINCANTATION}},
-                {4, {ABYSSKEY}},
+                {3, {ABYSSKEY}},
                 {2, {RINGOFAMDUSCIAS}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
                 {100, {LIFEPOT, MANAPOT}},
@@ -1266,7 +1281,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {GORDONINCANTATION}},
-                {4, {ABYSSKEY}},
+                {3, {ABYSSKEY}},
                 {2, {RINGOFASTAROTH}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
                 {100, {LIFEPOT, MANAPOT}},
@@ -1286,7 +1301,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {5, {GORDONINCANTATION}},
-                {4, {ABYSSKEY}},
+                {3, {ABYSSKEY}},
                 {2, {RINGOFABIGOR}},
                 {100, {LIFEPOT, MANAPOT}},
                 {100, {VITPOT}},
@@ -1582,6 +1597,37 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             }
         }
     },
+    {
+        SOMMELIER,
+        {
+            {
+                {95, {HPMPPOT}},
+                {40, {FIREWATER, CABERNET}},
+                {25, {HPMPPOT}},
+            }
+        }
+    },
+    {
+        BUTCHER,
+        {
+            {
+                {95, {HPMPPOT}},
+                {40, {HPEFFUSION}},
+                {25, {HPMPPOT}},
+            }
+        }
+    },
+    {
+        BABYBUTCHER,
+        {
+            {
+                {2, {HPEFFUSION, SPDTINCTURE, DEFTINCTURE}},
+                {5, {HPMPPOT}},
+                {1, {MINORHPMPPOT}},
+                {1, {MINORHPMPPOT}},
+            }
+        }
+    },
     
     
 };
@@ -1607,7 +1653,11 @@ std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups = {
     {MYSTERIOUSCRYSTAL, EVENTBOSS},
     {CRYSTALPRISONER, EVENTBOSS},
     {ABYSSTOWER, ABYSSTOWERSUBGROUP},
-    {LEVIATHAN, GODLANDSGOD}
+    {LEVIATHAN, GODLANDSGOD},
+    {SOMMELIER, GORODNSENTIEL},
+    {BUTCHER, GORODNSENTIEL},
+    {BABYBUTCHER, GORODNSENTIEL},
+    
 };
 
 std::vector<sprites> eventBosses = { // used to spawn bosses in godlands; omit crystal prisoner
@@ -1660,6 +1710,96 @@ std::vector<std::vector<int>> gordonLairOnlyFloors = {
     {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
     {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
     {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+};
+
+std::vector<std::vector<int>> gordonLair2OnlyFloors = {
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,52,52,52,52,52,52,52,52,52,52,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+};
+
+std::vector<std::vector<int>> gordonLair2 = {
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,42,42,42,42,42,42,42,42,42,42,42,42,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,42,42,42,42,42,02,02,02,02,02,02,02,02,02,02,42,42,42,42,42,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,42,42,02,02,02,02,52,52,52,52,52,52,52,52,52,52,02,02,02,02,42,42,42,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,42,02,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,02,42,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,42,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,42,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,42,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,42,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,42,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,42,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,42,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,42,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,02,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,02,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,02,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,02,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,02,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,02,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,02,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,02,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,02,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,02,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,02,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,02,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,02,42,42,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,52,42,42,02,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,02,02,42,42,42,42,52,52,52,52,52,52,52,52,52,52,42,42,42,42,02,02,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,02,02,02,02,42,42,42,42,42,42,42,42,42,42,02,02,02,02,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,02,02,02,02,02,02,02,02,02,02,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
+    {44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,44,},
 };
 
 std::vector<std::vector<int>> gordonLair = {
@@ -1868,6 +2008,7 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {MOUSE0, std::string("Mouse")},
     {BAT0, std::string("Bat")},
     {GORDON, std::string("Chef Gordon Ramsay")},
+    {GORDON2, std::string("Chef Gordon Ramsay 2")},
     {SHEEP, std::string("Sheep")},
     {GIGASHEEP, std::string("Giga Sheep")},
     {SPRITEGOD, std::string("Sprite God")},
@@ -1941,6 +2082,10 @@ std::unordered_map<sprites, std::string> spriteToName = {
     {MEDIUMDRAGON, std::string("Medium Fire Dragon")},
     {LARGEDRAGON, std::string("Large Fire Dragon")},
     {BRUTECRUSADER, std::string("Brute Crusader")},
+    {SOMMELIER, std::string("Gordon's Sommelier")},
+    {BUTCHER, std::string("Gordon's Butcher")},
+    {BABYBUTCHER, std::string("Baby Butcher")},
+
 
     {CRUSADER0, std::string("Crusading Archer")},
     {CRUSADER1, std::string("Crusading Warrior")},
@@ -1973,6 +2118,7 @@ std::unordered_map<wallTheme, spritedata> wallThemeToSpriteData = {
     {ABYSS, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
     {EASTEREGG, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 0, false, false}},
     {SPAWNTELEPORT, {LOFIENVIRONMENT, 8, 8, {6*8, 15*8,8,8}, 4, false, false}},
+    {GORDONSLAIR2, {LOFIENVIRONMENT, 8, 8, {14*8,14*8,8,8}, 4, false, false}},
 };
 
 std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
@@ -1986,8 +2132,9 @@ std::unordered_map<std::string, textureEnums> PortalTitleToTexture = {
     {std::string("???"), LOCKEDPORTAL},
     {std::string("God Lands"), GODLANDSPORTAL},
     {std::string("Abyss"), ABYSSPORTAL},
-    {std::string(""), EASTEREGGPORTAL},
-    {std::string("Spawn Room"), SPAWNTELEPORTPORTAL}
+    {std::string(" "), EASTEREGGPORTAL},
+    {std::string("Spawn Room"), SPAWNTELEPORTPORTAL},
+    {std::string("Gordon's Sanctuary"), GORDONSCHAMBERPORTAL2}
 };
 
 std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
@@ -2002,7 +2149,8 @@ std::unordered_map<wallTheme, textureEnums> wallThemeToPortalUITexture = {
     {GODLANDS, GODLANDSPORTAL},
     {ABYSS, ABYSSPORTAL},
     {EASTEREGG, EASTEREGGPORTAL},
-    {SPAWNTELEPORT, SPAWNTELEPORTPORTAL}
+    {SPAWNTELEPORT, SPAWNTELEPORTPORTAL},
+    {GORDONSLAIR2, GORDONSCHAMBERPORTAL2},
 };
 
 std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = { 
@@ -2013,6 +2161,7 @@ std::unordered_map<wallTheme, glm::ivec2> wallThemeToFloor = {
     {GORDONSLAIRWALLTHEME, {5,3}},
     {GODLANDS, {0,7}},
     {ABYSS, {5,3}},
+    {GORDONSLAIR2, {5,3}},
 };
 
 std::unordered_map<items, const char *> abillityItemToInfo = {
@@ -2050,7 +2199,7 @@ std::unordered_map<items, const char *> consumableItemToInfo = {
     {SPDTINCTURE, "Speedy on self for 4 seconds"},
     {DEFTINCTURE, "Armored on self for 4 seconds"},
     {ABYSSKEY, "Summons a portal to the abyss"},
-    {COMPLETIONTROPHY, "+100 HP"},
+    {COMPLETIONTROPHY, "+5 maximum HP"},
     {SPDEFFUSION, "Speedy on self for 10 seconds"},
     {HPEFFUSION, "+175 HP, healing for 4 seconds"},
 };
@@ -2145,6 +2294,7 @@ std::unordered_map<items, abilityData> itemEnumToAbilityData = { // cooldown and
     {T6SHIELD, {500,100}},
     {T7SHIELD, {500,100}},
     {T8SHIELD, {500,105}},
+    {OGMUR, {500,100}},
 
     {T0SCEPTER, {500,30}},
     {T1SCEPTER, {500,40}},
@@ -2282,6 +2432,7 @@ std::unordered_map<items, shieldData> itemEnumToShieldData = {
     {T6SHIELD, {STUNNED,300,360,3000,5}},
     {T7SHIELD, {STUNNED,340,400,3000,5}},
     {T8SHIELD, {STUNNED,360,420,3000,6}},
+    {OGMUR, {ARMORBROKEN,360,420,4000,5}},
 };
 
 std::unordered_map<items, quiverData> itemEnumToQuiverData = {
@@ -2439,6 +2590,7 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T6SHIELD, {20,20,0,12,0,0,0,0}},
     {T7SHIELD, {40,40,0,14,0,0,0,0}},
     {T8SHIELD, {80,80,0,16,0,0,0,0}},
+    {OGMUR, {60,0,0,14,0,0,0,0}},
     {T0SPELL, {0,0,1,0,0,0,0,0}},
     {T1SPELL, {0,0,2,0,0,0,0,0}},
     {T2SPELL, {0,0,2,0,0,0,0,0}},
@@ -2500,6 +2652,15 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
 
     {ELECTRICSKULL, {100,0,0,0,4,0,0,0}},
     {TRIPLESCEPTER, {0,0,4,0,0,4,0,0}},
+
+    {T5HPRING, {180,0,0,0,0,0,0,0}},
+    {T5MPRING, {0,180,0,0,0,0,0,0}},
+    {T5ATTRING, {0,0,10,0,0,0,0,0}},
+    {T5DEFRING, {0,0,0,10,0,0,0,0}},
+    {T5SPDRING, {0,0,0,0,10,0,0,0}},
+    {T5DEXRING, {0,0,0,0,0,10,0,0}},
+    {T5WISRING, {0,0,0,0,0,0,0,10}},
+    {T5VITRING, {0,0,0,0,0,0,10,0}},
 
     //hp == mp == attack == defense == speed == dexterity == vitality == wisdom
 };
@@ -2630,7 +2791,11 @@ std::unordered_map<sprites, enemyCategory> spriteToEnemyCategory = {
     {AMDUSCIASARTIFACT, SHOOTORBITMINION},
     {ASTAROTHARTIFACT, SHOOTORBITMINION},
     {ABIGORARTIFACT, SHOOTORBITMINION},
-    {ABYSSALSTARCHASE, SC}
+    {ABYSSALSTARCHASE, SC},
+    {GORDON2, GORDONBOSSAI2},
+    {SOMMELIER, AS},
+    {BUTCHER, AS},
+    {BABYBUTCHER, ASC},
 };  
 
 std::unordered_map<items, textureEnums> itemToIconTexture = {
@@ -2822,6 +2987,7 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T6SHIELD, T6SHIELDICON},
     {T7SHIELD, T7SHIELDICON},
     {T8SHIELD, T8SHIELDICON},
+    {OGMUR, OGMURICON},
     {RETRIBUTIONCLOAK, RETRIBUTIONCLOAKICON},
     {T0CLOAK, T0CLOAKICON},
     {T1CLOAK, T1CLOAKICON},
@@ -2925,7 +3091,15 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {ELECTRICSKULL, ELECTRICSKULLICON},
     {TRIPLESCEPTER, TRIPLESCEPTERICON},
     {BOOMERANGWAND, BOOMERANGWANDICON},
-    {BULWARK, BULWARKICON}
+    {BULWARK, BULWARKICON},
+    {T5HPRING, T5HPRINGICON},
+    {T5MPRING, T5MPRINGICON},
+    {T5ATTRING, T5ATTRINGICON},
+    {T5DEFRING, T5DEFRINGICON},
+    {T5SPDRING, T5SPDRINGICON},
+    {T5DEXRING, T5DEXRINGICON},
+    {T5WISRING, T5WISRINGICON},
+    {T5VITRING, T5VITRINGICON},
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -3118,6 +3292,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T6SHIELD, "Colossus Shield (T6)"},
     {T7SHIELD, "Shield of Orcish Regalia (T7)"},
     {T8SHIELD, "Shield of Belligerence (T8)"},
+    {OGMUR, "Shield of Ogmur"},
     {T0CLOAK, "Cloak of Shadows (T0)"},
     {T1CLOAK, "Cloak of Darkness (T1)"},
     {RETRIBUTIONCLOAK, "Cloak of Retribution (UT)"},
@@ -3221,6 +3396,14 @@ std::unordered_map<items, const char *> itemToName = {
     {TRIPLESCEPTER, "Triadic Scepter (UT)"},
     {BOOMERANGWAND, "Boomerang Wand (UT)"},
     {BULWARK, "Wand of the Bulwark (UT)"},
+    {T5HPRING, "Ring of Unbound Health"},
+    {T5MPRING, "Ring of Unbound Magic"},
+    {T5ATTRING, "Ring of Unbound Attack"},
+    {T5DEFRING, "Ring of Unbound Defense"},
+    {T5SPDRING, "Ring of Unbound Speed"},
+    {T5DEXRING, "Ring of Unbound Dexterity"},
+    {T5WISRING, "Ring of Unbound Wisdom"},
+    {T5VITRING, "Ring of Unbound Vitality"},
 };
 
 std::unordered_map<items, const char *> itemToDescription = {
@@ -3360,7 +3543,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T14ROBE, "A phenomenal robe magically woven from fibers of sapphire, topaz and lapis lazuli, created for the archwizard of the seraphic realms"},
     {T0QUIVER, "A magical quiver that enchants arrows"},
     {T1QUIVER, "An enchanted quiver made of high-quality leather and brass"},
-    {DOOMQUIVER, "A heavy quiver of devastation; each arrow is a whisper of impending cataclysm, leaving none but ruin in its wake. No mortal can fire without feeling immese recoil"},
+    {DOOMQUIVER, "An ancient demonic quiver which leaves none but ruin in its wake. No mortal can fire without feeling immese recoil"},
     {T2QUIVER, "A strong quiver of magical iron"},
     {T3QUIVER, "A powerful enchanting quiver made by forest elves"},
     {T4QUIVER, "A superior enchanting quiver made of high quality magesteel"},
@@ -3413,6 +3596,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T6SHIELD, "A superior shield forged in deep armories for the construct armies of the underworld"},
     {T7SHIELD, "A mighty shield smithed in the burning rivers of the demonic realms to grant the right of sovereignty over the brutal Orclands"},
     {T8SHIELD, "An indestructible shield crafted by the earthgiants, bearing a long history of destruction and strife by entire nations who wish to claim it"},
+    {OGMUR, "This massive shield was created for the wealthy and powerful Ogre kings as a sign of their unrivaled strength"},    
     {T0CLOAK, "A magical cloak, made for slipping into shadows undetected"},
     {T1CLOAK, "An enchanted cloak steeped in magical darkness"},
     {RETRIBUTIONCLOAK, "The Cloak of Retribution steals energy from the shadows to briefly convert speed into attack"},
@@ -3425,7 +3609,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T8CLOAK, "An ancient duskcloak that shifts in and out of existence, swaddling its wearer in an all-consuming nothingness"},
     {T0SPELL, "A spell that shoots fire in all directions"},
     {T1SPELL, "A dangerous spell that summons green fire from the astral plane"},
-    {CURLYWHIRLYSPELL, "A strange crowd-controlling spell that emits slow-moving stunning shots"},
+    {CURLYWHIRLYSPELL, "A demonic spell that has the ability to stun its victims"},
     {T2SPELL, "A deadly spell created by goblin sorcerers to subdue their orcish enemies"},
     {T3SPELL, "A formidable fire spell used by dwarven magi in their war against the trolls"},
     {T4SPELL, "An immensely powerful spell created by the wizard lords of the underworld to harness dark energies"},
@@ -3509,13 +3693,21 @@ std::unordered_map<items, const char *> itemToDescription = {
     {RINGOFASTAROTH, "An abyssal bloodstone ring imbued with dark power"},
     {RINGOFABIGOR, "A malevolent ruby ring that carries the vitality of Abigor"},
     {ABYSSKEY, "A single-use key which summons a portal to the abyss"},
-    {COMPLETIONTROPHY, "A trophy awarded for beating the final boss of the game. Thanks for playing!"},
+    {COMPLETIONTROPHY, "A trophy awarded for beating the final boss of the game. Identical to a Potion of Life. Thanks for playing!"},
     {SPDEFFUSION, "An effusion that temporarily increases speed"},
     {HPEFFUSION, "An effusion with healing properties"},
     {ELECTRICSKULL, "A hollow obsidian skull filled with lightning"},
     {TRIPLESCEPTER, "A heavy green scepter with three outlets to strike more targets that usual"},
     {BOOMERANGWAND, "Reminiscent of the legendary crystal wand, the boomerang wand shoots crystal shards that return to the user"},
     {BULWARK, "This strange weapon was used by ancient battle mages to deter invaders. The secret to its construction has long been lost"},
+    {T5HPRING, "An immaculately perfect topaz embedded in an exquisite gold ring"},
+    {T5MPRING, "An immaculately perfect amethyst embedded in an exquisite gold ring"},
+    {T5ATTRING, "An immaculately perfect spinel embedded in an exquisite gold ring"},
+    {T5DEFRING, "An immaculately perfect onyx embedded in an exquisite gold ring"},
+    {T5SPDRING, "An immaculately perfect emerald embedded in an exquisite gold ring"},
+    {T5DEXRING, "An immaculately perfect citrine embedded in an exquisite gold ring"},
+    {T5WISRING, "An immaculately perfect sapphire embedded in an exquisite gold ring"},
+    {T5VITRING, "An immaculately perfect ruby embedded in an exquisite gold ring"},
     
 };
 
@@ -3541,6 +3733,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T6SHIELD, SHIELD},
     {T7SHIELD, SHIELD},
     {T8SHIELD, SHIELD},
+    {OGMUR, SHIELD},
     {T0SPELL, SPELL},
     {T1SPELL, SPELL},
     {T2SPELL, SPELL},
@@ -3814,7 +4007,16 @@ std::unordered_map<items, groups> itemToGroup = {
     {ELECTRICSKULL, SKULL},
     {TRIPLESCEPTER, SCEPTER},
     {BOOMERANGWAND, WAND},
-    {BULWARK, WAND}
+    {BULWARK, WAND},
+    {T5HPRING, RING},
+    {T5MPRING, RING},
+    {T5ATTRING, RING},
+    {T5DEFRING, RING},
+    {T5SPDRING, RING},
+    {T5DEXRING, RING},
+    {T5WISRING, RING},
+    {T5VITRING, RING},
+    
 
 };
 
@@ -3848,6 +4050,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T6SHIELD, CYANLOOTBAG},
     {T7SHIELD, REDLOOTBAG},
     {T8SHIELD, REDLOOTBAG},
+    {OGMUR, WHITELOOTBAG},
     {T0STAFF, BROWNLOOTBAG},
     {T1STAFF, BROWNLOOTBAG},
     {T2STAFF, BROWNLOOTBAG},
@@ -4112,6 +4315,14 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {TRIPLESCEPTER, WHITELOOTBAG},
     {BOOMERANGWAND, WHITELOOTBAG},
     {BULWARK, WHITELOOTBAG},
+    {T5HPRING, CYANLOOTBAG},
+    {T5MPRING, CYANLOOTBAG},
+    {T5ATTRING, CYANLOOTBAG},
+    {T5DEFRING, CYANLOOTBAG},
+    {T5SPDRING, CYANLOOTBAG},
+    {T5DEXRING, CYANLOOTBAG},
+    {T5WISRING, CYANLOOTBAG},
+    {T5VITRING, CYANLOOTBAG},
 };  
 
 // DATA FOR ITEM SPRITE. NOT FOR WEAPON PROJCETILES! SEE itemEnumToPEC for that
@@ -4408,7 +4619,15 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {TRIPLESCEPTER, {LOFIOBJ6, 8, 8, {8*9, 8*12, 8, 8}, 12, true, false}},
     {BOOMERANGWAND, {LOFIOBJ2, 8, 8, {8*12, 8*7, 8, 8}, 12, true, false}},
     {BULWARK, {LOFIOBJ2, 8, 8, {8*12, 8*6, 8, 8}, 12, true, false}},
-
+    {OGMUR, {LOFIOBJ2, 8, 8, {8*6, 8*5, 8, 8}, 12, true, false}},
+    {T5HPRING, {LOFIOBJ5B, 8, 8, {8*6, 8*21, 8, 8}, 12, true, false}},
+    {T5MPRING, {LOFIOBJ5B, 8, 8, {8*7, 8*21, 8, 8}, 12, true, false}},
+    {T5ATTRING, {LOFIOBJ5B, 8, 8, {8*0, 8*21, 8, 8}, 12, true, false}},
+    {T5DEFRING, {LOFIOBJ5B, 8, 8, {8*1, 8*21, 8, 8}, 12, true, false}},
+    {T5SPDRING, {LOFIOBJ5B, 8, 8, {8*2, 8*21, 8, 8}, 12, true, false}},
+    {T5DEXRING, {LOFIOBJ5B, 8, 8, {8*5, 8*21, 8, 8}, 12, true, false}},
+    {T5VITRING, {LOFIOBJ5B, 8, 8, {8*3, 8*21, 8, 8}, 12, true, false}},
+    {T5WISRING, {LOFIOBJ5B, 8, 8, {8*4, 8*21, 8, 8}, 12, true, false}},
 };
 
 //PECbools = piercing, diagonal, inflictsSE, ignoresdef, oscillates
@@ -4518,7 +4737,8 @@ std::unordered_map<wallTheme, wallData> wallThemeToWallData = { // {textureEnum,
     {CHICKENLAIR, {LOFIENVIRONMENT, {glm::ivec2(0,1), glm::ivec2(4,1)}, glm::ivec2(4,4)}},
     {GORDONSLAIRWALLTHEME, {LOFIENVIRONMENT, {glm::ivec2(0,2), glm::ivec2(4,2)}, glm::ivec2(4,4)}},
     {GODLANDS, {LOFIENVIRONMENT, {glm::ivec2(3,0), glm::ivec2(3,1)}, glm::ivec2(4,4)}},
-    {ABYSS, {LOFIENVIRONMENT, {glm::ivec2(0,3), glm::ivec2(4,3)}, glm::ivec2(4,4)}}
+    {ABYSS, {LOFIENVIRONMENT, {glm::ivec2(0,3), glm::ivec2(4,3)}, glm::ivec2(4,4)}},
+    {GORDONSLAIR2, {LOFIENVIRONMENT, {glm::ivec2(0,2), glm::ivec2(4,2)}, glm::ivec2(4,4)}},
 };
 
 std::unordered_map<classes, std::array<int, 8>> maxStats = {
@@ -4575,6 +4795,7 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {MOUSE0, {2}},
     {BAT0, {0}},
     {GORDON, {0}},
+    {GORDON2, {0}},
     {SHEEP, {0}},
     {GIGASHEEP, {0}},
     {SPRITEGOD, {0}},
@@ -4620,6 +4841,9 @@ std::unordered_map<sprites, AnimatedShootingData> spriteToAnimatedShootingData =
     {HENCHDEMON0, {2}},
     {HENCHDEMON1, {0}},
     {HENCHDEMON2, {0}},
+    {SOMMELIER, {0}},
+    {BUTCHER, {6}},
+    {BABYBUTCHER, {2}},
     
 
 };
@@ -4657,7 +4881,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {IMP1, {BITS_NONE, 500, 600, 750, 30, 1, 0.0f, BLADE}},
     {IMP2, {BITS_NONE, 500, 600, 750, 30, 1, 0.0f, BLADE}},
     {IMP3, {BITS_OSCILLATING_DIAGONAL, 500, 600, 750, 35, 2, 0.0f, YELLOWMISSILE, NULL_STATUS_EFFECT, 0, 24.0f, .004f}},
-    {WHITEDEMON, {BUTS_IGNOREDEF_ROTATE, 500, 600, 750, 45, 5, 60.0f, WHITESTAR}},
+    {WHITEDEMON, {BITS_IGNOREDEF_ROTATE, 500, 600, 750, 45, 5, 60.0f, WHITESTAR}},
     {SKELETON5, {BITS_ROTATING, 1000, 600, 750, 15, 1, 0.0f, BLUEBOOMERANG}},
     {MOUSE0, {BITS_NONE, 500, 450, 400, 10, 1, 0.0f, BLADE}},
     {BAT0, {BITS_ROTATE_INFLICTSE, 1000, 600, 666, 15, 1, 0.0f, PURPLESTAR, SLOWED, 3000}},
@@ -4665,6 +4889,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
 
     {GIGASHEEP, {BITS_NONE, 500, 500, 666, 35, 3, 36.0f, REDMAGIC}},
     {GORDON, {BITS_NONE, 1000, 500, 5000, 70, 17, 360.0f, ORYXCIRCLE}},
+    {GORDON2, {BITS_NONE, 1000, 500, 5000, 70, 17, 360.0f, ORYXCIRCLE}},
 
     {SPRITEGOD, {BITS_NONE, 1000, 448, 2000, 100, 4, 60.0f, PINKMAGIC}},
     {MEDUSA, {BITS_DIAGONAL, 1000, 448, 2000, 100, 5, 60.0f, GREENBOLT}},
@@ -4735,7 +4960,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {ASTAROTH, {BITS_DIAGONAL, 1000, 512, 2000, 200, 0, 360.0f, BLACKBOLT}}, // geb 
     {ABIGOR, {BITS_DIAGONAL, 1000, 484, 2000, 180, 0, 70.0f, BLACKBOLT}}, // bes
                     //RF, speed, duration, damage, numshots, arcgap
-    {LEVIATHAN, {BITS_DIAGONAL, 250, 550, 1300, 50, 2, 5.0f, BLUEMISSILE}},
+    {LEVIATHAN, {BITS_DIAGONAL, 250, 650, 1300, 50, 2, 5.0f, BLUEMISSILE}},
     {REDDEMON, {BITS_ROTATING, 500, 400, 800, 80, 5, 70.0f, REDCROSS}},
 
     {IMP4, {BITS_DIAGONAL, 500, 500, 1200, 38, 3, 15.0f, REDBOLT}},
@@ -4769,6 +4994,10 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {ASTAROTHARTIFACT, {BITS_DIAGONAL, 1000, 700, 400, 40, 3, 360.0f, GREENBOLT}},
     {ABIGORARTIFACT, {BITS_DIAGONAL_INFLICTSE, 2000, 1350, 100, 20, 7, 360.0f, SHILEDBULLET, STUNNED, 3000}},
     {ABYSSALSTARCHASE, {BITS_NONE, 1000, 600, 600, 35, 3, 30.0f, BLACKMAGIC}},
+
+    {SOMMELIER, {BITS_ROTATE_BOOMERANG, 1000, 600, 3500, 75, 12, 360.0f, PURPLEBOOMERANG}},
+    {BUTCHER, {BITS_ROTATE_BOOMERANG, 1000, 600, 3500, 75, 12, 360.0f, REDBOOMERANG}},
+    {BABYBUTCHER, {BITS_IGNOREDEF_ROTATE, 1000, 600, 500, 20, 3, 60.0f, FIREBALL}},
 };
 
 
@@ -4820,6 +5049,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {GHOSTSTATUE, {800,0,0,35,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
 
     {GORDON, {40000,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}},
+    {GORDON2, {65000,0,0,100,40,0,0,0,ORYXHIT,KILLVOID}}, // 65k hp
             //hp,mp,att,def,spd,dex,vit,wis
     {SPRITEGOD,{2000,0,0,12,30,0,40,0,SPRITEGODHIT,SPRITESDEATH}},
     {MEDUSA,{2000,0,0,18,30,0,40,0,MEDUSAHIT,MEDUSADEATH}},
@@ -4869,7 +5099,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SHADE, {1800,0,0,55,0,0,0,0, SKELETONSHIT, SKELETONSDEATH}},
     {FLOATINGSKULL, {50,0,0,20,20,0,0,0, SKELETONSHIT,SKELETONSDEATH}},
     {POTCHEST, {100,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
-    {BARREL, {1000,0,0,0,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {BARREL, {50000,0,0,200,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
     {DUCKLING, {25,0,0,0,12,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
 
     {MUMMY1, {500,0,0,8,22,0,0,0, MUMMIESHIT, MUMMIESDEATH}},
@@ -4877,7 +5107,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {MUMMY3, {650,0,0,12,24,0,0,0, MUMMIESHIT, MUMMIESDEATH}},
     {GREYNECRO, {750,0,0,14,20,0,0,0, NIGHTELVESHIT, NIGHTELVESDEATH}},
                  //hp,mp,att,def,spd,dex,vit,wis
-    {ABYSSTOWER, {5000, 0,0,55,0,0,0,0, STONEWALLSHIT, STONEWALLSDEATH}},
+    {ABYSSTOWER, {7500, 0,0,55,0,0,0,0, STONEWALLSHIT, STONEWALLSDEATH}},
     {TRIPDEMON, {3000, 0,0,40,1,0,0,0, ABYSSBRUTESHIT, ABYSSBRUTESDEATH}},
     {AMDUSCIAS, {40000, 0,0,55,5,0,0,0, ARCHDEMONHIT, ARCHDEMONDEATH}},
     {ASTAROTH, {40000, 0,0,55,5,0,0,0, ARCHDEMONHIT, ARCHDEMONDEATH}},
@@ -4900,7 +5130,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {MEDIUMDRAGON, {1200,0,0,18,25,0,0,0, DRAGONSHIT,DRAGONSDEATH}},
     {LARGEDRAGON, {1800,0,0,20,22,0,0,0, DRAGONSHIT,DRAGONSDEATH}},
 
-    {BRUTECRUSADER, {4000,0,0,35,5,0,0,0, ARCHDEMONHIT,ARCHDEMONDEATH}},
+    {BRUTECRUSADER, {6500,0,0,35,5,0,0,0, ARCHDEMONHIT,ARCHDEMONDEATH}},
     {CRUSADER0, {650,0,0,10,36,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {CRUSADER1, {650,0,0,10,28,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {CRUSADER2, {650,0,0,10,40,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
@@ -4918,6 +5148,10 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {ASTAROTHARTIFACT, {3500, 0,0,35,13,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
     {ABIGORARTIFACT, {3500, 0,0,35,13,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
     {ABYSSALSTARCHASE, {300,0,0,15,30,0,0,0, DEFAULTHIT,DEFAULTDEATH}},
+
+    {SOMMELIER, {5000,0,0,5,0,0,100,0, REDKNIGHTHIT, REDKNIGHTDEATH}},
+    {BUTCHER, {5000,0,0,5,0,0,100,0, REDKNIGHTHIT, REDKNIGHTDEATH}},
+    {BABYBUTCHER, {1000,0,0,0,0,0,0,0, REDKNIGHTHIT, REDKNIGHTDEATH}},
     
 
 };
@@ -4999,6 +5233,7 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {GIGASHEEP,{CHARS8X8BEACH, 8, 8, {0,8*1,8,8},4,false,false}},
 
     {GORDON, {CHARS16X16ENCOUNTERS, 16,16, {0,16*58,16,16}, 4, false, false}},
+    {GORDON2, {CHARS16X16ENCOUNTERS, 16,16, {0,16*59,16,16}, 4, false, false}},
 
     {SPRITEGOD,{CHARS16X16MOUNTAINS1, 16,16, {0,16*1,16,16}, 4, false, false}},
     {MEDUSA,{CHARS16X16MOUNTAINS1, 16,16, {0,16*2,16,16}, 4, false, false}},
@@ -5098,6 +5333,10 @@ std::unordered_map<sprites, spritedata> enumToSpriteComponent = {
     {AMDUSCIASARTIFACT, {LOFIOBJ5,8,8,{8*12, 8*11,8,8},4,false,false}},
     {ASTAROTHARTIFACT, {LOFIOBJ5,8,8,{8*12, 8*13,8,8},4,false,false}},
     {ABIGORARTIFACT, {LOFIOBJ5,8,8,{8*12, 8*15,8,8},4,false,false}},
+
+    {SOMMELIER, {CHARS16X16ENCOUNTERS, 16,16,{0,16*1,16,16}, 4, false, false}},
+    {BUTCHER, {CHARS16X16ENCOUNTERS, 16,16,{0,16*14,16,16}, 4, false, false}},
+    {BABYBUTCHER, {CHARS8X8BEACH, 8,8,{0,8*7,8,8}, 4, false, false}},
 
 };
 
@@ -5222,6 +5461,10 @@ std::unordered_map<sprites, boxColliders> spriteToBC = {
     {ASTAROTHARTIFACT, STANDARD},
     {ABIGORARTIFACT, STANDARD},
     {ABYSSALSTARCHASE,STANDARD},
+    {GORDON2, BIGSCALED8},
+    {SOMMELIER, BIG},
+    {BUTCHER, BIG},
+    {BABYBUTCHER, STANDARD},
     
 };
 
@@ -5261,6 +5504,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {MOUSE0,{600,0,150}},
     {BAT0,{600,0,150}},
     {GORDON, {750,0,5}},
+    {GORDON2, {750,0,5}},
     {GIGASHEEP, {1000,0,120}}, // detect, engage, max
     {HELLHOUND, {500,0,120}},
     {SPRITEGOD, {300, 0, 280}}, // prev 500 not 300
@@ -5307,16 +5551,17 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {MEDIUMDRAGON,{600,0,150}},
     {LARGEDRAGON, {600,0,200}},
     {BRUTECRUSADER, {750,0,100}},
-    {CRUSADER0, {750,0,150}},
-    {CRUSADER1, {750,0,100}},
-    {CRUSADER2, {750,0,250}},
-    {CRUSADER3, {750,0,175}},
-    {CRUSADER4, {750,0,200}},
+    {CRUSADER0, {750,0,25}},
+    {CRUSADER1, {750,0,35}},
+    {CRUSADER2, {750,0,30}},
+    {CRUSADER3, {750,0,40}},
+    {CRUSADER4, {750,0,45}},
     {MALPHAS, {750,0,200}},
     {HENCHDEMON0, {650,0,200}},
     {HENCHDEMON1, {650,0,200}},
     {HENCHDEMON2, {650,0,200}},
     {ABYSSALSTARCHASE, {1000,0,100}},
+    {BABYBUTCHER, {750,0,128}},
 };
 
 std::unordered_map<sprites, trapaidata> spritetotrap = {
@@ -5356,6 +5601,7 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {MOUSE0, {3,0,0}},
     {BAT0, {3,0,0}},
     {GORDON, {2,0,0}},
+    {GORDON2, {2,0,0}},
     {SHEEP, {3,0,0}},
     {GIGASHEEP, {3,0,0}},
     {SPRITEGOD, {3, 0, 0}},
@@ -5402,6 +5648,9 @@ std::unordered_map<sprites, animationData> spriteToAnimationData = {
     {HENCHDEMON0, {3,0,0}},
     {HENCHDEMON1, {3,0,0}},
     {HENCHDEMON2, {3,0,0}},
+    {SOMMELIER, {3,0,0}},
+    {BUTCHER, {3,0,0}},
+    {BABYBUTCHER, {3,0,0}},
 
 };
 
@@ -5470,12 +5719,12 @@ std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData
 };
 
 std::unordered_set<sprites> hasDeathAction = {
-    PENTARACT, MYSTERIOUSCRYSTAL, CHICKENEGG, BROWNSLIMELARGE, BROWNSLIMEMEDIUM, BLACKSLIMELARGE, BLACKSLIMEMEDIUM, SIMBA, DRAGONEGG, SMALLDRAGON, MEDIUMDRAGON, MALPHAS, ABYSSTOWER
+    PENTARACT, MYSTERIOUSCRYSTAL, CHICKENEGG, BROWNSLIMELARGE, BROWNSLIMEMEDIUM, BLACKSLIMELARGE, BLACKSLIMEMEDIUM, SIMBA, DRAGONEGG, SMALLDRAGON, MEDIUMDRAGON, MALPHAS, ABYSSTOWER, GORDON
 };
 
 std::vector<sprites> chickens = {
     TINYWHITECHICKEN, TINYREDCHICKEN, WHITECHICKEN, DUCK
 };
 std::unordered_set<sprites> healsOther = {
-    TRIPDEMON,CRUSADER4,REAPER,MYSTERIOUSCRYSTAL,AMDUSCIAS,ASTAROTH,ABIGOR,
+    TRIPDEMON,CRUSADER4,REAPER,MYSTERIOUSCRYSTAL,AMDUSCIAS,ASTAROTH,ABIGOR,GORDON2
 };

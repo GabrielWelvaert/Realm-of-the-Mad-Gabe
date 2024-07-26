@@ -33,7 +33,7 @@ struct ProjectileEmitterComponent{
     unsigned short duration; // ms until death of projectile
     unsigned short maxDamage; // max damage 
     unsigned short minDamage; // used by player; damage between minDamage and damage;
-    Uint32 lastEmissionTime;
+    Uint32 lastEmissionTime = 0;
     unsigned char shots = 0; // dont use odd number of shots with 360, 720, etc
     float arcgap; // sum of all angles between shots
 

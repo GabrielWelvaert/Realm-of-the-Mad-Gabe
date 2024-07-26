@@ -32,7 +32,7 @@ void DistanceToPlayerSystem::onScepterUse(ScepterUseEvent& event){
     ascendingSort(); // sort monsters in ascending order of distance from player
     const auto& entities = GetSystemEntities(); // all non-invisible monsters will be here!
     glm::vec2 target = {event.mx + event.camera.x, event.my + event.camera.y}; // global mouse position
-    constexpr int maxDistanceBetweenTargets = 300; // lightning can travel to next target if it is within this radius
+    constexpr int maxDistanceBetweenTargets = 500; // lightning can travel to next target if it is within this radius
     float playerToMouseDistance = glm::distance(target, playerPos);
     float playerToMouseAngle = angleDegreesTwoPoints(playerCenter, target);
     constexpr float peripheralMax = 50.0f; 
@@ -114,7 +114,7 @@ void DistanceToPlayerSystem::onScepterUse(ScepterUseEvent& event){
 void DistanceToPlayerSystem::onSkullUse(SkullUseEvent& event){
     int skullTracker = 0;
     const auto& playerTransform = event.player.GetComponent<TransformComponent>();
-    const auto& playerPos = playerTransform.position;
+    glm::vec2 playerPos = playerTransform.position;
     const auto& playerSprite = event.player.GetComponent<SpriteComponent>();
     const auto& skullData = event.player.GetComponent<SkullComponent>();
     glm::vec2 playerCenter = spriteCenter(playerTransform, playerSprite);
@@ -138,11 +138,11 @@ void DistanceToPlayerSystem::onSkullUse(SkullUseEvent& event){
             Entity simulatedProjectile = event.registry->CreateEntity();
             switch(skullData.itemEnum){
                 case ELECTRICSKULL:{
-                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,INT_MAX,false,event.player, 4,NONESPRITE, true, SLOWED, 4000, false);
+                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,1,true,event.player, 4,NONESPRITE, true, SLOWED, 4000, false);
                     event.eventBus->EmitEvent<ProjectileDamageEvent>(simulatedProjectile,entity,event.eventBus,event.registry,event.assetStore,event.factory,&skullTracker);
                 } break;
                 default:{
-                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,INT_MAX,false,event.player, 4,NONESPRITE);
+                    simulatedProjectile.AddComponent<ProjectileComponent>(skullData.damage,1,true,event.player, 4,NONESPRITE);
                     event.eventBus->EmitEvent<ProjectileDamageEvent>(simulatedProjectile,entity,event.eventBus,event.registry,event.assetStore,event.factory,&skullTracker);
                 } break;
             }
@@ -158,7 +158,7 @@ void DistanceToPlayerSystem::onSkullUse(SkullUseEvent& event){
     } else {
         amount = skullTracker;
     }
-    if(amount > 0){
+    if(amount > 0){ // spawning green heal text
         Entity text = event.registry->CreateEntity();
         text.AddComponent<TextLabelComponent>("+" + std::to_string(amount),"damagefont",xpgreen,false,350,event.player.GetId(),event.player.GetCreationId());
         text.AddComponent<TransformComponent>(playerPos);  

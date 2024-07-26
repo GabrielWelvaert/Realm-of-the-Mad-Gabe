@@ -25,6 +25,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 
     // very few monsters will requrie non-default (6.0) scaling
     switch(spriteEnum){
+        case GORDON2:
         case AMDUSCIAS:
         case ASTAROTH:
         case ABIGOR:
@@ -74,6 +75,10 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             case ABIGOR:{
                 interval = 1000;
                 amount = 200;
+            } break;
+            case GORDON2:{
+                interval = 1000;
+                amount = 1000;
             } break;
         } 
         if(parentId == -1){
@@ -309,6 +314,21 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             ac.xmin = 0;
             ac.numFrames = 1;
         } break;
+        case GORDONBOSSAI2:{
+            enemy.AddComponent<AnimationComponent>(spriteEnum);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
+            enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<AnimatedShootingComponent>(spriteEnum);
+            enemy.AddComponent<BossAIComponent>(spriteEnum, spawnpoint, 0, 0, 0);
+            auto& sec = enemy.GetComponent<StatusEffectComponent>();
+            sec.effects[INVULNERABLE] = true;
+            sec.endTimes[INVULNERABLE] = 0-1;
+            auto& ac = enemy.GetComponent<AnimationComponent>();
+            ac.xmin = 0;
+            ac.numFrames = 1;
+            enemy.AddComponent<isShootingComponent>();
+            enemy.AddComponent<OrbitalMovementComponent>(900.0f, false, spawnpoint);
+        } break;
     }
 
     return enemy;
@@ -316,6 +336,8 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
 
 void Factory::spawnDecoration(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, const sprites& spriteEnum){
     Entity decoration = registry->CreateEntity();
+    std::vector<SDL_RendererFlip> flipsOne = {SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL};
+    std::vector<SDL_RendererFlip> flipsTwo = {SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, SDL_FLIP_VERTICAL};
     switch(spriteEnum){
         case CRACKEDWHITEEGG:{
             decoration.AddComponent<SpriteComponent>(LOFICHAR,8,8,4,8*6,8*14,false);
@@ -327,11 +349,11 @@ void Factory::spawnDecoration(std::unique_ptr<Registry>& registry, const glm::ve
         } break;
         case FLOORBLOOD:{
             auto xpos = RNG.randomFromRange(3,5);
-            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,1,xpos*8,8*5,false);
+            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,1,xpos*8,8*5,false,RNG.randomFromVector(flipsTwo));
             decoration.AddComponent<TransformComponent>(spawnpoint);
         } break;
         case FLOORSKULL:{
-            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,2,0,8,false);
+            decoration.AddComponent<SpriteComponent>(LOFIOBJ,8,8,2,0,8,false,RNG.randomFromVector(flipsOne));
             decoration.AddComponent<TransformComponent>(spawnpoint);
         } break;
         case CRACKEDDRAGONEGG:{
@@ -354,7 +376,6 @@ Entity Factory::spawnGodLandsSpawner(std::unique_ptr<Registry>& registry, const 
 }
 
 void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius, colors color){
-    // these particles will need their own system & component for movement & elimintaion
     SDL_Rect square = {0,8*5,8,8};
     switch(color){
         case RED:{
@@ -380,7 +401,6 @@ void Factory::spawnAOEParticles(std::unique_ptr<Registry>& registry, const glm::
 }
 
 void Factory::spawnNecromancerParticles(std::unique_ptr<Registry>& registry, const glm::vec2& spawnpoint, float radius){
-    // these particles will need their own system & component for movement & elimintaion
     const SDL_Rect redsquare = {0,8*5,8,8};
     const SDL_Rect purplesquare = {8*2,8*5,8,8};
     glm::vec2 velocity;
@@ -496,6 +516,7 @@ void Factory::populateDungeonWithMonsters(std::unique_ptr<Registry>& registry, s
         glm::vec2 roomCenter = glm::vec2(((room.x + (room.w / 2)) * 64), ((room.y + (room.h / 2)) * 64));
         if(room.id == 0){ // spawn room
             if(dungeonType == ABYSS){ // bosses spawn in spawn room of abyss
+                // std::cout << "spawning bosses at " << roomCenter.x << ", " << roomCenter.y << '\n'; 
                 constexpr float distance = 350.0f;
                 constexpr std::array<sprites, 3> bossdemons = {ASTAROTH, AMDUSCIAS, ABIGOR};
                 std::vector<Entity> abyssBosses; // will be {astaroth, amduscias, abigor}
@@ -630,7 +651,7 @@ void Factory::spawnTreasureRoomChest(std::unique_ptr<Registry>& registry, const 
         } break;
         case ABYSS:{
             constexpr std::array<sprites, 3> abyssbosses = {ABIGOR, AMDUSCIAS, ASTAROTH};
-            int bossIndex = RNG.randomFromRange(0, abyssbosses.size());
+            int bossIndex = RNG.randomFromRange(0, abyssbosses.size()-1);
             chest.AddComponent<ItemTableComponent>(abyssbosses[bossIndex]);
             constexpr std::array<sprites, 2> greenbrutes = {GREENBRUTE0, GREENBRUTE1};
             for(int i = 0; i < 6; i++){
@@ -745,7 +766,7 @@ void Factory::spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpo
 
 void Factory::spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager){
     CharacterManager->KillInvalidVaultFiles();
-    for(int i = 0; i <= 5; i++){
+    for(int i = 0; i <= 8; i++){
         std::vector<int> itemInts = CharacterManager->GetItemsFromVault(i+1);
         glm::vec2 spawn = vaultSpawns[i];
         Entity vaultChest = creatLootBag(registry, spawn, VAULTCHEST);
@@ -772,8 +793,10 @@ void Factory::spawnAdminLootInNexus(std::unique_ptr<Registry>& registry){
     constexpr std::array<items, 8> priestNecro = {T10WAND, T4TOME, T10ROBE, T4HPRING, T10STAFF, T4SKULL, T10ROBE, T4HPRING};
     constexpr std::array<items, 8> sorcPaladin = {T10WAND, T4SCEPTER, T10ROBE, T4HPRING, T10SWORD, T4SEAL, T10HEAVYARMOR, T4HPRING};
     constexpr std::array<items, 8> wizardArcher = {T10STAFF, T4SPELL, T10ROBE, T4HPRING, T10BOW, T4QUIVER, T10LIGHTARMOR, T4HPRING};
-    constexpr std::array<items, 8> rogue = {T10DAGGER, T4CLOAK, T10HEAVYARMOR, T4HPRING, T14DAGGER, T14SWORD, T14STAFF, T14WAND};
-    std::vector<std::array<items, 8>> bags = {warriorKnight, priestNecro, sorcPaladin, wizardArcher, rogue};
+    constexpr std::array<items, 8> rogue = {T10DAGGER, T4CLOAK, T10HEAVYARMOR, T4HPRING, T14DAGGER, T14SWORD, T14STAFF, TRIPLESCEPTER};
+    constexpr std::array<items, 8> extra = {ADMINCROWN, CHRONUSDIRK, ADMINSWORD, ADMINWAND, OGMUR, CURLYWHIRLYSPELL, GORDONINCANTATION, OREO};
+    constexpr std::array<items, 8> extra2 = {T5HPRING, T5MPRING, T5ATTRING, T5DEFRING, T5DEXRING, T5SPDRING, T5VITRING, T5WISRING};
+    std::vector<std::array<items, 8>> bags = {warriorKnight, priestNecro, sorcPaladin, wizardArcher, rogue, extra, extra2};
     glm::vec2 bagSpawn(750,1350);
     for(auto& bag: bags){
         bagSpawn.y -= 64.0f;    

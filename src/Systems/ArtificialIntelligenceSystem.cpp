@@ -429,17 +429,18 @@ void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>
         }
         const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
         const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
-        glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-        float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+        // glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+
+        float distanceFromOrbitalPath = glm::distance(pt.center, position) - oc.distance;
         if(distanceFromOrbitalPath < -5.0f){ // inside of orbiath path; use escapvelocity to move outward
             oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
             velocity = mc.escapeVelocity;
         } else { // entity is now close enough to orbital path, start orbiting
-            oc.origin = parentCenter;
+            oc.origin = pt.center;
             if(!oc.orbiting){
                 oc.orbiting = true;
                 velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+                oc.angle = std::atan2(position.y - pt.center.y, position.x - pt.center.x);
             }
         }
     }
@@ -488,17 +489,17 @@ void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
         }
         const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
         const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
-        glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-        float distanceFromOrbitalPath = glm::distance(parentCenter, position) - oc.distance;
+        // glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
+        float distanceFromOrbitalPath = glm::distance(pt.center, position) - oc.distance;
         if(distanceFromOrbitalPath < -5.0f){ // inside of orbiat path; use escapvelocity to move outward
             oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
             velocity = mc.escapeVelocity;
         } else { // entity is now close enough to orbital path, start orbiting
-            oc.origin = parentCenter;
+            oc.origin = pt.center;
             if(!oc.orbiting){
                 oc.orbiting = true;
                 velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                oc.angle = std::atan2(position.y - parentCenter.y, position.x - parentCenter.x);
+                oc.angle = std::atan2(position.y - pt.center.y, position.x - pt.center.x);
             }
         }
     }
@@ -678,7 +679,7 @@ InvisibleBossAISystem::InvisibleBossAISystem(){
 void InvisibleBossAISystem::Update(const Entity& player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, const room& bossRoom, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){
-        auto& origin = entity.GetComponent<TransformComponent>().center;
+        glm::vec2 origin = entity.GetComponent<TransformComponent>().center;
         auto& aidata = entity.GetComponent<BossAIComponent>();
         auto& msc = entity.GetComponent<MinionSpawnerComponent>();
         int numLivingMinions = msc.minionIdToCreationId.size();
@@ -818,133 +819,148 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
     // this system should have a state-machine approach to updating the animation and PEC (it does not but know now its a good idea)
     // i.e. update state such as WALKING, SHOOTING, STANDING rather than manually setting PEC, ASC, AC etc
-    
+
+    #define RESET_ALL_POINTERS transform = &entity.GetComponent<TransformComponent>();velocity = &entity.GetComponent<RidigBodyComponent>().velocity;aidata = &entity.GetComponent<BossAIComponent>();pec = &entity.GetComponent<ProjectileEmitterComponent>();isShooting = &entity.GetComponent<isShootingComponent>().isShooting;hp = &entity.GetComponent<HPMPComponent>().activehp;speed = &entity.GetComponent<SpeedStatComponent>().activespeed;sec = &entity.GetComponent<StatusEffectComponent>();sprite = &entity.GetComponent<SpriteComponent>();hitnoise = &entity.GetComponent<HPMPComponent>().hitsound;distanceToPlayer = &entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;asc = &entity.GetComponent<AnimatedShootingComponent>();ac = &entity.GetComponent<AnimationComponent>();
+    #define ABYSS_RESET_ALL transform = &entity.GetComponent<TransformComponent>();velocity = &entity.GetComponent<RidigBodyComponent>().velocity;aidata = &entity.GetComponent<BossAIComponent>();pec = &entity.GetComponent<ProjectileEmitterComponent>();isShooting = &entity.GetComponent<isShootingComponent>().isShooting;hp = &entity.GetComponent<HPMPComponent>().activehp;speed = &entity.GetComponent<SpeedStatComponent>().activespeed;sec = &entity.GetComponent<StatusEffectComponent>();sprite = &entity.GetComponent<SpriteComponent>();hitnoise = &entity.GetComponent<HPMPComponent>().hitsound;distanceToPlayer = &entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;asc = &entity.GetComponent<AnimatedShootingComponent>();ac = &entity.GetComponent<AnimationComponent>();omc = &entity.GetComponent<OrbitalMovementComponent>();msc = &entity.GetComponent<MinionSpawnerComponent>();hoc = &entity.GetComponent<HealOtherComponent>();
+    #define RESET_PROJECTILE_POINTERS velocity = &entity.GetComponent<RidigBodyComponent>().velocity;transform = &entity.GetComponent<TransformComponent>();sprite = &entity.GetComponent<SpriteComponent>();
+
     for(auto& entity: GetSystemEntities()){
-        const bool& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
-        const auto& paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
-        const auto& transform = entity.GetComponent<TransformComponent>();
-        auto& position = entity.GetComponent<TransformComponent>().position;
-        auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
-        auto& aidata = entity.GetComponent<BossAIComponent>();
-        auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        auto& pec = entity.GetComponent<ProjectileEmitterComponent>();
-        auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
-        auto& hp = entity.GetComponent<HPMPComponent>().activehp;
-        auto& speed = entity.GetComponent<SpeedStatComponent>().activespeed;
-        auto& sec = entity.GetComponent<StatusEffectComponent>();
-        auto& sprite = entity.GetComponent<SpriteComponent>();
-        auto& hitnoise = entity.GetComponent<HPMPComponent>().hitsound;
-        const auto& distanceToPlayer = entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
-        switch(aidata.bossType){
+        bool stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        bool paralyzed = entity.GetComponent<StatusEffectComponent>().effects[PARALYZE];
+        auto * transform = &entity.GetComponent<TransformComponent>();
+        auto * velocity = &entity.GetComponent<RidigBodyComponent>().velocity;
+        auto * aidata = &entity.GetComponent<BossAIComponent>();
+        auto * pec = &entity.GetComponent<ProjectileEmitterComponent>();
+        auto * isShooting = &entity.GetComponent<isShootingComponent>().isShooting;
+        auto * hp = &entity.GetComponent<HPMPComponent>().activehp;
+        auto * speed = &entity.GetComponent<SpeedStatComponent>().activespeed;
+        auto * sec = &entity.GetComponent<StatusEffectComponent>();
+        auto * sprite = &entity.GetComponent<SpriteComponent>();
+        auto * hitnoise = &entity.GetComponent<HPMPComponent>().hitsound;
+        auto * distanceToPlayer = &entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+        switch(aidata->bossType){
             case BOSSCHICKEN: { 
-                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-                auto& ac = entity.GetComponent<AnimationComponent>();
-                if(!aidata.activated){
-                    if(distanceToPlayer <= aidata.detectRange){
-                        aidata.activated = true; 
+                auto * asc = &entity.GetComponent<AnimatedShootingComponent>();
+                auto * ac = &entity.GetComponent<AnimationComponent>();
+                if(!aidata->activated){
+                    if(*distanceToPlayer <= aidata->detectRange){
+                        aidata->activated = true; 
                     }
                     return; // boss will activate next frame
                 } 
-                if(!isShooting && !playerInvisible && !stunned){ // re-enable shooting for any phase
-                    asc.animatedShooting = true;
-                    isShooting = true;
-                    ac.xmin = 4;
-                    ac.numFrames = 2; 
-                    ac.currentFrame = 1;
-                    ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                    pec.lastEmissionTime += pec.repeatFrequency / 2;
+                if(!*isShooting && !playerInvisible && !stunned){ // re-enable shooting for any phase
+                    asc->animatedShooting = true;
+                    *isShooting = true;
+                    ac->xmin = 4;
+                    ac->numFrames = 2; 
+                    ac->currentFrame = 1;
+                    ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                    pec->lastEmissionTime += pec->repeatFrequency / 2;
                 }
-                if(hp > aidata.secondPhase){ // first phase, run around in a circle
-                    glm::vec2 currentDestPos = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                    if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; change destination
-                        aidata.phaseOneIndex ++;
-                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                            aidata.phaseOneIndex = 0;
+                if(*hp > aidata->secondPhase){ // first phase, run around in a circle
+                    glm::vec2 currentDestPos = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                    if(std::abs(transform->position.x - currentDestPos.x) <= 3 && std::abs(transform->position.y - currentDestPos.y) <= 3){ // standing at destination transform->position; change destination
+                        aidata->phaseOneIndex ++;
+                        if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                            aidata->phaseOneIndex = 0;
                         }    
                     } 
-                    chasePosition(position, aidata.phaseOnePositions[aidata.phaseOneIndex], velocity);
+                    chasePosition(transform->position, aidata->phaseOnePositions[aidata->phaseOneIndex], *velocity);
                     if(playerInvisible || stunned){ // if invisible or stunned, switch to walking animation
-                        asc.animatedShooting = false;
-                        isShooting = false;
-                        ac.xmin = 0;
-                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+                        asc->animatedShooting = false;
+                        *isShooting = false;
+                        ac->xmin = 0;
+                        !paralyzed ? ac->numFrames = 2 : ac->numFrames = 1;
                     }
 
-                } else if(hp < aidata.survival){ // survival phase, chase player
-                    if(!aidata.flags[0]){
-                        pec.shots = 8;
-                        pec.arcgap = 48;
-                        aidata.flags[0] = true;
+                } else if(*hp < aidata->survival){ // survival phase, chase player
+                    if(!aidata->flags[0]){
+                        pec->shots = 8;
+                        pec->arcgap = 48;
+                        aidata->flags[0] = true;
                         assetStore->PlaySound(EGGSDEATH);
                         if(RNG.randomBool()){
                             for(int i = 0; i < 5; i++){
-                                factory->spawnMonster(registry, aidata.phaseTwoPositions[i], WHITECHICKEN);
+                                factory->spawnMonster(registry, aidata->phaseTwoPositions[i], WHITECHICKEN);
                             }    
                         } else {
-                            glm::vec2 pos = spriteCenter(transform, sprite);
+                            glm::vec2 pos = spriteCenter(*transform, *sprite);
                             for(int i = 0; i < 5; i++){
                                 factory->spawnMonster(registry, pos, DUCKLING, entity.GetId());
                             }
                         }
+                        transform = &entity.GetComponent<TransformComponent>();
+                        velocity = &entity.GetComponent<RidigBodyComponent>().velocity;
+                        aidata = &entity.GetComponent<BossAIComponent>();
+                        pec = &entity.GetComponent<ProjectileEmitterComponent>();
+                        isShooting = &entity.GetComponent<isShootingComponent>().isShooting;
+                        hp = &entity.GetComponent<HPMPComponent>().activehp;
+                        speed = &entity.GetComponent<SpeedStatComponent>().activespeed;
+                        sec = &entity.GetComponent<StatusEffectComponent>();
+                        sprite = &entity.GetComponent<SpriteComponent>();
+                        hitnoise = &entity.GetComponent<HPMPComponent>().hitsound;
+                        distanceToPlayer = &entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
+                        asc = &entity.GetComponent<AnimatedShootingComponent>();
+                        ac = &entity.GetComponent<AnimationComponent>();
                     }
 
                     if(stunned){
-                        asc.animatedShooting = false;
-                        isShooting = false;
-                        ac.xmin = 0;
-                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+                        asc->animatedShooting = false;
+                        *isShooting = false;
+                        ac->xmin = 0;
+                        !paralyzed ? ac->numFrames = 2 : ac->numFrames = 1;
                     } 
                     if(playerInvisible){
-                        asc.animatedShooting = false;
-                        isShooting = false;
-                        ac.xmin = 0;
-                        ac.numFrames = 1;
-                        velocity = {0.0,0.0};    
+                        asc->animatedShooting = false;
+                        *isShooting = false;
+                        ac->xmin = 0;
+                        ac->numFrames = 1;
+                        *velocity = {0.0,0.0};    
                     } else if(!playerInvisible){
-                        if(std::abs(position.x - playerPos.x) <= 3 && std::abs(position.y - playerPos.y) <= 3){
-                            velocity.x = velocity.y = 0.0;
+                        if(std::abs(transform->position.x - playerPos.x) <= 3 && std::abs(transform->position.y - playerPos.y) <= 3){
+                            velocity->x = velocity->y = 0.0f;
                         } else {
-                            chasePosition(position, playerPos, velocity);    
+                            chasePosition(transform->position, playerPos, *velocity);    
                         }
                     }
 
                 } else { // second phase, chase corners
-                    speed = 50;
-                    pec.shots = 5;
+                    *speed = 50;
+                    pec->shots = 5;
                     Uint32 time = SDL_GetTicks();
-                    glm::vec2 currentDestPos = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
-                    if(aidata.timer0 + 1500 < time || aidata.timer0 == 0){
-                        int oldIndex = aidata.phaseTwoIndex;
-                        while(aidata.phaseTwoIndex == oldIndex){
-                            aidata.phaseTwoIndex = RNG.randomFromRange(0,4);    
+                    glm::vec2 currentDestPos = aidata->phaseTwoPositions[aidata->phaseTwoIndex];
+                    if(aidata->timer0 + 1500 < time || aidata->timer0 == 0){
+                        int oldIndex = aidata->phaseTwoIndex;
+                        while(aidata->phaseTwoIndex == oldIndex){
+                            aidata->phaseTwoIndex = RNG.randomFromRange(0,4);    
                         }
-                        aidata.timer0 = time;
+                        aidata->timer0 = time;
                     } 
                     if(playerInvisible || stunned){
-                        asc.animatedShooting = false;
-                        isShooting = false;
-                        ac.xmin = 0;
-                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+                        asc->animatedShooting = false;
+                        *isShooting = false;
+                        ac->xmin = 0;
+                        !paralyzed ? ac->numFrames = 2 : ac->numFrames = 1;
                     } 
-                    if(std::abs(position.x - currentDestPos.x) <= 3 && std::abs(position.y - currentDestPos.y) <= 3){ // standing at destination position; dont move
-                        velocity.x = velocity.y = 0.0;
+                    if(std::abs(transform->position.x - currentDestPos.x) <= 3 && std::abs(transform->position.y - currentDestPos.y) <= 3){ // standing at destination transform->position; dont move
+                        velocity->x = velocity->y = 0.0;
                     } else{
-                        chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);    
+                        chasePosition(transform->position, aidata->phaseTwoPositions[aidata->phaseTwoIndex], *velocity);    
                     }
 
                 }
             } break;
             case ARCMAGE:{
-                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-                auto& ac = entity.GetComponent<AnimationComponent>();
-                if(!aidata.activated){ 
-                    if(distanceToPlayer <= 300){ // activate arcmage
-                        aidata.timer0 = SDL_GetTicks();
+                auto * asc = &entity.GetComponent<AnimatedShootingComponent>();
+                auto * ac = &entity.GetComponent<AnimationComponent>();
+                if(!aidata->activated){ 
+                    if(*distanceToPlayer <= 300){ // activate arcmage
+                        aidata->timer0 = SDL_GetTicks();
                         assetStore->PlaySound(MNOVA);
-                        aidata.activated = aidata.flags[0] = true;
-                        sec.effects[INVULNERABLE] = false;
-                        sprite.srcRect.y = 16*111; // moving down one to cyan sprite
-                        hitnoise = GHOSTGODHIT;
+                        aidata->activated = aidata->flags[0] = true;
+                        sec->effects[INVULNERABLE] = false;
+                        sprite->srcRect.y = 16*111; // moving down one to cyan sprite
+                        *hitnoise = GHOSTGODHIT;
                         Entity block = registry->CreateEntity();
                         switch(roomToShut.directionOfHallway){ 
                             case NORTH:
@@ -970,239 +986,247 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 block.Group(WALLBOX);
                             } break;
                         }
-                        asc.animatedShooting = true;
-                        isShooting = true;
-                        ac.xmin = 4;
-                        ac.numFrames = 2; 
-                        ac.currentFrame = 1;
-                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                        pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        transform = &entity.GetComponent<TransformComponent>();
+                        sprite = &entity.GetComponent<SpriteComponent>();
+                        asc->animatedShooting = true;
+                        *isShooting = true;
+                        ac->xmin = 4;
+                        ac->numFrames = 2; 
+                        ac->currentFrame = 1;
+                        ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                        pec->lastEmissionTime += pec->repeatFrequency / 2;
                     }
                 } else { // boss is activated. phases
                     Uint32 time = SDL_GetTicks();
-                    if(hp > aidata.secondPhase){ // first phase
-                        if(time >= aidata.timer0 + 10000 && time - pec.lastEmissionTime > pec.repeatFrequency){ // shoot circle of stars every 10 seconds
+                    if(*hp > aidata->secondPhase){ // first phase
+                        if(time >= aidata->timer0 + 10000 && time - pec->lastEmissionTime > pec->repeatFrequency){ // shoot circle of stars every 10 seconds
                             if(!playerInvisible && !stunned){ // state = STAND-DONT-SHOOT
-                                aidata.timer0 = time;
-                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                                aidata->timer0 = time;
+                                arcMageConfuseShots(entity, transform->position, registry, aidata->phaseOnePositions);
+                                RESET_PROJECTILE_POINTERS
                             }
                         }
                         if(playerInvisible || stunned){ // state = STAND-DONT-SHOOT
-                            aidata.timer0 = time;
-                            asc.animatedShooting = false;
-                            isShooting = false;
-                            ac.xmin = 0;
-                            ac.numFrames = 1;
-                        } else if(!isShooting){
-                            asc.animatedShooting = true;
-                            isShooting = true;
-                            ac.xmin = 4;
-                            ac.numFrames = 2; 
-                            ac.currentFrame = 1;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            pec.lastEmissionTime += pec.repeatFrequency / 2;
+                            aidata->timer0 = time;
+                            asc->animatedShooting = false;
+                            *isShooting = false;
+                            ac->xmin = 0;
+                            ac->numFrames = 1;
+                        } else if(!*isShooting){
+                            asc->animatedShooting = true;
+                            *isShooting = true;
+                            ac->xmin = 4;
+                            ac->numFrames = 2; 
+                            ac->currentFrame = 1;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                            pec->lastEmissionTime += pec->repeatFrequency / 2;
                         }
 
-                    } else if (hp < aidata.survival) { // survival phase
+                    } else if (*hp < aidata->survival) { // survival phase
 
-                        if(!aidata.flags[0]){ // flag 0 indicates if arcMage has reached center of room
-                            if(!(std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3 && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3)){
-                                chasePosition(position, aidata.phaseTwoPositions[1], velocity);
-                                if(!aidata.flags[3]){
+                        if(!aidata->flags[0]){ // flag 0 indicates if arcMage has reached center of room
+                            if(!(std::abs(transform->position.x - aidata->phaseTwoPositions[1].x) <= 3 && std::abs(transform->position.y - aidata->phaseTwoPositions[1].y) <= 3)){
+                                chasePosition(transform->position, aidata->phaseTwoPositions[1], *velocity);
+                                if(!aidata->flags[3]){
                                     assetStore->PlaySound(MNOVA);
-                                    sec.effects[INVULNERABLE] = true;
-                                    sprite.srcRect.y = 16*110;
-                                    hitnoise = VOIDHIT;
-                                    aidata.timer1 = pec.shots = asc.animatedShooting = isShooting = 0;
-                                    ac.xmin = 1;
-                                    !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
-                                    position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
-                                    ac.frameSpeedRate = 4;
-                                    aidata.flags[3] = true;
+                                    sec->effects[INVULNERABLE] = true;
+                                    sprite->srcRect.y = 16*110;
+                                    *hitnoise = VOIDHIT;
+                                    aidata->timer1 = pec->shots = asc->animatedShooting = *isShooting = 0;
+                                    ac->xmin = 1;
+                                    !paralyzed ? ac->numFrames = 2 : ac->numFrames = 1;
+                                    transform->position.x > aidata->phaseTwoPositions[1].x ? sprite->flip = SDL_FLIP_HORIZONTAL : sprite->flip = SDL_FLIP_NONE;
+                                    ac->frameSpeedRate = 4;
+                                    aidata->flags[3] = true;
                                 }
-                                if(ac.numFrames == 1 && !paralyzed){ // walking and not paralyzed: switch to run animation
-                                    ac.numFrames = 2;
-                                } else if(ac.numFrames == 2 && paralyzed){ // running and paralyzed: switch to stand animation running
-                                    ac.numFrames = 1;
+                                if(ac->numFrames == 1 && !paralyzed){ // walking and not paralyzed: switch to run animation
+                                    ac->numFrames = 2;
+                                } else if(ac->numFrames == 2 && paralyzed){ // running and paralyzed: switch to stand animation running
+                                    ac->numFrames = 1;
                                 }
                             } else {
-                                aidata.flags[0] = aidata.flags[1] = aidata.flags[2] = true;
-                                velocity = {0,0};    
+                                aidata->flags[0] = aidata->flags[1] = aidata->flags[2] = true;
+                                *velocity = {0,0};    
                             }
                             continue; // dont really start survival phase until arrived at center of room
                         }
 
                         // standing at middle of room. survival phase 
-                        if(aidata.flags[1]){ // flag 1 used to indicate first frame of survival phase at center of room
-                            if(aidata.flags[3]){ // arcMage did run without shooting animation, re-enable shooting
-                                ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
-                                asc.animatedShooting = true;
-                                isShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2; 
-                                ac.currentFrame = 1;
-                                pec.lastEmissionTime = 0;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                        if(aidata->flags[1]){ // flag 1 used to indicate first frame of survival phase at center of room
+                            if(aidata->flags[3]){ // arcMage did run without shooting animation, re-enable shooting
+                                ac->frameSpeedRate = 2000 / pec->repeatFrequency; 
+                                asc->animatedShooting = true;
+                                *isShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2; 
+                                ac->currentFrame = 1;
+                                pec->lastEmissionTime = 0;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2; 
                             }
-                            aidata.flags[1] = false;         
-                            pec.shots = 24;
-                            pec.arcgap = 360;
-                            aidata.timer0 = 0;
+                            aidata->flags[1] = false;         
+                            pec->shots = 24;
+                            pec->arcgap = 360;
+                            aidata->timer0 = 0;
                         }
 
                         // every 3 seconds spawn, swap vulnerability, emit confuse stars
-                        if(time >= aidata.timer0 + 3000 && time - pec.lastEmissionTime > pec.repeatFrequency){
-                            aidata.timer0 = time;
+                        if(time >= aidata->timer0 + 3000 && time - pec->lastEmissionTime > pec->repeatFrequency){
+                            aidata->timer0 = time;
                             assetStore->PlaySound(MNOVA);
                             if(!playerInvisible && !stunned){
-                                aidata.timer0 = time;
-                                arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
+                                aidata->timer0 = time;
+                                arcMageConfuseShots(entity, transform->position, registry, aidata->phaseOnePositions);
+                                RESET_PROJECTILE_POINTERS
                             }
                             arcMageSpawnMinionsSurvival(registry, factory, bossRoom);
-                            if(sec.effects[INVULNERABLE]){
-                                sec.effects[INVULNERABLE] = false;
-                                sprite.srcRect.y = 16*111;
-                                hitnoise = GHOSTGODHIT;
+                            RESET_ALL_POINTERS
+                            if(sec->effects[INVULNERABLE]){
+                                sec->effects[INVULNERABLE] = false;
+                                sprite->srcRect.y = 16*111;
+                                *hitnoise = GHOSTGODHIT;
                             } else {
-                                sec.effects[INVULNERABLE] = true;
-                                sprite.srcRect.y = 16*110;
-                                hitnoise = VOIDHIT;
+                                sec->effects[INVULNERABLE] = true;
+                                sprite->srcRect.y = 16*110;
+                                *hitnoise = VOIDHIT;
                             }
                         }
 
-                        if(!aidata.flags[1]){
+                        if(!aidata->flags[1]){
                             if(playerInvisible || stunned){
-                                asc.animatedShooting = false;
-                                isShooting = false;
-                                ac.xmin = 0;
-                                ac.numFrames = 1;
-                            } else if(!isShooting){
-                                asc.animatedShooting = true;
-                                isShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2; 
-                                ac.currentFrame = 1;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                asc->animatedShooting = false;
+                                *isShooting = false;
+                                ac->xmin = 0;
+                                ac->numFrames = 1;
+                            } else if(!*isShooting){
+                                asc->animatedShooting = true;
+                                *isShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2; 
+                                ac->currentFrame = 1;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2;
                             }
                         }
-                        if(ac.frameSpeedRate == 4){ // if arcmage didnt recover from shoot-walk!
-                            ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
-                            asc.animatedShooting = true;
-                            isShooting = true;
-                            ac.xmin = 4;
-                            ac.numFrames = 2; 
-                            ac.currentFrame = 1;
-                            pec.lastEmissionTime = 0;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                        if(ac->frameSpeedRate == 4){ // if arcmage didnt recover from shoot-walk!
+                            ac->frameSpeedRate = 2000 / pec->repeatFrequency; 
+                            asc->animatedShooting = true;
+                            *isShooting = true;
+                            ac->xmin = 4;
+                            ac->numFrames = 2; 
+                            ac->currentFrame = 1;
+                            pec->lastEmissionTime = 0;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                            pec->lastEmissionTime += pec->repeatFrequency / 2; 
                         }
 
 
 
                     } else { // second phase
-                        if(aidata.flags[0]){ // flag0 used in phase 2 to indicate first frame of phase 2 
-                            aidata.flags[0] = false;
-                            RNG.randomFromRange(0,1) == 0 ? aidata.phaseTwoIndex = 0 : aidata.phaseTwoIndex = 2;
-                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
-                            aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
+                        if(aidata->flags[0]){ // flag0 used in phase 2 to indicate first frame of phase 2 
+                            aidata->flags[0] = false;
+                            RNG.randomFromRange(0,1) == 0 ? aidata->phaseTwoIndex = 0 : aidata->phaseTwoIndex = 2;
+                            chasePosition(transform->position, aidata->phaseTwoPositions[aidata->phaseTwoIndex], *velocity);
+                            aidata->positionflag = aidata->phaseTwoPositions[aidata->phaseTwoIndex];
                             // positionflag used to keep track of where arcMage is attempting to go
                         }
 
                         if(playerInvisible || stunned){
-                            asc.animatedShooting = false;
-                            isShooting = false;
-                            ac.xmin = 0;
-                            ac.numFrames = 1;
-                        } else if(!isShooting){
+                            asc->animatedShooting = false;
+                            *isShooting = false;
+                            ac->xmin = 0;
+                            ac->numFrames = 1;
+                        } else if(!*isShooting){
 
-                            if(aidata.flags[4]){
-                                aidata.flags[4] = false;
-                                ac.frameSpeedRate = 2000 / pec.repeatFrequency; 
-                                asc.animatedShooting = true;
-                                isShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2; 
-                                ac.currentFrame = 1;
-                                pec.lastEmissionTime = 0;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2; 
+                            if(aidata->flags[4]){
+                                aidata->flags[4] = false;
+                                ac->frameSpeedRate = 2000 / pec->repeatFrequency; 
+                                asc->animatedShooting = true;
+                                *isShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2; 
+                                ac->currentFrame = 1;
+                                pec->lastEmissionTime = 0;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2; 
                             } else {
-                                asc.animatedShooting = true;
-                                isShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2; 
-                                ac.currentFrame = 1;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                asc->animatedShooting = true;
+                                *isShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2; 
+                                ac->currentFrame = 1;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2;
                             }
                         }
 
                         int timeAtSpot = 10000;
-                        velocity = {0,0}; // modified in cases where chasePlayer called
-                        if((aidata.positionflag == aidata.phaseTwoPositions[0] && (std::abs(position.x - aidata.phaseTwoPositions[0].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[0].y) <= 3) 
-                        || (aidata.positionflag == aidata.phaseTwoPositions[2] && (std::abs(position.x - aidata.phaseTwoPositions[2].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[2].y) <= 3)){ 
+                        *velocity = {0,0}; // modified in cases where chasePlayer called
+                        if((aidata->positionflag == aidata->phaseTwoPositions[0] && (std::abs(transform->position.x - aidata->phaseTwoPositions[0].x) <= 3) && std::abs(transform->position.y - aidata->phaseTwoPositions[0].y) <= 3) 
+                        || (aidata->positionflag == aidata->phaseTwoPositions[2] && (std::abs(transform->position.x - aidata->phaseTwoPositions[2].x) <= 3) && std::abs(transform->position.y - aidata->phaseTwoPositions[2].y) <= 3)){ 
                         // successfully arrived at either edge 
-                            if(!aidata.flags[1]){ // first frame of edge arrival 
-                                aidata.flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
-                                aidata.timer0 = time; // time0 used in second phase to track time since successfully arriving at destination
-                                sec.effects[INVULNERABLE] = true;
-                                sprite.srcRect.y = 16*110;
-                                hitnoise = VOIDHIT;
-                                pec.shots = 12;
-                                pec.arcgap = 180;
-                                position.x > aidata.phaseTwoPositions[1].x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
+                            if(!aidata->flags[1]){ // first frame of edge arrival 
+                                aidata->flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
+                                aidata->timer0 = time; // time0 used in second phase to track time since successfully arriving at destination
+                                sec->effects[INVULNERABLE] = true;
+                                sprite->srcRect.y = 16*110;
+                                *hitnoise = VOIDHIT;
+                                pec->shots = 12;
+                                pec->arcgap = 180;
+                                transform->position.x > aidata->phaseTwoPositions[1].x ? sprite->flip = SDL_FLIP_HORIZONTAL : sprite->flip = SDL_FLIP_NONE;
                                 // emit wall shots, spawn some dudes 
                                 arcMageWallShots(entity, registry, bossRoom);
+                                RESET_PROJECTILE_POINTERS
                                 arcMageSpawnMinionsPhaseTwo(registry, factory, bossRoom);
+                                RESET_ALL_POINTERS
                                 assetStore->PlaySound(MNOVA);
                                 
                             }
-                        } else if(aidata.positionflag == aidata.phaseTwoPositions[1] && (std::abs(position.x - aidata.phaseTwoPositions[1].x) <= 3) && std::abs(position.y - aidata.phaseTwoPositions[1].y) <= 3){
+                        } else if(aidata->positionflag == aidata->phaseTwoPositions[1] && (std::abs(transform->position.x - aidata->phaseTwoPositions[1].x) <= 3) && std::abs(transform->position.y - aidata->phaseTwoPositions[1].y) <= 3){
                         //successfully arrived at center
                             timeAtSpot = 5000;
-                            if(!aidata.flags[1]){
-                                aidata.flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
-                                aidata.timer0 = time; // time0 used to track time since successfully arriving at destination
+                            if(!aidata->flags[1]){
+                                aidata->flags[1] = true; // flag1 used in second phase to indicate successfully arriving at destination    
+                                aidata->timer0 = time; // time0 used to track time since successfully arriving at destination
                             }
-                            if(!aidata.flags[2] && time - pec.lastEmissionTime > pec.repeatFrequency){
+                            if(!aidata->flags[2] && time - pec->lastEmissionTime > pec->repeatFrequency){
                                 if(!playerInvisible && !stunned){
-                                    arcMageConfuseShots(entity, position, registry, aidata.phaseOnePositions);
-                                    aidata.flags[2] = true; // flags2 used in second phase to shoot confuse stars when at center of room
+                                    arcMageConfuseShots(entity, transform->position, registry, aidata->phaseOnePositions);
+                                    RESET_PROJECTILE_POINTERS
+                                    aidata->flags[2] = true; // flags2 used in second phase to shoot confuse stars when at center of room
                                 }
                             }
-                        } else if(!aidata.flags[1]){ // flag1 used in second phase to indicate successfully arriving at destination   
+                        } else if(!aidata->flags[1]){ // flag1 used in second phase to indicate successfully arriving at destination   
                         // not arrived anywhere; keep moving to current destination
 
-                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
+                            chasePosition(transform->position, aidata->phaseTwoPositions[aidata->phaseTwoIndex], *velocity);
                             if(playerInvisible || stunned){
                                 /**/
-                                asc.animatedShooting = 0;
-                                ac.xmin = 1;
-                                ac.frameSpeedRate = 4;
-                                ac.numFrames = 2;
-                                aidata.flags[4] = true;
+                                asc->animatedShooting = 0;
+                                ac->xmin = 1;
+                                ac->frameSpeedRate = 4;
+                                ac->numFrames = 2;
+                                aidata->flags[4] = true;
                                 /**/
-                                velocity.x < 0.0 ? sprite.flip = SDL_FLIP_HORIZONTAL : sprite.flip = SDL_FLIP_NONE; 
+                                velocity->x < 0.0 ? sprite->flip = SDL_FLIP_HORIZONTAL : sprite->flip = SDL_FLIP_NONE; 
                             }
                         }
 
                         // destination successfully reached and time spent there elapsed; time to move to new destination 
-                        if(aidata.flags[1]&& time >= aidata.timer0 + timeAtSpot){ 
-                            aidata.flags[2] = aidata.flags[1] = false;
-                            aidata.phaseTwoIndex++;
-                            if(aidata.phaseTwoIndex > 3){aidata.phaseTwoIndex = 0;}
-                            chasePosition(position, aidata.phaseTwoPositions[aidata.phaseTwoIndex], velocity);
-                            aidata.positionflag = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
-                            if(aidata.phaseTwoIndex == 1 || aidata.phaseTwoIndex == 3){ // leaving wall
+                        if(aidata->flags[1]&& time >= aidata->timer0 + timeAtSpot){ 
+                            aidata->flags[2] = aidata->flags[1] = false;
+                            aidata->phaseTwoIndex++;
+                            if(aidata->phaseTwoIndex > 3){aidata->phaseTwoIndex = 0;}
+                            chasePosition(transform->position, aidata->phaseTwoPositions[aidata->phaseTwoIndex], *velocity);
+                            aidata->positionflag = aidata->phaseTwoPositions[aidata->phaseTwoIndex];
+                            if(aidata->phaseTwoIndex == 1 || aidata->phaseTwoIndex == 3){ // leaving wall
                                 assetStore->PlaySound(MNOVA);
                             }
-                            sprite.srcRect.y = 16*111; 
-                            hitnoise = GHOSTGODHIT;
-                            sec.effects[INVULNERABLE] = false;
-                            pec.shots = 5;
-                            pec.arcgap = 95;
+                            sprite->srcRect.y = 16*111; 
+                            *hitnoise = GHOSTGODHIT;
+                            sec->effects[INVULNERABLE] = false;
+                            pec->shots = 5;
+                            pec->arcgap = 95;
                         }
                         
                     }
@@ -1211,224 +1235,234 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
 
             } break;
             case GORDON:{
-                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-                auto& ac = entity.GetComponent<AnimationComponent>();
-                if(!aidata.activated){ // boss stands invulnerable for 2.5s
-                    if(!aidata.flags[0]){
-                        aidata.timer0 = SDL_GetTicks() + 2500;
-                        aidata.flags[0] = true;
+                auto * asc = &entity.GetComponent<AnimatedShootingComponent>();
+                auto * ac = &entity.GetComponent<AnimationComponent>();
+                if(!aidata->activated){ // boss stands invulnerable for 2.5s
+                    if(!aidata->flags[0]){
+                        aidata->timer0 = SDL_GetTicks() + 2500;
+                        aidata->flags[0] = true;
                     }
-                    if(SDL_GetTicks() >= aidata.timer0 && !playerInvisible){
-                        sec.effects[INVULNERABLE] = aidata.flags[0] = false;
-                        aidata.activated = true;
-                        isShooting = asc.animatedShooting = true;
-                        ac.xmin = 4;
-                        ac.numFrames = 2;
-                        ac.currentFrame = 1;
-                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                        pec.lastEmissionTime += pec.repeatFrequency / 2; 
-                        aidata.timer0 = SDL_GetTicks();
-                        aidata.flags[0] = false;
+                    if(SDL_GetTicks() >= aidata->timer0 && !playerInvisible){
+                        sec->effects[INVULNERABLE] = aidata->flags[0] = false;
+                        aidata->activated = true;
+                        *isShooting = asc->animatedShooting = true;
+                        ac->xmin = 4;
+                        ac->numFrames = 2;
+                        ac->currentFrame = 1;
+                        ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                        pec->lastEmissionTime += pec->repeatFrequency / 2; 
+                        aidata->timer0 = SDL_GetTicks();
+                        aidata->flags[0] = false;
                         if(!stunned){
                             gordonStarShotgun(entity, registry, playerPos);
+                            RESET_PROJECTILE_POINTERS
                         }
-                        // hp -= 20000;
+                        // *hp -= 20000;
                     }
                 } else { // boss activated: phases
                     auto time = SDL_GetTicks();
-                    if(hp > aidata.secondPhase){ // phase one 
-                        if(time > aidata.timer0 + 5000 && time - pec.lastEmissionTime > pec.repeatFrequency){
+                    if(*hp > aidata->secondPhase){ // phase one 
+                        if(time > aidata->timer0 + 5000 && time - pec->lastEmissionTime > pec->repeatFrequency){
                             if(!playerInvisible && !stunned){
-                                aidata.timer0 = time;
+                                aidata->timer0 = time;
                                 gordonStarShotgun(entity, registry, playerPos);
+                                RESET_PROJECTILE_POINTERS
                             }
                         }
 
                         if(playerInvisible || stunned){
-                                asc.animatedShooting = false;
-                                isShooting = false;
-                                ac.xmin = 0;
-                                ac.numFrames = 1;
-                        } else if(!isShooting){
-                                asc.animatedShooting = true;
-                                isShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2; 
-                                ac.currentFrame = 1;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                asc->animatedShooting = false;
+                                *isShooting = false;
+                                ac->xmin = 0;
+                                ac->numFrames = 1;
+                        } else if(!*isShooting){
+                                asc->animatedShooting = true;
+                                *isShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2; 
+                                ac->currentFrame = 1;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2;
                         }
 
-                    } else if(hp < aidata.survival){ // survival
-                        if(aidata.flags[0]){ // first frame of survival
-                            aidata.flags[0] = false;
-                            aidata.positionflag = playerPos;
-                            ac.xmin = 0;
-                            ac.numFrames = 3;       // walking animation data 
-                            ac.currentFrame = 1;
-                            ac.frameSpeedRate = 2000 / 500;
-                            aidata.flags[1] = true; // flag[1] = true means chasing, else shooting at center
+                    } else if(*hp < aidata->survival){ // survival
+                        if(aidata->flags[0]){ // first frame of survival
+                            aidata->flags[0] = false;
+                            aidata->positionflag = playerPos;
+                            ac->xmin = 0;
+                            ac->numFrames = 3;       // walking animation data 
+                            ac->currentFrame = 1;
+                            ac->frameSpeedRate = 2000 / 500;
+                            aidata->flags[1] = true; // flag[1] = true means chasing, else shooting at center
                             
                         }
 
-                        if(aidata.flags[1]){ // flag[1] = chasing sequence (gordon is chasing)
-                            // if chasing player, aidata.positionflag was already assigned to players position while gordon was at center of room
+                        if(aidata->flags[1]){ // flag[1] = chasing sequence (gordon is chasing)
+                            // if chasing player, aidata->positionflag was already assigned to players transform->position while gordon was at center of room
 
-                            chasePosition(position, aidata.positionflag, velocity); // he is chasing player here
-                            if(!aidata.flags[2] && ((std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3) || entity.GetComponent<CollisionFlagComponent>().collisionFlag != NONESIDE)){
-                                aidata.flags[2] = true; // flags[2] means player reached during first part of chase
+                            chasePosition(transform->position, aidata->positionflag, *velocity); // he is chasing player here
+                            if(!aidata->flags[2] && ((std::abs(transform->position.x - aidata->positionflag.x) <= 3 && std::abs(transform->position.y - aidata->positionflag.y) <= 3) || entity.GetComponent<CollisionFlagComponent>().collisionFlag != NONESIDE)){
+                                aidata->flags[2] = true; // flags[2] means player reached during first part of chase
                                 if(!playerInvisible && !stunned){
                                     gordonSurvivalShotGun(entity, registry, playerPos);
+                                    RESET_PROJECTILE_POINTERS
                                 }
                             }
-                            if(aidata.flags[2]){ // player reached, return to spawnPoint
-                                aidata.positionflag = aidata.spawnPoint;
-                                if(std::abs(position.x - aidata.positionflag.x) <= 3 && std::abs(position.y - aidata.positionflag.y) <= 3){ // arrived at center again
-                                    Entity gs = factory->spawnMonster(registry, aidata.spawnPoint, GIGASHEEP);
+                            if(aidata->flags[2]){ // player reached, return to spawnPoint
+                                aidata->positionflag = aidata->spawnPoint;
+                                if(std::abs(transform->position.x - aidata->positionflag.x) <= 3 && std::abs(transform->position.y - aidata->positionflag.y) <= 3){ // arrived at center again
+                                    Entity gs = factory->spawnMonster(registry, aidata->spawnPoint, GIGASHEEP);
+                                    RESET_ALL_POINTERS
                                     registry->GetComponent<BoxColliderComponent>(gs.GetId()).offset.y -= 16;
                                     registry->GetComponent<TransformComponent>(gs.GetId()).scale = {10,10};
-                                    aidata.timer0 = time;
-                                    aidata.flags[2] = aidata.flags[1] = false;
+                                    aidata->timer0 = time;
+                                    aidata->flags[2] = aidata->flags[1] = false;
                                 }
                             }
 
-                            if(ac.numFrames == 1 && !paralyzed){ // animation should be running
-                                ac.numFrames = 3;
-                            } else if(ac.numFrames == 3 && paralyzed){ // animation should be standing
-                                ac.numFrames = 1;
+                            if(ac->numFrames == 1 && !paralyzed){ // animation should be running
+                                ac->numFrames = 3;
+                            } else if(ac->numFrames == 3 && paralyzed){ // animation should be standing
+                                ac->numFrames = 1;
                             }
-                            // if arrived at player, set new position target to spawnPoint
+                            // if arrived at player, set new transform->position target to spawnPoint
                         } else { // go to center and shoot for X seconds (gordon is at center)
 
                             if(playerInvisible || stunned){
-                                ac.xmin = 0;
-                                ac.numFrames = 1;
-                                isShooting = asc.animatedShooting = false;
+                                ac->xmin = 0;
+                                ac->numFrames = 1;
+                                *isShooting = asc->animatedShooting = false;
                             } else { 
-                                if (ac.numFrames == 1){
-                                    isShooting = asc.animatedShooting = true;
-                                    ac.xmin = 4;
-                                    ac.numFrames = 2;       // walking animation data 
-                                    ac.currentFrame = 1;
-                                    ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                    pec.lastEmissionTime += pec.repeatFrequency / 2;
+                                if (ac->numFrames == 1){
+                                    *isShooting = asc->animatedShooting = true;
+                                    ac->xmin = 4;
+                                    ac->numFrames = 2;       // walking animation data 
+                                    ac->currentFrame = 1;
+                                    ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                    pec->lastEmissionTime += pec->repeatFrequency / 2;
                                 }
-                                if(time - pec.lastEmissionTime > pec.repeatFrequency){
+                                if(time - pec->lastEmissionTime > pec->repeatFrequency){
                                     gordonStarShotgun(entity, registry, playerPos, true);
+                                    RESET_PROJECTILE_POINTERS
                                 }
                             }
 
-                            if(!aidata.flags[2] && !playerInvisible && !stunned){ // first frame of standign at center
-                                aidata.flags[2] = isShooting = asc.animatedShooting = true;
-                                ac.xmin = 4;
-                                ac.numFrames = 2;
-                                ac.currentFrame = 1;    // standing-shooting animation data
-                                // ac.frameSpeedRate = 2000 / pec.repeatFrequency;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2;
-                                aidata.timer0 = time;
+                            if(!aidata->flags[2] && !playerInvisible && !stunned){ // first frame of standign at center
+                                aidata->flags[2] = *isShooting = asc->animatedShooting = true;
+                                ac->xmin = 4;
+                                ac->numFrames = 2;
+                                ac->currentFrame = 1;    // standing-shooting animation data
+                                // ac->frameSpeedRate = 2000 / pec->repeatFrequency;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2;
+                                aidata->timer0 = time;
                             }
-                            if(time > aidata.timer0 + 10000 && !playerInvisible){ // no need for stunned logic here
-                                ac.xmin = 0;
-                                ac.numFrames = 3;
-                                ac.currentFrame = 1;
-                                aidata.flags[1] = true; // start chasing sequence
-                                isShooting = aidata.flags[2] = false;
-                                aidata.positionflag = playerPos;
+                            if(time > aidata->timer0 + 10000 && !playerInvisible){ // no need for stunned logic here
+                                ac->xmin = 0;
+                                ac->numFrames = 3;
+                                ac->currentFrame = 1;
+                                aidata->flags[1] = true; // start chasing sequence
+                                *isShooting = aidata->flags[2] = false;
+                                aidata->positionflag = playerPos;
                             }
-                            velocity = {0.0,0.0};
+                            *velocity = {0.0,0.0};
                         }
 
                     } else { // phase two
-                        if(!aidata.flags[0]){ // first frame of phase two: update pec.rf
-                            pec.repeatFrequency = 500;
-                            aidata.timer0 = time - pec.repeatFrequency;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            isShooting = false;
-                            aidata.flags[0] = true;
-                            sec.effects[INVULNERABLE] = true;
-                            Entity key = factory->spawnMonster(registry, position, SHEEP);
-                            aidata.idKeyOne = key.GetId();
-                            aidata.cIdKeyOne = key.GetCreationId();
-                            key = factory->spawnMonster(registry, position, SHEEP);
-                            aidata.idKeyTwo = key.GetId();
-                            aidata.cIdKeyTwo = key.GetCreationId();
-                            aidata.phaseTwoIndex = 35;
+                        if(!aidata->flags[0]){ // first frame of phase two: update pec->rf
+                            pec->repeatFrequency = 500;
+                            aidata->timer0 = time - pec->repeatFrequency;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                            *isShooting = false;
+                            aidata->flags[0] = true;
+                            sec->effects[INVULNERABLE] = true;
+                            Entity key = factory->spawnMonster(registry, transform->position, SHEEP);
+                            RESET_ALL_POINTERS
+                            aidata->idKeyOne = key.GetId();
+                            aidata->cIdKeyOne = key.GetCreationId();
+                            key = factory->spawnMonster(registry, transform->position, SHEEP);
+                            RESET_ALL_POINTERS
+                            aidata->idKeyTwo = key.GetId();
+                            aidata->cIdKeyTwo = key.GetCreationId();
+                            aidata->phaseTwoIndex = 35;
                             registry->Update();
-                            // hp -= 29000;
+                            // *hp -= 29000;
                         }
 
                         if(playerInvisible || stunned){
-                            ac.xmin = 0;
-                            ac.numFrames = 1;
-                            ac.currentFrame = 1;
-                        } else if (ac.xmin == 0) { // restore stuff after stunned / invisible if needed
-                            ac.xmin = 4;
-                            ac.currentFrame = 1;
-                            ac.numFrames = 2;
-                            aidata.timer0 = time - pec.repeatFrequency;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
+                            ac->xmin = 0;
+                            ac->numFrames = 1;
+                            ac->currentFrame = 1;
+                        } else if (ac->xmin == 0) { // restore stuff after stunned / invisible if needed
+                            ac->xmin = 4;
+                            ac->currentFrame = 1;
+                            ac->numFrames = 2;
+                            aidata->timer0 = time - pec->repeatFrequency;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
                         }
 
-                        bool key1alive = registry->GetCreationIdFromEntityId(aidata.idKeyOne) == aidata.cIdKeyOne;
-                        bool key2alive = registry->GetCreationIdFromEntityId(aidata.idKeyTwo) == aidata.cIdKeyTwo;
+                        bool key1alive = registry->GetCreationIdFromEntityId(aidata->idKeyOne) == aidata->cIdKeyOne;
+                        bool key2alive = registry->GetCreationIdFromEntityId(aidata->idKeyTwo) == aidata->cIdKeyTwo;
                         if(key1alive || key2alive){
-                            if(time > aidata.timer0 + 500 && !playerInvisible && !stunned){
-                                aidata.timer0 = time;
-                                gordonPhaseTwoShots(entity, registry, aidata.phaseThreeIndex, aidata.phaseOnePositions);
+                            if(time > aidata->timer0 + 500 && !playerInvisible && !stunned){
+                                aidata->timer0 = time;
+                                gordonPhaseTwoShots(entity, registry, aidata->phaseThreeIndex, aidata->phaseOnePositions);
+                                RESET_PROJECTILE_POINTERS
                                 // phase three index used to select origin. its overflow is controlled by reference in gordonPhaseTwoShots
                             }
                             if(key1alive){
-                                const auto& key1pos = registry->GetComponent<TransformComponent>(aidata.idKeyOne).position;
-                                auto& key1velocity = registry->GetComponent<RidigBodyComponent>(aidata.idKeyOne).velocity;
-                                glm::vec2 key1destination = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                                if(std::abs(key1pos.x - key1destination.x) <= 3 && std::abs(key1pos.y - key1destination.y) <= 3){ // standing at destination position; change destination
-                                    aidata.phaseOneIndex ++;
-                                    if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                                        aidata.phaseOneIndex = 0;
+                                const auto& key1pos = registry->GetComponent<TransformComponent>(aidata->idKeyOne).position;
+                                auto& key1velocity = registry->GetComponent<RidigBodyComponent>(aidata->idKeyOne).velocity;
+                                glm::vec2 key1destination = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                                if(std::abs(key1pos.x - key1destination.x) <= 3 && std::abs(key1pos.y - key1destination.y) <= 3){ // standing at destination transform->position; change destination
+                                    aidata->phaseOneIndex ++;
+                                    if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                                        aidata->phaseOneIndex = 0;
                                     }    
                                 }
-                                chasePosition(key1pos, aidata.phaseOnePositions[aidata.phaseOneIndex], key1velocity); 
-                                auto& key1flip = registry->GetComponent<SpriteComponent>(aidata.idKeyOne).flip;
+                                chasePosition(key1pos, aidata->phaseOnePositions[aidata->phaseOneIndex], key1velocity); 
+                                auto& key1flip = registry->GetComponent<SpriteComponent>(aidata->idKeyOne).flip;
                                 playerPos.x <= key1pos.x ? key1flip = SDL_FLIP_HORIZONTAL : key1flip = SDL_FLIP_NONE;
-                                aidata.timer1 = time;
+                                aidata->timer1 = time;
                             }
                             if(key2alive){
-                                const auto& key2pos = registry->GetComponent<TransformComponent>(aidata.idKeyTwo).position;
-                                auto& key2velocity = registry->GetComponent<RidigBodyComponent>(aidata.idKeyTwo).velocity;
-                                glm::vec2 key2destination = aidata.phaseTwoPositions[aidata.phaseTwoIndex];
-                                if(std::abs(key2pos.x - key2destination.x) <= 3 && std::abs(key2pos.y - key2destination.y) <= 3){ // standing at destination position; change destination
-                                    aidata.phaseTwoIndex --;
-                                    if(aidata.phaseTwoIndex < 0){
-                                        aidata.phaseTwoIndex = 35;
+                                const auto& key2pos = registry->GetComponent<TransformComponent>(aidata->idKeyTwo).position;
+                                auto& key2velocity = registry->GetComponent<RidigBodyComponent>(aidata->idKeyTwo).velocity;
+                                glm::vec2 key2destination = aidata->phaseTwoPositions[aidata->phaseTwoIndex];
+                                if(std::abs(key2pos.x - key2destination.x) <= 3 && std::abs(key2pos.y - key2destination.y) <= 3){ // standing at destination transform->position; change destination
+                                    aidata->phaseTwoIndex --;
+                                    if(aidata->phaseTwoIndex < 0){
+                                        aidata->phaseTwoIndex = 35;
                                     }    
                                 }
-                                chasePosition(key2pos, aidata.phaseTwoPositions[aidata.phaseTwoIndex], key2velocity); 
-                                auto& key2flip = registry->GetComponent<SpriteComponent>(aidata.idKeyTwo).flip; 
+                                chasePosition(key2pos, aidata->phaseTwoPositions[aidata->phaseTwoIndex], key2velocity); 
+                                auto& key2flip = registry->GetComponent<SpriteComponent>(aidata->idKeyTwo).flip; 
                                 playerPos.x <= key2pos.x ? key2flip = SDL_FLIP_HORIZONTAL : key2flip = SDL_FLIP_NONE;
-                                aidata.timer1 = time;
+                                aidata->timer1 = time;
                             }
                         } else { // keys are dead
-                            isShooting = false;
-                            ac.currentFrame = 1;
-                            ac.numFrames = 1;
-                            ac.xmin = 2;
-                            sec.effects[INVULNERABLE] = false;
-                            if(time > aidata.timer1 + 7500){ // damage phase ended. re-spawn keys and shoot again 
-                                pec.repeatFrequency = 500; 
-                                aidata.timer0 = time - pec.repeatFrequency;
-                                ac.xmin = 4;
-                                ac.numFrames = 2;
-                                ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                                pec.lastEmissionTime += pec.repeatFrequency / 2;
-                                sec.effects[INVULNERABLE] = true;
-                                Entity key = factory->spawnMonster(registry, position, SHEEP);
-                                aidata.idKeyOne = key.GetId();
-                                aidata.cIdKeyOne = key.GetCreationId();
-                                key = factory->spawnMonster(registry, position, SHEEP);
-                                aidata.idKeyTwo = key.GetId();
-                                aidata.cIdKeyTwo = key.GetCreationId();
-                                aidata.phaseTwoIndex = 35;
+                            *isShooting = false;
+                            ac->currentFrame = 1;
+                            ac->numFrames = 1;
+                            ac->xmin = 2;
+                            sec->effects[INVULNERABLE] = false;
+                            if(time > aidata->timer1 + 7500){ // damage phase ended. re-spawn keys and shoot again 
+                                pec->repeatFrequency = 500; 
+                                aidata->timer0 = time - pec->repeatFrequency;
+                                ac->xmin = 4;
+                                ac->numFrames = 2;
+                                ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                                pec->lastEmissionTime += pec->repeatFrequency / 2;
+                                sec->effects[INVULNERABLE] = true;
+                                Entity key = factory->spawnMonster(registry, transform->position, SHEEP);
+                                RESET_ALL_POINTERS
+                                aidata->idKeyOne = key.GetId();
+                                aidata->cIdKeyOne = key.GetCreationId();
+                                key = factory->spawnMonster(registry, transform->position, SHEEP);
+                                RESET_ALL_POINTERS
+                                aidata->idKeyTwo = key.GetId();
+                                aidata->cIdKeyTwo = key.GetCreationId();
+                                aidata->phaseTwoIndex = 35;
                                 registry->Update();
                             }
                         }
@@ -1436,108 +1470,114 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                 }
             } break;
             case CUBEGOD:{ // this includes skull shrines         
-                if(distanceToPlayer < 1550){
-                    isShooting = true;
+                if(*distanceToPlayer < 1550){
+                    *isShooting = true;
                 } else {
-                    isShooting = false;
+                    *isShooting = false;
                 }
 
                 if(stunned || playerInvisible){
-                    isShooting = false;
+                    *isShooting = false;
                 }
             } break;
             case CRYSTALPRISONER:{
                 auto time = SDL_GetTicks();
-                auto& scale = entity.GetComponent<TransformComponent>().scale;
-                auto& bc = entity.GetComponent<BoxColliderComponent>();
+                // auto& scale = entity.GetComponent<TransformComponent>().scale;
+                auto * bc = &entity.GetComponent<BoxColliderComponent>();
                 constexpr Uint32 phaseDuration = 15000;
                 // switch phases every 10s
-                if(!aidata.activated){
+                if(!aidata->activated){
                     // simulate end of phase 3 so phase 1 starts immediately after spawn
-                    aidata.activated = true;
-                    aidata.timer0 = time - phaseDuration;
-                    aidata.flags[2] = true;
+                    aidata->activated = true;
+                    aidata->timer0 = time - phaseDuration;
+                    aidata->flags[2] = true;
                 }
-                if(time >= aidata.timer0 + phaseDuration){ 
-                    aidata.timer0 = time;
-                    if(aidata.flags[2]){ // enable phase 1
-                        scale.x = 6.0f;
-                        scale.y = 6.0f;
-                        bc = bcEnumToData.at(BIG);
-                        aidata.flags[2] = false;
-                        aidata.flags[0] = true;
-                        isShooting = false;
-                    } else if(aidata.flags[0]){ // enable phase 2
-                        aidata.flags[0] = false;
-                        aidata.flags[1] = true;
-                    } else if(aidata.flags[1]){ // enable phase 3
-                        aidata.flags[1] = false;
-                        aidata.flags[2] = true;
-                        aidata.timer2 = time;
-                        isShooting = false;
+                if(time >= aidata->timer0 + phaseDuration){ 
+                    aidata->timer0 = time;
+                    if(aidata->flags[2]){ // enable phase 1
+                        transform->scale.x = 6.0f;
+                        transform->scale.y = 6.0f;
+                        *bc = bcEnumToData.at(BIG);
+                        aidata->flags[2] = false;
+                        aidata->flags[0] = true;
+                        *isShooting = false;
+                    } else if(aidata->flags[0]){ // enable phase 2
+                        aidata->flags[0] = false;
+                        aidata->flags[1] = true;
+                    } else if(aidata->flags[1]){ // enable phase 3
+                        aidata->flags[1] = false;
+                        aidata->flags[2] = true;
+                        aidata->timer2 = time;
+                        *isShooting = false;
                     }
                 }
 
-                if(aidata.flags[0]){ // phase 1
-                    if(time >= aidata.timer1 + 250 && !playerInvisible && !stunned){ // shoot twice per second
-                        aidata.timer1 = time;
-                        glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                        aidata.phaseOneIndex ++;
-                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                            aidata.phaseOneIndex = 0;
+                if(aidata->flags[0]){ // phase 1
+                    if(time >= aidata->timer1 + 250 && !playerInvisible && !stunned){ // shoot twice per second
+                        aidata->timer1 = time;
+                        glm::vec2 target = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                        aidata->phaseOneIndex ++;
+                        if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                            aidata->phaseOneIndex = 0;
                         } 
                         spiralBalls(entity, registry, target);
+                        RESET_PROJECTILE_POINTERS
+                        bc = &entity.GetComponent<BoxColliderComponent>();
                     }
 
-                } else if(aidata.flags[1]){ // phase 2
+                } else if(aidata->flags[1]){ // phase 2
                     if(!playerInvisible && !stunned){
-                        isShooting = true;
-                        if(time >= aidata.timer1 + 250){ // shoot twice per second
-                            aidata.timer1 = time;
+                        *isShooting = true;
+                        if(time >= aidata->timer1 + 250){ // shoot twice per second
+                            aidata->timer1 = time;
                             for(int i = 0; i < 3; i++){
-                                glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                                aidata.phaseOneIndex ++;
-                                if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                                    aidata.phaseOneIndex = 0;
+                                glm::vec2 target = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                                aidata->phaseOneIndex ++;
+                                if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                                    aidata->phaseOneIndex = 0;
                                 } 
                                 revolvingSlowShotgun(entity, registry, target);
+                                RESET_PROJECTILE_POINTERS
+                                bc = &entity.GetComponent<BoxColliderComponent>();
                             }
                         }
                     } else {
-                        isShooting = false;
+                        *isShooting = false;
                     }
 
-                } else if(aidata.flags[2]){ // phase 3
+                } else if(aidata->flags[2]){ // phase 3
                     constexpr float growthFactor = 1.25f;
-                    if(time <= aidata.timer2 + 1500){ // first 1500ms of phase 3
-                        if(time >= aidata.timer3 + 250 && scale.x < 14.0f){
-                            auto oldsize = sprite.width * scale.x;
-                            aidata.timer3 = time;
-                            scale *= growthFactor;
-                            bc.width *= growthFactor;
-                            bc.height *= growthFactor;
-                            bc.offset *= growthFactor;
-                            position -= ((sprite.width * scale.x) - oldsize)/2.0f;
+                    if(time <= aidata->timer2 + 1500){ // first 1500ms of phase 3
+                        if(time >= aidata->timer3 + 250 && transform->scale.x < 14.0f){
+                            auto oldsize = sprite->width * transform->scale.x;
+                            aidata->timer3 = time;
+                            transform->scale *= growthFactor;
+                            bc->width *= growthFactor;
+                            bc->height *= growthFactor;
+                            bc->offset *= growthFactor;
+                            transform->position -= ((sprite->width * transform->scale.x) - oldsize)/2.0f;
                         }
-                    } else if(time >= aidata.timer2 + (phaseDuration - 1500)){ // last 1500ms of phase 3
-                        if(time >= aidata.timer3 + 250 && scale.x > 6.0f){
-                            auto oldsize = sprite.width * scale.x;
-                            aidata.timer3 = time;
-                            scale *= 1.0f/growthFactor;
-                            bc.width *= 1.0f/growthFactor;
-                            bc.height *= 1.0f/growthFactor;
-                            bc.offset *= 1.0f/growthFactor;
-                            position += (oldsize - (sprite.width * scale.x))/2.0f;
+                    } else if(time >= aidata->timer2 + (phaseDuration - 1500)){ // last 1500ms of phase 3
+                        if(time >= aidata->timer3 + 250 && transform->scale.x > 6.0f){
+                            auto oldsize = sprite->width * transform->scale.x;
+                            aidata->timer3 = time;
+                            transform->scale *= 1.0f/growthFactor;
+                            bc->width *= 1.0f/growthFactor;
+                            bc->height *= 1.0f/growthFactor;
+                            bc->offset *= 1.0f/growthFactor;
+                            transform->position += (oldsize - (sprite->width * transform->scale.x))/2.0f;
                         }
                     } else {
-                        if(time >= aidata.timer1 + 250 && !playerInvisible && !stunned){
-                            aidata.timer1 = time;
-                            glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                            aidata.phaseOneIndex ++;
-                            if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                                aidata.phaseOneIndex = 0;
+                        if(time >= aidata->timer1 + 250 && !playerInvisible && !stunned){
+                            aidata->timer1 = time;
+                            glm::vec2 target = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                            aidata->phaseOneIndex ++;
+                            if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                                aidata->phaseOneIndex = 0;
                             } 
                             revolvingConfusedShots(entity, registry, target);
+                            RESET_PROJECTILE_POINTERS
+                            bc = &entity.GetComponent<BoxColliderComponent>();
                         }
                     }
                 }
@@ -1545,91 +1585,97 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
             } break;
             case GRANDSPHINX:{
                 auto time = SDL_GetTicks();
-                auto& scale = entity.GetComponent<TransformComponent>().scale;
-                auto& bc = entity.GetComponent<BoxColliderComponent>();
-                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-                auto& ac = entity.GetComponent<AnimationComponent>();
+                // auto& scale = entity.GetComponent<TransformComponent>().scale;
+                auto * bc = &entity.GetComponent<BoxColliderComponent>();
+                auto * asc = &entity.GetComponent<AnimatedShootingComponent>();
+                auto * ac = &entity.GetComponent<AnimationComponent>();
                 constexpr Uint32 phaseDuration = 10000;
-                if(!aidata.activated){
-                    aidata.activated = true;
-                    aidata.timer0 = time - phaseDuration;
-                    aidata.flags[1] = true;
+                if(!aidata->activated){
+                    aidata->activated = true;
+                    aidata->timer0 = time - phaseDuration;
+                    aidata->flags[1] = true;
                 }
 
-                if(time >= aidata.timer0 + phaseDuration){ // switch phases
-                    aidata.timer0 = time;
-                    if(aidata.flags[1]){ // enable phase 1
-                        aidata.flags[1] = false;
-                        aidata.flags[0] = true;
-                    } else if(aidata.flags[0]){ // enable phase 2
-                        aidata.flags[0] = false;
-                        aidata.flags[1] = true;
+                if(time >= aidata->timer0 + phaseDuration){ // switch phases
+                    aidata->timer0 = time;
+                    if(aidata->flags[1]){ // enable phase 1
+                        aidata->flags[1] = false;
+                        aidata->flags[0] = true;
+                    } else if(aidata->flags[0]){ // enable phase 2
+                        aidata->flags[0] = false;
+                        aidata->flags[1] = true;
                     }
                 }
 
-                if(distanceToPlayer < 1000){
+                if(*distanceToPlayer < 1000){
                     if(playerInvisible || stunned){
-                        asc.animatedShooting = false;
-                        isShooting = false;
-                        ac.xmin = 0;
-                        ac.currentFrame = 1;
-                        ac.numFrames = 1;
-                    } else if(!isShooting){
-                        asc.animatedShooting = true;
-                        isShooting = true;
-                        ac.xmin = 4;
-                        ac.numFrames = 2; 
-                        ac.currentFrame = 1;
-                        ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                        pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        asc->animatedShooting = false;
+                        *isShooting = false;
+                        ac->xmin = 0;
+                        ac->currentFrame = 1;
+                        ac->numFrames = 1;
+                    } else if(!*isShooting){
+                        asc->animatedShooting = true;
+                        *isShooting = true;
+                        ac->xmin = 4;
+                        ac->numFrames = 2; 
+                        ac->currentFrame = 1;
+                        ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                        pec->lastEmissionTime += pec->repeatFrequency / 2;
                     }
                 }
 
-                if(time >= aidata.timer2 + 500){ // randomly change default shot pattern
+                if(time >= aidata->timer2 + 500){ // randomly change default shot pattern
                     switch(RNG.randomFromRange(1,4)){
                         case 1:{
-                            pec.shots = 1;
-                            pec.arcgap = 0.0f;
+                            pec->shots = 1;
+                            pec->arcgap = 0.0f;
                         } break;
                         case 2:{
-                            pec.shots = 2;
-                            pec.arcgap = 15.0f;
+                            pec->shots = 2;
+                            pec->arcgap = 15.0f;
                         } break;
                         case 3:{
-                            pec.shots = 3;
-                            pec.arcgap = 30.0f;
+                            pec->shots = 3;
+                            pec->arcgap = 30.0f;
                         } break;
                         case 4:{
-                            pec.shots = 4;
-                            pec.arcgap = 45.0f;
+                            pec->shots = 4;
+                            pec->arcgap = 45.0f;
                         } break;
                     }
                 }
 
-                if(aidata.flags[0]){ // z shots and default shots
-                    if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
-                        aidata.timer1 = time;
-                        glm::vec2 target = aidata.phaseOnePositions[aidata.phaseOneIndex];
-                        aidata.phaseOneIndex ++;
-                        if(aidata.phaseOneIndex > aidata.phaseOnePositions.size() - 1){
-                            aidata.phaseOneIndex = 0;
+                if(aidata->flags[0]){ // z shots and default shots
+                    if(time >= aidata->timer1 + 1000 && *isShooting && time - pec->lastEmissionTime > pec->repeatFrequency){
+                        aidata->timer1 = time;
+                        glm::vec2 target = aidata->phaseOnePositions[aidata->phaseOneIndex];
+                        aidata->phaseOneIndex ++;
+                        if(aidata->phaseOneIndex > aidata->phaseOnePositions.size() - 1){
+                            aidata->phaseOneIndex = 0;
                         } 
                         // todo shoot Z-shots 
                         zShotguns(entity, registry, target);
-                        int opposite = (aidata.phaseOneIndex + 18) % 36; // mod 36 stops value from going over 35
-                        target = aidata.phaseOnePositions[opposite];
+                        RESET_PROJECTILE_POINTERS
+                        bc = &entity.GetComponent<BoxColliderComponent>();
+                        int opposite = (aidata->phaseOneIndex + 18) % 36; // mod 36 stops value from going over 35
+                        target = aidata->phaseOnePositions[opposite];
                         zShotguns(entity, registry, target);
+                        RESET_PROJECTILE_POINTERS
+                        bc = &entity.GetComponent<BoxColliderComponent>();
                     }
 
-                } else if(aidata.flags[1]){ // red fireblls and default shots
-                    if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
-                        aidata.timer1 = time;
+                } else if(aidata->flags[1]){ // red fireblls and default shots
+                    if(time >= aidata->timer1 + 1000 && *isShooting && time - pec->lastEmissionTime > pec->repeatFrequency){
+                        aidata->timer1 = time;
                         int shotsEmitted = 0;
                         std::unordered_set<int> usedIndeces;
                         while(shotsEmitted < 10){
                             int index = RNG.randomFromRange(0,35);
                             if(usedIndeces.find(index) == usedIndeces.end()){
-                                fireBall(entity, registry, aidata.phaseOnePositions[index]);
+                                fireBall(entity, registry, aidata->phaseOnePositions[index]);
+                                RESET_PROJECTILE_POINTERS
+                                bc = &entity.GetComponent<BoxColliderComponent>();
                                 usedIndeces.insert(index);
                                 shotsEmitted++;
                             }
@@ -1642,209 +1688,210 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
             case AMDUSCIAS: // nut
             case ASTAROTH: // geb 
             case ABIGOR:{ // bes
-                #define ENTERED_RAGE_PHASE aidata.flags[0]
-                #define CURRENTLY_HEALING_BENEFICIARY aidata.flags[1] // will become false again when boss has returned to regular spawn-orbit after it finishes its healing
-                #define HAS_ALREADY_HEALED_BENEFICIARY aidata.flags[2] // will become false again when boss is done healing. 
-                #define FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT aidata.flags[3]
-                auto& omc = entity.GetComponent<OrbitalMovementComponent>();
-                auto& asc = entity.GetComponent<AnimatedShootingComponent>();
-                auto& ac = entity.GetComponent<AnimationComponent>();
-                auto& msc = entity.GetComponent<MinionSpawnerComponent>();
-                auto& hoc = entity.GetComponent<HealOtherComponent>();
-                const auto& center = entity.GetComponent<TransformComponent>().center;
+                #define ENTERED_RAGE_PHASE aidata->flags[0]
+                #define CURRENTLY_HEALING_BENEFICIARY aidata->flags[1] // will become false again when boss has returned to regular spawn-orbit after it finishes its healing
+                #define HAS_ALREADY_HEALED_BENEFICIARY aidata->flags[2] // will become false again when boss is done healing. 
+                #define FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT aidata->flags[3]
+                auto * omc = &entity.GetComponent<OrbitalMovementComponent>();
+                auto * asc = &entity.GetComponent<AnimatedShootingComponent>();
+                auto * ac = &entity.GetComponent<AnimationComponent>();
+                auto * msc = &entity.GetComponent<MinionSpawnerComponent>();
+                auto * hoc = &entity.GetComponent<HealOtherComponent>();
                 auto time = SDL_GetTicks();
                 constexpr int amdusciasNumShots = 10; // nut inspired
                 constexpr int astarothNumShots = 5; // geb inspired
                 constexpr int abigorNumShots = 7; // bes inspired
                 constexpr float orbitalDistanceFromRoomCenter = 400.0f;
                 constexpr float orbitalDistanceFromBeneficiary = 150.0f;
-                if(!aidata.activated){  // logic for pre-activation and first frame of activation
+                if(!aidata->activated){  // logic for pre-activation and first frame of activation
                     if(registry->numEntitiesPerMonsterSubGroup(ABYSSTOWERSUBGROUP) == 0){ // first frame of activation
-                        aidata.activated = true;
-                        sec.effects[INVULNERABLE] = false;
-                        omc.origin = playerSpawn - 128.0f; // center of spawn room
-                        omc.orbiting = true;
-                        aidata.state = WALKING;
+                        aidata->activated = true;
+                        sec->effects[INVULNERABLE] = false;
+                        omc->origin = playerSpawn - 128.0f; // center of spawn room
+                        omc->orbiting = true;
+                        aidata->state = WALKING;
                     }
                     continue;
                 } 
                 
                 if(!HAS_ALREADY_HEALED_BENEFICIARY && !CURRENTLY_HEALING_BENEFICIARY){
-                    bool someoneElseIsInHealSequence = (registry->entityIsAlive(aidata.idKeyOne, aidata.cIdKeyOne) && registry->GetComponent<BossAIComponent>(aidata.idKeyOne).flags[1]) || (registry->entityIsAlive(aidata.idKeyTwo, aidata.cIdKeyTwo) && registry->GetComponent<BossAIComponent>(aidata.idKeyTwo).flags[1]); 
+                    bool someoneElseIsInHealSequence = (registry->entityIsAlive(aidata->idKeyOne, aidata->cIdKeyOne) && registry->GetComponent<BossAIComponent>(aidata->idKeyOne).flags[1]) || (registry->entityIsAlive(aidata->idKeyTwo, aidata->cIdKeyTwo) && registry->GetComponent<BossAIComponent>(aidata->idKeyTwo).flags[1]); 
                     if(!someoneElseIsInHealSequence){
-                        if(registry->entityIsAlive(hoc.beneficiaryId, hoc.beneficiaryCreationId)){
-                            int hpOfBeneficiary = registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp;
+                        if(registry->entityIsAlive(hoc->beneficiaryId, hoc->beneficiaryCreationId)){
+                            int hpOfBeneficiary = registry->GetComponent<HPMPComponent>(hoc->beneficiaryId).activehp;
                             if(hpOfBeneficiary < 20000){
                                 CURRENTLY_HEALING_BENEFICIARY = true; 
-                                sec.effects[INVULNERABLE] = true;
-                                sec.endTimes[INVULNERABLE] = 0-1;
-                                aidata.positionflag = omc.origin; // store room-center origin in aidata.positionflag for later repurposing
-                                aidata.state = WALKING;
-                                pec.shots = 0;
-                                omc.orbiting = false;
-                                speed = 40;
+                                sec->effects[INVULNERABLE] = true;
+                                sec->endTimes[INVULNERABLE] = 0-1;
+                                aidata->positionflag = omc->origin; // store room-center origin in aidata->positionflag for later repurposing
+                                aidata->state = WALKING;
+                                pec->shots = 0;
+                                omc->orbiting = false;
+                                *speed = 40;
                             }
                         }
                     }
                 }
 
                 if(CURRENTLY_HEALING_BENEFICIARY){
-                    if(!HAS_ALREADY_HEALED_BENEFICIARY && (!registry->entityIsAlive(hoc.beneficiaryId, hoc.beneficiaryCreationId) || registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp >= 30000 || registry->GetComponent<BossAIComponent>(hoc.beneficiaryId).flags[0] || registry->GetComponent<HPMPComponent>(hoc.beneficiaryId).activehp < 10000)){
+                    if(!HAS_ALREADY_HEALED_BENEFICIARY && (!registry->entityIsAlive(hoc->beneficiaryId, hoc->beneficiaryCreationId) || registry->GetComponent<HPMPComponent>(hoc->beneficiaryId).activehp >= 30000 || registry->GetComponent<BossAIComponent>(hoc->beneficiaryId).flags[0] || registry->GetComponent<HPMPComponent>(hoc->beneficiaryId).activehp < 10000)){
                         HAS_ALREADY_HEALED_BENEFICIARY = true;
                     }    
                     if(HAS_ALREADY_HEALED_BENEFICIARY){ // path back to regular orbit, end healing sequence
-                        if(omc.orbiting){
-                            omc.orbiting = false;
-                            omc.origin = aidata.positionflag;
-                            hoc.beneficiaryIsDead = true;
-                            sec.effects[INVULNERABLE] = false;
-                            omc.distance = orbitalDistanceFromRoomCenter;
-                            speed = 40;
+                        if(omc->orbiting){
+                            omc->orbiting = false;
+                            omc->origin = aidata->positionflag;
+                            hoc->beneficiaryIsDead = true;
+                            sec->effects[INVULNERABLE] = false;
+                            omc->distance = orbitalDistanceFromRoomCenter;
+                            *speed = 40;
                         }
                         int numOtherBossesAlive = 0;
                         std::vector<int> livingBossIds;
-                        if(registry->entityIsAlive(aidata.idKeyOne, aidata.cIdKeyOne) && !registry->GetComponent<BossAIComponent>(aidata.idKeyOne).flags[0]){ // flags[0] = in rage phase 
+                        if(registry->entityIsAlive(aidata->idKeyOne, aidata->cIdKeyOne) && !registry->GetComponent<BossAIComponent>(aidata->idKeyOne).flags[0]){ // flags[0] = in rage phase 
                             numOtherBossesAlive++;
-                            livingBossIds.push_back(aidata.idKeyOne);
+                            livingBossIds.push_back(aidata->idKeyOne);
                         }
-                        if(registry->entityIsAlive(aidata.idKeyTwo, aidata.cIdKeyTwo) && !registry->GetComponent<BossAIComponent>(aidata.idKeyTwo).flags[0]){ // flags[0] = in rage phase 
+                        if(registry->entityIsAlive(aidata->idKeyTwo, aidata->cIdKeyTwo) && !registry->GetComponent<BossAIComponent>(aidata->idKeyTwo).flags[0]){ // flags[0] = in rage phase 
                             numOtherBossesAlive++;
-                            livingBossIds.push_back(aidata.idKeyTwo);
+                            livingBossIds.push_back(aidata->idKeyTwo);
                         }
                         switch(numOtherBossesAlive){ // get destination to re-enter orbit depending on remaining monsters
                             case 0:{
                                 if(!FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT){
                                     FINAL_BOSS_RETURNS_TO_ORIGINAL_ORBIT = true;
                                     float randomAngle = glm::linearRand(0.0f, 6.2831855f);
-                                    float offsetX = omc.distance * glm::cos(randomAngle); 
-                                    float offsetY = omc.distance * glm::sin(randomAngle);
-                                    aidata.positionflag = {(omc.origin.x + offsetX), (omc.origin.y + offsetY)};
+                                    float offsetX = omc->distance * glm::cos(randomAngle); 
+                                    float offsetY = omc->distance * glm::sin(randomAngle);
+                                    aidata->positionflag = {(omc->origin.x + offsetX), (omc->origin.y + offsetY)};
                                 }
                             } break;
                             case 1:{
                                 const auto& livingbosspos = registry->GetComponent<TransformComponent>(livingBossIds[0]).position;
-                                aidata.positionflag = 2.0f * omc.origin - livingbosspos;
+                                aidata->positionflag = 2.0f * omc->origin - livingbosspos;
                             } break;
                             case 2:{
                                 const auto& p1 = registry->GetComponent<TransformComponent>(livingBossIds[0]).position;
                                 const auto& p2 = registry->GetComponent<TransformComponent>(livingBossIds[1]).position;
                                 glm::vec2 midpoint = (p1 + p2) / 2.0f;
-                                glm::vec2 direction = midpoint - omc.origin; // omc.origin = center of circle
+                                glm::vec2 direction = midpoint - omc->origin; // omc->origin = center of circle
                                 glm::vec2 unitDirection = glm::normalize(direction);
-                                aidata.positionflag = omc.origin - omc.distance * unitDirection; // omc.distance = radius
+                                aidata->positionflag = omc->origin - omc->distance * unitDirection; // omc->distance = radius
                             } break;
                         }
-                        chasePosition(position, aidata.positionflag, velocity);
-                        if(glm::distance(position, aidata.positionflag) < 3.0f){ // healing sequence has fully concluded
-                            velocity.x = velocity.y = 0.0f;
-                            omc.orbiting = true;
-                            omc.angle = std::atan2(position.y - omc.origin.y, position.x - omc.origin.x);
+                        chasePosition(transform->position, aidata->positionflag, *velocity);
+                        if(glm::distance(transform->position, aidata->positionflag) < 3.0f){ // healing sequence has fully concluded
+                            velocity->x = velocity->y = 0.0f;
+                            omc->orbiting = true;
+                            omc->angle = std::atan2(transform->position.y - omc->origin.y, transform->position.x - omc->origin.x);
                             CURRENTLY_HEALING_BENEFICIARY = false;
-                            sec.effects[INVULNERABLE] = false;
-                            speed = 5;
+                            sec->effects[INVULNERABLE] = false;
+                            *speed = 5;
                         }
                     } else { // path to beneficiary and orbit them
-                        const auto& beneficiaryCenter = registry->GetComponent<TransformComponent>(hoc.beneficiaryId).center;
-                        if(!omc.orbiting && glm::distance(position, beneficiaryCenter) > orbitalDistanceFromBeneficiary){
-                            chasePosition(position, beneficiaryCenter, velocity);
+                        const auto& beneficiaryCenter = registry->GetComponent<TransformComponent>(hoc->beneficiaryId).center;
+                        if(!omc->orbiting && glm::distance(transform->position, beneficiaryCenter) > orbitalDistanceFromBeneficiary){
+                            chasePosition(transform->position, beneficiaryCenter, *velocity);
                         } else { // else we have arrived at beneficiary and can orbit
-                            if(!omc.orbiting){
-                                speed = 5;
-                                omc.orbiting = true;
-                                velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                                omc.angle = std::atan2(position.y - beneficiaryCenter.y, position.x - beneficiaryCenter.x);
-                                hoc.beneficiaryIsDead = false;
-                                omc.distance = orbitalDistanceFromBeneficiary;
+                            if(!omc->orbiting){
+                                *speed = 5;
+                                omc->orbiting = true;
+                                *velocity = {0.0,0.0}; // set *velocity to 0.0 so MovementSystem::Update stops moving this entity
+                                omc->angle = std::atan2(transform->position.y - beneficiaryCenter.y, transform->position.x - beneficiaryCenter.x);
+                                hoc->beneficiaryIsDead = false;
+                                omc->distance = orbitalDistanceFromBeneficiary;
                             }
-                            if(sec.effects[PARALYZE]){
-                                speed = 40;
-                                omc.orbiting = false;
-                                aidata.state = WALKING;
+                            if(sec->effects[PARALYZE]){
+                                *speed = 40;
+                                omc->orbiting = false;
+                                aidata->state = WALKING;
                             }
-                            omc.origin = beneficiaryCenter;
+                            omc->origin = beneficiaryCenter;
                         }
                     }
                 } else {
                     // phases given hp. they start at 40000 hp 
-                    if(hp >= 38000 && hp < 39850){ // pre-phase, just weakened shots
-                        omc.orbiting = true;
-                        velocity.x = velocity.y = 0.0f;
-                        aidata.state = SHOOTING;
-                        if(time >= aidata.timer1 + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
-                            aidata.timer1 = time;
-                            AbyssWeakShots(entity, registry, playerPos, aidata.bossType);
+                    if(*hp >= 38000 && *hp < 39850){ // pre-phase, just weakened shots
+                        omc->orbiting = true;
+                        velocity->x = velocity->y = 0.0f;
+                        aidata->state = SHOOTING;
+                        if(time >= aidata->timer1 + 1000 && *isShooting && time - pec->lastEmissionTime > pec->repeatFrequency){
+                            aidata->timer1 = time;
+                            AbyssWeakShots(entity, registry, playerPos, aidata->bossType);
+                            RESET_PROJECTILE_POINTERS
                         }
-                    } else if (hp < 38000){ // gradually adding more stuff as health decreases
-                        aidata.state = SHOOTING;
-                        omc.orbiting = true;
-                        velocity.x = velocity.y = 0.0f;
-                        if(pec.shots == 0){ // hp below 38k, permit their regular shots by updating pec.shots
-                            switch(aidata.bossType){
+                    } else if (*hp < 38000){ // gradually adding more stuff as health decreases
+                        aidata->state = SHOOTING;
+                        omc->orbiting = true;
+                        velocity->x = velocity->y = 0.0f;
+                        if(pec->shots == 0){ // *hp below 38k, permit their regular shots by updating pec->shots
+                            switch(aidata->bossType){
                                 case AMDUSCIAS: {
-                                    pec.shots = amdusciasNumShots;
+                                    pec->shots = amdusciasNumShots;
                                 } break;
                                 case ASTAROTH: {
-                                    pec.shots = astarothNumShots;
+                                    pec->shots = astarothNumShots;
                                 } break;
                                 case ABIGOR: {
-                                    pec.shots = abigorNumShots;
+                                    pec->shots = abigorNumShots;
                                 } break;
                             }
-                            asc.animatedShooting = true;
-                            isShooting = true;
-                            ac.xmin = 4;
-                            ac.numFrames = 2; 
-                            ac.currentFrame = 1;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            pec.lastEmissionTime += pec.repeatFrequency / 2;
+                            asc->animatedShooting = true;
+                            *isShooting = true;
+                            ac->xmin = 4;
+                            ac->numFrames = 2; 
+                            ac->currentFrame = 1;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                            pec->lastEmissionTime += pec->repeatFrequency / 2;
                         }
                         int secondaryActionInterval = 2000;
-                        if(hp < 3000){
+                        if(*hp < 3000){
                             if(!ENTERED_RAGE_PHASE){ // 
                                 ENTERED_RAGE_PHASE = true;
-                                speed = 35;
+                                *speed = 35;
                                 auto& vitality = entity.GetComponent<HPMPComponent>().activevitality = 0;
                             }
                             secondaryActionInterval = 1000;
-                            omc.orbiting = false;
-                            chasePosition(position, playerPos, velocity);
+                            omc->orbiting = false;
+                            chasePosition(transform->position, playerPos, *velocity);
                         }
-                        if(time >= aidata.timer1 + secondaryActionInterval && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){
-                            aidata.timer1 = time;
-                            if(hp < 32000){ // permit boomerang shots
-                                switch(aidata.bossType){
+                        if(time >= aidata->timer1 + secondaryActionInterval && *isShooting && time - pec->lastEmissionTime > pec->repeatFrequency){
+                            aidata->timer1 = time;
+                            if(*hp < 32000){ // permit boomerang shots
+                                switch(aidata->bossType){
                                     case AMDUSCIAS:{
                                         switch(RNG.randomFromRange(0,3)){
                                             case 0:{
-                                                AbyssBoomerang<QUIET>(entity, registry, playerPos, aidata.bossType);
+                                                AbyssBoomerang<QUIET>(entity, registry, playerPos, aidata->bossType);
                                             } break;
                                             case 1:{
-                                                AbyssBoomerang<WEAKENED>(entity, registry, playerPos, aidata.bossType);
+                                                AbyssBoomerang<WEAKENED>(entity, registry, playerPos, aidata->bossType);
                                             } break;
                                             case 2:{
-                                                AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata.bossType);
+                                                AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata->bossType);
                                             } break;
                                             case 3:{
-                                                AbyssBoomerang<BLIND>(entity, registry, playerPos, aidata.bossType);
+                                                AbyssBoomerang<BLIND>(entity, registry, playerPos, aidata->bossType);
                                             } break;
                                         }
                                     } break;
                                     case ASTAROTH:{
-                                        AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata.bossType, 6, 360);
+                                        AbyssBoomerang<SLOWED>(entity, registry, playerPos, aidata->bossType, 6, 360);
                                     } break;
                                     case ABIGOR:{
-                                        AbyssBoomerang<ARMORBROKEN>(entity, registry, playerPos, aidata.bossType);
+                                        AbyssBoomerang<ARMORBROKEN>(entity, registry, playerPos, aidata->bossType);
                                     } break; 
-                                }    
+                                }
+                                RESET_PROJECTILE_POINTERS    
                             }
-                            if(hp < 26500){ // permit artifacts
+                            if(*hp < 26500){ // permit artifacts
                                 // MinionSpawnerComponent.maxMinions = 3;
-                                msc.maxMinions = 5;
+                                msc->maxMinions = 5;
                             }
                             // permit additional behavior at a lesser frequency
-                            if(hp < 16000 && time >= aidata.timer2 + secondaryActionInterval + 1000 && isShooting && time - pec.lastEmissionTime > pec.repeatFrequency){ 
-                                aidata.timer2 = time;
-                                switch(aidata.bossType){
+                            if(*hp < 16000 && time >= aidata->timer2 + secondaryActionInterval + 1000 && *isShooting && time - pec->lastEmissionTime > pec->repeatFrequency){ 
+                                aidata->timer2 = time;
+                                switch(aidata->bossType){
                                     case AMDUSCIAS:{ // nut 
                                         // spawn chasing eye or shoot paralyzing bolt
                                         if(RNG.randomFromRange(0,4) == 0){
@@ -1853,11 +1900,13 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
-                                                glm::vec2 spawnPos = {(center.x + offsetX), (center.y + offsetY)};
+                                                glm::vec2 spawnPos = {(transform->center.x + offsetX), (transform->center.y + offsetY)};
                                                 factory->spawnMonster(registry, spawnPos, ABYSSALSTARCHASE);
+                                                ABYSS_RESET_ALL
                                             }
                                         } else {
-                                            nutshot(entity, registry, playerPos, aidata.bossType);
+                                            nutshot(entity, registry, playerPos, aidata->bossType);
+                                            RESET_PROJECTILE_POINTERS
                                         }
                                     }  break;
                                     case ASTAROTH:{ // geb
@@ -1869,12 +1918,15 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
-                                                glm::vec2 target = {(center.x + offsetX), (center.y + offsetY)}; 
-                                                gebBomb(entity, target, registry, aidata.bossType, 80);
+                                                glm::vec2 target = {(transform->center.x + offsetX), (transform->center.y + offsetY)}; 
+                                                gebBomb(entity, target, registry, aidata->bossType, 80);
+                                                RESET_PROJECTILE_POINTERS
                                             }
                                         } else {
-                                            gebshot(entity, registry, playerPos, aidata.bossType);
-                                            starShotgun<QUIET>(entity, registry, playerPos, aidata.bossType);
+                                            gebshot(entity, registry, playerPos, aidata->bossType);
+                                            RESET_PROJECTILE_POINTERS
+                                            starShotgun<QUIET>(entity, registry, playerPos, aidata->bossType);
+                                            RESET_PROJECTILE_POINTERS
                                         }
                                     }  break;
                                     case ABIGOR:{ // bes 
@@ -1886,11 +1938,13 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
-                                                glm::vec2 spawnPos = {(center.x + offsetX), (center.y + offsetY)};
+                                                glm::vec2 spawnPos = {(transform->center.x + offsetX), (transform->center.y + offsetY)};
                                                 factory->spawnMonster(registry, spawnPos, brutes[RNG.randomFromRange(0,1)]);
+                                                ABYSS_RESET_ALL
                                             }
                                         } else {
-                                            starShotgun<BLEEDING>(entity, registry, playerPos, aidata.bossType);
+                                            starShotgun<BLEEDING>(entity, registry, playerPos, aidata->bossType);
+                                            RESET_PROJECTILE_POINTERS
                                         }
                                     }  break;
                                 }
@@ -1898,49 +1952,49 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         }
                     }
                 }
-                // state-machine approach for updating animation/isShooting for if shooting, standing, walking
+                // state-machine approach for updating animation/*isShooting for if shooting, standing, walking
 
-                if(aidata.state == SHOOTING && (playerInvisible || stunned)){
-                    aidata.state = WALKING;
+                if(aidata->state == SHOOTING && (playerInvisible || stunned)){
+                    aidata->state = WALKING;
                     if(playerInvisible && ENTERED_RAGE_PHASE){
-                        aidata.state = STANDING;
+                        aidata->state = STANDING;
                     }
                 }
 
-                switch(aidata.state){
+                switch(aidata->state){
                     case STANDING:{
-                        if(velocity.x != 0.0 && velocity.y != 0.0){
-                            asc.animatedShooting = false;
-                            isShooting = false;
-                            ac.xmin = 0;
-                            ac.numFrames = 1;
-                            velocity = {0.0,0.0};     
+                        if(velocity->x != 0.0 && velocity->y != 0.0){
+                            asc->animatedShooting = false;
+                            *isShooting = false;
+                            ac->xmin = 0;
+                            ac->numFrames = 1;
+                            *velocity = {0.0,0.0};     
                         }
                     } break;
                     case WALKING:{
-                        if(ac.xmin != 0 || (velocity.x == 0.0 && velocity.y == 0.0)){
-                            asc.animatedShooting = false;
-                            isShooting = false;
-                            ac.xmin = 0;
+                        if(ac->xmin != 0 || (velocity->x == 0.0 && velocity->y == 0.0)){
+                            asc->animatedShooting = false;
+                            *isShooting = false;
+                            ac->xmin = 0;
                         }
-                        !paralyzed ? ac.numFrames = 2 : ac.numFrames = 1;
+                        !paralyzed ? ac->numFrames = 2 : ac->numFrames = 1;
                     } break;
                     case SHOOTING:{
-                        if(!isShooting){ // detect if first frame of this state
-                            asc.animatedShooting = true;
-                            isShooting = true;
-                            ac.xmin = 4;
-                            ac.numFrames = 2; 
-                            ac.currentFrame = 1;
-                            ac.startTime = pec.lastEmissionTime = SDL_GetTicks() - pec.repeatFrequency;
-                            pec.lastEmissionTime += pec.repeatFrequency / 2;
+                        if(!*isShooting){ // detect if first frame of this state
+                            asc->animatedShooting = true;
+                            *isShooting = true;
+                            ac->xmin = 4;
+                            ac->numFrames = 2; 
+                            ac->currentFrame = 1;
+                            ac->startTime = pec->lastEmissionTime = SDL_GetTicks() - pec->repeatFrequency;
+                            pec->lastEmissionTime += pec->repeatFrequency / 2;
                         }
                     } break;
                 }
             } break;
         }
         if(!playerInvisible){
-            playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
+            playerPos.x <= transform->center.x ? sprite->flip = SDL_FLIP_HORIZONTAL : sprite->flip = SDL_FLIP_NONE;    
         }
     }
 }

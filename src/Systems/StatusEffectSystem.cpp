@@ -12,7 +12,7 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 
 void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits){
     SDL_Rect dstRect;
-    SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2);
+    SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2); // returns a pointer to the .png's SDL_Texture *
     int numIconsToRender = bits.count();
     constexpr int totalNumberStatusEffects = static_cast<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
     constexpr int iconDimension = 16;
@@ -20,6 +20,8 @@ void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_
     SDL_Texture* texture = SDL_CreateTexture(renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_TARGET, width, iconDimension);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
     SDL_SetRenderTarget(renderer, texture);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
     int iconsRendered = 0;
     for(int i = 0; i < totalNumberStatusEffects; i++){
         if(bits[i]){
@@ -28,7 +30,7 @@ void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_
             iconsRendered++;
         }
     }
-    effectTextures[bits.to_ulong()] = texture;
+    effectTextures[bits.to_ulong()] = texture; // effectTextures is an unordered_map<unsigned long, SDL_Texture *>
     SDL_SetRenderTarget(renderer, nullptr);
 }
 
@@ -251,9 +253,9 @@ void StatusEffectSystem::onStatusDisable(Entity& recipient, statuses status, std
     }
 }
 
-void StatusEffectSystem::killIconSetTextures(){
-    for(auto& x: effectTextures){
-        SDL_DestroyTexture(x.second);
+void StatusEffectSystem::killIconSetTextures(){ // not sure why valgrind reports invalid reads here!
+    for(auto& pair: effectTextures){
+        SDL_DestroyTexture(pair.second);
     }
 }
 
@@ -270,13 +272,13 @@ void StatusEffectSystem::Update(SDL_Renderer* renderer, std::unique_ptr<EventBus
                             activehp -= 5.0;    // 20 per second
                         }
                         sec.lastBleedTime = currentTime;
-                    } else if(i == HEALING && currentTime >= sec.lastBleedTime + 250){
+                    } else if(i == HEALING && currentTime >= sec.lastHealTime + 250){
                         auto& HPMP = entity.GetComponent<HPMPComponent>();
                         HPMP.activehp += 10.0; // 40 per second
                         if(HPMP.activehp > HPMP.maxhp){
                             HPMP.activehp = HPMP.maxhp;
                         }
-                        sec.lastBleedTime = currentTime;
+                        sec.lastHealTime = currentTime;
                     }
                     if(currentTime >= sec.endTimes[i]){ // status effect expired; revert changes if necessary
                         sec.effects[i] = false;

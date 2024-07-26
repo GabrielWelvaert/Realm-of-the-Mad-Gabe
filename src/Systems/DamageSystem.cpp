@@ -14,7 +14,7 @@ void DamageSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
 void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
     auto& victimHPMPComponent = event.victim.GetComponent<HPMPComponent>();
     auto& projectileComponent = event.projectile.GetComponent<ProjectileComponent>();
-    const auto& victimPosition = event.victim.GetComponent<TransformComponent>().position;
+    auto * victimPosition = &event.victim.GetComponent<TransformComponent>().position;
     const auto& effects = event.victim.GetComponent<StatusEffectComponent>().effects;
     const auto& invulnerable = effects[INVULNERABLE];
     const auto& armorbroken = effects[ARMORBROKEN];
@@ -80,7 +80,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
             } else {
                 dmgText.AddComponent<TextLabelComponent>("-" + std::to_string(realdamage),"damagefont",damagered,false,350,event.victim.GetId(),event.victim.GetCreationId());
             }
-            dmgText.AddComponent<TransformComponent>(victimPosition);
+            dmgText.AddComponent<TransformComponent>(*victimPosition);
             if(event.skullTracker){
                 (*event.skullTracker) += realdamage;
             }
@@ -100,6 +100,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                     playerBaseStats.xp += xp;  
                     if(playerBaseStats.level < 20){
                         displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
+                        victimPosition = &event.victim.GetComponent<TransformComponent>().position;
                         if(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){ // player level up
                             while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
                                 event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);

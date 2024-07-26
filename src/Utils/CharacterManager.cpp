@@ -122,7 +122,7 @@ void CharacterManager::SaveVaults(std::unique_ptr<Registry>& registry){
 void CharacterManager::KillInvalidVaultFiles(){
     dirItr = std::filesystem::directory_iterator(vaultFolderPath);
     std::set<std::string> filesToKeep;
-    std::unordered_set<std::string> files = {"1.txt", "2.txt", "3.txt","4.txt", "5.txt", "6.txt"};
+    std::unordered_set<std::string> files = {"1.txt", "2.txt", "3.txt","4.txt", "5.txt", "6.txt", "7.txt", "8.txt", "9.txt"};
     // kill files that are of invalid format
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();

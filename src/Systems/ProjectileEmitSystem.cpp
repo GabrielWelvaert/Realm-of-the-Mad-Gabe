@@ -1,4 +1,5 @@
 #include "ProjectileEmitSystem.h"
+#include <type_traits>
 
 #define PROJECTILE_Z_INDEX 3
 
@@ -42,11 +43,11 @@ void ProjectileEmitSystem::Update(std::unique_ptr<Registry>& registry, const SDL
                     const auto& duration = PEC.duration;
                     bool piercing = PEC.PECbools[PIERCING];
                     bool inflictsStatusEffect = PEC.PECbools[INFLICTSSTATUSEFFECT];
-                    const auto& arcgap = PEC.arcgap;
+                    const auto arcgap = PEC.arcgap;
                     int shots = PEC.shots;
                     const bool IsPlayer = entity.BelongsToGroup(PLAYER);
-                    const auto& parentSprite = entity.GetComponent<SpriteComponent>(); // sprite of projectile's parent
-                    const auto& transform = entity.GetComponent<TransformComponent>(); // transform of projectile's parent
+                    const auto parentSprite = entity.GetComponent<SpriteComponent>(); // sprite of projectile's parent
+                    const auto transform = entity.GetComponent<TransformComponent>(); // transform of projectile's parent
                     bool isDiagonal = PEC.PECbools[DIAGONALSPRITE];
                     bool oscillates = PEC.PECbools[OSCILLATES];
                     bool rotates = PEC.PECbools[ROTATES];
