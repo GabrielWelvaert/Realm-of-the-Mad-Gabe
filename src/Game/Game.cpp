@@ -95,7 +95,7 @@ void Game::Initialize(){
     SDL_FreeSurface(iconlarge);
     SDL_FreeSurface(atlas);
 
-    // if(debug){
+    // if(true){
     //     SDL_RendererInfo rendererInfo;
     //     SDL_GetRendererInfo(renderer, &rendererInfo);
     //     std::cout << "SDL_GetCurrentVideoDriver() = " << SDL_GetCurrentVideoDriver() << std::endl;
@@ -158,7 +158,7 @@ void Game::ProcessInput(){
                             if(currentArea == NEXUS || currentArea == VAULT){
                                 characterManager->SaveCharacter(activeCharacterID, player);
                                 characterManager->SaveVaults(registry);
-                                player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                                // player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                                 registry->killAllEntities();
                                 Setup(false, true, NEXUS);
                             }
@@ -248,8 +248,8 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_0:{
                             // player.GetComponent<HPMPComponent>().activemp += 1;
-                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
-                            // const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            const auto& playerpos = player.GetComponent<TransformComponent>().position;
                             glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
@@ -261,7 +261,7 @@ void Game::ProcessInput(){
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
-                            // factory->spawnMonster(registry, spawnpoint - 64.0f, POTCHEST);
+                            factory->spawnMonster(registry, playerpos + 100.0f, SPRITEGOD);
                             // for(int i = 0; i < 20; i++){ // destination positions for spell velocity calculations
                             //     auto angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(20);
                             //     glm::vec2 destPos = {playerpos.x + 264 * std::cos(angle), playerpos.y + 264 * std::sin(angle)};
@@ -269,7 +269,7 @@ void Game::ProcessInput(){
                             // }
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
+                            // eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -281,15 +281,17 @@ void Game::ProcessInput(){
                             // }
                             // auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
                             // std::cout << "there are currently " << numGodLandsGods << " gods" << '\n';
-                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // const auto& p = player.GetComponent<TransformComponent>().position;
+                            // std::cout << "current position = " << p.x << ", " << p.y << '\n';
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, PENTARACT, player.GetId());
+                            // factory->spawnMonster(registry, p, GORDON2);
+                            // std::cout << p.x << ", " << p.y << '\n';
                             // factory->spawnMonster(registry, playerPos, PENTARACTEYE, player.GetId());
                             // factory->spawnMonster(registry, glm::vec2(-400,200), MEDUSA);
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
-                            eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
+                            // eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
                         } break;
                         case SDLK_EQUALS:{
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
@@ -386,7 +388,7 @@ void Game::ProcessInput(){
                 case CHANGECHAR:{ // player wants to change character
                     characterManager->SaveCharacter(activeCharacterID, player);
                     characterManager->SaveVaults(registry);
-                    player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
+                    // player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
                     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
                     Setup(false, true, NEXUS, true);
@@ -417,6 +419,7 @@ void Game::ProcessInput(){
 }
 
 bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>& map){
+    idOfMiniMapEntity = -1; // flag to ensure we only kill mini map if it was generated
     wallData wd = wallThemeToWallData.at(wallTheme);
     int wall = std::stoi(std::to_string(wd.walls[0].x) + std::to_string(wd.walls[0].y)); 
     int alpha = std::stoi(std::to_string(wd.alpha.x) + std::to_string(wd.alpha.y)); 
@@ -437,8 +440,9 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
     } else if (wallTheme == ABYSS) {
         numRooms = 50;
         w = h = 30; // genesis room
-    } else { // necropolis and chicken lair
+    } else { // chicken den and undead lair
         numRooms = RNG.randomFromRange(25,35);
+        // numRooms = 3;
         w = h = RNG.randomFromRange(10,15); // genesis room
     }
     x = mapSizeTiles / 2;
@@ -578,6 +582,10 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
             valueOfMinY = room.y;
             idOfMinY = room.id;
             cardinalRooms.insert_or_assign(NORTH, room);
+        }
+
+        if(valueOfMaxX - valueOfMinX > 240 || valueOfMaxY - valueOfMinY > 240){
+            return false;
         }
 
         // 2.6) add a hallway to connect child room to parent room
@@ -767,19 +775,25 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
             map = gordonLair;
             MiniMap(wallTheme, gordonLairOnlyFloors);
         }break;
+        case GORDONSLAIR2:{
+            map = gordonLair2;
+            MiniMap(wallTheme, gordonLair2OnlyFloors);
+        } break;
         default:{
             while(!successfulMapGen){
                 for(auto& m: map){m.clear();}
                 map.clear();
                 dungeonRooms.clear();
                 successfulMapGen = GenerateMap(wallTheme, map); // MiniMap called within GenerateMap for generated areas 
-                if(map.size() == 0 || // map size will be 0 if GenerateMap() did not assign a map due to failed gen
-                   std::max(map[0].size(), map.size()) * 64 >= rendererMaxTextureDimension ||
-                   std::max(map[0].size(), map.size()) > 240){
-                    // std::cout << "map was too big! " << '\n';
+                if(!successfulMapGen ||
+                    map.size() == 0 || // map size will be 0 if GenerateMap() did not assign a map due to failed gen
+                    std::max(map[0].size(), map.size()) * 64 >= rendererMaxTextureDimension ||
+                    std::max(map[0].size(), map.size()) > 240){
                     successfulMapGen = false;
-                    minimapfloor.Kill(); // so we dont have multiple mini map entities when we re-gen
-                    registry->Update();
+                    if(idOfMiniMapEntity != -1){ // do not kill it if it didn't generate in the first place
+                        minimapfloor.Kill(); // so we dont have multiple mini map entities when we re-gen
+                        registry->Update();    
+                    }
                 }
             }
         }break;
@@ -890,8 +904,20 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
                     } else { // its not a boulder tile
                         srcRect.x += RNG.randomFromRange(0,3) * tileSize; // rotated versions
                     }
-                    
-                    
+                } else if(wallTheme == GORDONSLAIR2 && currentCoord == glm::ivec2{5,2}){
+                    if(RNG.randomFromRange(0,20) == 20){
+                        glm::vec2 position(xpos*tileSize*tileScale, ypos*tileSize*tileScale);
+                        position.x += RNG.randomFromRange(0.0, 10.0);
+                        position.y += RNG.randomFromRange(0.0, 10.0);
+                        switch(RNG.randomFromRange(0,4)){
+                            case 0:{
+                                factory->spawnDecoration(registry, position, FLOORSKULL);
+                            } break;
+                            default:{
+                                factory->spawnDecoration(registry, position, FLOORBLOOD);
+                            } break;
+                        }
+                    }
                 }
                 SDL_SetRenderTarget(renderer, bigFloorTexture);
                 SDL_RenderCopy(renderer, spriteAtlasTexture, &srcRect, &dstRect);
@@ -929,90 +955,90 @@ void Game::LoadTileMap(const wallTheme& wallTheme){
     std::vector<glm::ivec2> group;
     int scale = tileSize*tileScale;
     // x-clusters
-    for(int i = 0; i < wallCoordinates.size()-1; i++){
-        if(wallCoordinates.size() == 0){return;} //no walls
-        if(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
-            group.push_back(wallCoordinates[i]);
-            Xclusters.insert(wallCoordinates[i]);
-            while(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
-                group.push_back(wallCoordinates[i+1]);
-                Xclusters.insert(wallCoordinates[i+1]);
-                i++;
-            }
-            const auto& position = coordinateToPos.at(group[0]);
-            Entity wallbox = registry->CreateEntity();
-            wallbox.AddComponent<TransformComponent>(position);
-            wallbox.AddComponent<BoxColliderComponent>(group.size() * scale, scale);
-            wallbox.Group(WALLBOX);
-            group.clear();
-        } else { // is this wall alone? 
-            glm::vec2 above = {wallCoordinates[i].x,wallCoordinates[i].y - 1};
-            glm::vec2 below = {wallCoordinates[i].x,wallCoordinates[i].y + 1};
-            if(wallCoordinatesHashSet.find(above) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(below) == wallCoordinatesHashSet.end()){
-                solos.insert(wallCoordinates[i]);  
-            }
-        }
-    }
-    std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { // sorting so can analyze y-clusters
-        if (a.x != b.x) {return a.x < b.x;}
-        return a.y < b.y; 
-    });
-    std::sort(ceilingCoordinates.begin(), ceilingCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { 
-        if (a.x != b.x) {return a.x < b.x;}
-        return a.y < b.y; 
-    });
-    // y-clusters
-    for(int i = 0; i < wallCoordinates.size()-1; i++){
-        if(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
-            if(Xclusters.find(wallCoordinates[i]) == Xclusters.end()){
+    if(wallCoordinates.size() >= 2){ // note this algorithm will not work if there is only one wall in a map
+        for(int i = 0; i < wallCoordinates.size()-1; i++){ // i may only be equal to [-2] (2nd to end)
+            if(wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
                 group.push_back(wallCoordinates[i]);
-            }
-            while(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
-                if(Xclusters.find(wallCoordinates[i+1]) == Xclusters.end()){
+                Xclusters.insert(wallCoordinates[i]);
+                while(i < wallCoordinates.size()-1 && wallCoordinates[i].x == wallCoordinates[i+1].x - 1 && wallCoordinates[i].y == wallCoordinates[i+1].y){
                     group.push_back(wallCoordinates[i+1]);
+                    Xclusters.insert(wallCoordinates[i+1]);
+                    i++;
                 }
-                i++;
-            }
-            const auto& position = coordinateToPos.at(group[0]);
-            Entity wallbox = registry->CreateEntity();
-            wallbox.AddComponent<TransformComponent>(position);
-            wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
-            wallbox.Group(WALLBOX);
-            group.clear();
-        } else { // is this wall alone? 
-            glm::vec2 left = {wallCoordinates[i].x-1,wallCoordinates[i].y};
-            glm::vec2 right = {wallCoordinates[i].x+1,wallCoordinates[i].y};
-            if(wallCoordinatesHashSet.find(left) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(right) == wallCoordinatesHashSet.end()){
-                solos.insert(wallCoordinates[i]);  
+                const auto& position = coordinateToPos.at(group[0]);
+                Entity wallbox = registry->CreateEntity();
+                wallbox.AddComponent<TransformComponent>(position);
+                wallbox.AddComponent<BoxColliderComponent>(group.size() * scale, scale);
+                wallbox.Group(WALLBOX);
+                group.clear();
+            } else { // is this wall alone? 
+                glm::vec2 above = {wallCoordinates[i].x,wallCoordinates[i].y - 1};
+                glm::vec2 below = {wallCoordinates[i].x,wallCoordinates[i].y + 1};
+                if(wallCoordinatesHashSet.find(above) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(below) == wallCoordinatesHashSet.end()){
+                    solos.insert(wallCoordinates[i]);  
+                }
             }
         }
-    }
-    // solo walls 
-    for(const auto& x: solos){
-        const auto& position = coordinateToPos.at(x);
-        Entity wallbox = registry->CreateEntity();
-        wallbox.AddComponent<TransformComponent>(position);
-        wallbox.AddComponent<BoxColliderComponent>(scale, scale);
-        wallbox.Group(WALLBOX);
-    }
+        std::sort(wallCoordinates.begin(), wallCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { // sorting so can analyze y-clusters
+            if (a.x != b.x) {return a.x < b.x;}
+            return a.y < b.y; 
+        });
+        std::sort(ceilingCoordinates.begin(), ceilingCoordinates.end(), [](const glm::vec2& a, const glm::vec2& b) { 
+            if (a.x != b.x) {return a.x < b.x;}
+            return a.y < b.y; 
+        });
+        // y-clusters
+        for(int i = 0; i < wallCoordinates.size()-1; i++){
+            if(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
+                if(Xclusters.find(wallCoordinates[i]) == Xclusters.end()){
+                    group.push_back(wallCoordinates[i]);
+                }
+                while(wallCoordinates[i].y == wallCoordinates[i+1].y - 1 && wallCoordinates[i].x == wallCoordinates[i+1].x){
+                    if(Xclusters.find(wallCoordinates[i+1]) == Xclusters.end()){
+                        group.push_back(wallCoordinates[i+1]);
+                    }
+                    i++;
+                }
+                const auto& position = coordinateToPos.at(group[0]);
+                Entity wallbox = registry->CreateEntity();
+                wallbox.AddComponent<TransformComponent>(position);
+                wallbox.AddComponent<BoxColliderComponent>(scale, group.size() * scale);
+                wallbox.Group(WALLBOX);
+                group.clear();
+            } else { // is this wall alone? 
+                glm::vec2 left = {wallCoordinates[i].x-1,wallCoordinates[i].y};
+                glm::vec2 right = {wallCoordinates[i].x+1,wallCoordinates[i].y};
+                if(wallCoordinatesHashSet.find(left) == wallCoordinatesHashSet.end() && wallCoordinatesHashSet.find(right) == wallCoordinatesHashSet.end()){
+                    solos.insert(wallCoordinates[i]);  
+                }
+            }
+        }
+        // solo walls 
+        for(const auto& x: solos){
+            const auto& position = coordinateToPos.at(x);
+            Entity wallbox = registry->CreateEntity();
+            wallbox.AddComponent<TransformComponent>(position);
+            wallbox.AddComponent<BoxColliderComponent>(scale, scale);
+            wallbox.Group(WALLBOX);
+        }
 
-    // ceilings in vertical columns need to have boxColliders because they're imagined to have walls below
-    for(int i = 0; i < ceilingCoordinates.size()-1; i++){
-        if(ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
-            group.push_back(ceilingCoordinates[i]);
-            while(ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
-                group.push_back(ceilingCoordinates[i+1]);
-                i++;
+        // ceilings in vertical columns need to have boxColliders because they're imagined to have walls below
+        for(int i = 0; i < ceilingCoordinates.size()-1; i++){
+            if(ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
+                group.push_back(ceilingCoordinates[i]);
+                while(i < ceilingCoordinates.size()-1 && ceilingCoordinates[i].y == ceilingCoordinates[i+1].y - 1 && ceilingCoordinates[i].x == ceilingCoordinates[i+1].x){
+                    group.push_back(ceilingCoordinates[i+1]);
+                    i++;
+                }
+                const auto& position = ceilingCoordinateToPos.at(group[1]);
+                Entity wallbox = registry->CreateEntity();
+                wallbox.AddComponent<TransformComponent>(position);
+                wallbox.AddComponent<BoxColliderComponent>(scale, group.size()  * scale); // -1 because bottom ceiling doesnt need because wall there?
+                wallbox.Group(WALLBOX);
+                group.clear();
             }
-            const auto& position = ceilingCoordinateToPos.at(group[1]);
-            Entity wallbox = registry->CreateEntity();
-            wallbox.AddComponent<TransformComponent>(position);
-            wallbox.AddComponent<BoxColliderComponent>(scale, group.size()  * scale); // -1 because bottom ceiling doesnt need because wall there?
-            wallbox.Group(WALLBOX);
-            group.clear();
         }
     }
-    // exit(1);
 }
 
 void Game::PopulateItemIconsInAssetStore(){
@@ -1168,7 +1194,15 @@ void Game::PopulateItemIconsInAssetStore(){
                 case SHIELD:{
                     auto shieldData = itemEnumToShieldData.at(itemEnum);
                     auto abilityData = itemEnumToAbilityData.at(itemEnum);
-                    std::string onUse = "On Use: Emits a stunning arc";
+                    std::string onUse;
+                    switch(itemEnum){
+                        case OGMUR:{
+                            onUse = "On Use: Shoots an arc that breaks armor";
+                        } break;
+                        default:{
+                            onUse = "On Use: Shoots an arc that stuns enemies";
+                        } break;
+                    }
                     std::string damage = "Damage: " + std::to_string(shieldData.minDamage) + " - " + std::to_string(shieldData.maxDamage);
                     std::string cost = "Cost: " + std::to_string(abilityData.mprequired) + " MP";
                     std::string shots ="Shots: " + std::to_string(shieldData.numshots);
@@ -1588,6 +1622,8 @@ void Game::PopulateAssetStore(){
 
     dest = {0,0,8,8};
     SDL_SetRenderTarget(renderer, horizontalBlockCeiling);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
     dest = {8,0,8,8};
     SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
@@ -1597,6 +1633,8 @@ void Game::PopulateAssetStore(){
     dest = {0,0,8,8};
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_SetRenderTarget(renderer, horizontalBlockWalls);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, spriteAtlasTexture, &wall, &dest);
     dest = {8,0,8,8};
     SDL_RenderCopy(renderer, spriteAtlasTexture, &wall, &dest);
@@ -1605,6 +1643,8 @@ void Game::PopulateAssetStore(){
     
     SDL_SetRenderTarget(renderer, nullptr);
     SDL_SetRenderTarget(renderer, verticalBlock);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
     for(int i = 0; i <= 3; i++){
         dest = {0, 8*i, 8, 8};
         SDL_RenderCopy(renderer, spriteAtlasTexture, &ceiling, &dest);
@@ -1612,12 +1652,11 @@ void Game::PopulateAssetStore(){
     SDL_SetRenderTarget(renderer, nullptr);
     assetStore->AddTexture(renderer, VERTICALROOMBLOCKCEILINGS, verticalBlock);
 
-
     /*Portal UI Components*/
     SDL_Surface* ttfSurface;
     SDL_Texture* ttfTextureFromSurface;
     SDL_Rect dstRect, srcRect;
-    std::vector<std::string> portalTitles = {"Chicken Den", "Vault", "Nexus", "Change Name", "Change Character", "Undead Lair", "Gordon's Chamber", "???", "God Lands", "Abyss", "", "Spawn Room"};
+    std::vector<std::string> portalTitles = {"Chicken Den", "Vault", "Nexus", "Change Name", "Change Character", "Undead Lair", "Gordon's Chamber", "???", "God Lands", "Abyss", " ", "Spawn Room", "Gordon's Sanctuary"};
     for(const auto& title: portalTitles){
         SDL_Texture * portalTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 250);
         SDL_SetTextureBlendMode(portalTexture, SDL_BLENDMODE_BLEND);
@@ -1637,7 +1676,7 @@ void Game::PopulateAssetStore(){
             buttonText = "Click";
         } else if (title == "???"){
             buttonText = "Locked";
-        } else if (title == "" || title == "Spawn Room") {
+        } else if (title == " " || title == "Spawn Room") {
             buttonText = "Teleport";
         } else {
             buttonText = "Enter";
@@ -1818,6 +1857,7 @@ void Game::PopulateAssetStore(){
         SDL_RenderClear(renderer);
         SDL_FreeSurface(ttfSurface);
     }
+
     /* bag/vault slots are their own texture */
     srcRect = {44*9, 0, 44, 44};
     SDL_Texture * bagslots = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 250, 750);
@@ -2746,7 +2786,11 @@ void Game::SpawnAreaEntities(wallTheme area){
             } else {
                 factory->spawnPortal(registry, glm::vec2(900,600), GODLANDS); // todo spawn gordon's lair
             }
+            // delete the following before release:
+            glm::vec2 x = wallThemeToSpawnPoint.at(NEXUS);
             factory->spawnPortal(registry, glm::vec2(750,1350), ABYSS);
+            factory->spawnPortal(registry, x, CHICKENLAIR);
+            factory->spawnPortal(registry, x - 64.0f, GORDONSLAIR2);
             factory->spawnAdminLootInNexus(registry);
 
         } break;
@@ -2756,6 +2800,11 @@ void Game::SpawnAreaEntities(wallTheme area){
         } break;
         case GODLANDS:{
             factory->spawnGodLandsSpawner(registry, bossRoom, 50); // spawn the invisible entity that spawns gods
+        } break;
+        case GORDONSLAIR2:{
+            glm::vec2 gordon2spawn = {(gordonLair2[0].size()*64/2) - 16*8/2, (gordonLair2.size()*64/2) - 16*8/2}; 
+            Entity boss = factory->spawnMonster(registry, gordon2spawn, GORDON2);
+            bosses.push_back({boss.GetId(), boss.GetCreationId()});
         } break;
         default:{ // all other areas assumed to have a boss
             factory->populateDungeonWithMonsters(registry, dungeonRooms, area, bossRoomId, bosses, cardinalRooms); // bosses are spawned in this function
@@ -2770,6 +2819,13 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
     }
     currentArea = area;
     registry->killAllEntities();
+    auto numLivingEntities = registry->getNumberOfLivingEntities();
+    if(numLivingEntities != 0){ // indication of something going very wrong and corrupting the engine (ex: killing non-existant entity). 
+        // attempt to avoid crash caused by potential engine corruption
+        std::cout << "numLivingEntities in Setup after killAllEntities: " << numLivingEntities << '\n';    
+        // registry->info();
+        registry->HardReset();
+    }
     if(populate){ // heap allocations, making textures
         PopulateAssetStore();
         PopulateRegistry();
@@ -2798,6 +2854,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
     miniMapSrcRect.w = miniMapSrcRect.h = 60; // start zoomed in 
     registry->Update(); // becuase we loaded the map
     switch(area){ // if nexus or vault, spawnpoint is static; so acquire it (otherwise, it was assigned in GenerateMap())
+        case GORDONSLAIR2:
         case GORDONSLAIRWALLTHEME:
         case NEXUS:
         case VAULT:{
@@ -2829,17 +2886,12 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
 void Game::Update(){
     
     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;    
-    // int timeToWait = GAME_FPS_LIMIT - (SDL_GetTicks() - millisecsPreviousFrame); 
-    // if(timeToWait > 0 && timeToWait <= GAME_FPS_LIMIT){ // enforcing fps limit
-    //     SDL_Delay(timeToWait); 
-    //     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;   
-    // }
     millisecsPreviousFrame = SDL_GetTicks(); // must be recorded after calculating deltaTime and optionally SDL_Delay()
-    if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
-        deltaTime = 0.0;
-        keyboardinput->movementKeys.reset();
-        keyboardinput->utilityKeys.reset();
-    } 
+    // if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
+    //     deltaTime = 0.0;
+    //     keyboardinput->movementKeys.reset();
+    //     keyboardinput->utilityKeys.reset();
+    // } 
 
     registry->Update();
     // const auto& playerpos = player.GetComponent<TransformComponent>().position;
@@ -2883,7 +2935,7 @@ void Game::Update(){
     registry->GetSystem<LootBagSystem>().Update(Game::mouseY, player, eventBus, assetStore, registry, currentArea);
     registry->GetSystem<PortalSystem>().Update(player, eventBus, registry);
     registry->GetSystem<RotationSystem>().Update(deltaTime);
-    registry->GetSystem<EnemySpawnSystem>().Update(player, registry, factory, bosses);
+    registry->GetSystem<EnemySpawnSystem>().Update(player, registry, factory, bosses, playerCenter);
     registry->GetSystem<MinionSpawnSystem>().Update(factory, registry, bosses); 
 }
 

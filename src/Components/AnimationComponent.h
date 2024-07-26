@@ -26,6 +26,7 @@ struct AnimationComponent{
         this->numFrames = data.numFrames;
         this->xmin = data.xmin;
         this->currentFrame = xmin;
+        this->startTime = SDL_GetTicks();
         auto pecrf = spriteEnumToPEC.at(spriteEnum).repeatFrequency;
         // this->frameSpeedRate = ((1000 / pecrf - 1.5) + 1.5) * 2;
         this->frameSpeedRate = 2000 / pecrf;

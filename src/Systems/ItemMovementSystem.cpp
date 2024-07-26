@@ -19,13 +19,13 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
     bool& shiftblock = playerInventory.shiftblock;
     for(auto& entity: GetSystemEntities()){ // gets all visible items (only items have mouseBoxComponent)
         const auto& mb = entity.GetComponent<MouseBoxComponent>();
-        auto& transform = entity.GetComponent<TransformComponent>();
+        auto * transform = &entity.GetComponent<TransformComponent>();
 
         if(playerInventory.holdingItemLastFrame /*&& playerInventory.IdOfHeldItem*/ /*>0*/){ // are we holding an item?
             if(entity.GetId() != playerInventory.IdOfHeldItem){
                 continue; // continue until we get the held item! 
             } else {
-                transform.position = {mx-mb.width/2,my-mb.height/2}; // held item follows mouse
+                transform->position = {mx-mb.width/2,my-mb.height/2}; // held item follows mouse
             }
         } else if(playerInventory.hoveringItemLastFrame){// && playerInventory.iconEntityId){ // if we're hovering an item, get that item
             if(entity.GetId() != playerInventory.hoveredItemId){
@@ -33,10 +33,10 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
             }
         }
 
-        auto& sprite = entity.GetComponent<SpriteComponent>();
+        auto * sprite = &entity.GetComponent<SpriteComponent>();
 
         //if mouse colliding with item
-        if(mx > transform.position.x && mx < transform.position.x + mb.width && my > transform.position.y && my < transform.position.y + mb.width){
+        if(mx > transform->position.x && mx < transform->position.x + mb.width && my > transform->position.y && my < transform->position.y + mb.width){
             if(keyboardinput->movementKeys[MB] && !playerInventory.holdingItemLastFrame && keyboardinput->mouseXOrigin > 750){  
                 // std::cout << "first frame item hold detected; clicking and !holdingItemLastFrame" << std::endl;
                 if(shift && my > 506 && !shiftblock){ // player shift-clicked consumable item from inventory or lootbag! 
@@ -127,9 +127,9 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
                 }
                 playerInventory.holdingItemLastFrame = true;  
                 playerInventory.IdOfHeldItem = entity.GetId();
-                playerInventory.heldItemStartingTransformComp = transform.position;
-                sprite.zIndex = 20;
-                if(transform.position.y > 506){ // item from inventory
+                playerInventory.heldItemStartingTransformComp = transform->position;
+                sprite->zIndex = 20;
+                if(transform->position.y > 506){ // item from inventory
                 } else { // item from equipment slot
                     showIcon(registry, equipmentIcons[entity.GetComponent<ItemComponent>().lastPosition-1]);
                 }
@@ -150,17 +150,17 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
                         int w,h;
                         SDL_QueryTexture(assetStore->GetTexture(textureEnum), NULL, NULL, &w, &h);
                         // std::cout << "creating icon for " << itemToName.at(itemEnum) << std::endl;
-                        itemIcon.AddComponent<ItemIconComponent>(glm::vec2(transform.position.x-w, transform.position.y-h), glm::vec2(w,h), textureEnum);
+                        itemIcon.AddComponent<ItemIconComponent>(glm::vec2(transform->position.x-w, transform->position.y-h), glm::vec2(w,h), textureEnum);
                         playerInventory.displayingIcon = true;
                     }
                 } else { // player dropped item 
                     playerInventory.hoverStartTime = SDL_GetTicks();
                     playerInventory.holdingItemLastFrame = playerInventory.IdOfHeldItem = 0;
-                    sprite.zIndex = 12;
+                    sprite->zIndex = 12;
                     if(mx > 750 && (mx > 988 || my > 743 || my < 447)){
-                        transform.position = playerInventory.heldItemStartingTransformComp;
+                        transform->position = playerInventory.heldItemStartingTransformComp;
                         assetStore->PlaySound(ERROR);
-                        if(transform.position.y > 506){ // item from inventory
+                        if(transform->position.y > 506){ // item from inventory
 
                         } else { // item from equipment slot
                             hideIcon(registry, equipmentIcons[entity.GetComponent<ItemComponent>().lastPosition-1]);
@@ -170,7 +170,7 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
                     auto& ic = entity.GetComponent<ItemComponent>();
                     if(mx < 750){ 
                         if(playerInventory.heldItemStartingTransformComp.y > 627){
-                            transform.position = playerInventory.heldItemStartingTransformComp;
+                            transform->position = playerInventory.heldItemStartingTransformComp;
                             // std::cout << "moving lootbag/vault item back to " << playerInventory.heldItemStartingTransformComp.x << ", " << playerInventory.heldItemStartingTransformComp.y << std::endl;
                             assetStore->PlaySound(INVENTORY);
                             return;
@@ -181,9 +181,11 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
                             assetStore->PlaySound(INVENTORY);
                             entity.GetComponent<TransformComponent>().position = lootbagPositions.at(pos-1);
                         } else { // spawn new lootbag if no existing bag or existing bag is full
-                            Entity lootbag = factory->creatLootBag(registry, player.GetComponent<TransformComponent>().position, BROWNLOOTBAG);                            
+                            Entity lootbag = factory->creatLootBag(registry, player.GetComponent<TransformComponent>().position, BROWNLOOTBAG); 
+                            transform = &entity.GetComponent<TransformComponent>();           
+                            sprite = &entity.GetComponent<SpriteComponent>();                
                             pos = lootbag.GetComponent<LootBagComponent>().addItem(entity);
-                            transform.position.x = -10000000; // couldn't remove and add transform/sprite... temporary solution
+                            transform->position.x = -10000000; // couldn't remove and add transform/sprite... temporary solution
                             assetStore->PlaySound(LOOT);
                         }
                         if(playerInventory.heldItemStartingTransformComp.y < 506){ // item from equip
@@ -227,9 +229,9 @@ void ItemMovementSystem::Update(int mx, int my, std::unique_ptr<KeyBoardInput>& 
                     if(my > 627){ // loot bag
                         // auto& lootBagContents = registry->GetComponent<LootBagComponent>(playerInventory.IdOfOpenBag).contents;
                         if(!playerInventory.viewingBag){
-                            transform.position = playerInventory.heldItemStartingTransformComp;
+                            transform->position = playerInventory.heldItemStartingTransformComp;
                             assetStore->PlaySound(ERROR);
-                            if(transform.position.y > 506){ // item from inventory
+                            if(transform->position.y > 506){ // item from inventory
                                 // inventory icons dont exist and thus cannot be hidden
                             } else { // item from equipment slot
                                 hideIcon(registry, equipmentIcons[entity.GetComponent<ItemComponent>().lastPosition-1]);

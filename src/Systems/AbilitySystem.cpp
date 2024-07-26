@@ -90,7 +90,7 @@ void AbilitySystem::onQuiverUse(QuiverUseEvent& event){
 void AbilitySystem::onShieldUse(ShieldUseEvent& event){
     const auto& player = event.player;
     const auto& shield = player.GetComponent<ShieldComponent>();
-    const auto& playerpos = player.GetComponent<TransformComponent>().position;
+    const auto playerpos = player.GetComponent<TransformComponent>().position;
     glm::vec2 originVelocity;
     float rotationDegrees = getRotationFromCoordiante(
         1024, 

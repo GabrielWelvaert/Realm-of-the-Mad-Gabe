@@ -42,19 +42,19 @@ class DamageSystem: public System{
 
         soundEnums playerHitSounds[6] = {ARCHERHIT,KNIGHTHIT,PALADINHIT,PRIESTHIT,ROGUEHIT,WARRIORHIT};
 
-        inline void displayDamgeText(ProjectileDamageEvent& event, const glm::vec2& victimPosition, const int& dmg){
-            Entity dmgText = event.registry->CreateEntity();
-            dmgText.AddComponent<TextLabelComponent>(
-                "-" + std::to_string(dmg),
-                "damagefont",
-                event.projectile.GetComponent<ProjectileComponent>().ignoresDefense ? armorPiercePurple : damagered,
-                false,
-                350,
-                event.victim.GetId(),
-                event.victim.GetCreationId()
-                );
-            dmgText.AddComponent<TransformComponent>(victimPosition);
-        }
+        // inline void displayDamgeText(ProjectileDamageEvent& event, const glm::vec2& victimPosition, const int& dmg){
+        //     Entity dmgText = event.registry->CreateEntity();
+        //     dmgText.AddComponent<TextLabelComponent>(
+        //         "-" + std::to_string(dmg),
+        //         "damagefont",
+        //         event.projectile.GetComponent<ProjectileComponent>().ignoresDefense ? armorPiercePurple : damagered,
+        //         false,
+        //         350,
+        //         event.victim.GetId(),
+        //         event.victim.GetCreationId()
+        //         );
+        //     dmgText.AddComponent<TransformComponent>(victimPosition);
+        // }
 
         inline void displayXPText(ProjectileDamageEvent& event, const glm::vec2& playerPosition, const int& xp, const Entity& player){
             Entity dmgText = event.registry->CreateEntity();

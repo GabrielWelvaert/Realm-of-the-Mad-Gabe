@@ -58,9 +58,6 @@ class Entity {
         class Registry* registry; //modern forward declaration
         const Signature& getComponentSignature() const;
 
-        //tag and group management 
-        // void Tag(const tags& tag);
-        // bool HasTag(const tags& tag) const;
         void Group(const groups& group);
         bool BelongsToGroup(const groups& group) const;
 
@@ -109,7 +106,7 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         void Clear() override { 
-            data.clear();
+            // data.clear();
             entityIdToIndex.clear();
             indexToEntityId.clear();
             size = 0;    
@@ -127,7 +124,6 @@ class Pool: public IPool { //pool of component, where each index represents enti
             } else {
                 index = size;
                 entityIdToIndex.emplace(entityId, index); 
-                // if(indexToEntityId.find(entityId) != indexToEntityId.end()){std::cout << "key already exists in the map, triggering a rehashing operation \n";}
                 indexToEntityId.emplace(entityIdToIndex[entityId], entityId); // here! 
                 if(index >= data.capacity()){
                     data.resize(size * 2);
@@ -135,52 +131,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
                 data[index] = object;
                 size++;
             }
-            // if constexpr (is_specific_struct<T>::value) {
-            //     if(entityId == 27){
-            //         std::cout << "entityIdToIndex[entityId] = " << entityIdToIndex[entityId] << '\n';
-            //         std::cout << "setting entity "<< entityId << " at " << "position " << index << " in spritecomp pool" << '\n';
-            //     }
-            //     if(index == 11){
-            //         std::cout << "spritecomp pos 11 modified via set" << '\n';
-            //     }
-            //     if(entityIdToIndex.find(27) == entityIdToIndex.end()){
-            //         std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
-            //     }
-            // }
         }
 
         void Remove(int entityId){
-            // if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
-            //     std::cout << "entityIdToIndex does not contain passed entityId. it should because we're removing from this pool." << '\n'; 
-            // }
-            // int indexOfRemoved = entityIdToIndex[entityId];
-            // int indexOfLast = size-1;
-            // if(indexOfRemoved > size){
-            //     std::cout << "indexOfRemoved > pool's size member field" << '\n'; 
-            // }
-            // if(indexOfLast > size){
-            //     std::cout << "indexOfLast > pool's size member field" << '\n'; 
-            // }
-            // if(indexOfRemoved > data.size()){
-            //     std::cout << "indexOfRemoved > data.size()" << '\n'; 
-            // }
-            // if(indexOfLast > data.size()){
-            //     std::cout << "indexOfLast > data.size()" << '\n'; 
-            // }
-            // if(indexOfRemoved > data.capacity()){
-            //     std::cout << "indexOfRemoved > data.capacity()" << '\n'; 
-            // }
-            // if(indexOfLast > data.capacity()){
-            //     std::cout << "indexOfLast > data.capacity()" << '\n'; 
-            // }
-            // int idOfLast = indexToEntityId[indexOfLast];
-            // if(entityIdToIndex.find(idOfLast) == entityIdToIndex.end()){
-            //     std::cout << "entityIdToIndex does not contain idOfLast. it should because we're removing from this pool." << '\n'; 
-            // }
-            // if(indexToEntityId.find(indexOfRemoved) == entityIdToIndex.end()){
-            //     std::cout << "indexToEntityId does not contain indexOfRemoved. it should because we're removing from this pool." << '\n'; 
-            // }
-
             int indexOfRemoved = entityIdToIndex[entityId];
             int indexOfLast = size-1;
             data[indexOfRemoved] = data[indexOfLast];
@@ -190,21 +143,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
             entityIdToIndex.erase(entityId);
             indexToEntityId.erase(indexOfLast);
             size--;
-            if(size > 4000000000){
+            if(size > 4000000000){ // comment out for production
                 std::cout << "overflow of some pool! " << std::endl;
             }
-            // if constexpr (is_specific_struct<T>::value) {
-            //     if(entityId == 27){
-            //         std::cout << "removing " << entityId <<  " from position " << indexOfRemoved << " in spritecomp pool" << '\n';
-            //     }
-            //     if(indexOfRemoved == 11){
-            //         std::cout << "removing position 11 in spritecomp pool" << '\n';
-            //     }
-            //     if(entityIdToIndex.find(27) == entityIdToIndex.end()){
-            //         std::cout << "entity 27 no longer detected in entityIdToIndex" << '\n';
-            //     }
-            // }
-
         }
 
         void RemoveEntityFromPool(int entityId) override {
@@ -214,11 +155,8 @@ class Pool: public IPool { //pool of component, where each index represents enti
         }
 
         T& Get(int entityId) { 
-            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){
+            if(entityIdToIndex.find(entityId) == entityIdToIndex.end()){ // comment out for production
                 std::cout << "entity " << entityId << " engine misuse detected (GetComponent<X> used on entity without Component X); use bt gdb command to see culprit" << std::endl;
-                // for(auto& pair: entityIdToIndex){
-                //     std::cout << pair.first << ", " << pair.second << '\n';
-                // }
             }
             return static_cast<T&>(data[entityIdToIndex[entityId]]); 
         }
@@ -242,6 +180,7 @@ class System {
         std::vector<Entity>& GetSystemEntities();
         const Signature& GetComponentSignature() const;
         template <typename TComponent> void RequireComponent(); // defines componenets needed by an entity for a system to be interested
+        void ForceResetEntities();
 };
 
 template <typename TComponent>
@@ -274,10 +213,6 @@ class Registry {
         // key = type_index, value = pointer to system
         // type_index is just a unqiue ID for an object
         std::unordered_map<std::type_index, std::shared_ptr<System>> systems; 
-
-        // tags are unique identifiers for ONE entity (not used currently)
-        // std::unordered_map<tags, Entity> entityPerTag; // unique tag name per entity; may not need
-        // std::unordered_map<int, tags> tagPerEntity; // get unique entity tag from id
 
         // group is a way of identifying a GROUP of entities: ex projectile, wall
         // std::unordered_map<groups, std::set<Entity>> entitiesPerGroup; // group name returns all entities of group
@@ -314,13 +249,7 @@ class Registry {
         void AddEntityToSystems(Entity entity);
         void RemoveEntityFromSystems(Entity entity);
 
-        //tag management 
-        // void TagEntity(Entity entity, const tags& tag);
-        // bool EntityHasTag(Entity entity, const tags& tag) const;
-        // bool EntityHasTag(int id, const tags& tag) const;
-        // Entity GetEntityByTag(const tags& tag) const;
-        // void RemoveEntityTag(Entity entity);
-        // void printTagsAndGroups();
+        void HardReset();
 
         //group mgmt 
         void GroupEntity(Entity entity, const groups& group);
@@ -336,27 +265,36 @@ class Registry {
         bool EntityBelongsToMonsterSubGroup(Entity entity, const monsterSubGroups& group) const;
         std::unordered_set<int>& allEntitesFromMonsterSubGroup(monsterSubGroups g);
 
+        template <typename TComponent> void PrintPoolDataAddress() const;
 
-        bool entityWasKilledThisFrame(Entity& entity){
+        bool entityWasKilledThisFrame(Entity& entity) const {
             return entitiesToBeKilled.find(entity) != entitiesToBeKilled.end();
         };
 
         unsigned int GetCreationIdFromEntityId(unsigned int Id) const;
         unsigned int getCurrentCreationId() const {return creationId;};
         unsigned int getNumberOfLivingEntities() const {
-            // for(auto& pair: entityIdToCreationId){
-            //     if(pair.second != 0){
-            //         std::cout << pair.first << " was not killed!-- ";
-            //         std::cout << entityComponentSignatures.at(pair.first) << '\n';
-            //     }
-            // }
-            return numEntities - freeIds.size();
+            return numEntities - freeIds.size(); // Highest entity Id minus number of dead entities
         };
 
         const Signature& getComponentSignatureOfEntity(unsigned int id) const {return entityComponentSignatures.at(id);};
         void printEntitiesToBeKilled() const {/*for(const auto& x: entitiesToBeKilled){std::cout << x.GetId() << '\n';}*/}
         void killAllEntities();
-        void printFreeIds() const {/*for(const auto& x: freeIds){std::cout << x << std::endl;}*/}
+        void printFreeIds() const {for(const auto& x: freeIds){std::cout << x << std::endl;}}
+        void info(){
+            std::cout << "numEntities = " << numEntities << '\n';
+            std::cout << "total num freeIds = " << freeIds.size() << '\n';
+            
+            std::unordered_set<int> deadEntities;
+            for(auto& x: freeIds){
+                deadEntities.insert(x);
+            }
+            for(int i = 0; i < numEntities; i++){
+                if(deadEntities.find(i) == deadEntities.end()){
+                    std::cout << "Entity with ID " << i << " has survived?" << '\n';
+                }
+            }
+        }
 
         inline bool entityIsAlive(int id, unsigned int creationId){
             return GetCreationIdFromEntityId(id) == creationId;
@@ -425,7 +363,13 @@ void Registry::AddComponent(Entity entity, TArgs&& ...args){
     entityComponentSignatures[entityId].set(componentId);
 
     // std::cout << "Component " << componentId << " was added to entity " << entityId << std::endl;
+}
 
+template <typename TComponent>
+void Registry::PrintPoolDataAddress() const {
+    const auto componentId = Component<TComponent>::GetId();
+    std::shared_ptr<Pool<TComponent>> componentPool = std::static_pointer_cast<Pool<TComponent>>(componentPools[componentId]);
+    componentPool->printDataAdress();
 }
 
 template <typename TComponent>

@@ -21,7 +21,7 @@ class EnemySpawnSystem: public System{
     public:
         bool firstSpawn = true;
         EnemySpawnSystem();
-        void Update(Entity player,std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses);
+        void Update(Entity player,std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses, const glm::vec2& playerPos);
 
 };
 

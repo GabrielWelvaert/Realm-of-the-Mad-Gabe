@@ -42,14 +42,11 @@ bool Entity::BelongsToMonsterSubGroup(const monsterSubGroups& group) const {
 }
 
 void System::AddEntityToSystem(Entity entity){
-    // auto before = entities.data();
     entities.push_back(entity);
-    // if(before != entities.data()){
-    //     std::cout << "reallocation detected" << '\n';
-    // }
-    // if(entities.size() == 64){
-    //     std::cout << "entities vector has size 64" << '\n';
-    // }
+}
+
+void System::ForceResetEntities(){
+    entities.clear();
 }
 
 void System::RemoveEntityFromSystem(Entity entity){
@@ -65,7 +62,8 @@ const Signature& System::GetComponentSignature() const {
 }
 
 void Registry::killAllEntities(){
-    entitiesToBeAdded.clear();
+    // entitiesToBeAdded.clear(); // data is already on pools. never do this unless doing a full reset
+    Update(); 
     for(auto& system: systems){
         for(auto& entity: system.second->GetSystemEntities()){
             entity.Kill();
@@ -75,7 +73,7 @@ void Registry::killAllEntities(){
 }
 
 Entity Registry::CreateEntity(){
-    creationId++;
+    creationId++; // creationId is initialized as 0, so the first entity will have CID of 1
     int entityId;
     if(freeIds.empty()){
         entityId = numEntities++;
@@ -85,14 +83,18 @@ Entity Registry::CreateEntity(){
     } else {
         entityId = freeIds.front();
         freeIds.pop_front();
+        std::unordered_set<int> dequeContents;
+        for(auto& id: freeIds){
+            if(dequeContents.find(id) != dequeContents.end()){
+                std::cout << "duplicate " << id << " detected in CreateEntity" << '\n';
+            }
+            dequeContents.insert(id);
+        }
     }
 
     Entity entity(entityId);
     entity.registry = this; //assigning this entity to this registry! 
     entitiesToBeAdded.insert(entity);
-    // if(entitiesToBeAdded.find(entity) == entitiesToBeAdded.end()){
-    //     std::cout << entity.GetId() << " failed to enter entitiesToBeAdded!" << '\n';
-    // }
     entityIdToCreationId[entityId] = creationId;
     // std::cout << "entity created w/ ID " << entityId << std::endl;
     return entity;
@@ -106,58 +108,66 @@ void Registry::KillEntity(Entity entity){
 void Registry::AddEntityToSystems(Entity entity){
     const auto entityId = entity.GetId();
     const auto entityComponentSignature = entityComponentSignatures[entityId];
-
-    for (auto & system: systems){
+    for(auto & system: systems){
         const auto& systemComponentSignature = system.second->GetComponentSignature();
         bool isInterested = (entityComponentSignature & systemComponentSignature) == systemComponentSignature;
-        if (isInterested){
-            // if(entity.GetId() == 0)std::cout << "adding entity " << entity.GetId() << " to system " << std::endl;
+        if(isInterested){
             system.second->AddEntityToSystem(entity);
         }
     }
 }
 
 void Registry::RemoveEntityFromSystems(Entity entity){
-    for (auto system: systems){
+    for(auto& system: systems){
         // system.second->RemoveEntityFromSystem(entity);
         const Signature& systemSignature = system.second->GetComponentSignature();
         if((systemSignature & entity.getComponentSignature()) == systemSignature){
-            // if(entity.GetId()==0){
-            //     std::cout << entity.GetId() << " being removed from a system" << std::endl;
-            //     if(entity.HasComponent<BoxColliderComponent>()){
-            //         std::cout << "entity 0 has box collider" << std::endl;
-            //     }
-            // }
             system.second->RemoveEntityFromSystem(entity);
         }
     }
 }
 
 void Registry::Update() {
-    //todo: add entites that are waiting to be created
-    for (auto entity: entitiesToBeAdded){
+    // new entities are added to their systems. their component data is already in the pools
+    for(auto& entity: entitiesToBeAdded){
         AddEntityToSystems(entity);
     }
     entitiesToBeAdded.clear();
-    //todo: remove entities that are waiting to be killed
-    for (auto entity: entitiesToBeKilled){
-        // std::cout << entity.GetId() << " being processed for removal in registry->Update"<<std::endl;
+    // dead entities will be removed from their systems and they will be removed from pools
+    for(auto& entity: entitiesToBeKilled){
         auto entityId = entity.GetId();
         RemoveEntityFromSystems(entity);
         entityComponentSignatures[entityId].reset();
         freeIds.push_back(entityId);
 
-        for(auto pool: componentPools){
-            if(pool){ // edge case where last entity 
-                pool->RemoveEntityFromPool(entityId);
-                // pool->printSize();
+        std::unordered_set<int> dequeContents;
+        for(auto& id: freeIds){
+            if(dequeContents.find(id) != dequeContents.end()){
+                std::cout << "killing " << entityId << ". ";
+                std::cout << id << " was duplicate in freeIds..." << '\n';
             }
+            dequeContents.insert(id);
         }
 
-        // std::cout << entityId << " has died" << std::endl;
+        // if(freeIds.size() > numEntities){
+        //     std::cout << "death of this entity made freeIds too large: " << entityId << " from group " << IdToGroup(entityId) << '\n';
+        //     std::unordered_set<int> dequeContents;
+        //     for(auto& id: freeIds){
+        //         if(dequeContents.find(id) != dequeContents.end()){
+        //             std::cout << id << " was duplicate in freeIds..." << '\n';
+        //         }
+        //         dequeContents.insert(id);
+        //         if(!(id < numEntities)){
+        //             std::cout << id << " was found in freeIds but it should have never been assigned to an entity! " << '\n';
+        //         }
+        //     }
+        // }
+        for(auto pool: componentPools){
+            if(pool){ 
+                pool->RemoveEntityFromPool(entityId);
+            }
+        }
         entityIdToCreationId[entityId] = 0; // creationId of 0 used for dead entities
-        // std::cout << entityIdToCreationId.at(entityId) << " this should be 0" << std::endl;
-        // RemoveEntityTag(entity);
         RemoveEntityGroup(entity);
     }
 
@@ -165,37 +175,43 @@ void Registry::Update() {
     entitiesToBeKilled.clear();
 }
 
-// void Registry::TagEntity(Entity entity, const tags& tag){
-//     entityPerTag.emplace(tag, entity);
-//     tagPerEntity.emplace(entity.GetId(), tag);
-// }
+void Registry::HardReset(){
+    // this function assumes killAllEntities() was just called and possibly failed to do its job
+    
+    // necessary things to "HardReset" pools
+    for(auto itr = componentPools.begin(); itr != componentPools.end(); itr++){ 
+        // restting size, entityIdToindex, and indexToId. pools not cleared as to not deconstruct any std::container data() ptrs:
+        if(itr->get()){
+            itr->get()->Clear();    
+        }
+    }
+    
+    // necessary things to "HardReset" registry
+    entitiesToBeAdded.clear();
+    entitiesToBeKilled.clear();
+    freeIds.clear(); // clean freeIds because it could contain erroneous entities
+    for(int i = 0; i < numEntities; i++){ // ensure freeIds only contains valid EntityIds;
+        freeIds.push_back(i);
+    }
+    for(auto itr = entitiesPerGroup.begin(); itr != entitiesPerGroup.end(); itr++){
+        itr->second.clear();
+    }
+    entitiesPerGroup.clear();
+    groupPerEntity.clear();
+    for(auto itr = entitiesPerMonsterSubGroup.begin(); itr != entitiesPerMonsterSubGroup.end(); itr++){
+        itr->second.clear();
+    }
+    entitiesPerMonsterSubGroup.clear();
+    monsterSubGroupPerEntity.clear();
 
-// bool Registry::EntityHasTag(Entity entity, const tags& tag) const {
-//     if (tagPerEntity.find(entity.GetId()) == tagPerEntity.end()){
-//         return false;
-//     }
-//     return entityPerTag.find(tag)->second == entity;
-// }
+    // necessary things to "HardReset" systems
+    for(auto itr = systems.begin(); itr != systems.end(); itr++){ // clearing all entity vectors for each System
+        if(itr->second.get()){
+            itr->second.get()->ForceResetEntities();    
+        }
+    }
 
-// bool Registry::EntityHasTag(int id, const tags& tag) const {
-//     if (tagPerEntity.find(id) == tagPerEntity.end()){
-//         return false;
-//     }
-//     return entityPerTag.find(tag)->second.GetId() == id;
-// }
-
-// Entity Registry::GetEntityByTag(const tags& tag) const {
-//     return entityPerTag.at(tag);
-// }
-
-// void Registry::RemoveEntityTag(Entity entity){
-//     auto taggedEntity = tagPerEntity.find(entity.GetId());
-//     if (taggedEntity != tagPerEntity.end()){
-//         auto tag = taggedEntity->second;
-//         entityPerTag.erase(tag);
-//         tagPerEntity.erase(taggedEntity);
-//     }
-// }
+}
 
 void Registry::monsterSubGroupEntity(Entity entity, const monsterSubGroups& msg){
     entitiesPerMonsterSubGroup.emplace(msg, std::unordered_set<int>());

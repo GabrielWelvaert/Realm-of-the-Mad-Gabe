@@ -5,6 +5,7 @@ SecondaryProjectileEmitSystem::SecondaryProjectileEmitSystem(){
     RequireComponent<SecondaryProjectileComponent>();
     RequireComponent<TransformComponent>(); 
     RequireComponent<isShootingComponent>();
+    RequireComponent<StatusEffectComponent>();
 }
 
 
@@ -12,7 +13,8 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
     auto time = SDL_GetTicks();
     for(auto& entity: GetSystemEntities()){
         const auto& isShooting = entity.GetComponent<isShootingComponent>().isShooting;
-        if(isShooting){
+        const auto& stunned = entity.GetComponent<StatusEffectComponent>().effects[STUNNED];
+        if(isShooting && !stunned){
             auto& SPEC = entity.GetComponent<SecondaryProjectileComponent>();
             if(time - SPEC.lastEmissionTime > SPEC.repeatFrequency){
                 const auto& PEC = entity.GetComponent<ProjectileEmitterComponent>();
@@ -72,14 +74,13 @@ void SecondaryProjectileEmitSystem::Update(const glm::vec2& playerPos, std::uniq
                             chicken(entity, playerPos, registry);
                         } break;
                         case ABYSSTOWER:{
-                            blackTowerBomb(entity, playerPos, registry, spriteEnum);
+                            blackTowerBomb(entity, playerPos, registry, spriteEnum, spriteEnum);
                         } break;
                         case LEVIATHAN:{
                             LeviathanShotGun(entity, playerPos, registry);
                         } break;
                         case HELLGOLEM:{
                             blackTowerBomb(entity, playerPos, registry, spriteEnum);
-                            hellgolemshotgun(entity, playerPos, registry);
                         } break;
                     }
                 }

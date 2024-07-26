@@ -103,12 +103,11 @@ class Game{
         DeadPlayer deadPlayer = {WIZARD, -1, NONESPRITE, 0};
         RoomShut roomShut;
         std::vector<BossIds> bosses;
-        int idOfMiniMapEntity;
+        int idOfMiniMapEntity = -1;
         int idOfMiniMapVeil;
         int rendererMaxTextureDimension;
         Entity minimapfloor;
-        SDL_Texture * mapveilptr = nullptr;
-        
+        SDL_Texture * mapveilptr = nullptr;        
 
     public:
         Game();
@@ -147,17 +146,6 @@ class Game{
         static int mouseY;
         glm::vec2 playerSpawn = glm::vec2(750, 1575);
         wallTheme currentArea = NEXUS;
-
-        template <typename T>
-        inline void print2d(T c){
-            for(auto line: c){
-                for(auto x: line){
-                    std::cout << x;
-                }
-                std::cout << "\n";
-            }
-        }
-
 };
 
 #endif

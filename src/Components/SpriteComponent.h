@@ -22,7 +22,7 @@ struct SpriteComponent {
 
     //used for tiles and shit 
     //assetId, width, height, zindex, srcRectx, srcRecty, isfixed
-    inline SpriteComponent(textureEnums assetId = LOFIENVIRONMENT, int width = 0, int height = 0, int zindex = 0, int srcRectX = 0, int srcRectY = 0, bool isFixed = false) {
+    inline SpriteComponent(textureEnums assetId = LOFIENVIRONMENT, int width = 0, int height = 0, int zindex = 0, int srcRectX = 0, int srcRectY = 0, bool isFixed = false, SDL_RendererFlip flip = SDL_FLIP_NONE) {
         this->assetId = assetId;
         this->width = width;
         this->height = height;
@@ -30,7 +30,7 @@ struct SpriteComponent {
         this->srcRect = {srcRectX, srcRectY, width, height};
         this->isFixed = isFixed;
         this->diagonalSprite = false;
-        this->flip = SDL_FLIP_NONE;
+        this->flip = flip;
     }
 
     // used to load player

@@ -19,10 +19,6 @@ void UpdateDisplayStatTextSystem::sortEntities(){
 }
 
 void UpdateDisplayStatTextSystem::onDisplayStatUpdate(UpdateDisplayStatEvent& event){
-    const auto& playerPos = event.player.GetComponent<TransformComponent>().position;
-    // if(playerPos.x > 100,000 || playerPos.x < 0 || playerPos.y > 100,000 || playerPos.y < 0){
-    //     std::cout << "uninitialized playerPos in UpdateDisplayStatTextSystem::onDisplayStatUpdate" << '\n';
-    // }
 
     auto& entities = GetSystemEntities();
     if(entities.size() == 0){return;}

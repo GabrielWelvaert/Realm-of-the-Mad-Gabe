@@ -1,15 +1,15 @@
 #include "RenderTextSystem.h"
+#include <cstdint> 
 
 RenderTextSystem::RenderTextSystem(){
     RequireComponent<TextLabelComponent>();
     RequireComponent<TransformComponent>();
 }
 
-void RenderTextSystem::killTextures(){
-    for(auto x: textTextures){
-        SDL_DestroyTexture(x.second);
+void RenderTextSystem::killTextures(){ // not sure why valgrind reports invalid reads here!
+    for(auto& pair: textTextures){
+        SDL_DestroyTexture(pair.second);
     }
-    textTextures.clear();
 }
 
 void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, const SDL_Rect& camera, std::unique_ptr<Registry>& registry){
@@ -27,13 +27,14 @@ void RenderTextSystem::Update(SDL_Renderer* renderer, std::unique_ptr<AssetStore
         auto& position = entity.GetComponent<TransformComponent>().position;     
 
         SDL_Texture* texture;
-        if(textTextures.find(textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r)) == textTextures.end()){ // attempts to re-use texture of existing renderText Texture! 
+        std::string key = textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r);
+        if(textTextures.find(key) == textTextures.end()){ // attempts to re-use texture of existing renderText Texture! 
             SDL_Surface* surface = TTF_RenderText_Blended(assetStore->GetFont(textlabel.assetId), textlabel.text.c_str(), textlabel.color);
             texture = SDL_CreateTextureFromSurface(renderer, surface);
             SDL_FreeSurface(surface);    
-            textTextures[textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r)] = texture;
+            textTextures.insert({key,texture});
         } else {
-            texture = textTextures.at(textlabel.text + std::to_string(textlabel.color.a) + std::to_string(textlabel.color.b) + std::to_string(textlabel.color.g) + std::to_string(textlabel.color.r));
+            texture = textTextures.at(key);
         }
 
         if(textlabel.spawnframe){

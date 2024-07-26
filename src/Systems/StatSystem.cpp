@@ -66,7 +66,6 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
         case ABYSSKEY:{
             event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, ABYSS);
         } break;
-        case COMPLETIONTROPHY:
         case HPPOT:{
             if(!increaseHP(player, event.registry, event.assetstore, 100)){
                 return; // invalid consumption attempt; exit onDrinkConsumablePot event
@@ -201,6 +200,7 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
             hpmp.activevitality ++;
             event.eventbus->EmitEvent<UpdateDisplayStatEvent>(player);
         }break;
+        case COMPLETIONTROPHY:
         case LIFEPOT:{
             auto& hpmp = player.GetComponent<HPMPComponent>();
             auto& basestats = player.GetComponent<BaseStatComponent>();
@@ -296,7 +296,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     
     unsigned char defincrease = getStatLevelUpAmount(classname, DEFENSE);
     if(classname == KNIGHT){
-        playerBaseStats.defense += getStatLevelUpAmount(classname, DEFENSE);
+        playerBaseStats.defense += defincrease;
         if(playerBaseStats.defense > getMaxStat(classname, DEFENSE)){
             playerBaseStats.defense = getMaxStat(classname, DEFENSE);
         }
@@ -325,7 +325,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
 
     auto& sec = event.player.GetComponent<StatusEffectComponent>();
     if(!sec.effects.none()){
-        if(sec.effects[SLOWED]){ // only debuff that modifies activestats; other's behavior is system-based
+        if(sec.effects[SLOWED]){ // reverse debuffs that modify active stats. see sec.modification for amount to store
             speed.activespeed += sec.modifications[SLOWED];
             sec.effects[SLOWED] = false;
         }
@@ -338,7 +338,6 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
         sec.effects[BLEEDING] = false;
         sec.effects[STUNNED] = false;
         sec.effects[BLIND] = false;
-
     }
 
     if(HPMPstats.activehp < HPMPstats.maxhp){
