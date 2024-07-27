@@ -609,7 +609,7 @@ class BossAISystem: public System{
                 if(spriteEnum == GORDON2){
                     inflictSE = false;
                 }
-                duration *= 2;
+                duration *= 1.9;
             }
             glm::vec2 originVelocity;
             float rotationDegrees = getRotationFromCoordiante(speed, center.x, center.y, target.x, target.y, originVelocity);
