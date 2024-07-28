@@ -5049,7 +5049,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {GHOSTSTATUE, {800,0,0,35,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
 
     {GORDON, {40000,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}},
-    {GORDON2, {65000,0,0,100,40,0,0,0,ORYXHIT,KILLVOID}}, // 65k hp
+    {GORDON2, {55000,0,0,100,40,0,0,0,ORYXHIT,KILLVOID}}, // 65k hp
             //hp,mp,att,def,spd,dex,vit,wis
     {SPRITEGOD,{2000,0,0,12,30,0,40,0,SPRITEGODHIT,SPRITESDEATH}},
     {MEDUSA,{2000,0,0,18,30,0,40,0,MEDUSAHIT,MEDUSADEATH}},

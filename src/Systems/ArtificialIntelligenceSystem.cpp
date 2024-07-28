@@ -2083,8 +2083,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         int oldphase = aidata->phaseflag;
                         pec->shots = 0;
                         while(aidata->phaseflag == oldphase){
-                            aidata->phaseflag = RNG.randomFromRange(0,8);
-                            // aidata->phaseflag = RNG.randomFromVector({4,8,7});
+                            // aidata->phaseflag = RNG.randomFromRange(0,8);
+                            aidata->phaseflag = RNG.randomFromVector({2,3});
                             if(aidata->phaseflag == heal){
                                 if(HEAL_PHASE_COMPLETE || *hp >= 30000){ // block heal phase
                                     aidata->phaseflag = oldphase;
