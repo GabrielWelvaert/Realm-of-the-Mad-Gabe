@@ -266,7 +266,7 @@ class BossAISystem: public System{
                     duration = 2075;
                 } break;
                 case GORDON2:{
-                    damage = 65;
+                    damage = 70;
                     duration = 4000;
                 } break;
             }
