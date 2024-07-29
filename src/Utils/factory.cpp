@@ -795,7 +795,7 @@ void Factory::spawnAdminLootInNexus(std::unique_ptr<Registry>& registry){
     constexpr std::array<items, 8> wizardArcher = {T10STAFF, T4SPELL, T10ROBE, T4HPRING, T10BOW, T4QUIVER, T10LIGHTARMOR, T4HPRING};
     constexpr std::array<items, 8> rogue = {T10DAGGER, T4CLOAK, T10HEAVYARMOR, T4HPRING, T14DAGGER, T14SWORD, T14STAFF, TRIPLESCEPTER};
     constexpr std::array<items, 8> extra = {ADMINCROWN, CHRONUSDIRK, ADMINSWORD, ADMINWAND, OGMUR, CURLYWHIRLYSPELL, GORDONINCANTATION, OREO};
-    constexpr std::array<items, 8> extra2 = {T5HPRING, T5MPRING, T5ATTRING, T5DEFRING, T5DEXRING, T5SPDRING, T5VITRING, T5WISRING};
+    constexpr std::array<items, 8> extra2 = {T5HPRING, T5MPRING, T5ATTRING, T5DEFRING, T5DEXRING, CHICKENSWORD, DEMONBLADE, T14BOW};
     std::vector<std::array<items, 8>> bags = {warriorKnight, priestNecro, sorcPaladin, wizardArcher, rogue, extra, extra2};
     glm::vec2 bagSpawn(750,1350);
     for(auto& bag: bags){

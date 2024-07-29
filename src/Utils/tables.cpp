@@ -1332,7 +1332,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1342,7 +1342,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {5, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1352,7 +1352,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1362,7 +1362,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1372,7 +1372,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1382,7 +1382,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {15, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1392,7 +1392,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {15, {HPMPPOT}},
                 {4, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
-                {2, {HPMPPOT}},
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1403,7 +1403,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {35, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
-                {1, {T3RING}}
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1414,7 +1414,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {35, {HPMPPOT}},
                 {4, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
-                {1, {T3RING}}
+                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
             }
         }
     },
@@ -2814,7 +2814,7 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T12SWORD, T12SWORDICON},
     {T13SWORD, T13SWORDICON},
     {T14SWORD, T14SWORDICON},
-    {IMPBLADE, IMPBLADEICON},
+    {DEMONBLADE, DEMONBLADEICON},
     {T0BOW, T0BOWICON},
     {T1BOW, T1BOWICON},
     {T2BOW, T2BOWICON},
@@ -3118,7 +3118,7 @@ std::unordered_map<items, const char *> itemToName = {
     {T12SWORD, "Sword of Acclaim (T12)"},
     {T13SWORD, "Sword of Splendor (T13)"},
     {T14SWORD, "Sword of Majesty (T14)"},
-    {IMPBLADE, "Imp Blade (UT)"},
+    {DEMONBLADE, "Demon Blade (UT)"},
     {T0BOW, "Shortbow (T0)"},
     {T1BOW, "Reinforced Bow (T1)"},
     {T2BOW, "Crossbow (T2)"},
@@ -3425,7 +3425,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T12SWORD, "A great sword of recognition, forged by the gods for the champions of humankind"},
     {T13SWORD, "An exalted weapon of the august kings of old, hallowed with the spirit of nations and yearning to grant power anew"},
     {T14SWORD, "A gleaming obsidian sword of imperial power, fashioned by enslaved demons for the personal use of a world-conquering leader of mortals"},
-    {IMPBLADE, "A slightly swift and somewhat hungry blade that is almost satisfied with just one kill"},
+    {DEMONBLADE, "A swift and hungry blade that is never satisfied with just one kill"},
     {T0BOW, "A well-made shortbow"},
     {T1BOW, "An iron-reinforced bow"},
     {T2BOW, "A bow mounted on a stock that shoots with amazing speed and accuracy"},
@@ -3791,7 +3791,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {T13SWORD, SWORD},
     {T14SWORD, SWORD},
     {MITHRILSWORD, SWORD},
-    {IMPBLADE, SWORD},
+    {DEMONBLADE, SWORD},
     {T0BOW, BOW},
     {T1BOW, BOW},
     {T2BOW, BOW},
@@ -4099,7 +4099,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {T12SWORD, CYANLOOTBAG},
     {T13SWORD, REDLOOTBAG},
     {T14SWORD, REDLOOTBAG},
-    {IMPBLADE, WHITELOOTBAG},
+    {DEMONBLADE, WHITELOOTBAG},
     {T0BOW, BROWNLOOTBAG},
     {T1BOW, BROWNLOOTBAG},
     {T2BOW, BROWNLOOTBAG},
@@ -4403,7 +4403,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {T12SWORD, {LOFIOBJ5, 8, 8, {8*12, 8*3, 8, 8}, 12, true, false}},
     {T13SWORD, {LOFIOBJ5, 8, 8, {8*13, 8*3, 8, 8}, 12, true, false}},
     {T14SWORD, {LOFIOBJ5, 8, 8, {8*14, 8*3, 8, 8}, 12, true, false}},
-    {IMPBLADE, {LOFIOBJ2, 8, 8, {8*3, 8*11, 8, 8}, 12, true, false}},
+    {DEMONBLADE, {LOFIOBJ2, 8, 8, {8*9, 8*6, 8, 8}, 12, true, false}},
     {T0BOW, {LOFIOBJ5, 8, 8, {8*0, 8*5, 8, 8}, 12, true, false}},
     {T1BOW, {LOFIOBJ5, 8, 8, {8*1, 8*5, 8, 8}, 12, true, false}},
     {T2BOW, {LOFIOBJ5, 8, 8, {8*2, 8*5, 8, 8}, 12, true, false}},
@@ -4649,7 +4649,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T12SWORD, {BITS_DIAGONAL,350, 640, 220, 275, 1, 0.0f, PURPLEBOLT}},
     {T13SWORD, {BITS_DIAGONAL,350, 640, 235, 290, 1, 0.0f, WHITEBOLT}},
     {T14SWORD, {BITS_DIAGONAL,350, 640, 235, 290, 1, 0.0f, BLACKBOLT}},
-    {IMPBLADE, {BITS_DIAGONAL, 350, 500, 90, 135, 2, 40.0f, REDBOLT}},
+    {DEMONBLADE, {BITS_DIAGONAL, 350, 500, 150, 175, 2, 40.0f, REDBOLT}},
     {CHICKENSWORD, {BITS_ROTATE_DIAGONAL, 500, 640, 90, 130, 1, 0.0f, CHICKENBOLT}},
     {MITHRILSWORD, {BITS_DIAGONAL, 400, 1024, 120, 160, 1, 0.0f, BLUEBOLT}},
 

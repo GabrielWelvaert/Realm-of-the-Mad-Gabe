@@ -324,7 +324,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     HPMPstats.maxmp += mpincrease;
 
     auto& sec = event.player.GetComponent<StatusEffectComponent>();
-    if(!sec.effects.none()){
+    if(!sec.effects.none()){ //
         if(sec.effects[SLOWED]){ // reverse debuffs that modify active stats. see sec.modification for amount to store
             speed.activespeed += sec.modifications[SLOWED];
             sec.effects[SLOWED] = false;
@@ -333,11 +333,20 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
             offensestats.activeattack += sec.modifications[ATTACK];
             sec.effects[WEAKENED] = false;
         }
+        if(sec.effects[PARALYZE]){
+            speed.activespeed += sec.modifications[PARALYZE];
+            sec.effects[PARALYZE] = false;    
+        }
+        if(sec.effects[ARMORBROKEN]){
+            HPMPstats.activedefense += sec.modifications[ARMORBROKEN];
+            sec.effects[ARMORBROKEN] = false;
+        }
         sec.effects[PARALYZE] = false;
         sec.effects[QUIET] = false;
         sec.effects[BLEEDING] = false;
         sec.effects[STUNNED] = false;
         sec.effects[BLIND] = false;
+        sec.effects[CONFUSED] = false;
     }
 
     if(HPMPstats.activehp < HPMPstats.maxhp){

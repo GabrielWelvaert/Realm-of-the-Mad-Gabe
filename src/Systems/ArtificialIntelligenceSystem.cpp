@@ -438,17 +438,17 @@ void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>
         const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
         const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
         // glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-
-        float distanceFromOrbitalPath = glm::distance(pt.center, position) - oc.distance;
+        glm::vec2 effectiveCenter = pt.center - 24.0f;
+        float distanceFromOrbitalPath = glm::distance(effectiveCenter, position) - oc.distance;
         if(distanceFromOrbitalPath < -5.0f){ // inside of orbiath path; use escapvelocity to move outward
             oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
             velocity = mc.escapeVelocity;
         } else { // entity is now close enough to orbital path, start orbiting
-            oc.origin = pt.center;
+            oc.origin = effectiveCenter;
             if(!oc.orbiting){
                 oc.orbiting = true;
                 velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                oc.angle = std::atan2(position.y - pt.center.y, position.x - pt.center.x);
+                oc.angle = std::atan2(position.y -effectiveCenter.y, position.x - effectiveCenter.x);
             }
         }
     }
@@ -498,16 +498,17 @@ void OrbitShootMinionAISystem::Update(const Entity& player, std::unique_ptr<Regi
         const auto& pt = registry->GetComponent<TransformComponent>(mc.idOfParent);
         const auto& ps = registry->GetComponent<SpriteComponent>(mc.idOfParent);
         // glm::vec2 parentCenter = {pt.position.x + ((ps.height * pt.scale.x)/2) - 24, pt.position.y + ((ps.width * pt.scale.y)/2) - 24};
-        float distanceFromOrbitalPath = glm::distance(pt.center, position) - oc.distance;
+        glm::vec2 effectiveCenter = pt.center - 24.0f;
+        float distanceFromOrbitalPath = glm::distance(effectiveCenter, position) - oc.distance;
         if(distanceFromOrbitalPath < -5.0f){ // inside of orbiat path; use escapvelocity to move outward
             oc.orbiting = false; // ensure that OrbitalMovementSystem will ignore this entity
             velocity = mc.escapeVelocity;
         } else { // entity is now close enough to orbital path, start orbiting
-            oc.origin = pt.center;
+            oc.origin = effectiveCenter;
             if(!oc.orbiting){
                 oc.orbiting = true;
                 velocity = {0.0,0.0}; // set velocity to 0.0 so MovementSystem::Update stops moving this entity
-                oc.angle = std::atan2(position.y - pt.center.y, position.x - pt.center.x);
+                oc.angle = std::atan2(position.y - effectiveCenter.y, position.x - effectiveCenter.x);
             }
         }
     }
@@ -847,7 +848,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
         auto * sprite = &entity.GetComponent<SpriteComponent>();
         auto * hitnoise = &entity.GetComponent<HPMPComponent>().hitsound;
         auto * distanceToPlayer = &entity.GetComponent<DistanceToPlayerComponent>().distanceToPlayer;
-        if(!playerInvisible){
+        if(!playerInvisible && aidata->activated){
             playerPos.x <= transform->center.x ? sprite->flip = SDL_FLIP_HORIZONTAL : sprite->flip = SDL_FLIP_NONE;    
         }
         switch(aidata->bossType){

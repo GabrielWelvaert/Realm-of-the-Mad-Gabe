@@ -231,26 +231,28 @@ void Game::ProcessInput(){
                         } break;
                         /*ALL OTHER SDL_KEYDOWNS ARE USED FOR DEVELOPMENT PURPOSES AND SHOULD BE COMMENTED OUT FOR PRODUCTION!*/
                         case SDLK_9:{
-                            player.GetComponent<HPMPComponent>().activemp -= 1;
-                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, JUGGHELM, lootbag);
-                            factory->createItemInBag(registry, DEFPOT, lootbag);
-                            factory->createItemInBag(registry, RINGOFABIGOR, lootbag);
-                            factory->createItemInBag(registry, TRIPLESCEPTER, lootbag);
-                            factory->createItemInBag(registry, BOOMERANGWAND, lootbag);
-                            factory->createItemInBag(registry, BULWARK, lootbag);
-                            factory->createItemInBag(registry, T14DAGGER, lootbag);
-                            factory->createItemInBag(registry, T14ROBE, lootbag);
+                            // player.GetComponent<HPMPComponent>().activemp -= 1;
+                            // // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            // factory->createItemInBag(registry, DEFPOT, lootbag);
+                            // factory->createItemInBag(registry, RINGOFABIGOR, lootbag);
+                            // factory->createItemInBag(registry, TRIPLESCEPTER, lootbag);
+                            // factory->createItemInBag(registry, BOOMERANGWAND, lootbag);
+                            // factory->createItemInBag(registry, BULWARK, lootbag);
+                            // factory->createItemInBag(registry, T14DAGGER, lootbag);
+                            // factory->createItemInBag(registry, T14ROBE, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
+                            eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
                         } break;
                         case SDLK_0:{
+                            eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
                             // player.GetComponent<HPMPComponent>().activemp += 1;
-                            player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
-                            const auto& playerpos = player.GetComponent<TransformComponent>().position;
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
@@ -261,7 +263,7 @@ void Game::ProcessInput(){
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, playerpos + 100.0f, SPRITEGOD);
+                            // factory->spawnMonster(registry, playerpos + 100.0f, SPRITEGOD);
                             // for(int i = 0; i < 20; i++){ // destination positions for spell velocity calculations
                             //     auto angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(20);
                             //     glm::vec2 destPos = {playerpos.x + 264 * std::cos(angle), playerpos.y + 264 * std::sin(angle)};
