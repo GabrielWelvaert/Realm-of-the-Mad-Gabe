@@ -174,7 +174,7 @@ void NeutralAISystem::Update(const Entity& player, const glm::vec2& playerPos){
 
         if(playerInvisible || stunned){
             isShooting = false;
-            if(stunned){
+            if(stunned && !entity.HasComponent<TowerComponent>()){
                 playerPos.x < position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;
             }
             continue;
