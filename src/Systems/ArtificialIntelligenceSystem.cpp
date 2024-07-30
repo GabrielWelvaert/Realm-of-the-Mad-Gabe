@@ -1483,6 +1483,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                 }
             } break;
             case CUBEGOD:{ // this includes skull shrines         
+                aidata->activated = true;
                 if(*distanceToPlayer < 1550){
                     *isShooting = true;
                 } else {
@@ -2084,8 +2085,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         int oldphase = aidata->phaseflag;
                         pec->shots = 0;
                         while(aidata->phaseflag == oldphase){
-                            // aidata->phaseflag = RNG.randomFromRange(0,8);
-                            aidata->phaseflag = RNG.randomFromVector({2,3});
+                            aidata->phaseflag = RNG.randomFromRange(0,8);
+                            // aidata->phaseflag = RNG.randomFromVector({2,3});
                             if(aidata->phaseflag == heal){
                                 if(HEAL_PHASE_COMPLETE || *hp >= 30000){ // block heal phase
                                     aidata->phaseflag = oldphase;
@@ -2101,8 +2102,6 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         GET_NEW_PHASE = END_CURRENT_PHASE = false;
                         FIRST_FRAME_AT_DESTINATION = true;
                         PHASE_START_TIME = time;
-
-                        std::cout << "phase " << aidata->phaseflag << " selected at " << *hp << '\n';
 
                         if(oldphase == slowChase && player.GetComponent<StatusEffectComponent>().effects[SLOWED]){
                             player.GetComponent<StatusEffectComponent>().endTimes[SLOWED] = time-1;
@@ -2409,6 +2408,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             pec->duration = 5000;
                             aidata->state = WALKING;
                             sec->effects[INVULNERABLE] = true;
+                            chasePosition(transform->position, aidata->spawnPoint, *velocity);
                         } else { // gordon2 has arrived at center or is already at the center; start rage phase
                             aidata->flags.reset();
                             sec->effects[INVULNERABLE] = false;

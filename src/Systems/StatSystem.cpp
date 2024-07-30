@@ -46,6 +46,7 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& player = event.player;
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     auto& inventory = playerIC.inventory;
+    const auto& playerLevel = player.GetComponent<BaseStatComponent>().level;
     switch(event.itemEnum){
         case HPEFFUSION:{
             increaseHP(player, event.registry, event.assetstore, 175);
@@ -61,10 +62,18 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
             event.eventbus->EmitEvent<StatusEffectEvent>(player, ARMORED, event.eventbus, event.registry, 4000);
         } break;
         case GORDONINCANTATION:{
-            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, GORDONSLAIRWALLTHEME);
+            if(playerLevel < 20){
+                event.assetstore->PlaySound(ERROR);
+                return;
+            }
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position - 1.0f, GORDONSLAIRWALLTHEME);
         } break;
         case ABYSSKEY:{
-            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, ABYSS);
+            if(playerLevel < 20){
+                event.assetstore->PlaySound(ERROR);
+                return;
+            }
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position - 1.0f, ABYSS);
         } break;
         case HPPOT:{
             if(!increaseHP(player, event.registry, event.assetstore, 100)){

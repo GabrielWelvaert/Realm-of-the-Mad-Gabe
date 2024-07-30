@@ -201,9 +201,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {4, {T1WEAPONS}},
                 {3, {T1ABILITIES}},
                 {2, {T0ARMOR}},
-                {1, {T1ARMOR}},
+                {2, {T1ARMOR}},
                 {2, {T0RING}},
-                {2, {T2WEAPONS}},
+                {4, {T2WEAPONS}},
                 {9, {MINORHPMPPOT}}
             }
         }
@@ -246,7 +246,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ABILITIES}},
                 {3, {T1ARMOR}},
                 {2, {T0RING}},
-                {3, {T2WEAPONS}},
+                {4, {T2WEAPONS}},
                 {9, {HPMPPOT}}
             }
         }
@@ -261,7 +261,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2ARMOR}},
                 {1, {T3ARMOR}},
                 {2, {T1RING}},
-                {1, {T3WEAPONS}},
+                {2, {T3WEAPONS}},
                 {5, {HPMPPOT}},
             }
         }
@@ -276,7 +276,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {4, {T2ARMOR}},
                 {1, {T3ARMOR}},
                 {2, {T1RING}},
-                {1, {T3WEAPONS}},
+                {2, {T3WEAPONS}},
                 {9, {HPMPPOT}},
             }
         }
@@ -288,16 +288,11 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {40, {SPDPOT, DEXPOT}},
                 {2, {CHICKENTOME, CHICKENSWORD}},
                 {3, {GORDONINCANTATION}},
-                {90, {T1WEAPONS}},
-                {75, {T2WEAPONS}},
-                {75, {T3WEAPONS}},
-                {40, {T4WEAPONS}},
-                {19, {T4ARMOR}},
-                {50, {T3ARMOR}},
-                {38, {T2ABILITIES}},
-                {75, {T1ABILITIES}},
-                {45, {T2RING}},
-                {25, {T1RING}},
+                {100, {T1WEAPONS, T2WEAPONS, T2RING}},
+                {75, {T3WEAPONS, T2ABILITIES}},
+                {45, {T4WEAPONS}},
+                {50, {T4ARMOR, T3ARMOR}},
+                {75, {T1ABILITIES, T2ABILITIES}},
             }
         }
     },
@@ -323,8 +318,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {4, {T1ABILITIES}},
                 {2, {T1ARMOR}},
                 {2, {T1RING}},
-                {4, {T2WEAPONS}},
-                {2, {T2ARMOR}},
+                {5, {T2WEAPONS}},
+                {3, {T2ARMOR}},
                 {5, {HPMPPOT}}
             }
         }
@@ -334,11 +329,11 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {3, {T1WEAPONS}},
-                {3, {T1ABILITIES}},
+                {4, {T1ABILITIES}},
                 {3, {T2ARMOR}},
                 {2, {T0RING}},
-                {1, {T2WEAPONS}},
-                {2, {T2ARMOR}},
+                {5, {T2WEAPONS}},
+                {3, {T2ARMOR}},
                 {9, {HPMPPOT}}
             }
         }
@@ -348,12 +343,12 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {2, {T1WEAPONS}},
-                {2, {T2ABILITIES}},
+                {3, {T2ABILITIES}},
                 {3, {T1ARMOR}},
                 {4, {T3ARMOR}},
                 {2, {T0RING}},
-                {1, {T2WEAPONS}},
-                {2, {T2ARMOR}},
+                {5, {T2WEAPONS}},
+                {3, {T2ARMOR}},
                 {6, {HPMPPOT}}
             }
         }
@@ -524,7 +519,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {ATTPOT, DEXPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY}}
             }
         }
     },
@@ -545,7 +540,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY}}
             }
         }
     },
@@ -1260,7 +1255,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         AMDUSCIAS,
         {
             {
-                {5, {GORDONINCANTATION}},
+                {7, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFAMDUSCIAS}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
@@ -1280,7 +1275,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ASTAROTH,
         {
             {
-                {5, {GORDONINCANTATION}},
+                {7, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFASTAROTH}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
@@ -1300,7 +1295,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ABIGOR,
         {
             {
-                {5, {GORDONINCANTATION}},
+                {7, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFABIGOR}},
                 {100, {LIFEPOT, MANAPOT}},
@@ -1442,7 +1437,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         LARGEDRAGON,
         {
             {
-                {20, {HPMPPOT}},
+                {30, {HPMPPOT}},
                 {4, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
             }
@@ -2646,9 +2641,9 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T8SEAL, {80,80,0,0,0,5,0,0}},
     {OREO, {0,0,0,0,5,0,0,0}},
 
-    {RINGOFAMDUSCIAS, {0,160,0,0,0,0,0,40}},
-    {RINGOFASTAROTH, {80,80,0,0,0,0,20,20}},
-    {RINGOFABIGOR, {160,0,0,0,0,0,40,0}},
+    {RINGOFAMDUSCIAS, {0,160,3,0,0,0,0,40}},
+    {RINGOFASTAROTH, {80,80,3,0,0,0,20,20}},
+    {RINGOFABIGOR, {160,0,3,0,0,0,40,0}},
 
     {ELECTRICSKULL, {100,0,0,0,4,0,0,0}},
     {TRIPLESCEPTER, {0,0,4,0,0,4,0,0}},
@@ -3656,7 +3651,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {MINORMPPOT, "A small potion that restores magic points"},
     {CUBEJUICE, "A sweet potion made from the fluid-gel of a gelatinous cube's core"},
     {FLAMINGFLASK, "A scorching potion infused with the fire magic of a skull shrine"},
-    {GORDONINCANTATION, "A single-use incantation which summons Gordon's Lair"},
+    {GORDONINCANTATION, "A single-use incantation which summons Gordon's Lair. Requires level 20"},
     {ADMINSWORD, "A sword used by the admins"},
     {SPDTINCTURE, "A tincture that temporarily increases speed"},
     {DEFTINCTURE, "A tincture that temporarily increases defense"},
@@ -3692,7 +3687,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {RINGOFAMDUSCIAS, "A sapphire ring infused with the sorrows of humanity"},
     {RINGOFASTAROTH, "An abyssal bloodstone ring imbued with dark power"},
     {RINGOFABIGOR, "A malevolent ruby ring that carries the vitality of Abigor"},
-    {ABYSSKEY, "A single-use key which summons a portal to the abyss"},
+    {ABYSSKEY, "A single-use key which summons a portal to the abyss. Requires level 20"},
     {COMPLETIONTROPHY, "A trophy awarded for beating the final boss of the game. Identical to a Potion of Life. Thanks for playing!"},
     {SPDEFFUSION, "An effusion that temporarily increases speed"},
     {HPEFFUSION, "An effusion with healing properties"},
@@ -5049,7 +5044,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {GHOSTSTATUE, {800,0,0,35,20,0,0,0,GHOSTSHIT,GHOSTSDEATH}},
 
     {GORDON, {40000,0,0,30,65,0,0,0,ORYXHIT,PALADINDEATH}},
-    {GORDON2, {55000,0,0,100,40,0,0,0,ORYXHIT,KILLVOID}}, // 65k hp
+    {GORDON2, {65000,0,0,100,40,0,0,0,ORYXHIT,KILLVOID}}, // 65k hp
             //hp,mp,att,def,spd,dex,vit,wis
     {SPRITEGOD,{2000,0,0,12,30,0,40,0,SPRITEGODHIT,SPRITESDEATH}},
     {MEDUSA,{2000,0,0,18,30,0,40,0,MEDUSAHIT,MEDUSADEATH}},
@@ -5130,7 +5125,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {MEDIUMDRAGON, {1200,0,0,18,25,0,0,0, DRAGONSHIT,DRAGONSDEATH}},
     {LARGEDRAGON, {1800,0,0,20,22,0,0,0, DRAGONSHIT,DRAGONSDEATH}},
 
-    {BRUTECRUSADER, {6500,0,0,35,5,0,0,0, ARCHDEMONHIT,ARCHDEMONDEATH}},
+    {BRUTECRUSADER, {6500,0,0,35,3,0,0,0, ARCHDEMONHIT,ARCHDEMONDEATH}},
     {CRUSADER0, {650,0,0,10,36,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {CRUSADER1, {650,0,0,10,28,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
     {CRUSADER2, {650,0,0,10,40,0,40,0,ABYSSDEMONSHIT,ABYSSDEMONSDEATH}},
@@ -5691,7 +5686,7 @@ std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData = {
     {SHADE, {{FLOATINGSKULL}, 3, 10000, false}},
     {ABYSSTOWER, {{TRIPDEMON}, 5, 1, true}},
     {ABYSSALSTARPARENT, {{ABYSSALSTAR}, 8, 1, true}},
-    {BRUTECRUSADER, {{CRUSADER0,CRUSADER1,CRUSADER2,CRUSADER3,CRUSADER4}, 5, 5000, false}},
+    {BRUTECRUSADER, {{CRUSADER0,CRUSADER1,CRUSADER2,CRUSADER3,CRUSADER4}, 5, 10000, false}},
     {AMDUSCIAS, {{AMDUSCIASARTIFACT}, 0, 150000, false}},
     {ASTAROTH, {{ASTAROTHARTIFACT}, 0, 150000, false}},
     {ABIGOR, {{ABIGORARTIFACT}, 0, 150000, false}},
