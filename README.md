@@ -1,7 +1,7 @@
 **Reverse-Engineering of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) made with the goal of recreating the core mechanics of the game without the use of an external game engine or game engine library. [Download here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)** (see instructions.txt)
 
 **Gameplay and Objective**
-  - Realm of the Mad Gabe is a 2.5D bullet hell with RPG/rogue-like elements including permanent death, produecurally gernerated dungeons, and different playable classes with unique abilities. Your main objectives are to conquer monsters and dungeons which increase in difficulty and to upgrade the stats and equipment of your character. 
+  - Realm of the Mad Gabe is a 2.5D bullet hell with RPG/rogue-like elements including permanent death, produecurally gernerated dungeons, and different playable classes with unique abilities. Your main objectives are to conquer monsters and dungeons which increase in difficulty and to upgrade the stats and equipment of your character
 
 **Controls:**
   - Keyboard:
