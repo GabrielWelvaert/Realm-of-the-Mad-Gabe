@@ -10,7 +10,7 @@ void StatusEffectSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){
     eventBus->SubscribeToEvent<StatusEffectEvent>(this, &StatusEffectSystem::onStatusEnable);
 }
 
-void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits){
+void StatusEffectSystem::GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS> bits){
     SDL_Rect dstRect;
     SDL_Texture * spriteAtlasTexture = assetStore->GetTexture(LOFIINTERFACE2); // returns a pointer to the .png's SDL_Texture *
     int numIconsToRender = bits.count();

@@ -2085,8 +2085,8 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         int oldphase = aidata->phaseflag;
                         pec->shots = 0;
                         while(aidata->phaseflag == oldphase){
-                            aidata->phaseflag = RNG.randomFromRange(0,8);
-                            // aidata->phaseflag = RNG.randomFromVector({2,3});
+                            // aidata->phaseflag = RNG.randomFromRange(0,8);
+                            aidata->phaseflag = RNG.randomFromVector({1,2,3,4,5,6,7,8});
                             if(aidata->phaseflag == heal){
                                 if(HEAL_PHASE_COMPLETE || *hp >= 30000){ // block heal phase
                                     aidata->phaseflag = oldphase;
@@ -2173,6 +2173,22 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                         aidata->state = SHOOTING;
                         if(!END_CURRENT_PHASE){
 
+                            /* valgrind lines*/
+                            // if(time >= PHASE_START_TIME + 10000){
+                            //     std::cout << "force phase switch for valgrind" << '\n';
+                            //     END_CURRENT_PHASE = true;
+                            //     switch(aidata->phaseflag){
+                            //         case orbit:{
+                            //             omc->orbiting = false;
+                            //             *speed = 40;
+                            //             velocity->x = velocity->y = 0.0f;
+                            //         } break;
+
+                            //     }
+
+                            // }
+                            
+                            /**/
                             // logic for phase itself
                             switch(aidata->phaseflag){
                                 case orbit:{

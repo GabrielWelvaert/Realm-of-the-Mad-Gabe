@@ -102,7 +102,7 @@ void DamageSystem::onProjectileCollision(ProjectileDamageEvent& event){
                         displayXPText(event, projectileParent.GetComponent<TransformComponent>().position , xp, projectileComponent.parent);
                         victimPosition = &event.victim.GetComponent<TransformComponent>().position;
                         if(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){ // player level up
-                            while(playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level] && playerBaseStats.level < 20){
+                            while(playerBaseStats.level < 20 && playerBaseStats.xp >= nextXPToLevelUp[playerBaseStats.level]){
                                 event.eventBus->EmitEvent<LevelUpEvent>(projectileParent, event.registry, event.eventBus);
                             }
                             event.assetStore->PlaySound(LEVELUP);

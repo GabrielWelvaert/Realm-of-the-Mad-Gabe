@@ -127,6 +127,9 @@ class Pool: public IPool { //pool of component, where each index represents enti
                 indexToEntityId.emplace(entityIdToIndex[entityId], entityId); // here! 
                 if(index >= data.capacity()){
                     data.resize(size * 2);
+                    // if constexpr(std::is_same<T, TransformComponent>::value){
+                    //     std::cout << "re-allocating TransformComponent at " << data.data() << '\n';
+                    // }
                 }
                 data[index] = object;
                 size++;

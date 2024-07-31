@@ -9,16 +9,19 @@
 // ex: if effects[SPEEDY] then endTimes[SPEEDY] shows endTime and modifications[SPEEDY] shows stat mod applied
 // not all abilities will require stat modification
 struct StatusEffectComponent{
-    std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> effects; 
+    std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS> effects; 
     // std::bitset<8> immunities // how i'd do immunities, if I wanted to do them 
-    std::vector<Uint32> endTimes = std::vector<Uint32>(TOTAL_NUMBER_OF_STATUS_EFFECTS - 1);
-    std::vector<int> modifications = std::vector<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS - 1);
+    std::vector<Uint32> endTimes = std::vector<Uint32>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
+    std::vector<int> modifications = std::vector<int>(TOTAL_NUMBER_OF_STATUS_EFFECTS);
     Uint32 lastBleedTime = 0; // floating point precision problems w/ -= .02hp * deltaTime, so this is solution (bleed every 250ms)
     Uint32 lastHealTime = 0;
 
     inline StatusEffectComponent() = default;
 
     inline void set(statuses status, Uint32 durationMS){
+        if(status < 0 || status >= TOTAL_NUMBER_OF_STATUS_EFFECTS){
+            std::cout << "StatusEffectComponent::set() with " << status << '\n';
+        }
         effects[status] = true;
         endTimes[status] = SDL_GetTicks() + durationMS;
     }

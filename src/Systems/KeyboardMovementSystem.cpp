@@ -127,6 +127,7 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
             ac = &player.GetComponent<AbilityComponent>(); 
             holdingItem = &player.GetComponent<PlayerItemsComponent>().holdingItemLastFrame;
             statusEffects = &player.GetComponent<StatusEffectComponent>().effects;
+            transform = &player.GetComponent<TransformComponent>();
         }
     } else {
         ac->blockNoManaSound = false; // player wont be warned about insufficient mana again until they release space bar

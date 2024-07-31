@@ -249,7 +249,8 @@ void Game::ProcessInput(){
                             // factory->createItemInBag(registry, T14ROBE, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
-                            eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
+                            // eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
+                            factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, MYSTERIOUSCRYSTAL);
                         } break;
                         case SDLK_0:{
                             // eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
@@ -276,8 +277,8 @@ void Game::ProcessInput(){
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            factory->spawnMonster(registry, spawnpoint, CUBEGOD);
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, PENTARACT);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -462,10 +463,11 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         w = h = 200; // genesis room
     } else if (wallTheme == ABYSS) {
         numRooms = 50;
+        numRooms = 3;
         w = h = 30; // genesis room
     } else { // chicken den and undead lair
         numRooms = RNG.randomFromRange(25,35);
-        // numRooms = 3;
+        numRooms = 3;
         w = h = RNG.randomFromRange(10,15); // genesis room
     }
     x = mapSizeTiles / 2;
@@ -2918,9 +2920,10 @@ void Game::Update(){
 
     registry->Update();
     // const auto& playerpos = player.GetComponent<TransformComponent>().position;
-    const auto& t = player.GetComponent<TransformComponent>();
-    const auto& s = player.GetComponent<SpriteComponent>();
+    const auto t = player.GetComponent<TransformComponent>();
+    const auto s = player.GetComponent<SpriteComponent>();
     glm::vec2 playerCenter = {(t.position.x + ((s.width * t.scale.x) / 2)), t.position.y + ((s.height * t.scale.y) / 2)};
+
     registry->GetSystem<KeyboardMovementSystem>().Update(keyboardinput, Game::mouseX, Game::mouseY, camera, assetStore, eventBus, registry, factory);
     registry->GetSystem<DistanceToPlayerSystem>().Update(playerCenter);
     registry->GetSystem<ChaseAISystem>().Update(player, playerCenter);

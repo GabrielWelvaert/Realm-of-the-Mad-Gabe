@@ -88,7 +88,7 @@ class StatusEffectSystem: public System{
 
         std::unordered_map<unsigned long, SDL_Texture*> effectTextures;
 
-        void GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS - 1> bits);
+        void GenerateStatusIcon(SDL_Renderer* renderer, std::unique_ptr<AssetStore>& assetStore, std::bitset<TOTAL_NUMBER_OF_STATUS_EFFECTS> bits);
 
     public:
         StatusEffectSystem();

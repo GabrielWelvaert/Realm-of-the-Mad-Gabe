@@ -266,7 +266,7 @@ class BossAISystem: public System{
                     duration = 2075;
                 } break;
                 case GORDON2:{
-                    damage = 70;
+                    damage = 65;
                     duration = 4000;
                 } break;
             }
@@ -532,7 +532,8 @@ class BossAISystem: public System{
             constexpr float argcap = 360.0f;
             constexpr projectilePPD data = {REDBOOMERANG};
             int damage = 100;
-            int duration = 2200;
+            int duration = 2200
+            ;
             int speed = 250;
             double realgap = argcap / (numshots - 1);
             glm::vec2 originVelocity;
@@ -609,7 +610,7 @@ class BossAISystem: public System{
                 if(spriteEnum == GORDON2){
                     inflictSE = false;
                 }
-                duration *= 1.9;
+                duration *= 2;
             }
             glm::vec2 originVelocity;
             float rotationDegrees = getRotationFromCoordiante(speed, center.x, center.y, target.x, target.y, originVelocity);
