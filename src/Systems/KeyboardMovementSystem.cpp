@@ -24,12 +24,12 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
     int move;
 
     /**/
-    static std::bitset<8> lastFrame;
-    if(!paralyzed && !keyboardinput->movementKeys[A] && !lastFrame[A] && lastFrame[D] && keyboardinput->movementKeys[D] && rigidbody->velocity.x <= 0.0f){
-        std::cout << "horse shit" << '\n';
-    }
+    // static std::bitset<8> lastFrame;
+    // if(!paralyzed && !keyboardinput->movementKeys[A] && !lastFrame[A] && lastFrame[D] && keyboardinput->movementKeys[D] && rigidbody->velocity.x <= 0.0f){
+    //     std::cout << "halt" << '\n';
+    // }
     
-    lastFrame = keyboardinput->movementKeys;
+    // lastFrame = keyboardinput->movementKeys;
     /**/
     
     if(stunned){

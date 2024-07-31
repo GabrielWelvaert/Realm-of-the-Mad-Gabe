@@ -78,7 +78,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             } break;
             case GORDON2:{
                 interval = 1000;
-                amount = 1000;
+                amount = 1500;
             } break;
         } 
         if(parentId == -1){

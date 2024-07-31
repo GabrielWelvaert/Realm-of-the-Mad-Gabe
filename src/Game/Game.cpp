@@ -463,11 +463,9 @@ bool Game::GenerateMap(const wallTheme& wallTheme, std::vector<std::vector<int>>
         w = h = 200; // genesis room
     } else if (wallTheme == ABYSS) {
         numRooms = 50;
-        numRooms = 3;
         w = h = 30; // genesis room
     } else { // chicken den and undead lair
         numRooms = RNG.randomFromRange(25,35);
-        numRooms = 3;
         w = h = RNG.randomFromRange(10,15); // genesis room
     }
     x = mapSizeTiles / 2;
