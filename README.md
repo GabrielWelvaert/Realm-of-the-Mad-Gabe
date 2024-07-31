@@ -2,6 +2,9 @@
 
 **[Download and play here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)** (see instructions.txt)
 
+**Gameplay and Objective**
+  - Realm of the Mad Gabe is a 2.5D bullet hell with RPG/rogue-like elements including permanent death, produecurally gernerated dungeons, and different playable classes with unique abilities. Your main objectives are to conquer monsters and dungeons which increase in difficulty and to upgrade the stats and equipment of your character. 
+
 **Controls:**
   - Keyboard:
       - *wasd* - Movement
