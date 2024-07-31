@@ -22,6 +22,15 @@ void KeyboardMovementSystem::Update(std::unique_ptr<KeyBoardInput>& keyboardinpu
     #define stunned (*statusEffects)[STUNNED]
     #define paralyzed (*statusEffects)[PARALYZE]
     int move;
+
+    /**/
+    static std::bitset<8> lastFrame;
+    if(!paralyzed && !keyboardinput->movementKeys[A] && !lastFrame[A] && lastFrame[D] && keyboardinput->movementKeys[D] && rigidbody->velocity.x <= 0.0f){
+        std::cout << "horse shit" << '\n';
+    }
+    
+    lastFrame = keyboardinput->movementKeys;
+    /**/
     
     if(stunned){
         *isShooting = false;

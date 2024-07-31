@@ -266,7 +266,7 @@ class BossAISystem: public System{
                     duration = 2075;
                 } break;
                 case GORDON2:{
-                    damage = 65;
+                    damage = 70;
                     duration = 4000;
                 } break;
             }
@@ -609,7 +609,7 @@ class BossAISystem: public System{
                 if(spriteEnum == GORDON2){
                     inflictSE = false;
                 }
-                duration *= 2;
+                duration *= 1.9;
             }
             glm::vec2 originVelocity;
             float rotationDegrees = getRotationFromCoordiante(speed, center.x, center.y, target.x, target.y, originVelocity);

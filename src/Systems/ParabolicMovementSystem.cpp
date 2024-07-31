@@ -31,16 +31,28 @@ void ParabolicMovementSystem::Update(Entity player, const double& deltaTime,
             switch(pmc.identifier){ // what happens when this entity finishes its path of travel
                 case PARABOLIC_MEDUSA_AOE_BOMB:{ // ex, medusa bomb, hitboxes exist for 1 frame only 
                     eventBus->EmitEvent<AOEBombEvent>(pmc.sprite, player, entity, *position, 192.0, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager);
+                    if(deadPlayer.level > 0){ // player died, we just ran Setup, so we must exit this update (entities vector is outdated)
+                        deadPlayer.level = -1;
+                        return;
+                    }
                     position = &entity.GetComponent<TransformComponent>().position;
                     factory->spawnAOEParticles(registry, *position, 192.0, RED);
                 } break;
                 case PARABOLIC_BLACK_AOE_BOMB:{
                     eventBus->EmitEvent<AOEBombEvent>(pmc.sprite, player, entity, *position, 192.0, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager);
+                    if(deadPlayer.level > 0){ // player died, we just ran Setup, so we must exit this update (entities vector is outdated)
+                        deadPlayer.level = -1;
+                        return;
+                    }
                     position = &entity.GetComponent<TransformComponent>().position;
                     factory->spawnAOEParticles(registry, *position, 192.0, BLACK);
                 } break;
                 case GORDON_SLOW_BOMB:{
                     eventBus->EmitEvent<AOEBombEvent>(pmc.sprite, player, entity, *position, 1000.0, eventBus, registry, assetStore, factory, Setup, deadPlayer, activeCharacterID, characterManager);
+                    if(deadPlayer.level > 0){ // player died, we just ran Setup, so we must exit this update (entities vector is outdated)
+                        deadPlayer.level = -1;
+                        return;
+                    }
                     position = &entity.GetComponent<TransformComponent>().position;
                     factory->spawnAOEParticles(registry, *position, 10000.0, BLACK);
                 } break;

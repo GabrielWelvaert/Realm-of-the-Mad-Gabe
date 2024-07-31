@@ -46,6 +46,7 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
     auto& player = event.player;
     auto& playerIC = player.GetComponent<PlayerItemsComponent>();
     auto& inventory = playerIC.inventory;
+    const auto& playerLevel = player.GetComponent<BaseStatComponent>().level;
     switch(event.itemEnum){
         case HPEFFUSION:{
             increaseHP(player, event.registry, event.assetstore, 175);
@@ -61,10 +62,18 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
             event.eventbus->EmitEvent<StatusEffectEvent>(player, ARMORED, event.eventbus, event.registry, 4000);
         } break;
         case GORDONINCANTATION:{
-            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, GORDONSLAIRWALLTHEME);
+            if(playerLevel < 20){
+                event.assetstore->PlaySound(ERROR);
+                return;
+            }
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position - 1.0f, GORDONSLAIRWALLTHEME);
         } break;
         case ABYSSKEY:{
-            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position, ABYSS);
+            if(playerLevel < 20){
+                event.assetstore->PlaySound(ERROR);
+                return;
+            }
+            event.factory->spawnPortal(event.registry, player.GetComponent<TransformComponent>().position - 1.0f, ABYSS);
         } break;
         case HPPOT:{
             if(!increaseHP(player, event.registry, event.assetstore, 100)){
@@ -324,7 +333,7 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     HPMPstats.maxmp += mpincrease;
 
     auto& sec = event.player.GetComponent<StatusEffectComponent>();
-    if(!sec.effects.none()){
+    if(!sec.effects.none()){ //
         if(sec.effects[SLOWED]){ // reverse debuffs that modify active stats. see sec.modification for amount to store
             speed.activespeed += sec.modifications[SLOWED];
             sec.effects[SLOWED] = false;
@@ -333,11 +342,20 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
             offensestats.activeattack += sec.modifications[ATTACK];
             sec.effects[WEAKENED] = false;
         }
+        if(sec.effects[PARALYZE]){
+            speed.activespeed += sec.modifications[PARALYZE];
+            sec.effects[PARALYZE] = false;    
+        }
+        if(sec.effects[ARMORBROKEN]){
+            HPMPstats.activedefense += sec.modifications[ARMORBROKEN];
+            sec.effects[ARMORBROKEN] = false;
+        }
         sec.effects[PARALYZE] = false;
         sec.effects[QUIET] = false;
         sec.effects[BLEEDING] = false;
         sec.effects[STUNNED] = false;
         sec.effects[BLIND] = false;
+        sec.effects[CONFUSED] = false;
     }
 
     if(HPMPstats.activehp < HPMPstats.maxhp){

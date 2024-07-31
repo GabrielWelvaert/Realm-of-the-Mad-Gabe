@@ -27,6 +27,7 @@
 #include "../Utils/colors.h"
 #include "../Components/ItemTableComponent.h"
 #include "../Events/StatusEffectEvent.h"
+#include "../Components/ParabolicMovementComponent.h"
 
 /*
 This system is responsible for calculating damage and emitting events such as level up and death

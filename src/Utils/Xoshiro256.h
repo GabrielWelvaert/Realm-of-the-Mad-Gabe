@@ -78,6 +78,11 @@ public:
         return v[randomFromRange(0, v.size()-1)];
     }
 
+    template <typename T>
+    inline T randomFromVector(const std::initializer_list<T>& c){
+        return *(c.begin() + randomFromRange(0, c.size()-1));
+    }
+
 
 };
 

@@ -219,6 +219,7 @@ void Game::ProcessInput(){
                         case SDLK_SPACE:{
                             keyboardinput->utilityKeys[SPACE] = true;
                         } break;
+                        case SDLK_r:
                         case SDLK_f:{
                             if(currentArea != NEXUS){
                                 characterManager->SaveCharacter(activeCharacterID, player);
@@ -230,27 +231,32 @@ void Game::ProcessInput(){
                             keyboardinput->utilityKeys[SHIFT] = true;
                         } break;
                         /*ALL OTHER SDL_KEYDOWNS ARE USED FOR DEVELOPMENT PURPOSES AND SHOULD BE COMMENTED OUT FOR PRODUCTION!*/
+                        case SDLK_LCTRL:{
+                            std::cout << keyboardinput->movementKeys << '\n';
+                        } break;
                         case SDLK_9:{
-                            player.GetComponent<HPMPComponent>().activemp -= 1;
-                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, JUGGHELM, lootbag);
-                            factory->createItemInBag(registry, DEFPOT, lootbag);
-                            factory->createItemInBag(registry, RINGOFABIGOR, lootbag);
-                            factory->createItemInBag(registry, TRIPLESCEPTER, lootbag);
-                            factory->createItemInBag(registry, BOOMERANGWAND, lootbag);
-                            factory->createItemInBag(registry, BULWARK, lootbag);
-                            factory->createItemInBag(registry, T14DAGGER, lootbag);
-                            factory->createItemInBag(registry, T14ROBE, lootbag);
+                            // player.GetComponent<HPMPComponent>().activemp -= 1;
+                            // // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // const auto& spawnpoint = player.GetComponent<TransformComponent>().position;
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            // factory->createItemInBag(registry, DEFPOT, lootbag);
+                            // factory->createItemInBag(registry, RINGOFABIGOR, lootbag);
+                            // factory->createItemInBag(registry, TRIPLESCEPTER, lootbag);
+                            // factory->createItemInBag(registry, BOOMERANGWAND, lootbag);
+                            // factory->createItemInBag(registry, BULWARK, lootbag);
+                            // factory->createItemInBag(registry, T14DAGGER, lootbag);
+                            // factory->createItemInBag(registry, T14ROBE, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
+                            eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
                         } break;
                         case SDLK_0:{
+                            // eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
                             // player.GetComponent<HPMPComponent>().activemp += 1;
-                            player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
-                            const auto& playerpos = player.GetComponent<TransformComponent>().position;
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // player.GetComponent<TransformComponent>().position = glm::vec2(-500,-500);
+                            // const auto& playerpos = player.GetComponent<TransformComponent>().position;
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
@@ -261,7 +267,7 @@ void Game::ProcessInput(){
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, playerpos + 100.0f, SPRITEGOD);
+                            // factory->spawnMonster(registry, playerpos + 100.0f, SPRITEGOD);
                             // for(int i = 0; i < 20; i++){ // destination positions for spell velocity calculations
                             //     auto angle = 2.0f * M_PI * static_cast<float>(i) / static_cast<float>(20);
                             //     glm::vec2 destPos = {playerpos.x + 264 * std::cos(angle), playerpos.y + 264 * std::sin(angle)};
@@ -270,6 +276,8 @@ void Game::ProcessInput(){
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            factory->spawnMonster(registry, spawnpoint, CUBEGOD);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -284,7 +292,8 @@ void Game::ProcessInput(){
                             // const auto& p = player.GetComponent<TransformComponent>().position;
                             // std::cout << "current position = " << p.x << ", " << p.y << '\n';
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, p, GORDON2);
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // factory->spawnMonster(registry, spawnpoint, MYSTERIOUSCRYSTAL);
                             // std::cout << p.x << ", " << p.y << '\n';
                             // factory->spawnMonster(registry, playerPos, PENTARACTEYE, player.GetId());
                             // factory->spawnMonster(registry, glm::vec2(-400,200), MEDUSA);
@@ -292,12 +301,24 @@ void Game::ProcessInput(){
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
+                            auto& hpmp = player.GetComponent<HPMPComponent>();
+                            hpmp.activemp = hpmp.maxmp;
+                            hpmp.activehp = hpmp.maxhp;
                         } break;
                         case SDLK_EQUALS:{
-                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // factory->spawnMonster(registry, playerPos, MYSTERIOUSCRYSTAL);
-                            // eventBus->EmitEvent<StatusEffectEvent>(player, INVISIBLE, eventBus, registry, 100000000);
-                            eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
+                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            player.GetComponent<BaseStatComponent>().xp += 10000;
+                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            factory->createItemInBag(registry, DEMONBLADE, lootbag);
+                            factory->createItemInBag(registry, ATTACKPENDANT, lootbag);
+                            factory->createItemInBag(registry, T13HEAVYARMOR, lootbag);
+                            factory->createItemInBag(registry, CRYSTALWAND, lootbag);
+                            factory->createItemInBag(registry, T7TOME, lootbag);
+                            factory->createItemInBag(registry, T14WAND, lootbag);
+                            factory->createItemInBag(registry, RINGOFAMDUSCIAS, lootbag);
                         } break;
                         case SDLK_BACKSPACE:{
                             const auto& playerPos = player.GetComponent<TransformComponent>().position;
@@ -305,8 +326,10 @@ void Game::ProcessInput(){
                             factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                             registry->GetSystem<StatSystem>().maxStat(player, SPEED);
                             registry->GetSystem<StatSystem>().maxStat(player, DEXTERITY);
-                            // registry->GetSystem<StatSystem>().maxStat(player, ATTACK);
+                            registry->GetSystem<StatSystem>().maxStat(player, ATTACK);
                             registry->GetSystem<StatSystem>().maxStat(player, DEFENSE);
+                            registry->GetSystem<StatSystem>().maxStat(player, WISDOM);
+                            registry->GetSystem<StatSystem>().maxStat(player, VITALITY);
                             eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
                         } break;
                         default:
