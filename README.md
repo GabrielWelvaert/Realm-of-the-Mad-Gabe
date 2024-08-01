@@ -29,7 +29,7 @@
   - Your stats will increase as you level-up from gaining xp by slaying monsters
   - Your characters and vault will save between sessions; use the vault to move items between characters
   - Scroll out entirely to view boss location in a dungeon
-  - If you're low HP in a dungeon, press *f* to save your character by escaping to nexus
+  - If you're low HP in a dungeon, save your character by escaping to nexus
   - You can drop items by dragging them into the world from your inventory
 
 **Preview Gallery:**
