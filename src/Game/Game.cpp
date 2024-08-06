@@ -232,7 +232,7 @@ void Game::ProcessInput(){
                         } break;
                         /*ALL OTHER SDL_KEYDOWNS ARE USED FOR DEVELOPMENT PURPOSES AND SHOULD BE COMMENTED OUT FOR PRODUCTION!*/
                         case SDLK_LCTRL:{
-                            std::cout << keyboardinput->movementKeys << '\n';
+                            // std::cout << keyboardinput->movementKeys << '\n';
                         } break;
                         case SDLK_9:{
                             // player.GetComponent<HPMPComponent>().activemp -= 1;
@@ -250,7 +250,7 @@ void Game::ProcessInput(){
                             // player.GetComponent<BaseStatComponent>().xp += 20000;
                             // factory->spawnMonster(registry, spawnpoint, TINYREDCHICKEN);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
-                            factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, MYSTERIOUSCRYSTAL);
+                            // factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, RNG.randomFromVector({CUBEGOD, SKULLSHRINE}));
                         } break;
                         case SDLK_0:{
                             // eventBus->EmitEvent<StatusEffectEvent>(player, PARALYZE, eventBus, registry, 10000);
@@ -278,7 +278,7 @@ void Game::ProcessInput(){
                             // auto sprite = RNG.randomFromVector(slimes);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, ARMORBROKEN, eventBus, registry, 10000);
                             // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, PENTARACT);
+                            // factory->spawnMonster(registry, player.GetComponent<TransformComponent>().position, PENTARACT);
                         } break;
                         case SDLK_MINUS:{
                             // if(dungeonRooms.size() > 0){
@@ -302,36 +302,36 @@ void Game::ProcessInput(){
                             // std::vector<sprites> slimes = {BLACKSLIMELARGE, BROWNSLIMELARGE};
                             // auto sprite = RNG.randomFromVector(slimes);
                             // eventBus->EmitEvent<StatusEffectEvent>(player, SLOWED, eventBus, registry, 10000);
-                            auto& hpmp = player.GetComponent<HPMPComponent>();
-                            hpmp.activemp = hpmp.maxmp;
-                            hpmp.activehp = hpmp.maxhp;
+                            // auto& hpmp = player.GetComponent<HPMPComponent>();
+                            // hpmp.activemp = hpmp.maxmp;
+                            // hpmp.activehp = hpmp.maxhp;
                         } break;
                         case SDLK_EQUALS:{
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            player.GetComponent<BaseStatComponent>().xp += 10000;
-                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
-                            glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
-                            Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            factory->createItemInBag(registry, JUGGHELM, lootbag);
-                            factory->createItemInBag(registry, DEMONBLADE, lootbag);
-                            factory->createItemInBag(registry, ATTACKPENDANT, lootbag);
-                            factory->createItemInBag(registry, T13HEAVYARMOR, lootbag);
-                            factory->createItemInBag(registry, CRYSTALWAND, lootbag);
-                            factory->createItemInBag(registry, T7TOME, lootbag);
-                            factory->createItemInBag(registry, T14WAND, lootbag);
-                            factory->createItemInBag(registry, RINGOFAMDUSCIAS, lootbag);
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // player.GetComponent<BaseStatComponent>().xp += 10000;
+                            // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
+                            // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
+                            // factory->createItemInBag(registry, JUGGHELM, lootbag);
+                            // factory->createItemInBag(registry, DEMONBLADE, lootbag);
+                            // factory->createItemInBag(registry, ATTACKPENDANT, lootbag);
+                            // factory->createItemInBag(registry, T13HEAVYARMOR, lootbag);
+                            // factory->createItemInBag(registry, CRYSTALWAND, lootbag);
+                            // factory->createItemInBag(registry, T7TOME, lootbag);
+                            // factory->createItemInBag(registry, T14WAND, lootbag);
+                            // factory->createItemInBag(registry, RINGOFAMDUSCIAS, lootbag);
                         } break;
                         case SDLK_BACKSPACE:{
-                            const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            player.GetComponent<BaseStatComponent>().xp += 20000;
-                            factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
-                            registry->GetSystem<StatSystem>().maxStat(player, SPEED);
-                            registry->GetSystem<StatSystem>().maxStat(player, DEXTERITY);
-                            registry->GetSystem<StatSystem>().maxStat(player, ATTACK);
-                            registry->GetSystem<StatSystem>().maxStat(player, DEFENSE);
-                            registry->GetSystem<StatSystem>().maxStat(player, WISDOM);
-                            registry->GetSystem<StatSystem>().maxStat(player, VITALITY);
-                            eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
+                            // const auto& playerPos = player.GetComponent<TransformComponent>().position;
+                            // player.GetComponent<BaseStatComponent>().xp += 20000;
+                            // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            // registry->GetSystem<StatSystem>().maxStat(player, SPEED);
+                            // registry->GetSystem<StatSystem>().maxStat(player, DEXTERITY);
+                            // registry->GetSystem<StatSystem>().maxStat(player, ATTACK);
+                            // registry->GetSystem<StatSystem>().maxStat(player, DEFENSE);
+                            // registry->GetSystem<StatSystem>().maxStat(player, WISDOM);
+                            // registry->GetSystem<StatSystem>().maxStat(player, VITALITY);
+                            // eventBus->EmitEvent<UpdateDisplayStatEvent>(player);
                         } break;
                         default:
                             break;
@@ -2810,11 +2810,11 @@ void Game::SpawnAreaEntities(wallTheme area){
                 factory->spawnPortal(registry, glm::vec2(900,600), GODLANDS); // todo spawn gordon's lair
             }
             // delete the following before release:
-            glm::vec2 x = wallThemeToSpawnPoint.at(NEXUS);
-            factory->spawnPortal(registry, glm::vec2(750,1350), ABYSS);
-            factory->spawnPortal(registry, x, CHICKENLAIR);
-            factory->spawnPortal(registry, x - 64.0f, GORDONSLAIR2);
-            factory->spawnAdminLootInNexus(registry);
+            // glm::vec2 x = wallThemeToSpawnPoint.at(NEXUS);
+            // factory->spawnPortal(registry, glm::vec2(750,1350), ABYSS);
+            // factory->spawnPortal(registry, x, CHICKENLAIR);
+            // factory->spawnPortal(registry, x - 64.0f, GORDONSLAIR2);
+            // factory->spawnAdminLootInNexus(registry);
 
         } break;
         case GORDONSLAIRWALLTHEME:{

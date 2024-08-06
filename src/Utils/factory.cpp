@@ -711,6 +711,9 @@ void Factory::createLootAtDeath(Entity& monster, std::unique_ptr<Registry>& regi
             createItemInBag(registry, item, lootbag);
             itemEnumToLootBagSpriteEnum.at(item) > bagsprite ? bagsprite = itemEnumToLootBagSpriteEnum.at(item) : bagsprite = bagsprite;
         }
+        if(lbc.contents.size() == 8){ // this bag is now full
+            break;
+        }
     }
     if(lbc.contents.size() > 0){
         const auto& s = monster.GetComponent<SpriteComponent>();

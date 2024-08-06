@@ -140,14 +140,14 @@ void Registry::Update() {
         entityComponentSignatures[entityId].reset();
         freeIds.push_back(entityId);
 
-        std::unordered_set<int> dequeContents;
-        for(auto& id: freeIds){
-            if(dequeContents.find(id) != dequeContents.end()){
-                std::cout << "killing " << entityId << ". ";
-                std::cout << id << " was duplicate in freeIds..." << '\n';
-            }
-            dequeContents.insert(id);
-        }
+        // std::unordered_set<int> dequeContents;
+        // for(auto& id: freeIds){
+        //     if(dequeContents.find(id) != dequeContents.end()){
+        //         std::cout << "killing " << entityId << ". ";
+        //         std::cout << id << " was duplicate in freeIds..." << '\n';
+        //     }
+        //     dequeContents.insert(id);
+        // }
 
         // if(freeIds.size() > numEntities){
         //     std::cout << "death of this entity made freeIds too large: " << entityId << " from group " << IdToGroup(entityId) << '\n';

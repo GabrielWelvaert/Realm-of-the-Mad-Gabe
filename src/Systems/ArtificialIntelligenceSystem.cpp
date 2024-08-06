@@ -629,7 +629,7 @@ void randomChaseMinionAISystem::Update(const Entity& player, std::unique_ptr<Reg
         if(!paralyzed){
             switch(rcmc.state){
                 case CHASE_PLAYER:{
-                    if(distanceToPlayer < static_cast<float>(sprite.width) * transform.scale.x){
+                    if(playerInvisible || distanceToPlayer < static_cast<float>(sprite.width) * transform.scale.x){
                         velocity = {0,0};
                     } else {
                         chasePosition(transform.center, playerPos, velocity);
@@ -2265,7 +2265,11 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                             player.GetComponent<StatusEffectComponent>().endTimes[SLOWED] = time-1;
                                         }
                                     } else {
-                                        chasePosition(transform->position, playerPos, *velocity);
+                                        if(!playerInvisible){
+                                            chasePosition(transform->position, playerPos, *velocity);    
+                                        } else {
+                                            velocity->x = velocity->y = 0.0f;
+                                        }
                                     }
                                 } break;
                                 case heal:{
@@ -2283,7 +2287,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 } break;
                                 case tearShotgun:{
                                     aidata->state = RAZED;
-                                    if(SYNC_WITH_ANIMATION && time >= LAST_SHOT_TIMER + aidata->timer2){ // timer 2 used for interval
+                                    if(SYNC_WITH_ANIMATION && *isShooting && time >= LAST_SHOT_TIMER + aidata->timer2){ // timer 2 used for interval
                                         LAST_SHOT_TIMER = time;
                                         aidata->timer2 = RNG.randomFromRange(1000.0f,4000.0f);
                                         if(RNG.randomBool()){ // shoot directly at player
@@ -2302,14 +2306,14 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 } break;
                                 case spiral:{
                                     sec->effects[INVULNERABLE] = false;
-                                    if(time >= aidata->timer1 + 180){
+                                    if(*isShooting && time >= aidata->timer1 + 180){
                                         aidata->timer1 = time;
                                         aidata->phaseOneIndex = (aidata->phaseOneIndex += 1) % 36;
                                         gordonRevolvingShots(entity, registry,aidata->phaseOnePositions[aidata->phaseOneIndex]);
                                         RESET_PROJECTILE_POINTERS
                                     }
 
-                                    if(SYNC_WITH_ANIMATION && time >= aidata->timer2 + 1000){
+                                    if(SYNC_WITH_ANIMATION && *isShooting && time >= aidata->timer2 + 1000){
                                         aidata->timer2 = time;
                                         switch(RNG.randomFromRange(0,4)){
                                             case 0:{
@@ -2338,14 +2342,14 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 case dancing:{
                                     sec->effects[INVULNERABLE] = false;
 
-                                    if(SYNC_WITH_ANIMATION && time >= aidata->timer1 + 500){
+                                    if(SYNC_WITH_ANIMATION && *isShooting && time >= aidata->timer1 + 500){
                                         aidata->timer1 = time;
                                         aidata->phaseOneIndex = (aidata->phaseOneIndex + RNG.randomFromRange(1,8)) % 36;
                                         gordonPhaseTwoShots(entity, registry, aidata->phaseOneIndex, aidata->phaseOnePositions, GORDON2);
                                         RESET_PROJECTILE_POINTERS;
                                     }
 
-                                    if(SYNC_WITH_ANIMATION && time >= aidata->timer2 + 1000){
+                                    if(SYNC_WITH_ANIMATION && *isShooting && time >= aidata->timer2 + 1000){
                                         aidata->timer2 = time;
                                         for(int i = 0; i < 3; i++){
                                             glm::vec2 target = randomPositionWithinRadius(transform->position,500.0f);
@@ -2418,7 +2422,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             
                         }
                     } else { // RAGE_PHASE_STARTED == true
-                        if(time >= aidata->timer1 + 180){ // rage phase tentacle
+                        if(*isShooting && time >= aidata->timer1 + 180){ // rage phase tentacle
                             aidata->timer1 = time;
                             if(time >= TENTACLE_LAST_SWITCH_TIME + TENTACLE_SWITCH_INTERVAL){
                                 TENTACLE_LAST_SWITCH_TIME = time;
@@ -2444,7 +2448,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                             RESET_PROJECTILE_POINTERS
                         }
 
-                        if(SYNC_WITH_ANIMATION && time >= aidata->timer2 + 2000){
+                        if(SYNC_WITH_ANIMATION && *isShooting && time >= aidata->timer2 + 2000){
                             aidata->timer2 = time;
                             switch(RNG.randomFromRange(0,6)){
                                 case 0:{ // spawn baby butchers

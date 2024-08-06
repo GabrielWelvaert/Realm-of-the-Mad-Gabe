@@ -293,6 +293,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {45, {T4WEAPONS}},
                 {50, {T4ARMOR, T3ARMOR}},
                 {75, {T1ABILITIES, T2ABILITIES}},
+                {50, {HPMPPOT}},
             }
         }
     },
@@ -373,7 +374,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {2, {ARCTOME, ARCWAND, ARCROBE, TWILIGHTGEMSTONE}},
-                {5, {GORDONINCANTATION}},
+                {6, {GORDONINCANTATION}},
                 {100, {DEFPOT,SPDPOT,WISPOT,VITPOT,DEXPOT,ATTPOT}},
                 {20, {T7WEAPONS}},
                 {18, {T8WEAPONS}},
@@ -451,7 +452,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {100, {LIFEPOT}},
                 {100, {MANAPOT}},
                 {33, {DEFPOT,ATTPOT,SPDPOT,DEXPOT,VITPOT,WISPOT}},
-                {1, {OGMUR}}, 
+                {2, {OGMUR}}, 
                 {35, {T11ARMOR, T10WEAPONS, T5ABILITIES}}, // o1 tops 
                 {10, {T11ARMOR, T10WEAPONS, T5ABILITIES}}, // o1 tops 
                 {25, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops
@@ -675,8 +676,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
+                {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {2, {CHRONUSDIRK}}, // todo dirk of chronus
-                {5, {GORDONINCANTATION}},
+                {6, {GORDONINCANTATION}},
                 {10, {ABYSSKEY}},
                 {22, {T8WEAPONS}},
                 {22, {T8ARMOR}},
@@ -754,8 +756,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {75, {FLAMINGFLASK}},
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
+                {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {2, {RETRIBUTIONCLOAK}},
-                {5, {GORDONINCANTATION}},
+                {6, {GORDONINCANTATION}},
                 {10, {ABYSSKEY}},
                 {22, {T8WEAPONS}},
                 {22, {T8ARMOR}},
@@ -812,9 +815,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {10, {MITHRILSWORD}},
                 {10, {BOOMERANGWAND}},
-                {8, {ATTACKPENDANT}},
+                {10, {ATTACKPENDANT}},
                 {2, {CRYSTALWAND}},
-                {4, {GORDONINCANTATION}},
+                {6, {GORDONINCANTATION}},
                 {4, {ABYSSKEY}}
             }
         }
@@ -834,7 +837,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {2, {JUGGHELM}}, 
-                {5, {GORDONINCANTATION}},
+                {6, {GORDONINCANTATION}},
                 {10, {ABYSSKEY}},
                 {22, {T8WEAPONS}},
                 {22, {T8ARMOR}},
@@ -1597,7 +1600,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {95, {HPMPPOT}},
-                {40, {FIREWATER, CABERNET}},
+                {35, {FIREWATER, CABERNET}},
                 {25, {HPMPPOT}},
             }
         }
@@ -1607,7 +1610,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {95, {HPMPPOT}},
-                {40, {HPEFFUSION}},
+                {35, {HPEFFUSION}},
                 {25, {HPMPPOT}},
             }
         }
@@ -1616,10 +1619,27 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         BABYBUTCHER,
         {
             {
-                {2, {HPEFFUSION, SPDTINCTURE, DEFTINCTURE}},
+                {2, {HPEFFUSION, SPDTINCTURE, DEFTINCTURE, SPDEFFUSION}},
                 {5, {HPMPPOT}},
                 {1, {MINORHPMPPOT}},
                 {1, {MINORHPMPPOT}},
+            }
+        }
+    },
+    {
+        BARREL,
+        {
+            {
+                {99, {CHRONUSDIRK}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
+                {100, {HPMPPOT}},
             }
         }
     },
@@ -1647,6 +1667,7 @@ std::unordered_map<sprites, monsterSubGroups> spriteToMonsterSubGroups = {
     {PENTARACT, EVENTBOSS},
     {MYSTERIOUSCRYSTAL, EVENTBOSS},
     {CRYSTALPRISONER, EVENTBOSS},
+    {GRANDSPHINX, EVENTBOSS},
     {ABYSSTOWER, ABYSSTOWERSUBGROUP},
     {LEVIATHAN, GODLANDSGOD},
     {SOMMELIER, GORODNSENTIEL},
@@ -5094,7 +5115,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SHADE, {1800,0,0,55,0,0,0,0, SKELETONSHIT, SKELETONSDEATH}},
     {FLOATINGSKULL, {50,0,0,20,20,0,0,0, SKELETONSHIT,SKELETONSDEATH}},
     {POTCHEST, {100,0,0,75,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
-    {BARREL, {50000,0,0,200,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
+    {BARREL, {1,0,0,200,0,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
     {DUCKLING, {25,0,0,0,12,0,0,0, DEFAULTHIT, DEFAULTDEATH}},
 
     {MUMMY1, {500,0,0,8,22,0,0,0, MUMMIESHIT, MUMMIESDEATH}},
@@ -5556,7 +5577,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {HENCHDEMON1, {650,0,200}},
     {HENCHDEMON2, {650,0,200}},
     {ABYSSALSTARCHASE, {1000,0,100}},
-    {BABYBUTCHER, {750,0,128}},
+    {BABYBUTCHER, {1500,0,128}},
 };
 
 std::unordered_map<sprites, trapaidata> spritetotrap = {
