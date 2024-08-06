@@ -47,7 +47,11 @@ struct ProjectileComponent {
         statsusEffect(statsusEffect),
         SEdurationMS(SEdurationMS),
         ignoresDefense(ignoresDefense)
-        {} 
+        {
+            if(statsusEffect == 17 && inflictsStatusEffect){
+                std::cout << "projectile created w/ NULL_STATUS_EFFECT" << '\n'; 
+            }
+        } 
 };
 
 #endif

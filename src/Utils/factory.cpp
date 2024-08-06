@@ -78,7 +78,7 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
             } break;
             case GORDON2:{
                 interval = 1000;
-                amount = 1000;
+                amount = 1500;
             } break;
         } 
         if(parentId == -1){
@@ -710,6 +710,9 @@ void Factory::createLootAtDeath(Entity& monster, std::unique_ptr<Registry>& regi
             const auto& item = table.second[RNG.randomFromRange(0,table.second.size()-1)];
             createItemInBag(registry, item, lootbag);
             itemEnumToLootBagSpriteEnum.at(item) > bagsprite ? bagsprite = itemEnumToLootBagSpriteEnum.at(item) : bagsprite = bagsprite;
+        }
+        if(lbc.contents.size() == 8){ // this bag is now full
+            break;
         }
     }
     if(lbc.contents.size() > 0){
