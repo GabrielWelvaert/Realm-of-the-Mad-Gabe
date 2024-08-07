@@ -2836,7 +2836,7 @@ void Game::SpawnAreaEntities(wallTheme area){
 }
 
 void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar){ // after initialize and before actual game loop starts
-    keyboardinput->utilityKeys[T] = false; // autofire button reset when changing areas
+    
     if(currentArea == VAULT){ // just left vault, save it
         characterManager->SaveVaults(registry);
     }
@@ -2845,7 +2845,7 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
     auto numLivingEntities = registry->getNumberOfLivingEntities();
     if(numLivingEntities != 0){ // indication of something going very wrong and corrupting the engine (ex: killing non-existant entity). 
         // attempt to avoid crash caused by potential engine corruption
-        std::cout << "numLivingEntities in Setup after killAllEntities: " << numLivingEntities << '\n';    
+        // std::cout << "numLivingEntities in Setup after killAllEntities: " << numLivingEntities << '\n';    
         // registry->info();
         registry->HardReset();
     }
@@ -2904,17 +2904,28 @@ void Game::Setup(bool populate, bool mainmenus, wallTheme area, bool changeChar)
     SDL_UnlockTexture(mapveilptr);
     assetStore->AddTexture(renderer, MINIMAPVEIL, mapveilptr); // mapviel is destroyed if already exists in assetstore; no memory leak
     SDL_SetRenderTarget(renderer, nullptr);
+    if(keyboardinput->utilityKeys[T]){
+        player.GetComponent<isShootingComponent>().isShooting = true;
+    }
 }
 
 void Game::Update(){
     
     deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;    
     millisecsPreviousFrame = SDL_GetTicks(); // must be recorded after calculating deltaTime and optionally SDL_Delay()
-    // if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window
-    //     deltaTime = 0.0;
-    //     keyboardinput->movementKeys.reset();
-    //     keyboardinput->utilityKeys.reset();
-    // } 
+    if(deltaTime > .1){ // 10 FPS conditions. caused by moving game window or loading proc-gen dungeon. must be commented out for playing with valgrind!
+        bool t = keyboardinput->utilityKeys[T];
+        bool h = keyboardinput->utilityKeys[H];
+        deltaTime = 0.0;
+        keyboardinput->movementKeys.reset();
+        keyboardinput->utilityKeys.reset();
+        if(h){
+            keyboardinput->utilityKeys[H] = true;
+        }
+        if(t){
+            keyboardinput->utilityKeys[T] = true;
+        }
+    } 
 
     registry->Update();
     // const auto& playerpos = player.GetComponent<TransformComponent>().position;

@@ -118,12 +118,14 @@ void StatSystem::onDrinkConsumablePot(DrinkConsumableEvent& event){
             } else {
                 displayHealText(event.registry, player.GetComponent<TransformComponent>().position, 120, player);
             }
-            hpmp.activemp += 120;
-            if(hpmp.activemp > hpmp.maxmp){
-                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), player);
-                hpmp.activemp = hpmp.maxmp;
-            } else {
-                displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120, player);
+            if(!player.GetComponent<StatusEffectComponent>().effects[QUIET]){
+                hpmp.activemp += 120;
+                if(hpmp.activemp > hpmp.maxmp){
+                    displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120 - (static_cast<int>(hpmp.activemp) - static_cast<int>(hpmp.maxmp)), player);
+                    hpmp.activemp = hpmp.maxmp;
+                } else {
+                    displayMpHealText(event.registry, player.GetComponent<TransformComponent>().position, 120, player);
+                }
             }
         } break;
         case FLAMINGFLASK:{

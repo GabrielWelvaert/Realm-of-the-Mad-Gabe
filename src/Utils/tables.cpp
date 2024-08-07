@@ -409,7 +409,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY}}
             }
         }
     },
@@ -472,9 +472,9 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {100, {MANAPOT}},
                 {100, {MANAPOT}},
                 {2, {OGMUR}},
-                {20, {T5RING}},
-                {10, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best 
-                {1, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best
+                {25, {T5RING}},
+                {12, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best 
+                {2, {T14ARMOR, T14WEAPONS, T8ABILITIES}}, // best
                 {15, {T13ARMOR, T13WEAPONS, T7ABILITIES}},  // best-1
                 {2, {T13ARMOR, T13WEAPONS, T7ABILITIES}}, // best-1
                 {35, {T12ARMOR, T12WEAPONS, T6ABILITIES}}, // o2 tops 
@@ -562,7 +562,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY}}
+                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -583,7 +583,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY}}
+                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -604,7 +604,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY}}
+                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -625,7 +625,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {ATTPOT, DEXPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY}}
+                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -646,7 +646,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {DEFPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -667,7 +667,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY}}
             }
         }
     },
@@ -678,7 +678,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {2, {CHRONUSDIRK}}, // todo dirk of chronus
-                {6, {GORDONINCANTATION}},
+                {8, {GORDONINCANTATION}},
                 {10, {ABYSSKEY}},
                 {22, {T8WEAPONS}},
                 {22, {T8ARMOR}},
@@ -758,7 +758,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {100, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {2, {RETRIBUTIONCLOAK}},
-                {6, {GORDONINCANTATION}},
+                {8, {GORDONINCANTATION}},
                 {10, {ABYSSKEY}},
                 {22, {T8WEAPONS}},
                 {22, {T8ARMOR}},
@@ -789,7 +789,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         {
             {
                 {33, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
-                {1, {OREO}},
+                {1, {OREO, DEFPOT}},
                 {2, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {18, {T8WEAPONS}},
@@ -1221,7 +1221,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {2, {ABYSSKEY}}
+                {1, {ABYSSKEY}}
             }
         }
     },
@@ -1330,7 +1330,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1340,7 +1340,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1350,7 +1350,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1360,7 +1360,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1370,7 +1370,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {20, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T3ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1380,7 +1380,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {15, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1390,7 +1390,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
             {
                 {15, {HPMPPOT}},
                 {4, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1401,7 +1401,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {35, {HPMPPOT}},
                 {2, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -1412,7 +1412,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {35, {HPMPPOT}},
                 {4, {T8WEAPONS, T8ARMOR, T2RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
-                {1, {HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,HPMPPOT,DEMONBLADE}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DEMONBLADE}},
             }
         }
     },
@@ -2584,9 +2584,9 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T3TOME, {35,0,0,0,0,0,0,0}},
     {T4TOME, {50,0,0,0,0,0,0,0}},
     {T5TOME, {65,0,0,0,0,0,0,0}},
-    {T6TOME, {80+20,20,0,0,0,0,0,0}},
-    {T7TOME, {95+40,40,0,0,0,0,0,0}},
-    {T8TOME, {110+80,80,0,0,0,0,0,0}},
+    {T6TOME, {80+5,20,0,0,0,0,0,0}},
+    {T7TOME, {95+20,40,0,0,0,0,0,0}},
+    {T8TOME, {110+40,80,0,0,0,0,0,0}},
     {T0HELM, {0,0,0,2,0,0,0,0}},
     {T1HELM, {0,0,0,3,0,0,0,0}},
     {T2HELM, {0,0,0,4,0,0,0,0}},
@@ -2647,9 +2647,9 @@ std::unordered_map<items, BaseStatData> itemEnumToStatData = {
     {T3SKULL, {30,0,0,0,0,0,0,0}},
     {T4SKULL, {45,0,0,0,0,0,0,0}},
     {T5SKULL, {60,0,0,0,0,0,0,0}},
-    {T6SKULL, {75+20,20,0,0,0,0,0,0}},
-    {T7SKULL, {90+40,40,0,0,0,0,0,0}},
-    {T8SKULL, {105+80,80,0,0,0,0,0,0}},
+    {T6SKULL, {75+5,20,0,0,0,0,0,0}},
+    {T7SKULL, {90+10,40,0,0,0,0,0,0}},
+    {T8SKULL, {105+20,80,0,0,0,0,0,0}},
 
     {T0SEAL, {0,0,0,0,0,0,0,0}},
     {T1SEAL, {0,0,0,0,0,0,0,0}},
@@ -5510,7 +5510,7 @@ std::unordered_map<sprites, aiChaseData> spritesToaiChaseData{
     {YELLOWTURKEY, {600,0,100}},
     {CYANTURKEY, {600,0,100}},
     {SKELETON5, {750,0,1}},
-    {WHITEDEMON, {500, 0, 120}},
+    {WHITEDEMON, {650, 0, 120}},
     {ARCMAGE, {750, 0, 5}},
     {HELLHOUND,{600,400,50}}, 
     {IMP0,{600,0,95}},
