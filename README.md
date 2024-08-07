@@ -1,9 +1,9 @@
 **Reverse-Engineering of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) made with the goal of recreating the core mechanics of the game without the assistance of an external game engine or game engine library** 
 
 **Links**
- - **[Download to play here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
+ - **[Download To Play Here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
 
- - **[Release 2.0 trailer](https://www.youtube.com/watch?v=aP7Ju_zDels)**
+ - **[Release 2.0 Trailer](https://www.youtube.com/watch?v=aP7Ju_zDels)**
 
  - **[Rare Item Drop Guide](https://imgur.com/a/realm-of-mad-gabe-rdts-gmnasrx)**
 
