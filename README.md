@@ -29,7 +29,7 @@
       - *Mouse scroll* - Mini map zoom adjustment
 
 **Tips:**
-  - Your stats will increase as you level-up from gaining xp by slaying monsters
+  - Your stats will increase as you level-up from gaining xp by slaying monsters. 20 is the max level for your character, but you will still be able to increase your stats via stat-increase potions
   - Your characters and vault will save between sessions; use the vault to move items between characters
   - Scroll out entirely to view boss location(s); they are always visible if they're alive
   - If you're low HP in a dungeon, save your character by escaping to nexus
