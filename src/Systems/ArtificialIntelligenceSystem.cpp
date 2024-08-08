@@ -426,7 +426,7 @@ void OrbitMinionAISystem::Update(const Entity& player, std::unique_ptr<Registry>
         bool parentIsAlive = registry->entityIsAlive(mc.idOfParent, mc.creationIdOfParent);
         auto& velocity = entity.GetComponent<RidigBodyComponent>().velocity;
         auto& flip = entity.GetComponent<SpriteComponent>().flip;
-        if(!playerInvisible){
+        if(!playerInvisible && !entity.HasComponent<TowerComponent>()){
             playerPos.x <= position.x ? flip = SDL_FLIP_HORIZONTAL : flip = SDL_FLIP_NONE;    
         }
         auto& oc = entity.GetComponent<OrbitalMovementComponent>();
@@ -1926,13 +1926,13 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     case ASTAROTH:{ // geb
                                         // bombs at 3 random angles or targeting high damage bolt
                                         if(RNG.randomBool()){
-                                            for(int i = 0; i < 5; i++){ 
+                                            for(int i = 0; i < 3; i++){ 
                                                 glm::vec2 spawnPos, spawnPosUnscaled;
-                                                double distance = RNG.randomFromRange(100.0,500.0);
+                                                double distance = RNG.randomFromRange(10.0,500.0);
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
-                                                glm::vec2 target = {(transform->center.x + offsetX), (transform->center.y + offsetY)}; 
+                                                glm::vec2 target = {(playerPos.x + offsetX), (playerPos.y + offsetY)}; 
                                                 gebBomb(entity, target, registry, aidata->bossType, 80);
                                                 RESET_PROJECTILE_POINTERS
                                             }

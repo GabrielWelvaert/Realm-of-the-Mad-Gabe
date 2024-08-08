@@ -293,41 +293,87 @@ void StatSystem::onLevelUp(LevelUpEvent& event){
     auto& projectileRepeatFrequency = event.player.GetComponent<ProjectileEmitterComponent>().repeatFrequency;
     auto& frameSpeedRate = event.player.GetComponent<AnimationComponent>().frameSpeedRate;
 
-    unsigned char hpincrease = getStatLevelUpAmount(classname, HP); 
+    unsigned char hpincrease = getStatLevelUpAmount(classname, HP);
+    if(playerBaseStats.hp == getMaxStat(classname, HP)){
+        hpincrease = 0;
+    } 
     playerBaseStats.hp += hpincrease;
-    if(playerBaseStats.hp > getMaxStat(classname, HP)) playerBaseStats.hp = getMaxStat(classname, HP); 
+    if(playerBaseStats.hp > getMaxStat(classname, HP)){
+        hpincrease = playerBaseStats.hp - getMaxStat(classname, HP);
+        playerBaseStats.hp = getMaxStat(classname, HP); 
+    } 
     
     unsigned char mpincrease = getStatLevelUpAmount(classname, MP); 
+    if(playerBaseStats.mp == getMaxStat(classname, MP)){
+        mpincrease = 0;
+    }
     playerBaseStats.mp += mpincrease;
-    if(playerBaseStats.mp > getMaxStat(classname, MP)) playerBaseStats.mp = getMaxStat(classname, MP);
+    if(playerBaseStats.mp > getMaxStat(classname, MP)){
+        mpincrease = playerBaseStats.mp - getMaxStat(classname, MP);
+        playerBaseStats.mp = getMaxStat(classname, MP);
+    } 
     
     unsigned char attackincrease = getStatLevelUpAmount(classname, ATTACK);
+    if(playerBaseStats.attack == getMaxStat(classname, ATTACK)){
+        attackincrease = 0;
+    }
     playerBaseStats.attack += attackincrease;
-    if(playerBaseStats.attack > getMaxStat(classname, ATTACK)) playerBaseStats.attack = getMaxStat(classname, ATTACK);
+    if(playerBaseStats.attack > getMaxStat(classname, ATTACK)){
+        attackincrease = playerBaseStats.attack - getMaxStat(classname, ATTACK);
+        playerBaseStats.attack = getMaxStat(classname, ATTACK);  
+    } 
     
     unsigned char defincrease = getStatLevelUpAmount(classname, DEFENSE);
+    if(playerBaseStats.defense == getMaxStat(classname, DEFENSE)){
+        defincrease = 0;
+    }
     if(classname == KNIGHT){
         playerBaseStats.defense += defincrease;
         if(playerBaseStats.defense > getMaxStat(classname, DEFENSE)){
+            defincrease = playerBaseStats.defense - getMaxStat(classname, DEFENSE);
             playerBaseStats.defense = getMaxStat(classname, DEFENSE);
         }
     }
 
     unsigned char speedincrease = getStatLevelUpAmount(classname, SPEED); 
+    if(playerBaseStats.speed == getMaxStat(classname, SPEED)){
+        speedincrease = 0;
+    }
     playerBaseStats.speed += speedincrease;
-    if(playerBaseStats.speed > getMaxStat(classname, SPEED)) playerBaseStats.speed = getMaxStat(classname, SPEED);
+    if(playerBaseStats.speed > getMaxStat(classname, SPEED)){
+        speedincrease = playerBaseStats.speed - getMaxStat(classname, SPEED);
+        playerBaseStats.speed = getMaxStat(classname, SPEED);
+    } 
     
     unsigned char dexterityincrease = getStatLevelUpAmount(classname, DEXTERITY); 
+    if(playerBaseStats.dexterity == getMaxStat(classname, DEXTERITY)){
+        dexterityincrease = 0;
+    }
     playerBaseStats.dexterity += dexterityincrease;
-    if(playerBaseStats.dexterity > getMaxStat(classname, DEXTERITY)) playerBaseStats.dexterity = getMaxStat(classname, DEXTERITY);
-    
+    if(playerBaseStats.dexterity > getMaxStat(classname, DEXTERITY)){
+        dexterityincrease = playerBaseStats.dexterity - getMaxStat(classname, DEXTERITY);
+        playerBaseStats.dexterity = getMaxStat(classname, DEXTERITY);
+    }
+
     unsigned char vitalityincrease = getStatLevelUpAmount(classname, VITALITY); 
+    if(playerBaseStats.vitality == getMaxStat(classname, VITALITY)){
+        vitalityincrease = 0;
+    }
     playerBaseStats.vitality += vitalityincrease;
-    if(playerBaseStats.vitality > getMaxStat(classname, VITALITY)) playerBaseStats.vitality = getMaxStat(classname, VITALITY);
+    if(playerBaseStats.vitality > getMaxStat(classname, VITALITY)){
+        vitalityincrease = playerBaseStats.vitality - getMaxStat(classname, VITALITY);
+        playerBaseStats.vitality = getMaxStat(classname, VITALITY);
+    } 
     
     unsigned char wisdomincrease = getStatLevelUpAmount(classname, WISDOM); 
+    if(playerBaseStats.wisdom == getMaxStat(classname, WISDOM)){
+        wisdomincrease = 0;
+    }
     playerBaseStats.wisdom += wisdomincrease;
-    if(playerBaseStats.wisdom > getMaxStat(classname, WISDOM)) playerBaseStats.wisdom = getMaxStat(classname, WISDOM);
+    if(playerBaseStats.wisdom > getMaxStat(classname, WISDOM)){
+        wisdomincrease = playerBaseStats.wisdom - getMaxStat(classname, WISDOM);
+        playerBaseStats.wisdom = getMaxStat(classname, WISDOM);
+    }
 
     playerBaseStats.level += 1;
     

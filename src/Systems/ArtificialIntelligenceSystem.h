@@ -426,7 +426,7 @@ class BossAISystem: public System{
             const auto& center = boss.GetComponent<TransformComponent>().center;
             constexpr projectilePPD data = {ICESHOT};
             glm::vec2 originVelocity;
-            float rotationDegrees = getRotationFromCoordiante(700, center.x, center.y, target.x, target.y, originVelocity, true);
+            float rotationDegrees = getRotationFromCoordiante(800, center.x, center.y, target.x, target.y, originVelocity, true);
             // odd number of shots, so must shoot one at origin
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(originVelocity);
@@ -442,7 +442,7 @@ class BossAISystem: public System{
             const auto& center = boss.GetComponent<TransformComponent>().center;
             constexpr projectilePPD data = {LONGGREENFIREBOLT};
             glm::vec2 originVelocity;
-            float rotationDegrees = getRotationFromCoordiante(500, center.x, center.y, target.x, target.y, originVelocity);
+            float rotationDegrees = getRotationFromCoordiante(800, center.x, center.y, target.x, target.y, originVelocity);
             // odd number of shots, so must shoot one at origin
             Entity projectile = registry->CreateEntity();
             projectile.AddComponent<RidigBodyComponent>(originVelocity);
