@@ -415,6 +415,7 @@ void Game::ProcessInput(){
                     // player.GetComponent<PlayerItemsComponent>().KillPlayerItems();
                     registry->killAllEntities();
                     registry->GetSystem<RenderSystem>().Update(renderer, assetStore, camera, registry);
+                    keyboardinput->movementKeys.reset();
                     Setup(false, true, NEXUS, true);
                 } break;
                 case EASTEREGG:{

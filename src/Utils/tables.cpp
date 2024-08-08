@@ -811,7 +811,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {25, {ATTPOT, DEFPOT, SPDPOT, DEXPOT, WISPOT, VITPOT}},
                 {10, {MITHRILSWORD}},
                 {10, {BOOMERANGWAND}},
-                {10, {ATTACKPENDANT}},
+                {10, {ATTACKPENDANT, T9WEAPONS, T9ARMOR}},
                 {2, {CRYSTALWAND}},
                 {6, {GORDONINCANTATION}},
                 {4, {ABYSSKEY}}
