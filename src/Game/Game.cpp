@@ -308,18 +308,19 @@ void Game::ProcessInput(){
                         } break;
                         case SDLK_EQUALS:{
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;
-                            // player.GetComponent<BaseStatComponent>().xp += 10000;
-                            // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
+                            // // player.GetComponent<BaseStatComponent>().xp += 10000;
+                            // // factory->spawnMonster(registry, playerPos, TINYREDCHICKEN);
                             // glm::vec2 spawnpoint = {mouseX + camera.x, mouseY + camera.y};
                             // Entity lootbag = factory->creatLootBag(registry, spawnpoint, WHITELOOTBAG);
-                            // factory->createItemInBag(registry, JUGGHELM, lootbag);
-                            // factory->createItemInBag(registry, DEMONBLADE, lootbag);
+                            // factory->createItemInBag(registry, DOOMBOW, lootbag);
+                            // factory->createItemInBag(registry, ADMINCROWN, lootbag);
                             // factory->createItemInBag(registry, ATTACKPENDANT, lootbag);
                             // factory->createItemInBag(registry, T13HEAVYARMOR, lootbag);
                             // factory->createItemInBag(registry, CRYSTALWAND, lootbag);
                             // factory->createItemInBag(registry, T7TOME, lootbag);
                             // factory->createItemInBag(registry, T14WAND, lootbag);
                             // factory->createItemInBag(registry, RINGOFAMDUSCIAS, lootbag);
+                            // factory->spawnMonster(registry, spawnpoint, HELLGOLEM);
                         } break;
                         case SDLK_BACKSPACE:{
                             // const auto& playerPos = player.GetComponent<TransformComponent>().position;

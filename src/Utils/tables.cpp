@@ -872,6 +872,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T1RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -887,6 +888,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -902,6 +904,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -918,6 +921,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T1RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -934,6 +938,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -950,6 +955,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -967,6 +973,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {2, {T2RING}},
                 {5, {HPMPPOT}},
                 {2, {T3WEAPONS}},
+                {1, {HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,HPPOT,DOOMBOW}},
             }
         }
     },
@@ -1225,7 +1232,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {50, {HPMPPOT}},
                 {5, {MINORHPMPPOT}},
                 {10, {T4ABILITIES}},
-                {2, {ABYSSKEY}},
+                {1, {ABYSSKEY}},
                 {2, {GORDONINCANTATION}}
             }
         }
@@ -1246,7 +1253,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         AMDUSCIAS,
         {
             {
-                {7, {GORDONINCANTATION}},
+                {5, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFAMDUSCIAS}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
@@ -1266,7 +1273,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ASTAROTH,
         {
             {
-                {7, {GORDONINCANTATION}},
+                {5, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFASTAROTH}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
@@ -1286,7 +1293,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         ABIGOR,
         {
             {
-                {7, {GORDONINCANTATION}},
+                {5, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFABIGOR}},
                 {100, {LIFEPOT}},
@@ -1408,8 +1415,8 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
         HELLGOLEM,
         {
             {
-                {40, {HPMPPOT}},
-                {10, {T8WEAPONS, T8ARMOR, T4RING, T4ABILITIES}},
+                {50, {HPMPPOT}},
+                {10, {T8WEAPONS, T8ARMOR, T3RING, T4ABILITIES}},
                 {2, {HPMPPOT}},
                 {1, {T9WEAPONS}}
             }
@@ -3104,6 +3111,7 @@ std::unordered_map<items, textureEnums> itemToIconTexture = {
     {T5DEXRING, T5DEXRINGICON},
     {T5WISRING, T5WISRINGICON},
     {T5VITRING, T5VITRINGICON},
+    {DOOMBOW, DOOMBOWICON},
 };
 
 std::unordered_map<items, const char *> itemToName = {
@@ -3125,6 +3133,7 @@ std::unordered_map<items, const char *> itemToName = {
     {DEMONBLADE, "Demon Blade (UT)"},
     {T0BOW, "Shortbow (T0)"},
     {T1BOW, "Reinforced Bow (T1)"},
+    {DOOMBOW, "Doom Bow"},
     {T2BOW, "Crossbow (T2)"},
     {T3BOW, "Greywood Bow (T3)"},
     {T4BOW, "Ironwood Bow (T4)"},
@@ -3431,6 +3440,7 @@ std::unordered_map<items, const char *> itemToDescription = {
     {T14SWORD, "A gleaming obsidian sword of imperial power, fashioned by enslaved demons for the personal use of a world-conquering leader of mortals"},
     {DEMONBLADE, "A swift and hungry blade that is never satisfied with just one kill"},
     {T0BOW, "A well-made shortbow"},
+    {DOOMBOW, "A dreaded bow that excels againts high-defense enemies. It requires tremendous skill to wield"},
     {T1BOW, "An iron-reinforced bow"},
     {T2BOW, "A bow mounted on a stock that shoots with amazing speed and accuracy"},
     {T3BOW, "A bow made from the rare greywood tree"},
@@ -3798,6 +3808,7 @@ std::unordered_map<items, groups> itemToGroup = {
     {DEMONBLADE, SWORD},
     {T0BOW, BOW},
     {T1BOW, BOW},
+    {DOOMBOW, BOW},
     {T2BOW, BOW},
     {T3BOW, BOW},
     {T4BOW, BOW},
@@ -4106,6 +4117,7 @@ std::unordered_map<items, sprites> itemEnumToLootBagSpriteEnum = {
     {DEMONBLADE, WHITELOOTBAG},
     {T0BOW, BROWNLOOTBAG},
     {T1BOW, BROWNLOOTBAG},
+    {DOOMBOW, WHITELOOTBAG},
     {T2BOW, BROWNLOOTBAG},
     {T3BOW, BROWNLOOTBAG},
     {T4BOW, BROWNLOOTBAG},
@@ -4410,6 +4422,7 @@ std::unordered_map<items, spritedata> itemEnumTospriteData = {
     {DEMONBLADE, {LOFIOBJ2, 8, 8, {8*9, 8*6, 8, 8}, 12, true, false}},
     {T0BOW, {LOFIOBJ5, 8, 8, {8*0, 8*5, 8, 8}, 12, true, false}},
     {T1BOW, {LOFIOBJ5, 8, 8, {8*1, 8*5, 8, 8}, 12, true, false}},
+    {DOOMBOW, {LOFIOBJ2, 8, 8, {8*10, 8*6, 8, 8}, 12, true, false}},
     {T2BOW, {LOFIOBJ5, 8, 8, {8*2, 8*5, 8, 8}, 12, true, false}},
     {T3BOW, {LOFIOBJ5, 8, 8, {8*3, 8*5, 8, 8}, 12, true, false}},
     {T4BOW, {LOFIOBJ5, 8, 8, {8*4, 8*5, 8, 8}, 12, true, false}},
@@ -4672,6 +4685,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T12BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 50, 70, 3, 24.0f, BLUEARROW}},
     {T13BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 55, 75, 3, 24.0f, YELLOWARROW}},
     {T14BOW, {BITS_DIAGONAL_PIERCE,440, 1024, 60, 80, 3, 24.0f, BLACKARROW}}, 
+    {DOOMBOW, {BITS_DIAGONAL_PIERCE,503, 896, 120, 150, 1, 0.0f, BLACKARROW}}, 
 
     {T0WAND, {BITS_NONE, 832, 770, 20, 40, 1, 0.0f, REDMAGIC}},
     {T1WAND, {BITS_NONE, 832, 770, 30, 50, 1, 0.0f, BLUEMAGIC}},
@@ -4861,7 +4875,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {SKELETON3, {BITS_DIAGONAL, 1000, 750, 1000, 20, 3, 18.0f, PINKBOLT}},
     {SKELETON4, {BITS_DIAGONAL, 150, 500, 500, 25, 1, 0.0f, REDBOLT}},
 
-    {REDKNIGHT0, {BITS_ROTATING, 300, 500, 200, 50, 1, 0.0f, REDCIRCLEMAGIC}},
+    {REDKNIGHT0, {BITS_ROTATING, 500, 350, 1500, 50, 1, 0.0f, REDCIRCLEMAGIC}},
     {SHATTERSBOMB, {BITS_DIAGONAL, 0, 750, 250, 25, 24, 360.0f, REDSHARD}},
     {TINYWHITECHICKEN, {BITS_NONE, 500, 450, 400, 8, 1, 0.0f, BLADE}},
     {TINYREDCHICKEN, {BITS_NONE, 500, 500, 450, 8, 1, 0.0f, BLADE}},
@@ -4959,9 +4973,9 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
 
     {ABYSSTOWER, {BITS_NONE, 1000, 600, 600, 0, 0, 0.0f, DARKBLUEMAGIC}},
     
-    {TRIPDEMON, {BITS_NONE, 500, 600, 600, 50, 3, 30.0f, BLACKMAGIC}},
+    {TRIPDEMON, {BITS_IGNOREDEF, 500, 600, 600, 20, 3, 30.0f, BLACKMAGIC}},
     {AMDUSCIAS, {BITS_DIAGONAL, 1000, 620, 2000, 120, 0, 360.0f, BLACKBOLT}}, // nut
-    {ASTAROTH, {BITS_DIAGONAL, 1000, 600, 2000, 200, 0, 360.0f, BLACKBOLT}}, // geb 
+    {ASTAROTH, {BITS_DIAGONAL, 1000, 666, 2000, 200, 0, 360.0f, BLACKBOLT}}, // geb 
     {ABIGOR, {BITS_DIAGONAL, 1000, 484, 2000, 180, 0, 70.0f, BLACKBOLT}}, // bes
                     //RF, speed, duration, damage, numshots, arcgap
     {LEVIATHAN, {BITS_DIAGONAL, 250, 650, 1300, 50, 2, 5.0f, BLUEMISSILE}},
@@ -4972,7 +4986,7 @@ std::unordered_map<sprites, enemyPECData> spriteEnumToPEC = {
     {BRUTE1, {BITS_IGNOREDEF, 500, 600, 500, 20, 3, 30.0f, REDMAGIC}},
     {GREENBRUTE0, {BITS_IGNOREDEF, 500, 600, 500, 20, 3, 30.0f, GREENMAGIC}},
     {GREENBRUTE1, {BITS_IGNOREDEF, 500, 600, 500, 20, 3, 30.0f, GREENMAGIC}},
-    {HELLGOLEM, {BITS_NONE, 250, 600, 800, 0, 0, 0.0f, GREENMAGIC}},
+    {HELLGOLEM, {BITS_IGNOREDEF_ROTATE, 250, 500, 1500, 50, 1, 0.0f, FIREBALL}},
 
     {ABYSSALSTAR, {BITS_NONE, 1000, 600, 600, 35, 3, 30.0f, BLACKMAGIC}},
     {DRAGONEGG, {BITS_NONE, 0, 0, 0, 0, 0, 0.0f, BLACKMAGIC}},
@@ -5014,7 +5028,7 @@ std::unordered_map<sprites, statData> spriteEnumToStatData = {
     {SKELETON2, {450,1,1,15,20,1,20,1,SKELETONSHIT,SKELETONSDEATH}},
     {SKELETON3, {350,1,1,5,0,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //mage
     {SKELETON4, {500,1,1,15,35,1,50,1,SKELETONSHIT,SKELETONSDEATH}}, //king
-    {REDKNIGHT0, {1000,1,1,40,20,1,30,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
+    {REDKNIGHT0, {1000,1,1,40,2,1,30,1, REDKNIGHTHIT, REDKNIGHTDEATH}},
     {SHATTERSBOMB, {0,0,0,0,0,0,0,0,WOODENWALLSHIT,WOODENWALLSDEATH}},
 
     {TINYWHITECHICKEN, {80,0,0,3,10,0,0,0,CHICKENHIT,CHICKENDEATH}},

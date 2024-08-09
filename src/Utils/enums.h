@@ -317,6 +317,7 @@ enum items{
     T5DEXRING,
     T5WISRING,
     T5VITRING,
+    DOOMBOW,
     /*all entries MUST be made exactly above this line- do not add to front*/
     TOTAL_NUMBER_OF_ITEMS
 };
@@ -767,6 +768,7 @@ enum monsterSubGroups{
     EVENTBOSS,
     ABYSSTOWERSUBGROUP,
     GORODNSENTIEL,
+    ABYSSBOSSSPAWN
 };
 enum groups{
     MONSTER,
@@ -1188,6 +1190,7 @@ enum textureEnums{
     T5DEXRINGICON,
     T5WISRINGICON,
     T5VITRINGICON,
+    DOOMBOWICON,
 };
 
 enum randomChaseStates{
