@@ -1908,14 +1908,15 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                 switch(aidata->bossType){
                                     case AMDUSCIAS:{ // nut 
                                         // spawn chasing eye or shoot paralyzing bolt
-                                        if(RNG.randomFromRange(0,4) == 0){
+                                        if(registry->numEntitiesPerMonsterSubGroup(ABYSSBOSSSPAWN) < 30 && RNG.randomFromRange(0,4) == 0){
                                             for(int i = 0; i < 3; i++){
                                                 double distance = RNG.randomFromRange(25.0,125.0);
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
                                                 glm::vec2 spawnPos = {(transform->center.x + offsetX), (transform->center.y + offsetY)};
-                                                factory->spawnMonster(registry, spawnPos, ABYSSALSTARCHASE);
+                                                Entity star = factory->spawnMonster(registry, spawnPos, ABYSSALSTARCHASE);
+                                                star.monsterSubGroup(ABYSSBOSSSPAWN);
                                                 ABYSS_RESET_ALL
                                             }
                                         } else {
@@ -1946,14 +1947,15 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     case ABIGOR:{ // bes 
                                         // bleeding star or spawn 2-5 brutes
                                         constexpr std::array<sprites, 2> brutes = {BRUTE0, BRUTE1};
-                                        if(RNG.randomFromRange(0,4) == 0){
+                                        if(registry->numEntitiesPerMonsterSubGroup(ABYSSBOSSSPAWN) < 30 && RNG.randomFromRange(0,4) == 0){
                                             for(int i = 0; i < 3; i++){
                                                 double distance = RNG.randomFromRange(25.0,125.0);
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                                 float offsetX = distance * glm::cos(randomAngle); 
                                                 float offsetY = distance * glm::sin(randomAngle);
                                                 glm::vec2 spawnPos = {(transform->center.x + offsetX), (transform->center.y + offsetY)};
-                                                factory->spawnMonster(registry, spawnPos, brutes[RNG.randomFromRange(0,1)]);
+                                                Entity brute = factory->spawnMonster(registry, spawnPos, brutes[RNG.randomFromRange(0,1)]);
+                                                brute.monsterSubGroup(ABYSSBOSSSPAWN);
                                                 ABYSS_RESET_ALL
                                             }
                                         } else {
