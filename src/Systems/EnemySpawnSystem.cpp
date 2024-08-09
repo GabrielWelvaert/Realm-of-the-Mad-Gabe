@@ -115,7 +115,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                     Entity spawnedEntity;
                     if(RNG.randomFromRange(1,chanceOfEventBoss) <= 1 && !firstSpawn && !spawnedEventBossThisFrame && numEventBosses < 3){ // spawn event god
                         sprites eventBoss = eventBosses[RNG.randomFromRange(0, eventBosses.size()-1)];
-                        Entity boss = spawnedEntity = factory->spawnMonster(registry, realSpawnPos, eventBoss);
+                        spawnedEntity = factory->spawnMonster(registry, realSpawnPos, eventBoss);
                         if(eventBoss != PENTARACT){
                             bosses.push_back({spawnedEntity.GetId(), spawnedEntity.GetCreationId()});    
                         }
