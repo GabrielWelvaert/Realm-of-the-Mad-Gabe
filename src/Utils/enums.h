@@ -763,14 +763,14 @@ enum tags{
 
 };
 
-enum monsterSubGroups{
+enum monsterSubGroups{ // beware a monster may only belong to ONE monsterSubGroup 
     GODLANDSGOD,
     EVENTBOSS,
     ABYSSTOWERSUBGROUP,
     GORODNSENTIEL,
-    ABYSSBOSSSPAWN
+    ABYSSBOSSSPAWN,
 };
-enum groups{
+enum groups{ // beware an entity may only belong to ONE group
     MONSTER,
     PROJECTILE,
     WALLBOX,

@@ -8,19 +8,38 @@ EnemySpawnSystem::EnemySpawnSystem(){
 // currently only works for godlands, because it is the only place it is used
 void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
-    int chanceOfEventBoss = 50;
-    const auto& playerHPMP = player.GetComponent<HPMPComponent>();
-    auto playerHealthPercent = playerHPMP.activehp / playerHPMP.maxhp;
     for(auto& entity: GetSystemEntities()){
         auto& esc = entity.GetComponent<EnemySpawnerComponent>();
         // switch-case area can go here if this system is used in other areas in the future
         if(time >= 3000 + esc.lastSpawnTime){ // spawn monsters every X ms
+            int chanceOfEventBoss = 50;
+            const auto& playerHPMP = player.GetComponent<HPMPComponent>();
+            auto playerHealthPercent = playerHPMP.activehp / playerHPMP.maxhp;
             auto numGodLandsGods = registry->numEntitiesPerMonsterSubGroup(GODLANDSGOD);
             auto numEventBosses = registry->numEntitiesPerMonsterSubGroup(EVENTBOSS);
             const auto& room = esc.spawnRoom;
             esc.lastSpawnTime = time; // we will still wait a little until trying again regardless of whether monsters are spawned this frame
             if(numGodLandsGods + numEventBosses >= esc.maxMonsters){ // at monster capacity, exit function
                 return; 
+            }
+            bool playerIsNearPentaract = false;
+            if(numEventBosses > 0){ // if the player is fighting a pentaract we must nerf god spawns so the fight is not impossible
+                const auto& eventBosses = registry->allEntitesFromMonsterSubGroup(EVENTBOSS);
+                std::unordered_set<int> pentaracts;
+                for(const auto& id: eventBosses){
+                    if(registry->HasComponent<BossAIComponent>(id)){
+                        if(registry->GetComponent<BossAIComponent>(id).bossType == PENTARACT){
+                            pentaracts.insert(id);
+                        }
+                    }
+                }
+                for(const auto& id: pentaracts){
+                    const auto& pentaractTransform = registry->GetComponent<TransformComponent>(id);
+                    if(glm::distance(playerPos, pentaractTransform.position) < 1500.0f){
+                        playerIsNearPentaract = true;
+                        break;
+                    }
+                }
             }
 
             // if there are any gods, move 0-3 far ones closer to player
@@ -34,7 +53,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                         if(registry->GetComponent<DistanceToPlayerComponent>(id).distanceToPlayer > distanceToMove){
                             glm::vec2 spawnPos, spawnPosUnscaled;
                             do{
-                                double distance = RNG.randomFromRange(1000.0,2000.0);
+                                double distance = RNG.randomFromRange(1150.0,2000.0);
                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
                                 float offsetX = distance * glm::cos(randomAngle); 
                                 float offsetY = distance * glm::sin(randomAngle);
@@ -57,7 +76,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
             int numMonstersSpawnedThisFrame = 0;
             switch(numEventBosses){
                 case 0:{
-                    chanceOfEventBoss = 50; 
+                    chanceOfEventBoss = 50; // turn back to 50
                 } break;
                 case 1:{
                     chanceOfEventBoss = 250;
@@ -77,10 +96,13 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
 
             while(numMonstersSpawnedThisFrame + numGodLandsGods + numEventBosses <= esc.maxMonsters){
                 // spawn monster some distance away from player
-                double distance = RNG.randomFromRange(1250.0,2250.0);
+                double distance = RNG.randomFromRange(1000.0,2000.0);
                 double distanceMod;
-                if(firstSpawn){ // only for the first spawning, spawn them further
+                if(firstSpawn || playerIsNearPentaract){ // spawn them further
                     distanceMod = RNG.randomFromRange(1.5,2.0);
+                    distance *= distanceMod;
+                } else if (playerIsNearPentaract){
+                    distanceMod = RNG.randomFromRange(1.25,1.5);
                     distance *= distanceMod;
                 }
                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);
