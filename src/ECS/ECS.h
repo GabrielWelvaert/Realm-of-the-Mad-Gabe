@@ -16,8 +16,8 @@
 #include "../Components/TransformComponent.h"
 #include <type_traits>
 
-const unsigned int MAX_COMPONENTS = 64; //max componenets for an entity
-typedef std::bitset<MAX_COMPONENTS> Signature; //32 0's or 1's representing component signature for an entity/system
+const unsigned int MAX_COMPONENTS = 128; // max componenets for an entity
+typedef std::bitset<MAX_COMPONENTS> Signature; // 0's and 1's representing component signature for an entity/system
 
 struct IComponent{
     protected:
