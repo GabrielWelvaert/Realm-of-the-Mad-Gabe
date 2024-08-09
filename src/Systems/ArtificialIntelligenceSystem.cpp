@@ -1713,7 +1713,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                 auto * hoc = &entity.GetComponent<HealOtherComponent>();
                 auto time = SDL_GetTicks();
                 constexpr int amdusciasNumShots = 10; // nut inspired
-                constexpr int astarothNumShots = 5; // geb inspired
+                constexpr int astarothNumShots = 7; // geb inspired
                 constexpr int abigorNumShots = 7; // bes inspired
                 constexpr float orbitalDistanceFromRoomCenter = 400.0f;
                 constexpr float orbitalDistanceFromBeneficiary = 150.0f;
@@ -1926,7 +1926,7 @@ void BossAISystem::Update(const Entity& player, std::unique_ptr<AssetStore>& ass
                                     case ASTAROTH:{ // geb
                                         // bombs at 3 random angles or targeting high damage bolt
                                         if(RNG.randomBool()){
-                                            for(int i = 0; i < 3; i++){ 
+                                            for(int i = 0; i < 5; i++){ 
                                                 glm::vec2 spawnPos, spawnPosUnscaled;
                                                 double distance = RNG.randomFromRange(10.0,500.0);
                                                 float randomAngle = glm::linearRand(0.0f, 6.2831855f);

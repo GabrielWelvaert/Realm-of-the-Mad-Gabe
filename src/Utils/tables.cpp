@@ -405,7 +405,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY, HPPOT}}
             }
         }
     },
@@ -516,7 +515,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY, HPPOT}}
             }
         }
     },
@@ -537,7 +535,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY, HPPOT}}
             }
         }
     },
@@ -558,7 +555,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -579,7 +575,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -600,7 +595,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -621,7 +615,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -642,7 +635,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY,HPPOT}}
             }
         }
     },
@@ -663,7 +655,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY, HPPOT}}
             }
         }
     },
@@ -1219,7 +1210,6 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {1, {T3RING}},
                 {5, {SPDPOT, DEXPOT, ATTPOT, DEFPOT}},
                 {10, {HPMPPOT}},
-                {1, {ABYSSKEY, HPPOT}}
             }
         }
     },
@@ -1260,7 +1250,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {3, {ABYSSKEY}},
                 {2, {RINGOFAMDUSCIAS}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
-                {100, {LIFEPOT, MANAPOT}},
+                {100, {MANAPOT}},
                 {100, {WISPOT}},
                 {15, {T4RING}},
                 {15, {T5ABILITIES}},
@@ -1299,7 +1289,7 @@ std::unordered_map<sprites, ItemTableComponentData> spriteEnumToItemTableCompone
                 {7, {GORDONINCANTATION}},
                 {3, {ABYSSKEY}},
                 {2, {RINGOFABIGOR}},
-                {100, {LIFEPOT, MANAPOT}},
+                {100, {LIFEPOT}},
                 {100, {VITPOT}},
                 {2, {DOOMQUIVER, CURLYWHIRLYSPELL, ELECTRICSKULL, TRIPLESCEPTER}},
                 {15, {T4RING}},
@@ -5693,12 +5683,12 @@ std::unordered_map<sprites, secondaryPECdata> spriteToSPECRepeatFreq = {
 std::unordered_map<sprites, minionSpawnerData> spriteToMinionSpawnerData = {
     // monsterToSpawn, maxMinions, respawnInterval 
     {SPRITEGOD, {{SPRITEMINION}, 5, 10000, false}}, // change back to 5, 10000
-    {CUBEGOD, {{ORANGECUBE}, 3, 30000, false}}, // should respawn every 30,000 for production
+    {CUBEGOD, {{ORANGECUBE}, 3, 35000, false}}, // should respawn every 30,000 for production
     {ORANGECUBE, {{YELLOWCUBE}, 2, 30000, false}},
     {YELLOWCUBE, {{CYANCUBE}, 3, 30000, false}},
-    {SKULLSHRINE, {{REDFLAMINGSKULL,BLUEFLAMINGSKULL}, 25, 30000, false}}, 
+    {SKULLSHRINE, {{REDFLAMINGSKULL,BLUEFLAMINGSKULL}, 25, 35000, false}}, 
     {PENTARACTTOWER, {{PENTARACTEYE}, 7, 20000, false}},
-    {PENTARACT, {{PENTARACTTOWER}, 5, 30000, false}},
+    {PENTARACT, {{PENTARACTTOWER}, 5, 42500, false}},
     {CRYSTALPRISONER, {{CRYSTALSTEED}, 3, 20000, false}}, 
     {GRANDSPHINX, {{HORRIDREAPER1, HORRIDREAPER2}, 5, 20000, false}}, 
     {CULTIST, {{REAPER}, 1, 1, true}},
@@ -5733,7 +5723,17 @@ std::unordered_map<sprites, travelDistanceData> spriteToMinionTravelDistanceData
 };
 
 std::unordered_set<sprites> hasDeathAction = {
-    PENTARACT, MYSTERIOUSCRYSTAL, CHICKENEGG, BROWNSLIMELARGE, BROWNSLIMEMEDIUM, BLACKSLIMELARGE, BLACKSLIMEMEDIUM, SIMBA, DRAGONEGG, SMALLDRAGON, MEDIUMDRAGON, MALPHAS, ABYSSTOWER, GORDON
+    PENTARACT, MYSTERIOUSCRYSTAL, CHICKENEGG, BROWNSLIMELARGE, BROWNSLIMEMEDIUM, BLACKSLIMELARGE, BLACKSLIMEMEDIUM, SIMBA, DRAGONEGG, SMALLDRAGON, MEDIUMDRAGON, MALPHAS, ABYSSTOWER, GORDON,
+    SPRITEGOD, 
+    MEDUSA, 
+    DJINN,
+    ENTGOD,
+    BEHOLDER,
+    FLYINGBRAIN,
+    SLIMEGOD,
+    GHOSTGOD,
+    WHITEDEMON,
+    LEVIATHAN,
 };
 
 std::vector<sprites> chickens = {

@@ -101,6 +101,23 @@ void DeathActionSystem::Update(std::unique_ptr<Factory>& factory, std::unique_pt
                         factory->spawnMonster(registry, spawnPos, POTCHEST);
                     }
                 } break;
+                case SPRITEGOD: 
+                case MEDUSA: 
+                case DJINN:
+                case ENTGOD:
+                case BEHOLDER:
+                case FLYINGBRAIN:
+                case SLIMEGOD:
+                case GHOSTGOD:
+                case WHITEDEMON:
+                case LEVIATHAN:{ // godlands bosses have a chance to spawn a portal to the abyss
+                    if(RNG.randomFromRange(1,200) == 1){
+                        const auto& t = entity.GetComponent<TransformComponent>();
+                        const auto& s = entity.GetComponent<SpriteComponent>();
+                        glm::vec2 spawnpoint = {(t.position.x + (s.width * t.scale.x / 2) - 20), (t.position.y + (s.height * t.scale.y / 2) - 20) + 64.0f};
+                        factory->spawnPortal(registry, spawnpoint, ABYSS);
+                    }
+                } break;
             }
         }
     }

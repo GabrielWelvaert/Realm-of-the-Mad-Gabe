@@ -8,7 +8,9 @@ EnemySpawnSystem::EnemySpawnSystem(){
 // currently only works for godlands, because it is the only place it is used
 void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
-    float chanceOfEventBoss = 2;
+    int chanceOfEventBoss = 50;
+    const auto& playerHPMP = player.GetComponent<HPMPComponent>();
+    auto playerHealthPercent = playerHPMP.activehp / playerHPMP.maxhp;
     for(auto& entity: GetSystemEntities()){
         auto& esc = entity.GetComponent<EnemySpawnerComponent>();
         // switch-case area can go here if this system is used in other areas in the future
@@ -55,17 +57,27 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
             int numMonstersSpawnedThisFrame = 0;
             switch(numEventBosses){
                 case 0:{
-                    chanceOfEventBoss = 2; 
+                    chanceOfEventBoss = 50; 
                 } break;
-                case 1:
+                case 1:{
+                    chanceOfEventBoss = 250;
+                } break;
                 case 2:{
-                    chanceOfEventBoss = 1; 
+                    chanceOfEventBoss = 500; 
                 } break;
+                case 3:{
+                    chanceOfEventBoss = 1000;
+                } break;
+            }
+
+            int chancePotChest = 50;
+            if(playerHealthPercent <= .25){
+                chancePotChest = 25;
             }
 
             while(numMonstersSpawnedThisFrame + numGodLandsGods + numEventBosses <= esc.maxMonsters){
                 // spawn monster some distance away from player
-                double distance = RNG.randomFromRange(1000.0,2000.0);
+                double distance = RNG.randomFromRange(1250.0,2250.0);
                 double distanceMod;
                 if(firstSpawn){ // only for the first spawning, spawn them further
                     distanceMod = RNG.randomFromRange(1.5,2.0);
@@ -79,7 +91,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                 // spawn monster if its not outside of the room 
                 if(spawnPosUnscaled.x > room.x + 4 && spawnPosUnscaled.x < room.x + room.w - 4 && spawnPosUnscaled.y > room.y + 4 && spawnPosUnscaled.y < room.y + room.h - 4){
                     Entity spawnedEntity;
-                    if(RNG.randomFromRange(1,100) <= chanceOfEventBoss && !firstSpawn && !spawnedEventBossThisFrame && numEventBosses < 3){ // spawn event god
+                    if(RNG.randomFromRange(1,chanceOfEventBoss) <= 1 && !firstSpawn && !spawnedEventBossThisFrame && numEventBosses < 3){ // spawn event god
                         sprites eventBoss = eventBosses[RNG.randomFromRange(0, eventBosses.size()-1)];
                         spawnedEntity = factory->spawnMonster(registry, realSpawnPos, eventBoss);
                         if(eventBoss != PENTARACT){
@@ -87,7 +99,7 @@ void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry
                         }
                         spawnedEventBossThisFrame = true;
                     } else { // spawn regular god
-                        if(!spawnedPotChestThisFrame && RNG.randomFromRange(1,100) <= 2){ // 1/100 chance to spawn a pot chest instead of a god
+                        if(!spawnedPotChestThisFrame && RNG.randomFromRange(1,chancePotChest) <= 1){ // 1/X chance to spawn a pot chest instead of a god
                             spawnedPotChestThisFrame = true;
                             spawnedEntity = factory->spawnMonster(registry, realSpawnPos, POTCHEST);
                         } else {
