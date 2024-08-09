@@ -8,19 +8,6 @@ EnemySpawnSystem::EnemySpawnSystem(){
 // currently only works for godlands, because it is the only place it is used
 void EnemySpawnSystem::Update(Entity player, std::unique_ptr<Registry>& registry, std::unique_ptr<Factory>& factory, std::vector<BossIds>& bosses, const glm::vec2& playerPos){
     auto time = SDL_GetTicks();
-    // int chanceOfEventBoss = 50;
-    // const auto& playerHPMP = player.GetComponent<HPMPComponent>();
-    // auto playerHealthPercent = playerHPMP.activehp / playerHPMP.maxhp;
-    // bool pentaractExists = registry->numEntitiesPerMonsterSubGroup(PENTARACTSUBGROUP) > 0;
-    // bool playerIsNearPentaract = false;
-    // if(pentaractExists){
-    //     for(const auto& id: registry->allEntitesFromMonsterSubGroup(PENTARACTSUBGROUP)){
-    //         const auto& pentaractTransform = registry->GetComponent<TransformComponent>(id);
-    //         if(glm::distance(playerPos, pentaractTransform.position) < 1500.0f){
-    //             playerIsNearPentaract = true;
-    //         }
-    //     }
-    // }
     for(auto& entity: GetSystemEntities()){
         auto& esc = entity.GetComponent<EnemySpawnerComponent>();
         // switch-case area can go here if this system is used in other areas in the future
