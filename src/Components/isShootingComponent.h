@@ -4,6 +4,8 @@
 struct isShootingComponent{
     bool isShooting = false;
     isShootingComponent() = default;
+    isShootingComponent(bool shooting): isShooting(shooting) {
+    }
 };
 
 #endif

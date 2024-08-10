@@ -7,6 +7,7 @@ ProjectileEmitSystem::ProjectileEmitSystem(){
     RequireComponent<ProjectileEmitterComponent>();
     RequireComponent<TransformComponent>();
     RequireComponent<SpriteComponent>();
+    RequireComponent<isShootingComponent>();
 }
 
 void ProjectileEmitSystem::SubscribeToEvents(std::unique_ptr<EventBus>& eventBus){

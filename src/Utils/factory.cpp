@@ -181,6 +181,8 @@ Entity Factory::spawnMonster(std::unique_ptr<Registry>& registry, const glm::vec
         case KEY:{ // keys are a legacy monster category
             enemy.AddComponent<AnimationComponent>(spriteEnum);
             enemy.AddComponent<RidigBodyComponent>();
+            enemy.AddComponent<isShootingComponent>(true);
+            enemy.AddComponent<ProjectileEmitterComponent>(spriteEnum, enemy.GetId());
         } break;
         case ASC:{ // animated shooting chase category
             enemy.AddComponent<AnimationComponent>(spriteEnum);
@@ -769,8 +771,9 @@ void Factory::spawnPortal(std::unique_ptr<Registry>& registry, glm::vec2 spawnpo
 
 void Factory::spawnVaultChests(std::unique_ptr<Registry>& registry, std::unique_ptr<CharacterManager>& CharacterManager){
     CharacterManager->KillInvalidVaultFiles();
-    for(int i = 0; i <= 8; i++){
-        std::vector<int> itemInts = CharacterManager->GetItemsFromVault(i+1);
+    constexpr int numvaults = 12;
+    for(int i = 0; i <= numvaults - 1; i++){
+        std::vector<int> itemInts = CharacterManager->GetItemsFromVault(i+1); // 1.txt, 2.txt, 3.txt, etc.
         glm::vec2 spawn = vaultSpawns[i];
         Entity vaultChest = creatLootBag(registry, spawn, VAULTCHEST);
         vaultChest.GetComponent<TransformComponent>().scale = glm::vec2(6.0,6.0);

@@ -97,7 +97,7 @@ void CharacterManager::SaveVaults(std::unique_ptr<Registry>& registry){
         dirItr = std::filesystem::directory_iterator(vaultFolderPath);
         for(auto file: dirItr){
             std::string fileName = file.path().filename().string(); //"1", "2", "3"
-            fileName = fileName.substr(0,1);
+            fileName = fileName.substr(0,fileName.size()-4);
             if(fileName == currentVaultEntityId){
                 const auto& items = vault.GetComponent<LootBagComponent>().contents;
                 std::vector<int> ie = {-1,-1,-1,-1,-1,-1,-1,-1};
@@ -118,11 +118,11 @@ void CharacterManager::SaveVaults(std::unique_ptr<Registry>& registry){
     }
 }
 
-// ensures we will only have X valid vault files
+// ensures we will only have X valid vault files. called in factory->spawnVaultChests
 void CharacterManager::KillInvalidVaultFiles(){
     dirItr = std::filesystem::directory_iterator(vaultFolderPath);
     std::set<std::string> filesToKeep;
-    std::unordered_set<std::string> files = {"1.txt", "2.txt", "3.txt","4.txt", "5.txt", "6.txt", "7.txt", "8.txt", "9.txt"};
+    std::unordered_set<std::string> files = {"1.txt", "2.txt", "3.txt","4.txt", "5.txt", "6.txt", "7.txt", "8.txt", "9.txt", "10.txt", "11.txt", "12.txt"};
     // kill files that are of invalid format
     for(auto& file: dirItr){
         std::string fileName = file.path().filename().string();
@@ -134,8 +134,8 @@ void CharacterManager::KillInvalidVaultFiles(){
     }
     // create missing vault files
     for(auto& x: files){
-        if(filesToKeep.find(x) == filesToKeep.end()){
-            CreateNewVaultFile(x.substr(0,1));
+        if(filesToKeep.find(x) == filesToKeep.end()){ // file missing from filesToKeep; it does not exist
+            CreateNewVaultFile(x.substr(0,x.size()-4));
         }
     }
 

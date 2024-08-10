@@ -2798,7 +2798,7 @@ void Game::SpawnAreaEntities(wallTheme area){
         case NEXUS: {
             const auto& playerLevel = player.GetComponent<BaseStatComponent>().level;
             factory->spawnPortal(registry, glm::vec2(850, 1575), CHANGECHAR);
-            factory->spawnPortal(registry, glm::vec2(650, 1575), CHANGENAME);
+            factory->spawnPortal(registry, glm::vec2(650, 1575), GORDONSLAIRWALLTHEME); // change back to changename
             factory->spawnPortal(registry, glm::vec2(750, 1675), VAULT);
             factory->spawnPortal(registry, glm::vec2(600,600), CHICKENLAIR);
             if(playerLevel < 10){
