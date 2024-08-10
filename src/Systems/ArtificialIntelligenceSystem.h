@@ -260,14 +260,17 @@ class BossAISystem: public System{
             glm::vec2 bossCenter = boss.GetComponent<TransformComponent>().center;
             int damage = 35;
             int duration = 2075;
+            bool armorPiercing = false;
             switch(sprite){
                 case GORDON: {
                     damage = 35;
                     duration = 2075;
+                    armorPiercing = true;
                 } break;
                 case GORDON2:{
                     damage = 65;
                     duration = 4000;
+                    armorPiercing = false;
                 } break;
             }
             constexpr projectilePPD data = {ORYXTEAR};
@@ -290,7 +293,7 @@ class BossAISystem: public System{
                     projectile.AddComponent<SpriteComponent>(data.texture, data.rect, true);
                     projectile.AddComponent<BoxColliderComponent>(data.boxWidth, data.boxHeight, data.boxOffset);
                     projectile.AddComponent<TransformComponent>(bossCenter, glm::vec2(5.0,5.0), rotationDegrees + realgap*i);
-                    projectile.AddComponent<ProjectileComponent>(damage, duration, false, boss, 0, sprite, false, SLOWED, 3000, false);
+                    projectile.AddComponent<ProjectileComponent>(damage, duration, false, boss, 0, sprite, false, SLOWED, 3000, armorPiercing);
                     projectile.AddComponent<LinearProjectileComponent>();
                     projectile.Group(PROJECTILE);
                 }
