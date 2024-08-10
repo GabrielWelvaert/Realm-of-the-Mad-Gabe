@@ -4697,7 +4697,7 @@ std::unordered_map<items, playerPECupdateData> itemEnumToPECdata = {
     {T3WAND, {BITS_NONE, 832, 770, 40, 60, 1, 0.0f, BLUEMAGIC}},
     {T4WAND, {BITS_NONE, 832, 770, 50, 70, 1, 0.0f, BLUEMAGIC}},
     {T5WAND, {BITS_NONE, 832, 770, 60, 80, 1, 0.0f, PINKMAGIC}},
-    {T6WAND, {BITS_NONE, 832, 770, 70, 90, 1, 0.0f, PINKBOLT}},
+    {T6WAND, {BITS_DIAGONAL, 832, 770, 70, 90, 1, 0.0f, PINKBOLT}},
     {T7WAND, {BITS_NONE, 832, 770, 80, 100, 1, 0.0f, REDMAGIC}},
     {T8WAND, {BITS_NONE, 832, 770, 80, 120, 1, 0.0f, GREENMAGIC}},
     {T9WAND, {BITS_NONE, 832, 770, 85, 125, 1, 0.0f, PINKMAGIC}},
