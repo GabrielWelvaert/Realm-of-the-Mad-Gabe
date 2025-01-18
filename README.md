@@ -3,7 +3,7 @@
 **Links**
  - **[Download To Play Here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
 
- - **[Release 2.0 Trailer / Gameplay sample](https://www.youtube.com/watch?v=aP7Ju_zDels)**
+ - **[Release 2.0 Trailer / Gameplay Sample](https://www.youtube.com/watch?v=aP7Ju_zDels)**
 
  - **[Rare Item Drop Guide](https://imgur.com/a/realm-of-mad-gabe-rdt-guide-dW4zCsx)**
 
