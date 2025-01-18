@@ -11,7 +11,7 @@
   - Realm of the Mad Gabe is a 2.5D bullet hell with RPG/rogue-like elements including permanent death, produecurally gernerated dungeons, and different playable classes with unique abilities. Your main objectives are to conquer monsters and dungeons which increase in difficulty and to upgrade the stats and equipment of your characters
 
 **Preview Gallery:**
-<img src="rotmg4.png" width="581" height="435" />
+<img src="rotmg4.gif" width="581" height="435" />
 **Note gif is 10FPS, True FPS displayed in top-left**
 <img src="rotmg1.png" width="581" height="435" />
 <img src="rotmg2.png" width="581" height="435" />
