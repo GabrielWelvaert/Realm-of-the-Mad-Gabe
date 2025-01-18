@@ -13,6 +13,7 @@
 **Preview Gallery:**
 
 **Gif is 10 FPS; game FPS shown in top-left**
+
 <img src="rotmg4.gif" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
 <img src="rotmg1.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
 <img src="rotmg2.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
