@@ -12,10 +12,10 @@
 
 **Preview Gallery:**
 **Note gif is 10FPS, True FPS displayed in top-left**
-<img src="rotmg4.gif" width="581" height="435" />
-<img src="rotmg1.png" width="581" height="435" />
-<img src="rotmg2.png" width="581" height="435" />
-<img src="rotmg3.png" width="581" height="435" />
+<img src="rotmg4.gif" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
+<img src="rotmg1.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
+<img src="rotmg2.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
+<img src="rotmg3.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
 
 **Controls:**
   - Keyboard:
