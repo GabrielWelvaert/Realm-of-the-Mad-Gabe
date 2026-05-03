@@ -1,44 +1,175 @@
-**Reverse-Engineering of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) made with the goal of recreating the core mechanics of the game without the assistance of an external game engine or game engine library** 
+# Realm of the Mad Gabe
 
-**Links**
- - **[Download To Play Here](https://drive.google.com/drive/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO?usp=sharing)**
+**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
 
- - **[Release 2.0 Trailer / Gameplay Sample](https://www.youtube.com/watch?v=aP7Ju_zDels)**
+---
 
- - **[Rare Item Drop Guide](https://imgur.com/a/realm-of-mad-gabe-rdt-guide-dW4zCsx)**
+## Demo (Youtube Video)
 
-**Gameplay and Objective**
-  - Realm of the Mad Gabe is a 2.5D bullet hell with RPG/rogue-like elements including permanent death, produecurally gernerated dungeons, and different playable classes with unique abilities. Your main objectives are to conquer monsters and dungeons which increase in difficulty and to upgrade the stats and equipment of your characters
+[![Watch Demo](https://img.youtube.com/vi/aP7Ju_zDels/0.jpg)](https://www.youtube.com/watch?v=aP7Ju_zDels)
 
-**Preview Gallery: (Gif is 10 FPS; game FPS shown in top-left)**
-<img src="rotmg4.gif" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
-<img src="rotmg2.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
-<img src="rotmg3.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
-<img src="rotmg1.png" width="581" height="435" style="min-width: 581px; min-height: 435px;"/>
+---
 
-**Controls:**
-  - Keyboard:
-      - *wasd* - Movement
-      - *space* - Use Ability
-      - *f* or *r* - Escape to nexus
-      - *1-8* - Use inventory item
-      - *esc* - Main menu
-      - *m* - Toggle music
-      - *t* - Toggle auto-fire
-      - *h* - Toggle boss & player health bars
-  
-  - Mouse:
-      - *Click on world* - Shoot
-      - *Click and drag item* - Move item
-      - *Shift click item* - Use item
-      - *Mouse hover item* - View item description
-      - *Mouse scroll* - Mini map zoom adjustment
+## Entity Component System (ECS)
 
-**Tips:**
-  - Your stats will increase as you level-up from gaining xp by slaying monsters. 20 is the max level for your character, but you will still be able to increase your stats via stat-increase potions
-  - Your characters and vault will save between sessions; use the vault to move items between characters
-  - Scroll out entirely to view boss location(s); they are always visible if they're alive
-  - If you're low HP in a dungeon, save your character by escaping to nexus
-  - You can drop items by dragging them into the world from your inventory
+The core of this project is an implementation of the [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) architectural pattern.
 
-**Good luck! Thanks for playing**
+- **Entities** → IDs only  
+- **Components** → Pure data  
+- **Systems** → Update components  
+
+This design is CPU cache-friendly, resulting in high performance and high frame rates.
+
+---
+
+## Entities and Components
+
+Entities contain no data. Instead, their data lives in separate components.
+
+| Entities (ID only) | Components (data only) |
+|------------------------|----------------------------|
+| ![Entities](./readmeimages/entity.png) | ![Components](./readmeimages/componentexamples.png) |
+
+---
+
+## Component Storage (Pools)
+
+Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
+
+### Pool Implementation
+
+Pools are created for each type of component.
+
+
+<img src="./readmeimages/pool.png" width="600" />
+
+### Components Full Implementation
+
+Components use static per-type ID generation via a templated base class.
+
+<img src="./readmeimages/component.png" width="600" />
+
+<img src="./readmeimages/componenttemplateexample.png" width="600" />
+
+### Pool Storage
+
+All pools are stored in an array, allowing a component ID to be used to access its corresponding pool, where each entry stores the component for a specific entity.
+
+<img src="./readmeimages/pools.png" width="600" />
+
+![Pools Diagram](./readmeimages/pools.drawio.png)
+
+---
+
+## Signatures
+
+The total set of components that an entity has is tracked using a bitsets which is indexable by component ID.
+
+<img src="./readmeimages/signature.png" width="600" />
+
+<img src="./readmeimages/signatures.png" width="600" />
+
+---
+
+
+## Example Entities With Component Signatures
+
+| Floor | Tree | Projectile |
+|------|------|------------|
+| ![Floor](./readmeimages/floor.png)<br>![Floor Signature](./readmeimages/floorsignature.png)<br>A floor has a sprite and position component. | ![Tree](./readmeimages/tree.png)<br>![Tree Signature](./readmeimages/treesignature.png)<br>A tree has a sprite, position, hitbox, and rigidbody component. | ![Projectile](./readmeimages/projectile.png)<br>![Projectile Signature](./readmeimages/projectilesignature.png)<br>A projectile has a sprite, position, hitbox, velocity, etc. |
+
+---
+
+## Putting it all together: Adding a component to an entity
+
+To add a component to an entity:
+
+- The component ID is used to index the array of pools to get the pool for that component type
+- The component is inserted into the pool 
+- The pool associates the stored component position with the entity’s ID
+- The signature of the entity is updated to indicate that it has this component
+- Relevant systems are updated to track this entity if it matches their requirements (see next section!)
+
+![Add Component](./readmeimages/addcomponent.png)
+
+---
+
+## Systems
+
+Systems perform updates on entities by modifying their components and are specialized to track only those entities whose component signatures match their own.
+
+### System base class
+<img src="./readmeimages/system.png" width="600" />
+
+### Example: Render System (tracks all entities with a sprite and position)
+<img src="./readmeimages/rendersystem.png" width="600" />
+
+### Signature match example
+<img src="./readmeimages/signatureexample1.png" width="400" />
+
+---
+
+## Performance: Cache Efficiency
+
+Performance comes primarily from **cache efficiency**.
+
+- Components are stored contiguously
+- Systems iterate linearly over data
+- Cache lines (typically 64 bytes) load multiple components at once
+- This leads to high cache hit rates
+
+---
+
+## Object-Oriented Design vs Data-Oriented Design
+
+In DoD, components are kept small and structured around access patterns (fields are added to components with system usage in mind) to minimize cache misses. Here is how a player-statistics component would be designed in both OOP and DoD:
+
+### Object-Oriented Design (counter-example: worse for cache hits)
+<img src="./readmeimages/OOPstats.png" width="600" />
+
+### Data-Oriented Design (what is used: better for cache hits)
+<img src="./readmeimages/DODstats.png" width="600" />
+
+---
+
+## Dense Pool Storage
+
+Pools remain dense by filling memory gaps when entities are removed, reducing cache misses:
+
+![Memory Hole](./readmeimages/memoryhole.drawio.png)
+
+---
+
+## AoS vs SoA
+
+This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array, which is better for auto-vectorizaton. Below is a visualization of both layouts for a component with three fields:
+
+### Array of Structures (AoS; what was used)
+<img src="./readmeimages/aos.png" width="400" />
+
+![AoS Memory](./readmeimages/aos.drawio.png)
+
+### Structure of Arrays (SoA; alternative design)
+<img src="./readmeimages/soa.png" width="400" />
+
+![SoA Memory](./readmeimages/soa.drawio.png)
+
+---
+
+## Manager Class
+
+Essential operations such as the management of entities, pools, and systems are the responsibility of an ECS "Manager" class which I've omitted from this writeup to keep explanations concise and centered on the essential underlying mechanisms.
+
+---
+
+## Download and Play
+
+Executables for Windows and Linux are available [here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO). 
+
+## Gallery
+
+Gif is 10 FPS; game FPS shown in top-left
+
+| ![gif1](./readmeimages/rotmg4.gif) | ![img2](./readmeimages/rotmg2.png) |
+|-------------------------------------|-------------------------------------|
+| ![img3](./readmeimages/rotmg3.png) | ![img4](./readmeimages/rotmg1.png) |
