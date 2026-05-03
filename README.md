@@ -51,7 +51,7 @@ Components use static per-type ID generation via a templated base class.
 
 All pools are stored in an array, allowing a component ID to be used to access its corresponding pool, where each entry stores the component for a specific entity.
 
-![Pools](./readmeimages/pools.png)
+<img src="./readmeimages/pools.png" width="600" />
 
 ![Pools Diagram](./readmeimages/pools.drawio.png)
 
@@ -61,9 +61,9 @@ All pools are stored in an array, allowing a component ID to be used to access i
 
 The total set of components that an entity has is tracked using a bitsets which is indexable by component ID.
 
-![Signature](./readmeimages/signature.png)
+<img src="./readmeimages/signature.png" width="600" />
 
-![Signatures](./readmeimages/signatures.png)
+<img src="./readmeimages/signatures.png" width="600" />
 
 ---
 
