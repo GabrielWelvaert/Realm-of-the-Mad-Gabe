@@ -141,7 +141,7 @@ Performance comes primarily from **cache efficiency**.
 
 ---
 
-## Object-Oriented Design vs Data-Oriented Design
+## Object-Oriented Design (OOP) vs Data-Oriented Design (DoD)
 
 DoD keeps components small and organized around how data is accessed to improve cache efficiency. Here’s a comparison of OOP vs DoD for a player-statistics component:
 
