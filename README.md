@@ -128,10 +128,10 @@ Performance comes primarily from **cache efficiency**.
 In DoD, components are kept small and structured around access patterns (fields are added to components with system usage in mind) to minimize cache misses. Here is how a player-statistics component would be designed in both OOP and DoD:
 
 ### Object-Oriented Design (counter-example: worse for cache hits)
-![OOP](./readmeimages/OOPstats.png)
+<img src="./readmeimages/OOPstats.png" width="600" />
 
 ### Data-Oriented Design (what is used: better for cache hits)
-![DOD](./readmeimages/DODstats.png)
+<img src="./readmeimages/DODstats.png" width="600" />
 
 ---
 
