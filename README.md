@@ -1,6 +1,6 @@
 # Realm of the Mad Gabe
 
-**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/). A video demonstration is available [here](https://www.youtube.com/watch?v=aP7Ju_zDels)
+**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/). A video demonstration is available [here](https://www.youtube.com/watch?v=aP7Ju_zDels).
 
 | ![gif1](./readmeimages/rotmg4.gif) | ![img2](./readmeimages/rotmg2.png) |
 |-------------------------------------|-------------------------------------|
