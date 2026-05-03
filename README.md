@@ -30,7 +30,7 @@ Entities contain no data. Instead, their data lives in separate components.
 
 ---
 
-## Component Storage
+## Components Storage
 
 Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
 
