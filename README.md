@@ -37,7 +37,7 @@ Entities contain no data. Instead, their data lives in separate components.
 Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
 
 ### Pool Implementation
-![Pool](./readmeimages/pool.png)
+<img src="./readmeimages/addcomponent.png" width="500" />
 
 ### Components Full Implementation
 
