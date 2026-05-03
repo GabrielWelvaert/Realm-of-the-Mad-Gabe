@@ -184,11 +184,11 @@ Essential operations such as the management of entities, pools, and systems are 
 
 Executables for Windows and Linux are available [here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO). 
 
-## Screenshot Gallery
+## Gallery
 
 Gif is 10 FPS; game FPS shown in top-left
 
 ![gif1](./readmeimages/rotmg4.gif)
 ![img2](./readmeimages/rotmg2.png)
 ![img3](./readmeimages/rotmg3.png)
-![img3](./readmeimages/rotmg3.png)
+![img3](./readmeimages/rotmg1.png)
