@@ -117,7 +117,7 @@ Systems perform updates on entities by modifying their components and are specia
 
 ### Example: Render System
 
-The render system tracks all entities with a sprite and position
+The render system tracks all entities with a sprite and position.
 
 <p align="center">
   <img src="./readmeimages/rendersystem.png" width="600" />
