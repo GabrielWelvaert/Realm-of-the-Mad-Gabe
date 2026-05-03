@@ -97,8 +97,6 @@ Systems perform updates on entities by modifying their components and are specia
 ### System base class
 <img src="./readmeimages/system.png" width="600" />
 
-![System](./readmeimages/system.png)
-
 ### Example: Render System (tracks all entities with a sprite and position)
 <img src="./readmeimages/rendersystem.png" width="600" />
 
