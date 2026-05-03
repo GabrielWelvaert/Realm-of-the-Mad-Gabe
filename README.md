@@ -70,23 +70,9 @@ The total set of components that an entity has is tracked using a bitsets which 
 
 ## Example Entities With Component Signatures
 
-### Floor
-![Floor](./readmeimages/floor.png)
-![Floor Signature](./readmeimages/floorsignature.png)
-
-A floor has a sprite and position component.
-
-### Tree
-![Tree](./readmeimages/tree.png)
-![Tree Signature](./readmeimages/treesignature.png)
-
-A tree has a sprite, position, hitbox, and rigidbody component.
-
-### Projectile
-![Projectile](./readmeimages/projectile.png)
-![Projectile Signature](./readmeimages/projectilesignature.png)
-
-A projectile has a sprite, position, hitbox, velocity, etc. 
+| Floor | Tree | Projectile |
+|------|------|------------|
+| ![Floor](./readmeimages/floor.png)<br>![Floor Signature](./readmeimages/floorsignature.png)<br>A floor has a sprite and position component. | ![Tree](./readmeimages/tree.png)<br>![Tree Signature](./readmeimages/treesignature.png)<br>A tree has a sprite, position, hitbox, and rigidbody component. | ![Projectile](./readmeimages/projectile.png)<br>![Projectile Signature](./readmeimages/projectilesignature.png)<br>A projectile has a sprite, position, hitbox, velocity, etc. |
 
 ---
 
