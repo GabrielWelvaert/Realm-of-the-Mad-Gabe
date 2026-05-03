@@ -116,11 +116,11 @@ Systems perform updates on entities by modifying their components and are specia
 ### Example: Render System (tracks all entities with a sprite and position)
 ![Render System](./readmeimages/rendersystem.png)
 
-### Signature match example
-![Signature Match](./readmeimages/signatureexample1.png)
-
 ### Example: Movement System (tracks all entities with position and velocity)
 ![Movement System](./readmeimages/movementsystem.png)
+
+### Signature match example
+![Signature Match](./readmeimages/signatureexample1.png)
 
 ### Signature mismatch example
 ![Signature Mismatch](./readmeimages/signatureexample2.png)
