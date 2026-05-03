@@ -43,7 +43,7 @@ Entities do not store their own components. Instead, they are stored in pools wh
 
 ### Components Full Implementation
 
-Components use static per-type ID generation via a templated base class
+Components use static per-type ID generation via a templated base class.
 
 ![Component ID](./readmeimages/component.png)
 
@@ -89,22 +89,22 @@ A projectile has a sprite, position, hitbox, velocity, etc.
 
 ---
 
-## Putting it all together: Example, adding a component to an entity
+## Putting it all together: Adding a component to an entity
 
 To add a component to an entity:
 
-- ID of component is used to index array of pools to get the correct pool
-- component is inserted into the pool, and the pool associates that position with the entity id
+- The component ID is used to index the array of pools to get the pool for that component type
+- The component is inserted into the pool 
+- The pool associates the stored component position with the entity’s ID
+- The signature of the entity is updated to indicate that it has this component
 
 ![Add Component](./readmeimages/addcomponent.png)
-
-To retrieve that data later, the ID of the entity is used
 
 ---
 
 ## Systems
 
-Systems operate on entities that match required component signatures.
+Systems perform updates on entities by modifying their components and are specialized to track only those entities whose component signatures match their own.
 
 ### System base class
 ![System](./readmeimages/system.png)
@@ -170,3 +170,9 @@ AoS is simpler to work with, while SoA can be faster depending on the hardware a
 
 - AoS: better when accessing full components  
 - SoA: better for vectorized operations  
+
+---
+
+## Manager Class
+
+Essential operations such as the management of entities, pools, and systems are the responsibility of an ECS "Manager" class which I've omitted to keep explanations concise and centered on the essential underlying mechanisms.
