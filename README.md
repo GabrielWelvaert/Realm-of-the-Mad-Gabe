@@ -95,13 +95,14 @@ To add a component to an entity:
 Systems perform updates on entities by modifying their components and are specialized to track only those entities whose component signatures match their own.
 
 ### System base class
+<img src="./readmeimages/system.png" width="600" />
 ![System](./readmeimages/system.png)
 
 ### Example: Render System (tracks all entities with a sprite and position)
-![Render System](./readmeimages/rendersystem.png)
+<img src="./readmeimages/rendersystem.png" width="600" />
 
 ### Example: Movement System (tracks all entities with position and velocity)
-![Movement System](./readmeimages/movementsystem.png)
+<img src="./readmeimages/movementsystem.png" width="600" />
 
 ### Signature match example
 ![Signature Match](./readmeimages/signatureexample1.png)
