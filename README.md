@@ -163,26 +163,18 @@ Pools remain dense by filling memory gaps when entities are removed, reducing ca
 
 ## AoS vs SoA
 
-This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array, which is better for auto-vectorizaton. Below is a visualization of both layouts for a component with three fields:
+This implementation uses an array-of-structures (AoS) layout where each component is stored as a single object. This is useful when systems access all fields. An alternative is struct-of-arrays (SoA), where fields are stored separately for better auto-vectorization. Below is a comparison for a component with three fields.
 
-### Array of Structures (AoS; what was used)
-<p align="center">
-  <img src="./readmeimages/aos.png" width="400" />
-</p>
+### Array of Structures (AoS)
+| Code Representation | Memory Representation |
+|---------------------|----------------------|
+| <p align="center"><img src="./readmeimages/aos.png" width="400" /></p> | <p align="center"><img src="./readmeimages/aos.drawio.png" /></p> |
 
-<p align="center">
-  <img src="./readmeimages/aos.drawio.png" />
-</p>
+### Structure of Arrays (SoA)
 
-### Structure of Arrays (SoA; alternative design)
-<p align="center">
-  <img src="./readmeimages/soa.png" width="400" />
-</p>
-
-<p align="center">
-  <img src="./readmeimages/soa.drawio.png" />
-</p>
-
+| Code Representation | Memory Representation |
+|---------------------|----------------------|
+| <p align="center"><img src="./readmeimages/soa.png" width="400" /></p> | <p align="center"><img src="./readmeimages/soa.drawio.png" /></p> |
 ---
 
 ## Manager Class
