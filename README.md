@@ -1,10 +1,6 @@
 # Realm of the Mad Gabe
 
-**Realm of the Mad Gabe** is a C++ video game that I wrote from scratch without the assistance of a game engine or game engine library.
-
-Through this project, I honed my C++ skills and gained hands-on experience with data-oriented design and high-performance computing concepts. I used [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/).
-
-The game is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
+**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It as made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
 
 ---
 
@@ -26,9 +22,9 @@ This design is extremely CPU-cache friendly and allows the game to sustain high 
 
 ---
 
-## Entities and Components (Entites are composed of componenets)
+## Entities and Components
 
-Entities contain no data. Instead, their data lives in separate components.
+Entities contain no data. Instead, their data lives in separate components which they are composed of.
 
 ### Entities (ID only)
 ![Entities](./readmeimages/entity.png)
@@ -40,7 +36,7 @@ Entities contain no data. Instead, their data lives in separate components.
 
 ## Component Storage (Contiguous Pools)
 
-Entities do not store their own components. Pools are wrappers for vectors of components and store them contiguously in memory.
+Entities do not store their own components. Instead, they are stored in Pools which are arrays of components.
 
 ### Pool structure
 ![Pool](./readmeimages/pool.png)
@@ -48,19 +44,18 @@ Entities do not store their own components. Pools are wrappers for vectors of co
 ### Component IDs (static id per template instance)
 ![Component ID](./readmeimages/component.png)
 
-### Component templates
+### Component Example
 ![Component Templates](./readmeimages/componenttemplateexample.png)
 
 ### All pools
+
+Pools are stored so that a component ID can be used to access its corresponding pool and each entry in that pool stores that component for a specific entity.
+
 ![Pools](./readmeimages/pools.png)
-
----
-
-## Component Pools Visualization
 
 ![Pools Diagram](./readmeimages/pools.drawio.png)
 
-Each pool corresponds to a component type, and each entry stores that component for a specific entity.
+
 
 ---
 
