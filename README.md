@@ -61,11 +61,31 @@ All pools are stored in an array, allowing a component ID to be used to access i
 
 ## Signatures
 
-The total set of components that an entity has is tracked using a bitsets indexable by component ID.
+The total set of components that an entity has is tracked using a bitsets which is indexable by component ID.
 
 ![Signature](./readmeimages/signature.png)
 
 ![Signatures](./readmeimages/signatures.png)
+
+---
+
+
+## Example Entities With Component Signatures
+
+### Floor
+![Floor](./readmeimages/floor.png)
+![Floor Signature](./readmeimages/floorsignature.png)
+A floor has a sprite and position component.
+
+### Tree
+![Tree](./readmeimages/tree.png)
+![Tree Signature](./readmeimages/treesignature.png)
+A tree has a sprite, position, hitbox, and rigidbody component.
+
+### Projectile
+![Projectile](./readmeimages/projectile.png)
+![Projectile Signature](./readmeimages/projectilesignature.png)
+A projectile has a sprite, position, hitbox, velocity, etc. 
 
 ---
 
@@ -79,24 +99,6 @@ To add a component to an entity:
 ![Add Component](./readmeimages/addcomponent.png)
 
 To retrieve that data later, the ID of the entity is used
-
----
-
-## Example Entities With Component Signatures
-
-### Floor
-![Floor](./readmeimages/floor.png)
-![Floor Signature](./readmeimages/floorsignature.png)
-
-### Tree
-![Tree](./readmeimages/tree.png)
-![Tree Signature](./readmeimages/treesignature.png)
-
-### Projectile
-![Projectile](./readmeimages/projectile.png)
-![Projectile Signature](./readmeimages/projectilesignature.png)
-
-Even very different entities can share subsets of components.
 
 ---
 
