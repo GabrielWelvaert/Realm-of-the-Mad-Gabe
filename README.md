@@ -186,13 +186,13 @@ Executables for Windows and Linux are available [here](https://drive.google.com/
 
 Gif is 10 FPS; game FPS shown in top-left
 
-<table>
+<table style="border-collapse: collapse;">
   <tr>
-    <td><img src="./readmeimages/rotmg4.gif" width="100%"></td>
-    <td><img src="./readmeimages/rotmg2.png" width="100%"></td>
+    <td style="border: none;"><img src="./readmeimages/rotmg4.gif" width="100%"></td>
+    <td style="border: none;"><img src="./readmeimages/rotmg2.png" width="100%"></td>
   </tr>
   <tr>
-    <td><img src="./readmeimages/rotmg3.png" width="100%"></td>
-    <td><img src="./readmeimages/rotmg1.png" width="100%"></td>
+    <td style="border: none;"><img src="./readmeimages/rotmg3.png" width="100%"></td>
+    <td style="border: none;"><img src="./readmeimages/rotmg1.png" width="100%"></td>
   </tr>
 </table>
