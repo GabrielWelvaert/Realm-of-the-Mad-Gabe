@@ -1,6 +1,6 @@
 # Realm of the Mad Gabe
 
-**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/). A video demonstration is available [here](https://www.youtube.com/watch?v=aP7Ju_zDels).
+**Realm of the Mad Gabe** is a C++ video game built from scratch without a game engine. It uses [SDL2](https://www.libsdl.org/) for rendering and input, with [GDB](https://sourceware.org/gdb/) and [Valgrind](https://valgrind.org/) used for debugging and memory analysis. It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/). A video demonstration is available [here](https://www.youtube.com/watch?v=aP7Ju_zDels).
 
 | ![gif1](./readmeimages/rotmg4.gif) | ![img2](./readmeimages/rotmg2.png) |
 |-------------------------------------|-------------------------------------|
@@ -16,7 +16,7 @@ The core of this project is an implementation of the [Entity Component System](h
 - **Components** → Pure data  
 - **Systems** → Update components  
 
-This design is CPU cache-friendly, resulting in high performance and high frame rates.
+This design improves CPU cache efficiency by keeping component data compact and predictable during system updates.
 
 ---
 
@@ -70,7 +70,7 @@ All pools are stored in an array, allowing a component ID to be used to access i
 
 ## Signatures
 
-The total set of components that an entity has is tracked using a bitsets which is indexable by component ID.
+The total set of components that an entity has is tracked tracked using a bitset indexed by component ID.
 
 <p align="center">
   <img src="./readmeimages/signature.png" width="600" />
