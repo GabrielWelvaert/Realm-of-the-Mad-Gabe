@@ -1,16 +1,10 @@
 # Realm of the Mad Gabe
 
-**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
+**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God) utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/). A video demonstration is available [here](https://www.youtube.com/watch?v=aP7Ju_zDels).
 
----
-
-## Demo (Youtube Video)
-
-<p align="center">
-  <a href="https://www.youtube.com/watch?v=aP7Ju_zDels">
-    <img src="https://img.youtube.com/vi/aP7Ju_zDels/0.jpg" />
-  </a>
-</p>
+| ![gif1](./readmeimages/rotmg4.gif) | ![img2](./readmeimages/rotmg2.png) |
+|-------------------------------------|-------------------------------------|
+| ![img3](./readmeimages/rotmg3.png) | ![img4](./readmeimages/rotmg1.png) |
 
 ---
 
@@ -203,11 +197,3 @@ Essential operations such as the management of entities, pools, and systems are 
 ## Download and Play
 
 Executables for Windows and Linux are available [here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO). 
-
-## Gallery
-
-Gif is 10 FPS; game FPS shown in top-left
-
-| ![gif1](./readmeimages/rotmg4.gif) | ![img2](./readmeimages/rotmg2.png) |
-|-------------------------------------|-------------------------------------|
-| ![img3](./readmeimages/rotmg3.png) | ![img4](./readmeimages/rotmg1.png) |
