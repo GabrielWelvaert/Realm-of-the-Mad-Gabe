@@ -179,7 +179,7 @@ This implementation uses an array-of-structures (AoS) layout where each componen
 
 ## Manager Class
 
-Essential operations like managing entities, pools, and systems are handled by an ECS “Manager” class. It’s omitted here to keep the focus on the core mechanisms.
+Essential operations such as managing entities, pools, and systems are handled by an ECS “Manager” class which is omitted from this writeup to keep the focus on the core underlying mechanisms.
 
 ---
 
