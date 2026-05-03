@@ -30,7 +30,7 @@ Entities contain no data. Instead, their data lives in separate components.
 
 ---
 
-## Component Storage (Pools)
+## Component Storage
 
 Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
 
@@ -115,7 +115,10 @@ Systems perform updates on entities by modifying their components and are specia
   <img src="./readmeimages/system.png" width="600" />
 </p>
 
-### Example: Render System (tracks all entities with a sprite and position)
+### Example: Render System
+
+The render system tracks all entities with a sprite and position
+
 <p align="center">
   <img src="./readmeimages/rendersystem.png" width="600" />
 </p>
@@ -140,17 +143,11 @@ Performance comes primarily from **cache efficiency**.
 
 ## Object-Oriented Design vs Data-Oriented Design
 
-In DoD, components are kept small and structured around access patterns (fields are added to components with system usage in mind) to minimize cache misses. Here is how a player-statistics component would be designed in both OOP and DoD:
+DoD keeps components small and organized around how data is accessed to improve cache efficiency. Here’s a comparison of OOP vs DoD for a player-statistics component:
 
-### Object-Oriented Design (counter-example: worse for cache hits)
-<p align="center">
-  <img src="./readmeimages/OOPstats.png" width="600" />
-</p>
-
-### Data-Oriented Design (what is used: better for cache hits)
-<p align="center">
-  <img src="./readmeimages/DODstats.png" width="600" />
-</p>
+| Object-Oriented Design | Data-Oriented Design |
+|------------------------|----------------------|
+| <img src="./readmeimages/OOPstats.png" width="500" /> | <img src="./readmeimages/DODstats.png" width="500" /> |
 
 ---
 
