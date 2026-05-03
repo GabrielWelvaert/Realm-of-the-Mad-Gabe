@@ -26,7 +26,7 @@ This design is CPU cache-friendly, resulting in high performance and high frame 
 
 Entities contain no data. Instead, their data lives in separate components.
 
-| ### Entities (ID only) | ### Components (data only) |
+| Entities (ID only) | Components (data only) |
 |------------------------|----------------------------|
 | ![Entities](./readmeimages/entity.png) | ![Components](./readmeimages/componentexamples.png) |
 
