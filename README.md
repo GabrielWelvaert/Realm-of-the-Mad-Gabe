@@ -105,7 +105,7 @@ Systems perform updates on entities by modifying their components and are specia
 <img src="./readmeimages/rendersystem.png" width="600" />
 
 ### Signature match example
-<img src="./readmeimages/signatureexample1.png" width="600" />
+<img src="./readmeimages/signatureexample1.png" width="400" />
 
 ---
 
