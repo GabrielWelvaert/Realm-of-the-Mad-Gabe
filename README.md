@@ -38,19 +38,19 @@ Entities contain no data. Instead, their data lives in separate components which
 
 Entities do not store their own components. Instead, they are stored in Pools which are arrays of components.
 
-### Pool structure
+### Pool Implementation
 ![Pool](./readmeimages/pool.png)
 
-### Component Full Implementation
+### Components Full Implementation
 
 Components use static per-type ID generation via a templated base class
 ![Component ID](./readmeimages/component.png)
 
 ![Component Templates](./readmeimages/componenttemplateexample.png)
 
-### All pools
+### Pool storage
 
-Pools are stored so that a component ID can be used to access its corresponding pool and each entry in that pool stores that component for a specific entity.
+All pools are stored in their own array, so that a component ID can be used to access its corresponding pool and each entry in that pool stores that component for a specific entity.
 
 ![Pools](./readmeimages/pools.png)
 
@@ -72,7 +72,7 @@ Component presence is tracked using bitsets.
 
 ---
 
-## Example of how Entities, Components, and Pools are interconnected: Adding Components to Entities
+## Putting it all together: Example, adding a component to an entity
 
 To add a component to an entity:
 
