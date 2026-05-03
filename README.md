@@ -180,3 +180,9 @@ AoS is simpler to work with, while SoA can be faster depending on the hardware a
 ## Manager Class
 
 Essential operations such as the management of entities, pools, and systems are the responsibility of an ECS "Manager" class which I've omitted to keep explanations concise and centered on the essential underlying mechanisms.
+
+---
+
+## Download & Play
+
+Compiled Executables for Windows & Linux are available ![here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO) 
