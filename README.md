@@ -24,7 +24,7 @@ This design is highly CPU cache-friendly, resulting in high performance and high
 
 ## Entities and Components
 
-Entities contain no data. Instead, their data lives in separate components which they are composed of.
+Entities contain no data. Instead, their data lives in separate components.
 
 ### Entities (ID only)
 ![Entities](./readmeimages/entity.png)
@@ -36,7 +36,7 @@ Entities contain no data. Instead, their data lives in separate components which
 
 ## Component Storage (Pools)
 
-Entities do not store their own components. Instead, they are stored in Pools which are arrays of components.
+Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
 
 ### Pool Implementation
 ![Pool](./readmeimages/pool.png)
@@ -44,30 +44,27 @@ Entities do not store their own components. Instead, they are stored in Pools wh
 ### Components Full Implementation
 
 Components use static per-type ID generation via a templated base class
+
 ![Component ID](./readmeimages/component.png)
 
 ![Component Templates](./readmeimages/componenttemplateexample.png)
 
 ### Pool storage
 
-All pools are stored in their own array, so that a component ID can be used to access its corresponding pool and each entry in that pool stores that component for a specific entity.
+All pools are stored in an array, allowing a component ID to be used to access its corresponding pool, where each entry stores the component for a specific entity.
 
 ![Pools](./readmeimages/pools.png)
 
 ![Pools Diagram](./readmeimages/pools.drawio.png)
 
-
-
 ---
 
 ## Signatures
 
-Component presence is tracked using bitsets.
+The total set of components that an entity has is tracked using a bitsets indexable by component ID.
 
-### Signature (per entity)
 ![Signature](./readmeimages/signature.png)
 
-### All signatures
 ![Signatures](./readmeimages/signatures.png)
 
 ---
