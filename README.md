@@ -149,10 +149,12 @@ This ECS implementation uses an array-of-structures (AoS) layout, where each com
 
 ### Array of Structures (AoS; what was used)
 <img src="./readmeimages/aos.png" width="400" />
+
 ![AoS Memory](./readmeimages/aos.drawio.png)
 
 ### Structure of Arrays (SoA; alternative design)
 <img src="./readmeimages/soa.png" width="400" />
+
 ![SoA Memory](./readmeimages/soa.drawio.png)
 
 ---
