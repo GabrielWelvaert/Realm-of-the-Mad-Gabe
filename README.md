@@ -183,6 +183,6 @@ Essential operations such as the management of entities, pools, and systems are 
 
 ---
 
-## Download & Play
+## Download and Play
 
-Compiled Executables for Windows & Linux are available ![here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO) 
+Executables for Windows and Linux are available ![here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO) 
