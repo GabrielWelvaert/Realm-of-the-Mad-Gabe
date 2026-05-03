@@ -1,6 +1,6 @@
 # Realm of the Mad Gabe
 
-**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It as made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
+**Realm of the Mad Gabe** is a C++ video game made without the assistance of a game engine or game engine library. It was made using [GDB](https://sourceware.org/gdb/), [Valgrind](https://valgrind.org/), and [SDL2](https://www.libsdl.org/). It is a clone of [Realm of the Mad God](https://en.wikipedia.org/wiki/Realm_of_the_Mad_God), utilizing art from [Oryx Design Lab](https://www.oryxdesignlab.com/).
 
 ---
 
@@ -18,7 +18,7 @@ The core of this project is an implementation of the [Entity Component System](h
 - **Components** → Pure data  
 - **Systems** → Update components  
 
-This design is extremely CPU-cache friendly and allows the game to sustain high frame rates under load.
+This design is highly CPU cache-friendly, resulting in high performance and high frame rates.
 
 ---
 
@@ -34,17 +34,18 @@ Entities contain no data. Instead, their data lives in separate components which
 
 ---
 
-## Component Storage (Contiguous Pools)
+## Component Storage (Pools)
 
 Entities do not store their own components. Instead, they are stored in Pools which are arrays of components.
 
 ### Pool structure
 ![Pool](./readmeimages/pool.png)
 
-### Component IDs (static id per template instance)
+### Component Full Implementation
+
+Components use static per-type ID generation via a templated base class
 ![Component ID](./readmeimages/component.png)
 
-### Component Example
 ![Component Templates](./readmeimages/componenttemplateexample.png)
 
 ### All pools
