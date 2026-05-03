@@ -104,9 +104,8 @@ Systems perform updates on entities by modifying their components and are specia
 ### Example: Render System (tracks all entities with a sprite and position)
 <img src="./readmeimages/rendersystem.png" width="600" />
 
-| Signature match example | Signature mismatch example |
-|------------------------|----------------------------|
-| ![Signature Match](./readmeimages/signatureexample1.png) | ![Signature Mismatch](./readmeimages/signatureexample2.png) |
+### Signature match example
+<img src="./readmeimages/signatureexample1.png" width="600" />
 
 ---
 
