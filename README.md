@@ -18,7 +18,7 @@ The core of this project is an implementation of the [Entity Component System](h
 - **Components** → Pure data  
 - **Systems** → Update components  
 
-This design is highly CPU cache-friendly, resulting in high performance and high frame rates.
+This design is CPU cache-friendly, resulting in high performance and high frame rates.
 
 ---
 
@@ -49,7 +49,7 @@ Components use static per-type ID generation via a templated base class.
 
 ![Component Templates](./readmeimages/componenttemplateexample.png)
 
-### Pool storage
+### Pool Storage
 
 All pools are stored in an array, allowing a component ID to be used to access its corresponding pool, where each entry stores the component for a specific entity.
 
@@ -75,16 +75,19 @@ The total set of components that an entity has is tracked using a bitsets which 
 ### Floor
 ![Floor](./readmeimages/floor.png)
 ![Floor Signature](./readmeimages/floorsignature.png)
+
 A floor has a sprite and position component.
 
 ### Tree
 ![Tree](./readmeimages/tree.png)
 ![Tree Signature](./readmeimages/treesignature.png)
+
 A tree has a sprite, position, hitbox, and rigidbody component.
 
 ### Projectile
 ![Projectile](./readmeimages/projectile.png)
 ![Projectile Signature](./readmeimages/projectilesignature.png)
+
 A projectile has a sprite, position, hitbox, velocity, etc. 
 
 ---
@@ -97,6 +100,7 @@ To add a component to an entity:
 - The component is inserted into the pool 
 - The pool associates the stored component position with the entity’s ID
 - The signature of the entity is updated to indicate that it has this component
+- Relevant systems are updated to track this entity if it matches their requirements (see next section!)
 
 ![Add Component](./readmeimages/addcomponent.png)
 
