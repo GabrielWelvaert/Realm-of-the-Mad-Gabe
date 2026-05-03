@@ -96,6 +96,7 @@ Systems perform updates on entities by modifying their components and are specia
 
 ### System base class
 <img src="./readmeimages/system.png" width="600" />
+
 ![System](./readmeimages/system.png)
 
 ### Example: Render System (tracks all entities with a sprite and position)
@@ -104,11 +105,9 @@ Systems perform updates on entities by modifying their components and are specia
 ### Example: Movement System (tracks all entities with position and velocity)
 <img src="./readmeimages/movementsystem.png" width="600" />
 
-### Signature match example
-![Signature Match](./readmeimages/signatureexample1.png)
-
-### Signature mismatch example
-![Signature Mismatch](./readmeimages/signatureexample2.png)
+| Signature match example | Signature mismatch example |
+|------------------------|----------------------------|
+| ![Signature Match](./readmeimages/signatureexample1.png) | ![Signature Mismatch](./readmeimages/signatureexample2.png) |
 
 ---
 
