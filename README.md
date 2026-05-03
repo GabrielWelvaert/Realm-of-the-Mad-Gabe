@@ -138,14 +138,14 @@ Performance comes primarily from **cache efficiency**.
 
 ---
 
-## Data-Oriented Design
+## Object-Oriented Design vs Data-Oriented Design
 
-Components are kept small and structured around access patterns (fields are added to components with system usage in mind); Data-oriented design improves performance in ECS systems by minimizing cache misses.
+In DoD, components are kept small and structured around access patterns (fields are added to components with system usage in mind) to minimize cache misses. Here is how a player-statistics component would be designed in both OOP and DoD:
 
-### Object-Oriented Design (counter-example; bad for cache hits)
+### Object-Oriented Design (counter-example: worse for cache hits)
 ![OOP](./readmeimages/OOPstats.png)
 
-### Data-Oriented Design (what is used; good for cache hits)
+### Data-Oriented Design (what is used: better for cache hits)
 ![DOD](./readmeimages/DODstats.png)
 
 ---
@@ -160,9 +160,7 @@ Pools remain dense by filling memory gaps when entities are removed, reducing ca
 
 ## AoS vs SoA
 
-This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This is simple and works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array. This can improve performance by enabling better cache use and vectorization.
-
-AoS is simpler to work with, while SoA can be faster depending on the hardware and access patterns. Below is a visualization of both layouts for a component with three fields:
+This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array, which is better for auto-vectorizaton. Below is a visualization of both layouts for a component with three fields:
 
 ### Array of Structures (AoS; what was used)
 ![AoS Code](./readmeimages/aos.png)
