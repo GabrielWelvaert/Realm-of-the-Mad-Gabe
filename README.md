@@ -43,9 +43,9 @@ Entities do not store their own components. Instead, they are stored in pools wh
 
 Components use static per-type ID generation via a templated base class.
 
-![Component ID](./readmeimages/component.png)
+<img src="./readmeimages/component.png" width="800" />
 
-![Component Templates](./readmeimages/componenttemplateexample.png)
+<img src="./readmeimages/componenttemplateexample.png" width="800" />
 
 ### Pool Storage
 
