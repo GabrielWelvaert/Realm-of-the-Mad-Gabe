@@ -148,11 +148,11 @@ Pools remain dense by filling memory gaps when entities are removed, reducing ca
 This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array, which is better for auto-vectorizaton. Below is a visualization of both layouts for a component with three fields:
 
 ### Array of Structures (AoS; what was used)
-![AoS Code](./readmeimages/aos.png)
+<img src="./readmeimages/aos.png" width="400" />
 ![AoS Memory](./readmeimages/aos.drawio.png)
 
 ### Structure of Arrays (SoA; alternative design)
-![SoA Code](./readmeimages/soa.png)
+<img src="./readmeimages/soa.png" width="400" />
 ![SoA Memory](./readmeimages/soa.drawio.png)
 
 ---
