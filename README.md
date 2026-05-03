@@ -20,15 +20,15 @@ The core of this project is an implementation of the [Entity Component System](h
 
 - **Entities** → IDs only  
 - **Components** → Pure data  
-- **Systems** → Logic operating on components  
+- **Systems** → Update components  
 
-This design optimizes CPU memory access and allows the game to sustain high frame rates under load.
+This design is extremely CPU-cache friendly and allows the game to sustain high frame rates under load.
 
 ---
 
-## Entities and Components
+## Entities and Components (Entites are composed of componenets)
 
-Entities contain no data. Instead, their data lives in separate components stored in contiguous memory pools.
+Entities contain no data. Instead, their data lives in separate components.
 
 ### Entities (ID only)
 ![Entities](./readmeimages/entity.png)
@@ -38,14 +38,14 @@ Entities contain no data. Instead, their data lives in separate components store
 
 ---
 
-## Component Storage (Pools)
+## Component Storage (Contiguous Pools)
 
-Pools are wrappers for vectors of components and store them contiguously in memory.
+Entities do not store their own components. Pools are wrappers for vectors of components and store them contiguously in memory.
 
 ### Pool structure
 ![Pool](./readmeimages/pool.png)
 
-### Component IDs
+### Component IDs (static id per template instance)
 ![Component ID](./readmeimages/component.png)
 
 ### Component templates
@@ -76,11 +76,16 @@ Component presence is tracked using bitsets.
 
 ---
 
-## Adding Components
+## Example of how Entities, Components, and Pools are interconnected: Adding Components to Entities
 
-Example of adding a component to an entity:
+To add a component to an entity:
+
+- ID of component is used to index array of pools to get the correct pool
+- component is inserted into the pool, and the pool associates that position with the entity id
 
 ![Add Component](./readmeimages/addcomponent.png)
+
+To retrieve that data later, the ID of the entity is used
 
 ---
 
@@ -121,8 +126,6 @@ Systems operate on entities that match required component signatures.
 ### Signature mismatch example
 ![Signature Mismatch](./readmeimages/signatureexample2.png)
 
-Systems that do not share component requirements can often run in parallel.
-
 ---
 
 ## Performance: Cache Efficiency
@@ -138,7 +141,7 @@ Performance comes primarily from **cache efficiency**.
 
 ## Data-Oriented Design
 
-Components are kept small and structured around access patterns; Data-oriented design improves performance in ECS systems by minimizing cache misses.
+Components are kept small and structured around access patterns (fields are added to components with system usage in mind); Data-oriented design improves performance in ECS systems by minimizing cache misses.
 
 ### Object-Oriented Design (counter-example; bad for cache hits)
 ![OOP](./readmeimages/OOPstats.png)
@@ -148,7 +151,7 @@ Components are kept small and structured around access patterns; Data-oriented d
 
 ---
 
-## Dense Storage
+## Dense Pool Storage
 
 Pools remain dense by filling memory gaps when entities are removed, reducing cache misses:
 
@@ -158,19 +161,15 @@ Pools remain dense by filling memory gaps when entities are removed, reducing ca
 
 ## AoS vs SoA
 
-The ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This is simple and works well when systems need all fields of a component.
+This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This is simple and works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array. This can improve performance by enabling better cache use and vectorization.
 
-Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array. This can improve performance by enabling better cache use and vectorization.
+AoS is simpler to work with, while SoA can be faster depending on the hardware and access patterns. Below is a visualization of both layouts for a component with three fields:
 
-AoS is simpler to work with, while SoA can be faster depending on the hardware and access patterns.
-
-Below is a visualization of both layouts for a component with three fields.
-
-### Array of Structures (AoS)
+### Array of Structures (AoS; what was used)
 ![AoS Code](./readmeimages/aos.png)
 ![AoS Memory](./readmeimages/aos.drawio.png)
 
-### Structure of Arrays (SoA)
+### Structure of Arrays (SoA; alternative design)
 ![SoA Code](./readmeimages/soa.png)
 ![SoA Memory](./readmeimages/soa.drawio.png)
 
