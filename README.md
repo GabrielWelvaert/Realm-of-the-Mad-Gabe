@@ -112,7 +112,7 @@ Systems perform updates on entities by modifying their components and are specia
 
 | System Base Class | Render System Example |
 |---|---|
-| <div style="width:50%"><p align="center"><img src="./readmeimages/system.png" style="width:100%" /></p></div> | <div style="width:50%"><p align="center"><img src="./readmeimages/rendersystem.png" style="width:100%" /></p> The render system tracks all entities with a sprite and position</div> |
+| <div style="width:50%"><p align="center"><img src="./readmeimages/system.png" style="width:100%" /></p></div> | <div style="width:50%"><p align="center"><img src="./readmeimages/rendersystem.png" style="width:100%" /></p> The render system tracks all entities with a sprite component and position component.</div> |
 
 ### Signature match example
 <p align="center">
