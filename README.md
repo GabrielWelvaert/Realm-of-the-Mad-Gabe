@@ -172,17 +172,23 @@ AoS is simpler to work with, while SoA can be faster depending on the hardware a
 ![SoA Code](./readmeimages/soa.png)
 ![SoA Memory](./readmeimages/soa.drawio.png)
 
-- AoS: better when accessing full components  
-- SoA: better for vectorized operations  
-
 ---
 
 ## Manager Class
 
-Essential operations such as the management of entities, pools, and systems are the responsibility of an ECS "Manager" class which I've omitted to keep explanations concise and centered on the essential underlying mechanisms.
+Essential operations such as the management of entities, pools, and systems are the responsibility of an ECS "Manager" class which I've omitted from this writeup to keep explanations concise and centered on the essential underlying mechanisms.
 
 ---
 
 ## Download and Play
 
-Executables for Windows and Linux are available [here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO) 
+Executables for Windows and Linux are available [here](https://drive.google.com/drive/u/0/folders/1eDCwejVu6gYtlVhL0JvSepFS0KubVKLO). 
+
+## Screenshot Gallery
+
+Gif is 10 FPS; game FPS shown in top-left
+
+![gif1](./readmeimages/rotmg4.gif)
+![img2](./readmeimages/rotmg2.png)
+![img3](./readmeimages/rotmg3.png)
+![img3](./readmeimages/rotmg3.png)
