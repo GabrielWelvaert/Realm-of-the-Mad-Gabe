@@ -6,7 +6,11 @@
 
 ## Demo (Youtube Video)
 
-[![Watch Demo](https://img.youtube.com/vi/aP7Ju_zDels/0.jpg)](https://www.youtube.com/watch?v=aP7Ju_zDels)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=aP7Ju_zDels">
+    <img src="https://img.youtube.com/vi/aP7Ju_zDels/0.jpg" />
+  </a>
+</p>
 
 ---
 
@@ -40,24 +44,33 @@ Entities do not store their own components. Instead, they are stored in pools wh
 
 Pools are created for each type of component.
 
-
-<img src="./readmeimages/pool.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/pool.png" width="600" />
+</p>
 
 ### Components Full Implementation
 
 Components use static per-type ID generation via a templated base class.
 
-<img src="./readmeimages/component.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/component.png" width="600" />
+</p>
 
-<img src="./readmeimages/componenttemplateexample.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/componenttemplateexample.png" width="600" />
+</p>
 
 ### Pool Storage
 
 All pools are stored in an array, allowing a component ID to be used to access its corresponding pool, where each entry stores the component for a specific entity.
 
-<img src="./readmeimages/pools.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/pools.png" width="600" />
+</p>
 
-![Pools Diagram](./readmeimages/pools.drawio.png)
+<p align="center">
+  <img src="./readmeimages/pools.drawio.png" />
+</p>
 
 ---
 
@@ -65,18 +78,21 @@ All pools are stored in an array, allowing a component ID to be used to access i
 
 The total set of components that an entity has is tracked using a bitsets which is indexable by component ID.
 
-<img src="./readmeimages/signature.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/signature.png" width="600" />
+</p>
 
-<img src="./readmeimages/signatures.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/signatures.png" width="600" />
+</p>
 
 ---
-
 
 ## Example Entities With Component Signatures
 
 | Floor | Tree | Projectile |
 |------|------|------------|
-| ![Floor](./readmeimages/floor.png)<br>![Floor Signature](./readmeimages/floorsignature.png)<br>A floor has a sprite and position component. | ![Tree](./readmeimages/tree.png)<br>![Tree Signature](./readmeimages/treesignature.png)<br>A tree has a sprite, position, hitbox, and rigidbody component. | ![Projectile](./readmeimages/projectile.png)<br>![Projectile Signature](./readmeimages/projectilesignature.png)<br>A projectile has a sprite, position, hitbox, velocity, etc. |
+| <p align="center">![Floor](./readmeimages/floor.png)<br>![Floor Signature](./readmeimages/floorsignature.png)<br>A floor has a sprite and position component.</p> | <p align="center">![Tree](./readmeimages/tree.png)<br>![Tree Signature](./readmeimages/treesignature.png)<br>A tree has a sprite, position, hitbox, and rigidbody component.</p> | <p align="center">![Projectile](./readmeimages/projectile.png)<br>![Projectile Signature](./readmeimages/projectilesignature.png)<br>A projectile has a sprite, position, hitbox, velocity, etc.</p> |
 
 ---
 
@@ -90,7 +106,9 @@ To add a component to an entity:
 - The signature of the entity is updated to indicate that it has this component
 - Relevant systems are updated to track this entity if it matches their requirements (see next section!)
 
-![Add Component](./readmeimages/addcomponent.png)
+<p align="center">
+  <img src="./readmeimages/addcomponent.png" />
+</p>
 
 ---
 
@@ -99,13 +117,19 @@ To add a component to an entity:
 Systems perform updates on entities by modifying their components and are specialized to track only those entities whose component signatures match their own.
 
 ### System base class
-<img src="./readmeimages/system.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/system.png" width="600" />
+</p>
 
 ### Example: Render System (tracks all entities with a sprite and position)
-<img src="./readmeimages/rendersystem.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/rendersystem.png" width="600" />
+</p>
 
 ### Signature match example
-<img src="./readmeimages/signatureexample1.png" width="400" />
+<p align="center">
+  <img src="./readmeimages/signatureexample1.png" width="400" />
+</p>
 
 ---
 
@@ -125,10 +149,14 @@ Performance comes primarily from **cache efficiency**.
 In DoD, components are kept small and structured around access patterns (fields are added to components with system usage in mind) to minimize cache misses. Here is how a player-statistics component would be designed in both OOP and DoD:
 
 ### Object-Oriented Design (counter-example: worse for cache hits)
-<img src="./readmeimages/OOPstats.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/OOPstats.png" width="600" />
+</p>
 
 ### Data-Oriented Design (what is used: better for cache hits)
-<img src="./readmeimages/DODstats.png" width="600" />
+<p align="center">
+  <img src="./readmeimages/DODstats.png" width="600" />
+</p>
 
 ---
 
@@ -136,7 +164,9 @@ In DoD, components are kept small and structured around access patterns (fields 
 
 Pools remain dense by filling memory gaps when entities are removed, reducing cache misses:
 
-![Memory Hole](./readmeimages/memoryhole.drawio.png)
+<p align="center">
+  <img src="./readmeimages/memoryhole.drawio.png" />
+</p>
 
 ---
 
@@ -145,14 +175,22 @@ Pools remain dense by filling memory gaps when entities are removed, reducing ca
 This ECS implementation uses an array-of-structures (AoS) layout, where each component is stored as a single object. This works well when systems need all fields of a component. Some ECS designs use a struct-of-arrays (SoA) layout instead, where each field is stored in a separate array, which is better for auto-vectorizaton. Below is a visualization of both layouts for a component with three fields:
 
 ### Array of Structures (AoS; what was used)
-<img src="./readmeimages/aos.png" width="400" />
+<p align="center">
+  <img src="./readmeimages/aos.png" width="400" />
+</p>
 
-![AoS Memory](./readmeimages/aos.drawio.png)
+<p align="center">
+  <img src="./readmeimages/aos.drawio.png" />
+</p>
 
 ### Structure of Arrays (SoA; alternative design)
-<img src="./readmeimages/soa.png" width="400" />
+<p align="center">
+  <img src="./readmeimages/soa.png" width="400" />
+</p>
 
-![SoA Memory](./readmeimages/soa.drawio.png)
+<p align="center">
+  <img src="./readmeimages/soa.drawio.png" />
+</p>
 
 ---
 
