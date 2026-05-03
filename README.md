@@ -34,15 +34,7 @@ Entities contain no data. Instead, their data lives in separate components.
 
 Entities do not store their own components. Instead, they are stored in pools which are arrays of components.
 
-### Pool Implementation
-
-Pools are created for each type of component.
-
-<p align="center">
-  <img src="./readmeimages/pool.png" width="600" />
-</p>
-
-### Components Full Implementation
+### Components Implementation
 
 Components use static per-type ID generation via a templated base class.
 
@@ -52,6 +44,14 @@ Components use static per-type ID generation via a templated base class.
 
 <p align="center">
   <img src="./readmeimages/componenttemplateexample.png" width="600" />
+</p>
+
+### Pool Implementation
+
+Pools are created for each type of component.
+
+<p align="center">
+  <img src="./readmeimages/pool.png" width="600" />
 </p>
 
 ### Pool Storage
