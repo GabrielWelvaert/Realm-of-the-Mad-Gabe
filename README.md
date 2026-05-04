@@ -48,7 +48,7 @@ Components use static per-type ID generation via a templated base class.
 
 ### Pool Implementation
 
-Pools are created for each type of component.
+Pools are an array created for each type of component.
 
 <p align="center">
   <img src="./readmeimages/pool.png" width="600" />
