@@ -10,19 +10,17 @@
 
 ## Entity Component System (ECS)
 
-The core of this project is an implementation of the [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) architectural pattern.
+The core of this project is an implementation of the [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) architectural pattern which allows for high frames-per-second (FPS) gameplay through CPU cache friendliness, enabled by high spatial and temporal locality of game data during each frame update.
 
 - **Entities** → IDs only  
 - **Components** → Pure data  
 - **Systems** → Update components  
 
-This design improves CPU cache efficiency by keeping component data compact and predictable during system updates.
-
 ---
 
 ## Entities and Components
 
-Entities contain no data. Instead, their data lives in separate components.
+Entities contain no data. Instead, their state is stored in separate components.
 
 | Entities (ID only) | Components (data only) |
 |------------------------|----------------------------|
