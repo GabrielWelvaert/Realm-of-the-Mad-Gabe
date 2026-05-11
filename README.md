@@ -136,13 +136,13 @@ Performance comes primarily from CPU cache friendliness: component pools improve
 
 ## Object-Oriented Design (OOP) vs Data-Oriented Design (DoD)
 
-DoD keeps components small and organized around how data is accessed during system updates to improve cache efficiency. Ideally, when a component is fetched, all of its fields will be used to improve cache efficiency. Here’s a comparison of OOP vs DoD for a player-statistics component:
+DoD keeps components small and organized around how data is accessed during system updates to improve cache friendliness. Ideally, when a component is fetched, all of its fields will be used to improve cache friendliness. Here’s a comparison of OOP vs DoD for a player-statistics component:
 
 | Object-Oriented Design | Data-Oriented Design |
 |------------------------|----------------------|
 | <img src="./readmeimages/OOPstats.png" width="500" /> | <img src="./readmeimages/DODstats.png" width="500" /> |
 
-As you can see, the DoD version breaks up the component into smaller, focused components that will result in higher cache efficiency during related system updates.
+As you can see, the DoD version breaks up the component into smaller, focused components that will result in higher cache friendliness during related system updates.
 
 ---
 
