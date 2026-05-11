@@ -128,7 +128,7 @@ The render system tracks all entities with a sprite and position.
 
 ---
 
-## Performance: Cache Friendliness
+## Why This Architecture Improves Performance: Cache Friendliness
 
 Performance comes primarily from CPU cache friendliness: component pools improve **spatial locality** by storing components contiguously in memory, so when the CPU loads a cache line, typically 64 bytes, it also loads adjacent components. Systems improve **temporal locality** by iterating linearly over those component pools during each frame update, repeatedly accessing the same active game data in a tight loop. Together, this produces high cache hit rates, fewer slow memory accesses, and higher frames-per-second (FPS) gameplay.
 
