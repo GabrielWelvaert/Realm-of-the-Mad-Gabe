@@ -147,6 +147,8 @@ DoD keeps components small and organized around how data is accessed during syst
 |------------------------|----------------------|
 | <img src="./readmeimages/OOPstats.png" width="500" /> | <img src="./readmeimages/DODstats.png" width="500" /> |
 
+As you can see, the DoD version breaks up the component into smaller, focused components that will result in higher cache efficiency during related system updates.
+
 ---
 
 ## Dense Pool Storage
